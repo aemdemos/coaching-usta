@@ -1,0 +1,87 @@
+/* Segmented pill-toggle tabs (source: ustacoaching.com nav pill control).
+
+   The source inverts the treatment at its 768px breakpoint:
+   - <768px (mobile): NO track. Each tab is its own standalone dark pill
+     (#2d2d2d, radius 20px); the active tab is lime-green. The row scrolls
+     horizontally and segments size to their label.
+   - >=768px (tablet/desktop): a single dark track (#2d2d2d, radius 20px) wraps
+     three equal-width segments; inactive segments are transparent, active is
+     lime-green.
+   Active is always brand lime (#cfff05) with black text; labels are uppercase,
+   font-weight 900. */
+
+.tabs .tabs-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabs .tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs .tabs-list button {
+  flex: 0 0 auto;
+  margin: 0;
+  border: 0;
+  border-radius: 20px;
+  padding: 16px 20px;
+  background-color: #2d2d2d;
+  color: #fff;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tabs .tabs-list button p {
+  margin: 0;
+}
+
+.tabs .tabs-list button:hover {
+  background-color: #cfff05;
+  color: #000;
+}
+
+.tabs .tabs-list button[aria-selected='true'] {
+  background-color: #cfff05;
+  color: #000;
+  cursor: default;
+}
+
+.tabs .tabs-panel {
+  margin-top: 24px;
+  padding: 0;
+}
+
+.tabs .tabs-panel[aria-hidden='true'] {
+  display: none;
+}
+
+/* Source breakpoint: 768px. From tablet up the tabs merge into a single dark
+   track with three equal segments; inactive segments become transparent. */
+@media (width >= 768px) {
+  .tabs .tabs-list {
+    gap: 16px;
+    border-radius: 20px;
+    background-color: #2d2d2d;
+    overflow-x: visible;
+  }
+
+  .tabs .tabs-list button {
+    flex: 1 1 0;
+    background-color: transparent;
+  }
+}
