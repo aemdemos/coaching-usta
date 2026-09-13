@@ -99,12 +99,14 @@ header nav a:any-link {
   color: var(--usta-white);
   text-decoration: none;
   font-size: 18px;
-  font-weight: 600; /* Graphik Semibold face covers 400–700 — no faux-bold, matches source */
+  font-weight: 400; /* the "Graphik Semibold" face is already bold; source uses 400 (no faux-bold) */
   line-height: normal;
 }
 
+/* Hover: source turns nav links lime (no underline). Buttons override below. */
 header nav a:hover {
-  text-decoration: underline;
+  color: var(--usta-lime);
+  text-decoration: none;
 }
 
 /* external-link marker — source glyph (filled white 18×18 SVG) rendered in a
@@ -217,14 +219,23 @@ header nav .nav-hamburger button {
   transition: background-color 0.2s ease;
 }
 
-/* Closed hamburger: source 2-line icon (16x8 white SVG scaled to a 12px-wide
-   render, i.e. background-size:12px → visible 12×6). Matches the source, whose
-   icon SVG is displayed at background-size:12px, not full 16px. */
+/* Closed hamburger: source 2-line icon is a 16×8 white SVG. Below 768 the
+   source renders it at background-size:12px (visible 12×6); from 768 up it
+   switches to background-size:auto (native 16×8) — see the >=768 override. */
 header nav .nav-hamburger-icon {
   display: block;
   width: 12px;
   height: 6px;
   background: url("data:image/svg+xml,%3csvg width='16' height='8' viewBox='0 0 16 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M16 2H0V0H16V2Z' fill='white'/%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M16 8H0V6H16V8Z' fill='white'/%3e%3c/svg%3e") no-repeat center / contain;
+}
+
+/* from 768 up the closed hamburger icon renders at its native 16×8 */
+@media (width >= 768px) {
+  header nav .nav-hamburger button:not([aria-expanded="true"]) .nav-hamburger-icon {
+    width: 16px;
+    height: 8px;
+    background-size: auto;
+  }
 }
 
 /* Open state: lime rounded button with the black × cross SVG (source parity). */
@@ -235,7 +246,7 @@ header nav .nav-hamburger button[aria-expanded="true"] {
 header nav .nav-hamburger button[aria-expanded="true"] .nav-hamburger-icon {
   width: 14px;
   height: 13px;
-  background: url("data:image/svg+xml,%3csvg width='14' height='13' viewBox='0 0 14 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M11.8138 12.7416L0.500093 1.42789L1.91431 0.0136719L13.228 11.3274L11.8138 12.7416Z' fill='black'/%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M13.6422 1.41398L2.32852 12.7277L0.914307 11.3135L12.228 -0.000231743L13.6422 1.41398Z' fill='black'/%3e%3c/svg%3e") no-repeat center / contain;
+  background: url("data:image/svg+xml,%3csvg width='14' height='13' viewBox='0 0 14 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M11.8138 12.7416L0.500093 1.42789L1.91431 0.0136719L13.228 11.3274L11.8138 12.7416Z' fill='black'/%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M13.6422 1.41398L2.32852 12.7277L0.914307 11.3135L12.228 -0.000231743L13.6422 1.41398Z' fill='black'/%3e%3c/svg%3e") no-repeat center / auto;
 }
 
 /* ---- Flyout panel (mobile: full-width sheet under the bar) ----
@@ -333,6 +344,11 @@ header nav .nav-language-switcher > a::after {
 
 header nav .nav-language-switcher > a[aria-expanded="true"]::after {
   transform: rotate(0deg);
+}
+
+/* expanded language toggle label turns lime (source parity) */
+header nav .nav-language-switcher > a[aria-expanded="true"] {
+  color: var(--usta-lime);
 }
 
 /* nested language options: source shows a 16px gap below the toggle and an 8px
@@ -544,7 +560,7 @@ header nav .nav-flyout .nav-actions a.nav-button {
   header nav .nav-flyout a.nav-external::after {
     width: 18px;
     height: 18px;
-    margin-left: 8px;
+    margin-left: 11px;
   }
 
   /* Join/Sign In are in the bar, so hide the cloned flyout action buttons.

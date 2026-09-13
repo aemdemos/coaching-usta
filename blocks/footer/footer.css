@@ -76,13 +76,15 @@ footer .footer-links a:any-link {
   text-decoration: none;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 18px;
-  font-weight: 600; /* Graphik Semibold face (covers 400–700) — no faux-bold */
+  font-weight: 400; /* the "Graphik Semibold" face is already bold; source uses 400 */
   line-height: 1;
   letter-spacing: -0.03em;
 }
 
+/* Hover: source turns the link lime with no underline (matches header). */
 footer .footer-links a:hover {
-  text-decoration: underline;
+  color: var(--usta-lime, #cfff05);
+  text-decoration: none;
 }
 
 /* ---- Social icons ---- */
@@ -95,11 +97,6 @@ footer .footer-social ul {
 
 footer .footer-social a {
   display: inline-flex;
-  transition: opacity 0.2s ease;
-}
-
-footer .footer-social a:hover {
-  opacity: 0.7;
 }
 
 /* Icons are sized by height with auto width so each keeps its own aspect ratio
