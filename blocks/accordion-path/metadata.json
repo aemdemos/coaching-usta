@@ -1,0 +1,10 @@
+{
+  "variantName": "accordion-path",
+  "baseBlock": "accordion",
+  "visualCharacteristics": "A stack of expandable/collapsible rows, each with a label and a +/- toggle on the right that reveals a body paragraph when opened.",
+  "contentPattern": "One row per item: a label cell and a body cell (the collapsible content).",
+  "usage": "Audience-pathway or FAQ-style expandable list (e.g. Discover your path).",
+  "canonicalModel": "standalone",
+  "options": [],
+  "memberVariantIds": ["accordion-path"]
+}

@@ -1,20 +1,170 @@
+/* stylelint-disable no-descending-specificity */
+
+/* USTA Coaching footer — solid black, large wordmark logo above a row of
+   footer links (left) + social icons (right). Mobile-first. */
+
 footer {
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-xs);
+  background-color: #000;
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
 }
 
-footer .footer > div {
-  margin: auto;
-  max-width: 1200px;
-  padding: 40px 24px 24px;
+footer .footer-content {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 48px 16px 40px;
 }
 
-footer .footer p {
+/* ---- Brand / wordmark logo ---- */
+footer .footer-brand {
+  margin: 0 0 40px;
+}
+
+footer .footer-brand p {
   margin: 0;
 }
 
+footer .footer-brand a {
+  display: block;
+}
+
+footer .footer-brand img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- lists reset ---- */
+footer .footer-content ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- Bottom row ---- */
+footer .footer-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+/* ---- Footer links ---- */
+footer .footer-links ul {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 16px;
+}
+
+/* Footer link typography matches source responsive bands (measured):
+   <768 = 18px | 768–1023 = 24px | 1024–1279 = 16px | >=1280 = 18px.
+   Letter-spacing is -0.03em (= -0.54px@18 / -0.72px@24 / -0.48px@16); line-height = 1em. */
+footer .footer-links a,
+footer .footer-links a:any-link {
+  color: #fff;
+  text-decoration: none;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  font-weight: 600; /* Graphik Semibold face (covers 400–700) — no faux-bold */
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+footer .footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* ---- Social icons ---- */
+footer .footer-social ul {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+}
+
+footer .footer-social a {
+  display: inline-flex;
+  transition: opacity 0.2s ease;
+}
+
+footer .footer-social a:hover {
+  opacity: 0.7;
+}
+
+/* Icons are sized by height with auto width so each keeps its own aspect ratio
+   (matches source: Instagram/LinkedIn render 36×36, YouTube 49×36). */
+footer .footer-social img {
+  display: block;
+  width: auto;
+  height: 36px;
+}
+
+/* ---- Tablet / desktop (>=900px) ---- */
 @media (width >= 900px) {
-  footer .footer > div {
-    padding: 40px 32px 24px;
+  /* Section box: centered, capped at 1536px, 52px side padding — matches the
+     source's growing gutter (52px @1440 → 148px @1728 → 384px @2200). */
+  footer .footer-content {
+    box-sizing: border-box;
+    max-width: 1536px;
+    margin: 0 auto;
+    padding: 80px 52px 40px;
+  }
+
+  /* Inner content (logo + links/social row) is a narrower centered container
+     — source insets it to ~81.6% of the section content width (1090px @1440),
+     capped at ~1170px on wide screens. */
+  footer .footer-brand,
+  footer .footer-row {
+    width: 81.6%;
+    max-width: 1170px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  footer .footer-brand {
+    margin-bottom: 66px;
+  }
+
+  /* links + social share one row, spread apart */
+  footer .footer-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  footer .footer-links ul {
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
+  }
+}
+
+/* Footer-link font-size responsive bands — matched to the source's measured
+   breakpoints (768 / 1024 / 1280), min-width only. line-height = 1em,
+   letter-spacing = -0.03em at every size. */
+
+/* breakpoint-exception: source footer-link scales to 24px in the 768–1023 band */
+@media (width >= 768px) {
+  footer .footer-links a,
+  footer .footer-links a:any-link {
+    font-size: 24px;
+  }
+}
+
+/* breakpoint-exception: source footer-link drops to 16px in the 1024–1279 band */
+@media (width >= 1024px) {
+  footer .footer-links a,
+  footer .footer-links a:any-link {
+    font-size: 16px;
+  }
+}
+
+/* breakpoint-exception: source footer-link returns to 18px at >=1280 */
+@media (width >= 1280px) {
+  footer .footer-links a,
+  footer .footer-links a:any-link {
+    font-size: 18px;
   }
 }

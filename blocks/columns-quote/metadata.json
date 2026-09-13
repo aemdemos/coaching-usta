@@ -1,0 +1,10 @@
+{
+  "variantName": "columns-quote",
+  "baseBlock": "columns",
+  "visualCharacteristics": "A two-column testimonial: a headshot photo beside a large quote mark, the quote text, and an attribution line. Stacks on mobile.",
+  "contentPattern": "One row: an image cell (headshot) and a text cell holding the quote paragraph(s) followed by an attribution paragraph.",
+  "usage": "Customer / success-story testimonial with a portrait.",
+  "canonicalModel": "standalone",
+  "options": [],
+  "memberVariantIds": ["columns-quote"]
+}

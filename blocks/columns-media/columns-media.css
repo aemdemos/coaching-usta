@@ -1,0 +1,45 @@
+/* columns-media — image beside text/CTA. Mobile-first: stacks vertically
+   (image first), then side-by-side at >=900px. Structural only — brand color,
+   typography, and spacing tokens are applied by the design pass. */
+
+.columns-media > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns-media .columns-media-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* stacked order on mobile: image on top, content below */
+.columns-media .columns-media-media {
+  order: 0;
+}
+
+.columns-media .columns-media-content {
+  order: 1;
+}
+
+@media (width >= 900px) {
+  .columns-media > div {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .columns-media .columns-media-media,
+  .columns-media .columns-media-content {
+    flex: 1;
+    order: unset;
+  }
+
+  /* media-right option: text column first, image column second */
+  .columns-media.media-right .columns-media-content {
+    order: 0;
+  }
+
+  .columns-media.media-right .columns-media-media {
+    order: 1;
+  }
+}

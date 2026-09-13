@@ -1,272 +1,527 @@
-/* header and nav layout */
+/* stylelint-disable no-descending-specificity */
+
+/* USTA Coaching header — solid black fixed bar, hamburger flyout.
+   Mobile-first: base styles are the mobile flyout; desktop (>=900px) shows
+   inline links in the bar. */
+
+:root {
+  --usta-black: #000;
+  --usta-white: #fff;
+  --usta-lime: #cfff05;
+  --usta-nav-font: "Graphik Semibold", tahoma, arial, sans-serif;
+  --usta-header-height: 90px; /* source mobile bar: 20px pad + 48px hamburger + ~22px */
+}
+
+/* ---- Header shell ----
+   padding lives on the wrapper (matches source .v-header box model:
+   116px = 50px content + 33px top/bottom padding on desktop). */
 header .nav-wrapper {
-  background-color: var(--background-color);
-  width: 100%;
-  z-index: 2;
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2000;
+  box-sizing: border-box;
+  padding: 20px 0; /* source mobile bar vertical padding */
+  background-color: var(--usta-black);
+  color: var(--usta-black);
+  font-family: "Graphik Regular", var(--usta-nav-font);
+}
+
+/* the fixed header is out of flow — offset the page content by its height */
+body {
+  padding-top: var(--usta-header-height);
 }
 
 header nav {
-  box-sizing: border-box;
-  display: grid;
-  grid-template:
-    'hamburger brand tools' var(--nav-height)
-    'sections sections sections' 1fr / auto 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 0 24px;
-  margin: auto;
-  max-width: 1248px;
-  height: var(--nav-height);
-  padding: 0 24px;
-  font-family: var(--body-font-family);
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1432px;
+  margin: 0 auto;
+  padding: 0 16px; /* source mobile bar side gutter */
+  color: var(--usta-white);
+  font-family: var(--usta-nav-font);
 }
 
-header nav[aria-expanded='true'] {
-  grid-template:
-    'hamburger brand' var(--nav-height)
-    'sections sections' 1fr
-    'tools tools' var(--nav-height) / auto 1fr;
-  overflow-y: auto;
-  min-height: 100dvh;
+header nav .nav-bar-left,
+header nav .nav-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1; /* equal side groups so the centered logo lands at true viewport center */
 }
 
-@media (width >= 900px) {
-  header .nav-wrapper {
-    position: relative;
-  }
-
-  header nav {
-    display: flex;
-    justify-content: space-between;
-    gap: 0 32px;
-    max-width: 1264px;
-    padding: 0 32px;
-  }
-
-  header nav[aria-expanded='true'] {
-    min-height: 0;
-    overflow: visible;
-  }
+header nav .nav-bar-left {
+  justify-content: flex-start;
 }
 
-header nav p {
+header nav .nav-bar-right {
+  justify-content: flex-end;
+}
+
+/* lists reset */
+header nav ul {
+  list-style: none;
   margin: 0;
-  line-height: 1;
+  padding: 0;
 }
 
+/* ---- Brand / logo ---- */
+header nav .nav-brand {
+  display: flex;
+  align-items: center;
+}
+
+header nav .nav-brand p {
+  margin: 0;
+}
+
+header nav .nav-brand a {
+  display: inline-flex;
+}
+
+header nav .nav-brand img {
+  display: block;
+  height: 18px;
+  width: auto;
+  max-width: 210px;
+}
+
+/* ---- Nav links (shared) ----
+   :any-link keeps specificity above the boilerplate `a:any-link` link color */
+header nav a,
 header nav a:any-link {
-  color: currentcolor;
+  color: var(--usta-white);
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600; /* Graphik Semibold face covers 400–700 — no faux-bold, matches source */
+  line-height: normal;
 }
 
-/* hamburger */
+header nav a:hover {
+  text-decoration: underline;
+}
+
+/* external-link marker — source glyph (filled white 18×18 SVG) rendered in a
+   24×24 box with background-size:cover and an 11px left margin (matches source
+   flyout icon exactly). */
+header nav a.nav-external::after {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-left: 11px;
+  background: url("data:image/svg+xml,%3csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M16 10V16C16 16.5304 15.7893 17.0391 15.4142 17.4142C15.0391 17.7893 14.5304 18 14 18H2C1.46957 18 0.960859 17.7893 0.585786 17.4142C0.210714 17.0391 0 16.5304 0 16V4C0 3.46957 0.210714 2.96086 0.585786 2.58579C0.960859 2.21071 1.46957 2 2 2H8V4H2V16H14V10H16ZM10 0V2H14.586L6.793 9.793L8.207 11.207L16 3.414V8H18V0H10Z' fill='white'/%3e%3c/svg%3e") no-repeat center / cover;
+  vertical-align: middle;
+}
+
+/* inline nav groups are hidden on mobile (they appear inside the flyout) */
+header nav .nav-inline {
+  display: none;
+}
+
+header nav .nav-inline ul {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* inline links render as block (matches source .v-header__navigation-link:
+   ~17px line box for an 18px font) */
+header nav .nav-inline a {
+  display: block;
+  line-height: 0.95;
+}
+
+/* ---- Action buttons (Join / Sign In) ---- */
+header nav .nav-actions ul {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+header nav a.nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box; /* border included in height (source uses border-box → 50px, not 54px) */
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  font-size: 18px;
+  line-height: normal;
+  letter-spacing: -0.03em;
+}
+
+header nav a.nav-button:hover {
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+header nav a.nav-button-primary {
+  background-color: var(--usta-lime);
+  color: var(--usta-black);
+  border-color: var(--usta-black);
+}
+
+header nav a.nav-button-secondary {
+  background-color: var(--usta-black);
+  color: var(--usta-white);
+  border-color: var(--usta-white);
+}
+
+/* On mobile the bar keeps only the primary CTA (Join), matching source.
+   Sign In and the inline nav links move into the flyout. */
+header nav .nav-bar-right .nav-actions {
+  display: flex;
+}
+
+/* hide the whole Sign In list item (not just the <a>) so the flex gap to it
+   doesn't reserve 12px and push Join off the right edge */
+header nav .nav-bar-right .nav-actions .nav-button-secondary,
+header nav .nav-bar-right .nav-actions li:has(> .nav-button-secondary) {
+  display: none;
+}
+
+/* in-bar Join on mobile matches source: 50px tall, 12px text, 16px side padding
+   (radius 12 + border-box come from the base .nav-button rule) */
+header nav .nav-bar-right .nav-actions a.nav-button {
+  height: 50px;
+  padding: 0 16px;
+  font-size: 12px;
+}
+
+/* ---- Hamburger toggle ---- */
 header nav .nav-hamburger {
-  grid-area: hamburger;
-  height: 22px;
   display: flex;
   align-items: center;
 }
 
 header nav .nav-hamburger button {
-  height: 22px;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
   padding: 0;
-  background-color: var(--background-color);
-  color: inherit;
-  overflow: initial;
-  text-overflow: initial;
-  white-space: initial;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-header nav .nav-hamburger-icon,
-header nav .nav-hamburger-icon::before,
-header nav .nav-hamburger-icon::after {
+/* Closed hamburger: source 2-line icon (16x8 white SVG scaled to a 12px-wide
+   render, i.e. background-size:12px → visible 12×6). Matches the source, whose
+   icon SVG is displayed at background-size:12px, not full 16px. */
+header nav .nav-hamburger-icon {
+  display: block;
+  width: 12px;
+  height: 6px;
+  background: url("data:image/svg+xml,%3csvg width='16' height='8' viewBox='0 0 16 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M16 2H0V0H16V2Z' fill='white'/%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M16 8H0V6H16V8Z' fill='white'/%3e%3c/svg%3e") no-repeat center / contain;
+}
+
+/* Open state: lime rounded button with the black × cross SVG (source parity). */
+header nav .nav-hamburger button[aria-expanded="true"] {
+  background-color: var(--usta-lime);
+}
+
+header nav .nav-hamburger button[aria-expanded="true"] .nav-hamburger-icon {
+  width: 14px;
+  height: 13px;
+  background: url("data:image/svg+xml,%3csvg width='14' height='13' viewBox='0 0 14 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M11.8138 12.7416L0.500093 1.42789L1.91431 0.0136719L13.228 11.3274L11.8138 12.7416Z' fill='black'/%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M13.6422 1.41398L2.32852 12.7277L0.914307 11.3135L12.228 -0.000231743L13.6422 1.41398Z' fill='black'/%3e%3c/svg%3e") no-repeat center / contain;
+}
+
+/* ---- Flyout panel (mobile: full-width sheet under the bar) ----
+   source insets content 32px each side via the panel's own padding. */
+header nav .nav-flyout {
+  position: fixed;
+  top: var(--usta-header-height);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - var(--usta-header-height));
+  overflow-y: auto;
+  padding: 50px 32px 40px; /* source: first link sits ~50px below the 90px bar */
+  background-color: var(--usta-black);
   box-sizing: border-box;
-  display: block;
-  position: relative;
-  width: 20px;
 }
 
-header nav .nav-hamburger-icon::before,
-header nav .nav-hamburger-icon::after {
-  content: '';
-  position: absolute;
-  background: currentcolor;
-}
-
-header nav[aria-expanded='false'] .nav-hamburger-icon,
-header nav[aria-expanded='false'] .nav-hamburger-icon::before,
-header nav[aria-expanded='false'] .nav-hamburger-icon::after {
-  height: 2px;
-  border-radius: 2px;
-  background: currentcolor;
-}
-
-header nav[aria-expanded='false'] .nav-hamburger-icon::before {
-  top: -6px;
-}
-
-header nav[aria-expanded='false'] .nav-hamburger-icon::after {
-  top: 6px;
-}
-
-header nav[aria-expanded='true'] .nav-hamburger-icon {
-  height: 22px;
-}
-
-header nav[aria-expanded='true'] .nav-hamburger-icon::before,
-header nav[aria-expanded='true'] .nav-hamburger-icon::after {
-  top: 3px;
-  left: 1px;
-  transform: rotate(45deg);
-  transform-origin: 2px 1px;
-  width: 24px;
-  height: 2px;
-  border-radius: 2px;
-}
-
-header nav[aria-expanded='true'] .nav-hamburger-icon::after {
-  top: unset;
-  bottom: 3px;
-  transform: rotate(-45deg);
-}
-
-@media (width >= 900px) {
-  header nav .nav-hamburger {
-    display: none;
-    visibility: hidden;
-  }
-}
-
-/* brand */
-header .nav-brand {
-  grid-area: brand;
-  flex-basis: 128px;
-  font-size: var(--heading-font-size-s);
-  font-weight: 700;
-  line-height: 1;
-}
-
-header nav .nav-brand img {
-  width: 128px;
-  height: auto;
-}
-
-/* sections */
-header nav .nav-sections {
-  grid-area: sections;
-  flex: 1 1 auto;
+header nav .nav-flyout[aria-hidden="true"] {
   display: none;
-  visibility: hidden;
 }
 
-header nav[aria-expanded='true'] .nav-sections {
+header nav .nav-flyout ul {
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* source flyout link row pitch is ~46px (22px line box + 24px gap) */
+  width: 100%;
+}
+
+/* links are inset by the panel's own 32px padding (source model) */
+header nav .nav-flyout .nav-flyout-links > ul > li > a,
+header nav .nav-flyout .nav-flyout-inline a {
   display: block;
-  visibility: visible;
-  align-self: start;
 }
 
-header nav .nav-sections ul {
-  list-style: none;
+/* Mobile flyout menu text matches source: 24px below 768, 40px in 768–899.
+   (At >=900 the flyout is the small 18px desktop dropdown — set in the media block.) */
+header nav .nav-flyout .nav-flyout-links a,
+header nav .nav-flyout .nav-flyout-inline a,
+header nav .nav-flyout .nav-language-switcher > a {
+  font-size: 24px;
+  line-height: normal;
+  letter-spacing: normal;
+}
+
+/* breakpoint-exception: tablet flyout band (768–899). Source: 40px menu text,
+   40px side gutter, and Join / Sign In side-by-side (2-column row) rather than
+   stacked, with 18px button text. */
+@media (width >= 768px) and (width <= 899px) {
+  header nav .nav-flyout .nav-flyout-links a,
+  header nav .nav-flyout .nav-flyout-inline a,
+  header nav .nav-flyout .nav-language-switcher > a {
+    font-size: 40px;
+  }
+
+  /* source insets the tablet flyout by 40px each side */
+  header nav .nav-flyout {
+    padding: 24px 40px 40px;
+  }
+}
+
+/* keep inter-group spacing equal to the within-group 24px gap so every menu
+   item has a uniform 46px pitch (matches source), with no tighter rows at the
+   ul-group boundaries (Education→Benefits, Benefits→About). */
+header nav .nav-flyout .nav-flyout-inline,
+header nav .nav-flyout .nav-flyout-links {
+  margin-bottom: 24px;
+}
+
+header nav .nav-flyout .nav-flyout-inline ul + ul {
+  margin-top: 24px;
+}
+
+/* language switcher inside flyout — needs specificity above the
+   `.nav-flyout-links > ul > li > a { display: block }` rule so the chevron
+   sits inline with an 8px gap and vertically centered (source parity). */
+header nav .nav-flyout .nav-flyout-links > ul > li.nav-language-switcher > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* chevron uses the source SVG (white arrow) in an 18×18 box (source icon box);
+   points down when closed, flips up when the switcher is open */
+header nav .nav-language-switcher > a::after {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  background: url("data:image/svg+xml,%3csvg width='18' height='12' viewBox='0 0 18 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.98542 4.74346L2.62146 11.1074L0.500141 8.9861L8.98542 0.500819L17.4707 8.9861L15.3494 11.1074L8.98542 4.74346Z' fill='white'/%3e%3c/svg%3e") no-repeat center / auto;
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+header nav .nav-language-switcher > a[aria-expanded="true"]::after {
+  transform: rotate(0deg);
+}
+
+header nav .nav-language-switcher > ul {
+  margin-top: 16px;
   padding-left: 0;
-  font-size: var(--body-font-size-s);
+  gap: 8px;
 }
 
-header nav .nav-sections ul > li {
-  font-weight: 500;
+header nav .nav-language-switcher > a[aria-expanded="false"] + ul {
+  display: none;
 }
 
-header nav .nav-sections ul > li > ul {
-  margin-top: 0;
+/* active language shows a lime checkmark on the right (source parity) */
+header nav .nav-language-active > a {
+  display: inline-flex;
+  align-items: center;
 }
 
-header nav .nav-sections ul > li > ul > li {
-  font-weight: 400;
+header nav .nav-language-active > a::after {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  vertical-align: middle;
+  background: url("data:image/svg+xml,%3csvg width='20' height='16' viewBox='0 0 20 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M17.1977 1.37859L19 3.19767L18.6549 3.56584L8.32 14.6223L7.96739 15L7.59232 14.646L1.39103 8.80449L1 8.4363L3.17838 6.23764L3.54316 6.58218L7.81836 10.6094L16.4569 1.389L16.8216 1L17.1977 1.37859Z' fill='%23CFFF05' stroke='%23CFFF05' stroke-width='1.07626'/%3e%3c/svg%3e") no-repeat center / contain;
 }
 
+/* flyout action buttons stacked full width, pinned to the bottom of the sheet
+   (source pushes Join / Sign In to the bottom of the full-screen flyout) */
+header nav .nav-flyout .nav-actions {
+  margin-top: auto;
+}
+
+header nav .nav-flyout .nav-actions ul {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+header nav .nav-flyout .nav-actions a.nav-button {
+  width: 100%;
+  box-sizing: border-box;
+  height: 50px;
+  padding: 0 24px;
+  font-size: 16px; /* source flyout buttons are 16px (bar buttons are 18px) */
+}
+
+/* Tablet band (768–899): source lays Join / Sign In side-by-side (2-column row,
+   ~336px each with a 16px gap) at 18px, instead of the mobile stacked column.
+   Placed after the base .nav-actions rules so it wins on source order. */
+@media (width >= 768px) and (width <= 899px) {
+  header nav .nav-flyout .nav-actions ul {
+    flex-direction: row;
+  }
+
+  header nav .nav-flyout .nav-actions ul > li {
+    flex: 1;
+  }
+
+  header nav .nav-flyout .nav-actions a.nav-button {
+    font-size: 18px;
+  }
+}
+
+/* ---- Desktop (>=900px) ---- */
 @media (width >= 900px) {
-  header nav .nav-sections {
-    display: block;
-    visibility: visible;
-    white-space: nowrap;
+  :root {
+    --usta-header-height: 116px;
   }
 
-  header nav[aria-expanded='true'] .nav-sections {
-    align-self: unset;
+  /* 116px bar = 50px content + 33px top/bottom + 52px left/right padding.
+     On desktop the wrapper carries the full source .v-header box model so a
+     single-element CSS comparison matches; nav drops its own padding. */
+  header .nav-wrapper {
+    padding: 33px 0;
   }
 
-  header nav .nav-sections .nav-drop {
+  /* nav is the positioning context for the desktop dropdown flyout.
+     Content is a centered max-width container (matches source: gutter grows
+     with viewport — 52px @1440, 148px @1728, 384px @2200 — because the box
+     caps at 1536px and side padding stays 52px). */
+  header nav {
     position: relative;
-    padding-right: 16px;
-    cursor: pointer;
+    min-height: 50px;
+    max-width: 1536px;
+    margin: 0 auto;
+    padding: 0 52px;
   }
 
-  header nav .nav-sections .nav-drop::after {
-    content: '';
-    display: inline-block;
-    position: absolute;
-    top: 0.5em;
-    right: 2px;
-    transform: rotate(135deg);
-    width: 6px;
-    height: 6px;
-    border: 2px solid currentcolor;
-    border-radius: 0 1px 0 0;
-    border-width: 2px 2px 0 0;
+  header nav .nav-bar-left,
+  header nav .nav-bar-right {
+    flex: 1;
+    gap: 32px;
   }
 
-  header nav .nav-sections .nav-drop[aria-expanded='true']::after {
-    top: unset;
-    bottom: 0.5em;
-    transform: rotate(315deg);
+  /* source uses a uniform 32px gap between every bar item at desktop:
+     Community↔Education and Join↔Sign In both measure 32px. */
+  header nav .nav-inline ul {
+    gap: 32px;
   }
 
-  header nav .nav-sections ul {
+  header nav .nav-bar-right .nav-actions ul {
+    gap: 32px;
+  }
+
+  /* left group is start-aligned and is the positioning context for the flyout */
+  header nav .nav-bar-left {
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  header nav .nav-brand img {
+    height: 30px;
+    max-width: none;
+  }
+
+  /* inline links show in the bar */
+  header nav .nav-inline {
     display: flex;
+  }
+
+  /* both action buttons show in the bar on desktop (Join + Sign In) */
+  header nav .nav-bar-right .nav-actions {
+    display: flex;
+  }
+
+  header nav .nav-bar-right .nav-actions .nav-button-secondary {
+    display: flex;
+  }
+
+  header nav a.nav-button,
+  header nav .nav-bar-right .nav-actions a.nav-button {
+    height: 50px;
+    padding: 0 24px;
+    font-size: 18px;
+  }
+
+  /* flyout becomes a small dropdown panel under the hamburger.
+     nav's content box starts at the 52px wrapper gutter, so left:0 places the
+     panel at the hamburger's left edge — computed `left` reads 0px, matching
+     the source model. Source panel: 1px lime border, 20px radius, 24px padding,
+     opens ~16px below the hamburger. */
+  header nav .nav-flyout {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    width: 370px;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 24px;
+    border: 1px solid var(--usta-lime);
+    border-radius: 20px;
+  }
+
+  /* source flyout item gap is 24px on desktop */
+  header nav .nav-flyout .nav-flyout-links > ul {
     gap: 24px;
-    margin: 0;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li {
-    flex: 0 1 auto;
-    position: relative;
+  /* desktop dropdown has no stacked mobile blocks below the links, so drop the
+     trailing margin — keeps panel height at the source's 275px */
+  header nav .nav-flyout .nav-flyout-links {
+    margin-bottom: 0;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li > ul {
+  /* desktop dropdown links are not full-width tap rows, and revert to the
+     18px dropdown text size (the 24/40px sizing is mobile-flyout only) */
+  header nav .nav-flyout .nav-flyout-links > ul > li > a,
+  header nav .nav-flyout .nav-flyout-inline a {
+    width: auto;
+    padding: 0;
+  }
+
+  /* 18px links with a tight line box so panel height matches source (275px) */
+  header nav .nav-flyout .nav-flyout-links a,
+  header nav .nav-flyout .nav-flyout-inline a,
+  header nav .nav-flyout .nav-language-switcher > a {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  /* inline groups already appear in the bar; hide the cloned copies in flyout.
+     Join/Sign In are in the bar too, so hide the cloned flyout action buttons. */
+  header nav .nav-flyout .nav-flyout-inline,
+  header nav .nav-flyout .nav-actions {
     display: none;
-    position: relative;
   }
-
-  header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] > ul {
-    display: block;
-    position: absolute;
-    left: -24px;
-    width: 200px;
-    top: 150%;
-    padding: 16px;
-    background-color: var(--light-color);
-    white-space: initial;
-  }
-
-  header nav .nav-sections .default-content-wrapper > ul > li > ul::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 16px;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid var(--light-color);
-  }
-
-  header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
-    padding: 8px 0;
-  }
-}
-
-/* tools */
-header nav .nav-tools {
-  grid-area: tools;
 }

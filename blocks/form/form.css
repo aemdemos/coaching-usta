@@ -1,0 +1,62 @@
+/* form — signup form layout. Mobile-first single column; text fields can sit
+   side-by-side at wider widths. Structural only — brand color, typography, and
+   control styling come from the design pass. */
+
+.form .form-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form .form-field input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form .form-checkbox-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.form .form-checkbox-group legend {
+  width: 100%;
+  padding: 0;
+}
+
+.form .form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form .form-submit {
+  cursor: pointer;
+}
+
+@media (width >= 600px) {
+  .form .form-form {
+    flex-flow: row wrap;
+    align-items: flex-start;
+  }
+
+  .form .form-field {
+    flex: 1 1 200px;
+  }
+
+  .form .form-checkbox-group,
+  .form .form-legal,
+  .form .form-actions,
+  .form .form-static {
+    flex-basis: 100%;
+  }
+}

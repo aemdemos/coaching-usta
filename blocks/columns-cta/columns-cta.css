@@ -1,0 +1,30 @@
+/* columns-cta — horizontal CTA banner. Mobile-first: stacks (text over button),
+   then text + button side-by-side at >=900px. Structural only — brand color and
+   typography come from the design pass. */
+
+.columns-cta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.columns-cta .columns-cta-action a {
+  display: inline-block;
+}
+
+@media (width >= 900px) {
+  .columns-cta > div {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .columns-cta .columns-cta-text {
+    flex: 1;
+  }
+
+  .columns-cta .columns-cta-action {
+    flex: 0 0 auto;
+  }
+}

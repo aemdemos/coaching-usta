@@ -1,0 +1,45 @@
+/* accordion-path — audience-pathway accordion with +/- toggles.
+   Structural/functional only — brand color and typography come from the design
+   pass. The +/- glyph is a functional interaction affordance, so it lives here. */
+
+.accordion-path .accordion-path-item + .accordion-path-item {
+  margin-top: 16px;
+}
+
+.accordion-path .accordion-path-item-label {
+  position: relative;
+  padding: 16px;
+  padding-right: 52px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.accordion-path .accordion-path-item-label::-webkit-details-marker {
+  display: none;
+}
+
+/* +/- toggle: horizontal bar always, vertical bar only when closed */
+.accordion-path .accordion-path-item-label::before,
+.accordion-path .accordion-path-item-label::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  width: 16px;
+  height: 2px;
+  background-color: currentcolor;
+  transform: translateY(-50%);
+  transition: opacity 0.2s;
+}
+
+.accordion-path .accordion-path-item-label::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.accordion-path .accordion-path-item[open] .accordion-path-item-label::after {
+  opacity: 0;
+}
+
+.accordion-path .accordion-path-item-body {
+  padding: 0 16px 16px;
+}

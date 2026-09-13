@@ -1,0 +1,10 @@
+{
+  "variantName": "columns-cta",
+  "baseBlock": "columns",
+  "visualCharacteristics": "A full-width colored CTA banner: heading and a supporting line on one side, a prominent action button on the other, laid out horizontally on desktop.",
+  "contentPattern": "One row: a text cell (heading + supporting paragraph) and an action cell containing a CTA link.",
+  "usage": "Full-width promotional CTA strip (e.g. an events banner with a VIEW EVENTS button).",
+  "canonicalModel": "standalone",
+  "options": [],
+  "memberVariantIds": ["columns-cta"]
+}

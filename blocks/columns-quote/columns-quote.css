@@ -1,0 +1,32 @@
+/* columns-quote — testimonial: headshot beside quote + attribution.
+   Mobile-first: stacks (image over quote), then side-by-side at >=900px.
+   Structural only — brand color, typography, and the large quote-mark glyph
+   are applied by the design pass. */
+
+.columns-quote > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.columns-quote .columns-quote-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (width >= 900px) {
+  .columns-quote > div {
+    flex-direction: row;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .columns-quote .columns-quote-image {
+    flex: 0 0 auto;
+  }
+
+  .columns-quote .columns-quote-body {
+    flex: 1;
+  }
+}

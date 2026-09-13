@@ -1,0 +1,12 @@
+{
+  "variantName": "columns-media",
+  "baseBlock": "columns",
+  "visualCharacteristics": "Two-column promo: an image on one side beside a text column (heading + paragraph + CTA button). Stacks vertically on mobile.",
+  "contentPattern": "One row, two cells: one cell is an image, the other holds a heading, paragraph, and a CTA link/button.",
+  "usage": "Side-by-side image + text/CTA promotional band (e.g. quiz finder, Safe Play). Use the media-right option to place the image on the right and lead with text.",
+  "canonicalModel": "standalone",
+  "options": [
+    { "name": "media-right", "label": "Media Right", "description": "Places the image column on the right (text-first) at desktop widths." }
+  ],
+  "memberVariantIds": ["columns-media"]
+}
