@@ -281,13 +281,13 @@ header nav .nav-flyout .nav-language-switcher > a {
   letter-spacing: normal;
 }
 
-/* breakpoint-exception: tablet flyout band (768–899). Source: 40px menu text,
-   40px side gutter, and Join / Sign In side-by-side (2-column row) rather than
-   stacked, with 18px button text. */
-@media (width >= 768px) and (width <= 899px) {
+/* breakpoint-exception: tablet full-screen flyout band (768–1023). Source keeps
+   the full-screen sheet with 40px menu text and a 40px side gutter until 1024px,
+   where it switches to the compact dropdown panel. */
+@media (width >= 768px) and (width <= 1023px) {
   header nav .nav-flyout .nav-flyout-links a,
   header nav .nav-flyout .nav-flyout-inline a,
-  header nav .nav-flyout .nav-language-switcher > a {
+  header nav .nav-language-switcher > a {
     font-size: 40px;
   }
 
@@ -395,10 +395,12 @@ header nav .nav-flyout .nav-actions a.nav-button {
   font-size: 16px; /* source flyout buttons are 16px (bar buttons are 18px) */
 }
 
-/* Tablet band (768–899): source lays Join / Sign In side-by-side (2-column row,
-   ~336px each with a 16px gap) at 18px, instead of the mobile stacked column.
-   Placed after the base .nav-actions rules so it wins on source order. */
-@media (width >= 768px) and (width <= 899px) {
+/* Tablet band (768–1023): the full-screen flyout lays Join / Sign In
+   side-by-side (2-column row, ~336px each with a 16px gap) at 18px, instead of
+   the mobile stacked column. Placed after the base .nav-actions rules so it
+   wins on source order. At >=1024 the flyout actions are hidden (Join/Sign In
+   sit in the bar). */
+@media (width >= 768px) and (width <= 1023px) {
   header nav .nav-flyout .nav-actions ul {
     flex-direction: row;
   }
@@ -412,8 +414,11 @@ header nav .nav-flyout .nav-actions a.nav-button {
   }
 }
 
-/* ---- Desktop (>=900px) ---- */
-@media (width >= 900px) {
+/* ---- Desktop (>=1024px): shell + compact dropdown panel ----
+   Source switches from the full-screen mobile flyout to the small lime-bordered
+   dropdown at 1024px. Inline bar links (Community/Education/Benefits) do NOT
+   appear here — they only show at >=1281px (see the block after this one). */
+@media (width >= 1024px) {
   :root {
     --usta-header-height: 116px;
   }
@@ -462,11 +467,6 @@ header nav .nav-flyout .nav-actions a.nav-button {
   header nav .nav-brand img {
     height: 30px;
     max-width: none;
-  }
-
-  /* inline links show in the bar */
-  header nav .nav-inline {
-    display: flex;
   }
 
   /* both action buttons show in the bar on desktop (Join + Sign In) */
@@ -547,10 +547,26 @@ header nav .nav-flyout .nav-actions a.nav-button {
     margin-left: 8px;
   }
 
-  /* inline groups already appear in the bar; hide the cloned copies in flyout.
-     Join/Sign In are in the bar too, so hide the cloned flyout action buttons. */
-  header nav .nav-flyout .nav-flyout-inline,
+  /* Join/Sign In are in the bar, so hide the cloned flyout action buttons.
+     The flyout's inline group (Community/Education/Benefits) STAYS visible at
+     1024–1280 because those links are not in the bar yet — it's hidden only at
+     >=1281px where they move into the bar (next block). */
   header nav .nav-flyout .nav-actions {
+    display: none;
+  }
+}
+
+/* Wide desktop (>=1281px): the source moves Community/Education (left) and
+   Benefits (right) out of the flyout and into the bar as inline links; the
+   flyout keeps only About/Job Board/Events/Find a Coach/News/English. */
+@media (width >= 1281px) {
+  header nav .nav-inline {
+    display: flex;
+  }
+
+  /* the inline links now live in the bar, so hide their cloned copies that sit
+     at the top of the dropdown flyout */
+  header nav .nav-flyout .nav-flyout-inline {
     display: none;
   }
 }
