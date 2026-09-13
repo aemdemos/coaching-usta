@@ -61,6 +61,23 @@ function toggleFlyout(nav) {
 }
 
 /**
+ * EDS wraps a list item's single link in a <p> (`<li><p><a>…</a></p><ul>…`),
+ * whereas the local dev server leaves it as a bare `<li><a>…</a>`. Unwrap any
+ * such single-anchor <p> that sits directly inside an <li> so the rest of the
+ * code (and the CSS) can rely on `li > a` being a direct child in every
+ * environment — this is what makes the language switcher's nested <ul> a
+ * sibling of its toggle link, so the chevron/checkmark/toggle all work on EDS.
+ * @param {Element} scope the container to normalize
+ */
+function unwrapListItemParagraphs(scope) {
+  scope.querySelectorAll('li > p').forEach((p) => {
+    // only unwrap when the <p> is a simple wrapper around a single anchor
+    const onlyChild = p.children.length === 1 && p.firstElementChild.tagName === 'A';
+    if (onlyChild) p.replaceWith(...p.childNodes);
+  });
+}
+
+/**
  * Wires the language switcher: a nav item whose link has a nested <ul>.
  * Clicking the top-level label toggles the nested language list.
  * @param {Element} scope the container to search within
@@ -142,6 +159,10 @@ export default async function decorate(block) {
   const fragment = await loadNavFragment();
   block.textContent = '';
   if (!fragment) return;
+
+  // Normalize EDS's <li><p><a> wrapping to <li><a> so link selectors and the
+  // language-switcher nested-list detection work the same locally and on EDS.
+  unwrapListItemParagraphs(fragment);
 
   const nav = document.createElement('nav');
   nav.id = 'nav';
