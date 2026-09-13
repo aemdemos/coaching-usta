@@ -329,6 +329,13 @@ header nav .nav-flyout .nav-flyout-links > ul > li.nav-language-switcher > a {
   gap: 8px;
 }
 
+/* Collapse the language-switcher row to its content height: the <li> otherwise
+   inherits line-height:normal (~28.8px) which is ~11px taller than the 18px
+   toggle, inflating the whole panel's height beyond the source's. */
+header nav .nav-flyout .nav-flyout-links > ul > li.nav-language-switcher {
+  line-height: 1;
+}
+
 /* chevron uses the source SVG (white arrow) in an 18×18 box (source icon box);
    points down when closed, flips up when the switcher is open */
 header nav .nav-language-switcher > a::after {
