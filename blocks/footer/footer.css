@@ -15,9 +15,12 @@ footer .footer-content {
   padding: 48px 16px 40px;
 }
 
-/* ---- Brand / wordmark logo ---- */
+/* ---- Brand / wordmark logo ----
+   Mobile: source leaves ~68px between the wordmark and the first link; the
+   logo box is 33px tall with a tight line-box, so a 62px bottom margin
+   reproduces that gap (measured logo-bottom → first-link = 68px). */
 footer .footer-brand {
-  margin: 0 0 40px;
+  margin: 0 0 62px;
 }
 
 footer .footer-brand p {
@@ -54,6 +57,14 @@ footer .footer-links ul {
   display: flex;
   flex-flow: column nowrap;
   gap: 16px;
+}
+
+/* Tight list rows: the <li> would otherwise inherit the body line-height
+   (~35px), inflating the mobile link pitch to ~51px. Collapsing it to 1 makes
+   each row hug its 18px text so the pitch matches the source's 36px (18px row
+   + 16px gap). */
+footer .footer-links li {
+  line-height: 1;
 }
 
 /* Footer link typography matches source responsive bands (measured):
@@ -99,8 +110,11 @@ footer .footer-social img {
   height: 36px;
 }
 
-/* ---- Tablet / desktop (>=900px) ---- */
-@media (width >= 900px) {
+/* ---- Tablet / desktop (>=768px) ----
+   The source stacks the footer into a single column on tablet (a layout the
+   customer considers a bug); we intentionally give tablet the SAME single-row
+   desktop layout instead, starting at 768px. */
+@media (width >= 768px) {
   /* Section box: centered, capped at 1536px, 52px side padding — matches the
      source's growing gutter (52px @1440 → 148px @1728 → 384px @2200). */
   footer .footer-content {
@@ -141,20 +155,13 @@ footer .footer-social img {
   }
 }
 
-/* Footer-link font-size responsive bands — matched to the source's measured
-   breakpoints (768 / 1024 / 1280), min-width only. line-height = 1em,
-   letter-spacing = -0.03em at every size. */
+/* Footer-link font-size responsive bands. Mobile (<768) = 18px (base rule).
+   Because tablet now shares the desktop single-row layout, the 768–1279 row
+   uses the desktop 16px size (matching the source's 1024 desktop row), then
+   returns to 18px at >=1280. line-height = 1em, letter-spacing = -0.03em. */
 
-/* breakpoint-exception: source footer-link scales to 24px in the 768–1023 band */
+/* single-row layout (tablet + desktop) uses the 16px desktop link size */
 @media (width >= 768px) {
-  footer .footer-links a,
-  footer .footer-links a:any-link {
-    font-size: 24px;
-  }
-}
-
-/* breakpoint-exception: source footer-link drops to 16px in the 1024–1279 band */
-@media (width >= 1024px) {
   footer .footer-links a,
   footer .footer-links a:any-link {
     font-size: 16px;
