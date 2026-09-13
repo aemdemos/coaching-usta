@@ -474,8 +474,14 @@ header nav .nav-flyout .nav-actions a.nav-button {
     display: flex;
   }
 
+  /* restore the Sign In button (and its <li>) in the desktop bar — the base
+     rule hides the whole list item on mobile, so re-show it here. */
   header nav .nav-bar-right .nav-actions .nav-button-secondary {
     display: flex;
+  }
+
+  header nav .nav-bar-right .nav-actions li:has(> .nav-button-secondary) {
+    display: block;
   }
 
   header nav a.nav-button,
