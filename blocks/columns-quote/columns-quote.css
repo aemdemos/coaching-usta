@@ -1,7 +1,6 @@
-/* columns-quote — testimonial: headshot beside quote + attribution.
-   Mobile-first: stacks (image over quote), then side-by-side at >=900px.
-   Structural only — brand color, typography, and the large quote-mark glyph
-   are applied by the design pass. */
+/* columns-quote — the SUCCESS STORIES testimonial on the black section. Source:
+   the quote in 32px white Graphik, then attribution (name bold + role). An
+   optional headshot sits beside it on wide screens. */
 
 .columns-quote > div {
   display: flex;
@@ -9,10 +8,32 @@
   gap: 24px;
 }
 
+.columns-quote .columns-quote-image {
+  flex: 0 0 auto;
+}
+
 .columns-quote .columns-quote-image img {
   display: block;
   width: 100%;
+  max-width: 360px;
   height: auto;
+  border-radius: 12px;
+}
+
+.columns-quote .columns-quote-body p {
+  margin: 0 0 12px;
+  color: #fff;
+}
+
+/* the quote itself is the first, large paragraph */
+.columns-quote .columns-quote-body p:first-child {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.columns-quote .columns-quote-body p strong {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
 }
 
 @media (width >= 900px) {
@@ -22,11 +43,11 @@
     gap: 48px;
   }
 
-  .columns-quote .columns-quote-image {
-    flex: 0 0 auto;
-  }
-
   .columns-quote .columns-quote-body {
     flex: 1;
+  }
+
+  .columns-quote .columns-quote-body p:first-child {
+    font-size: 32px;
   }
 }

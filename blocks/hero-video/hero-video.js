@@ -6,6 +6,23 @@
  *   row 2: a link to an .mp4 (or an existing <video>) used as the background video
  */
 
+/*
+ * The imported content references the video by its original AEM DAM path
+ * (`/content/dam/coaching/videos/hero/<file>.mp4`), which resolves neither
+ * locally nor on our EDS site. The real asset was downloaded, uploaded to DA
+ * and published under the media folder mirroring the page path (homepage `/`
+ * -> `/assets/media/<file>.mp4`), so rewrite any DAM video path to that
+ * published media URL (DA 301-redirects it to the hashed media_* file).
+ */
+function resolveVideoSrc(src) {
+  if (!src) return src;
+  const m = src.match(/\/content\/dam\/[^"']*\/([^/"']+\.mp4)(?:[?#].*)?$/i);
+  if (m) return `/assets/media/${m[1]}`;
+  return src;
+}
+
+const HERO_POSTER = '/assets/media/usta-promo-placeholder.jpg';
+
 function buildVideo(src) {
   const video = document.createElement('video');
   video.className = 'hero-video-media';
@@ -14,8 +31,9 @@ function buildVideo(src) {
   video.muted = true;
   video.setAttribute('loop', '');
   video.setAttribute('playsinline', '');
+  video.setAttribute('poster', HERO_POSTER);
   const source = document.createElement('source');
-  source.src = src;
+  source.src = resolveVideoSrc(src);
   source.type = 'video/mp4';
   video.append(source);
   return video;
@@ -37,10 +55,14 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-video-content';
   rows.forEach((row) => {
-    // skip rows that only carried the video reference
-    const isVideoRow = row.querySelector('video, source[src$=".mp4"]')
+    // A row is "just the video reference" when its only meaningful content is a
+    // link/video pointing at the mp4 (the link is often wrapped in a <p>, so we
+    // must check the row's text, not merely for a <p>).
+    const hasVideoRef = row.querySelector('video, source[src$=".mp4"]')
       || [...row.querySelectorAll('a')].some((a) => (a.getAttribute('href') || '').includes('.mp4'));
-    if (isVideoRow && !row.querySelector('h1, h2, h3, p')) {
+    const hasHeadingOrCopy = [...row.querySelectorAll('h1, h2, h3, h4, p')]
+      .some((el) => el.textContent.trim() && !/\.mp4/i.test(el.textContent));
+    if (hasVideoRef && !hasHeadingOrCopy) {
       row.remove();
       return;
     }
@@ -50,11 +72,13 @@ export default function decorate(block) {
 
   block.textContent = '';
 
+  // Source layout: heading on top, then a large full-width video panel below it
+  // (the video is a flow element, not a background).
+  block.append(content);
   if (videoSrc) {
     const media = document.createElement('div');
     media.className = 'hero-video-bg';
     media.append(buildVideo(videoSrc));
     block.append(media);
   }
-  block.append(content);
 }

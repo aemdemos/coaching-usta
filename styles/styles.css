@@ -11,17 +11,20 @@
  */
 
 :root {
-  /* colors */
-  --background-color: white;
+  /* colors — USTA Coaching brand: the site is dark by default (black bg,
+     white text), with a lime-green accent and a blue events banner. */
+  --background-color: #000;
+  --text-color: #fff;
   --light-color: #f8f8f8;
-  --dark-color: #505050;
-  --text-color: #131313;
-  --link-color: #3b63fb;
-  --link-hover-color: #1d3ecf;
+  --dark-color: #000;
+  --usta-lime: #cfff05;
+  --usta-blue: #0373f3;
+  --link-color: #fff;
+  --link-hover-color: var(--usta-lime);
 
-  /* fonts */
-  --body-font-family: roboto, roboto-fallback, sans-serif;
-  --heading-font-family: roboto-condensed, roboto-condensed-fallback, sans-serif;
+  /* fonts — USTA Sans (bold condensed display) for headings, Graphik for body */
+  --body-font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  --heading-font-family: "Graphik XXCond Bold", "USTA Sans", tahoma, sans-serif;
 
   /* body sizes */
   --body-font-size-m: 22px;
@@ -107,8 +110,9 @@ h6 {
   margin-top: 0.8em;
   margin-bottom: 0.25em;
   font-family: var(--heading-font-family);
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: normal;
   scroll-margin: 40px;
 }
 
@@ -178,17 +182,27 @@ button.button {
   justify-content: center;
   max-width: 100%;
   margin: 0;
-  border: 2px solid transparent;
-  border-radius: 2.4em;
-  padding: 0.5em 1.2em;
-  font: inherit;
-  font-weight: 500;
-  line-height: 1.25;
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 20px;
   text-decoration: none;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+a.button:hover,
+button.button:hover {
+  text-decoration: none;
+  opacity: 0.9;
+  color: #000;
 }
 
 a.button[aria-disabled="true"],
@@ -295,9 +309,13 @@ main img {
   width: 100%;
 }
 
-/* sections */
+/* sections — full-bleed themed bands (source homepage is edge-to-edge dark /
+   white / blue bands, so sections carry the background and have no margin). */
 main > .section {
-  margin: 40px 0;
+  margin: 0;
+  padding: 48px 0;
+  background-color: #fff;
+  color: #000;
 }
 
 main > .section > div {
@@ -316,10 +334,42 @@ main > .section:first-of-type {
   }
 }
 
+/* ---- USTA section themes (from section-metadata style) ----
+   dark = black bg + white text; accent = blue events banner; un-classed
+   sections (quiz, Safe Play) keep the default white bg + black text. */
+main > .section.dark {
+  background-color: #000;
+  color: #fff;
+}
+
+main > .section.dark a:any-link,
+main > .section.dark h1,
+main > .section.dark h2,
+main > .section.dark h3 {
+  color: #fff;
+}
+
+main > .section.accent {
+  background-color: var(--usta-blue);
+  color: #000;
+}
+
 /* section metadata */
 main .section.light,
 main .section.highlight {
   background-color: var(--light-color);
   margin: 0;
   padding: 40px 0;
+}
+
+/* loose (default-content) images inside a section — e.g. the Success Stories
+   headshot authored as a bare picture — are centered and size-capped so they
+   don't blow up to full width. Block-owned images set their own sizing. */
+main > .section > div > picture img,
+main > .section > div > p > picture img {
+  display: block;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 12px;
 }

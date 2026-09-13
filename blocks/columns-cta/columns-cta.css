@@ -1,6 +1,14 @@
-/* columns-cta — horizontal CTA banner. Mobile-first: stacks (text over button),
-   then text + button side-by-side at >=900px. Structural only — brand color and
-   typography come from the design pass. */
+/* columns-cta — the blue "Explore workshops & events" banner. Source: a
+   contained blue rounded panel (20px radius, ~36px padding), heading + body on
+   the left in black, a black pill "VIEW EVENTS" CTA on the right. */
+
+.columns-cta {
+  box-sizing: border-box;
+  border-radius: 20px;
+  background-color: var(--usta-blue);
+  color: #000;
+  padding: 36px;
+}
 
 .columns-cta > div {
   display: flex;
@@ -8,11 +16,39 @@
   gap: 16px;
 }
 
-.columns-cta .columns-cta-action a {
-  display: inline-block;
+.columns-cta h2 {
+  margin: 0;
+  color: #000;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.columns-cta p {
+  margin: 0;
+  color: #000;
+}
+
+/* the VIEW EVENTS CTA is a solid black pill with white text (source) */
+.columns-cta .columns-cta-action a,
+.columns-cta a.button {
+  display: inline-flex;
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
+  border-radius: 9999px;
+}
+
+.columns-cta .columns-cta-action a:hover,
+.columns-cta a.button:hover {
+  color: #fff;
+  opacity: 0.9;
 }
 
 @media (width >= 900px) {
+  .columns-cta {
+    padding: 36px 48px;
+  }
+
   .columns-cta > div {
     flex-direction: row;
     align-items: center;

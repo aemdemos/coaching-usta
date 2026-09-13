@@ -11,6 +11,22 @@
   display: block;
   width: 100%;
   height: auto;
+  border-radius: 12px;
+}
+
+/* content column typography (quiz card / Safe Play) */
+.columns-media .columns-media-content h2 {
+  margin: 0 0 16px;
+}
+
+.columns-media .columns-media-content p {
+  margin: 0 0 12px;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.columns-media .columns-media-content a.button {
+  margin-top: 8px;
 }
 
 /* stacked order on mobile: image on top, content below */

@@ -2,16 +2,33 @@
    Structural/functional only — brand color and typography come from the design
    pass. The +/- glyph is a functional interaction affordance, so it lives here. */
 
-.accordion-path .accordion-path-item + .accordion-path-item {
-  margin-top: 16px;
+/* Each row is separated by a 1px white divider (source), no gap between rows. */
+.accordion-path .accordion-path-item {
+  border-bottom: 1px solid #fff;
+}
+
+.accordion-path .accordion-path-item:first-child {
+  border-top: 1px solid #fff;
 }
 
 .accordion-path .accordion-path-item-label {
   position: relative;
-  padding: 16px;
-  padding-right: 52px;
+  display: flex;
+  align-items: center;
+  padding: 20px 52px 20px 0;
   cursor: pointer;
   list-style: none;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.1;
+  color: #fff;
+}
+
+@media (width >= 900px) {
+  .accordion-path .accordion-path-item-label {
+    font-size: 32px;
+  }
 }
 
 .accordion-path .accordion-path-item-label::-webkit-details-marker {
@@ -24,8 +41,8 @@
   content: '';
   position: absolute;
   top: 50%;
-  right: 20px;
-  width: 16px;
+  right: 8px;
+  width: 20px;
   height: 2px;
   background-color: currentcolor;
   transform: translateY(-50%);
@@ -41,5 +58,12 @@
 }
 
 .accordion-path .accordion-path-item-body {
-  padding: 0 16px 16px;
+  padding: 0 52px 20px 0;
+}
+
+.accordion-path .accordion-path-item-body p {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.5;
 }

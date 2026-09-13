@@ -1,67 +1,55 @@
-/* Hero (video) — full-bleed dark hero with heading over a background video.
-   Structural + measured typography parity with the source (roboto-condensed
-   heading; source h1 = 45px/56.25px at desktop, scales down on mobile). */
+/* Hero (video) — USTA homepage hero: a large left-aligned condensed H1
+   (SERVE YOUR PASSION) on the black section, with a wide video panel below it.
+   Source desktop: H1 80px/80px, video ~1312×694 (16:9) at full content width. */
 
 .hero-video.block {
-  position: relative;
-  min-height: 300px;
-  padding: 40px 20px;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.hero-video .hero-video-bg {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-}
-
-.hero-video .hero-video-media {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.hero-video .hero-video-content {
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .hero-video .hero-video-content h1,
 .hero-video .hero-video-content h2 {
   margin: 0;
-  font-family: var(--heading-font-family, roboto-condensed, sans-serif);
-  font-size: 36px;
-  font-weight: 600;
-  line-height: 1.25;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  line-height: 1;
   letter-spacing: normal;
-  text-transform: uppercase;
   color: #fff;
+  font-size: 40px;
 }
 
 .hero-video .hero-video-content p {
   color: #fff;
-  margin: 0;
+  margin: 8px 0 0;
+}
+
+/* video panel — full content width, below the heading (flow, not background) */
+.hero-video .hero-video-bg {
+  width: 100%;
+}
+
+.hero-video .hero-video-media {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 
 /* tablet */
-@media (width >= 600px) {
+@media (width >= 768px) {
   .hero-video .hero-video-content h1,
   .hero-video .hero-video-content h2 {
-    font-size: 40px;
+    font-size: 64px;
   }
 }
 
 /* desktop */
-@media (width >= 900px) {
-  .hero-video.block {
-    padding: 40px 32px;
-  }
-
+@media (width >= 1024px) {
   .hero-video .hero-video-content h1,
   .hero-video .hero-video-content h2 {
-    font-size: 45px;
-    line-height: 1.25;
+    font-size: 80px;
+    line-height: 1;
   }
 }
