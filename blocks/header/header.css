@@ -335,10 +335,22 @@ header nav .nav-language-switcher > a[aria-expanded="true"]::after {
   transform: rotate(0deg);
 }
 
+/* nested language options: source shows a 16px gap below the toggle and an 8px
+   gap between English/Spanish (26px pitch). Specificity is raised above the
+   `.nav-flyout-links > ul` desktop gap rule so 8px wins. */
+header nav .nav-flyout .nav-flyout-links > ul > li.nav-language-switcher > ul,
 header nav .nav-language-switcher > ul {
   margin-top: 16px;
   padding-left: 0;
   gap: 8px;
+}
+
+/* nested option rows (li + a) use a tight line box like the source's 18px rows
+   so the English→Spanish pitch is 26px (18px row + 8px gap), not the ~39px a
+   default list-item line box + gap produces. */
+header nav .nav-language-switcher > ul > li,
+header nav .nav-language-switcher > ul > li > a {
+  line-height: 1;
 }
 
 header nav .nav-language-switcher > a[aria-expanded="false"] + ul {
@@ -480,7 +492,7 @@ header nav .nav-flyout .nav-actions a.nav-button {
      opens ~16px below the hamburger. */
   header nav .nav-flyout {
     position: absolute;
-    top: calc(100% + 12px);
+    top: calc(100% + 17px); /* source panel opens at y≈99 (bar bottom + gap) */
     left: 0;
     width: 370px;
     height: auto;
@@ -510,12 +522,23 @@ header nav .nav-flyout .nav-actions a.nav-button {
     padding: 0;
   }
 
-  /* 18px links with a tight line box so panel height matches source (275px) */
+  /* 18px links with a tight line box so each row measures ~17px like the
+     source (its <li> rows are 17px), giving a 41px item pitch and a 275px
+     panel height instead of 295px. */
   header nav .nav-flyout .nav-flyout-links a,
   header nav .nav-flyout .nav-flyout-inline a,
   header nav .nav-flyout .nav-language-switcher > a {
     font-size: 18px;
-    line-height: 1;
+    line-height: 0.95;
+  }
+
+  /* desktop dropdown external-link icon is 18×18 (source), not the 24×24 used
+     in the mobile flyout — keeps the "Find a Coach" row at the 44px source
+     pitch instead of inflating it. */
+  header nav .nav-flyout a.nav-external::after {
+    width: 18px;
+    height: 18px;
+    margin-left: 8px;
   }
 
   /* inline groups already appear in the bar; hide the cloned copies in flyout.
