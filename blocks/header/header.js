@@ -2,14 +2,36 @@
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
 /**
- * Fetches the nav fragment DOM. Metadata-independent dual-fetch:
- * /content first (localhost / aem up), then root (DA/EDS production).
+ * The active locale, derived from the page URL (/en/ vs /es/). Any page whose
+ * path contains an `/es/` segment (localhost `/content/es/...` or production
+ * `/es/...`) uses the Spanish nav fragment; everything else uses the default.
+ * @returns {'en'|'es'} the locale code
+ */
+function currentNavLocale() {
+  return /(^|\/)es(\/|$)/i.test(window.location.pathname) ? 'es' : 'en';
+}
+
+/**
+ * Fetches the nav fragment DOM. Locale-aware, metadata-independent dual-fetch:
+ * per locale, try /content first (localhost / aem up), then root (DA/EDS
+ * production). Spanish pages load the /es/ nav; the English nav is the default
+ * and also the fallback if a locale-specific fragment is missing.
  * @returns {HTMLElement|null} a <main> wrapping the fragment sections, or null
  */
 async function loadNavFragment() {
-  let resp = await fetch('/content/nav.plain.html');
-  if (!resp.ok) resp = await fetch('/nav.plain.html');
-  if (!resp.ok) return null;
+  const locale = currentNavLocale();
+  // candidate paths in priority order; es pages fall back to the en nav
+  const candidates = locale === 'es'
+    ? ['/content/es/nav.plain.html', '/es/nav.plain.html', '/content/nav.plain.html', '/nav.plain.html']
+    : ['/content/nav.plain.html', '/nav.plain.html'];
+  let resp = null;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const path of candidates) {
+    // eslint-disable-next-line no-await-in-loop
+    const r = await fetch(path);
+    if (r.ok) { resp = r; break; }
+  }
+  if (!resp) return null;
   const text = await resp.text();
   const doc = new DOMParser().parseFromString(text, 'text/html');
   // plain.html is a list of top-level section divs; DOMParser puts them in <body>

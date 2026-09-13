@@ -1,12 +1,33 @@
 /**
- * Fetches the footer fragment DOM. Metadata-independent dual-fetch:
- * /content first (localhost / aem up), then root (DA/EDS production).
+ * The active locale, derived from the page URL (/en/ vs /es/). Any page whose
+ * path contains an `/es/` segment uses the Spanish footer; everything else the
+ * default. Mirrors the header's locale detection.
+ * @returns {'en'|'es'} the locale code
+ */
+function currentFooterLocale() {
+  return /(^|\/)es(\/|$)/i.test(window.location.pathname) ? 'es' : 'en';
+}
+
+/**
+ * Fetches the footer fragment DOM. Locale-aware, metadata-independent dual-fetch:
+ * per locale, try /content first (localhost / aem up), then root (DA/EDS
+ * production). Spanish pages load the /es/ footer; the English footer is the
+ * default and also the fallback if a locale-specific fragment is missing.
  * @returns {HTMLElement|null} a container wrapping the fragment sections, or null
  */
 async function loadFooterFragment() {
-  let resp = await fetch('/content/footer.plain.html');
-  if (!resp.ok) resp = await fetch('/footer.plain.html');
-  if (!resp.ok) return null;
+  const locale = currentFooterLocale();
+  const candidates = locale === 'es'
+    ? ['/content/es/footer.plain.html', '/es/footer.plain.html', '/content/footer.plain.html', '/footer.plain.html']
+    : ['/content/footer.plain.html', '/footer.plain.html'];
+  let resp = null;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const path of candidates) {
+    // eslint-disable-next-line no-await-in-loop
+    const r = await fetch(path);
+    if (r.ok) { resp = r; break; }
+  }
+  if (!resp) return null;
   const text = await resp.text();
   const doc = new DOMParser().parseFromString(text, 'text/html');
   const container = document.createElement('div');
