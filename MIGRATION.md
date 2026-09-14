@@ -720,3 +720,27 @@ x=96->1504 w=1408; @1280 x=64->1216 w=1152. CTA stays 280px; heading 2 lines @16
 three earlier banner-alignment entries (the "align to header" decision was wrong at wide widths because
 the source's header gutter and content gutter diverge above 1280). Lint clean, breakpoint pass, overflow
 clean 360-1920.
+
+### 2026-09-14 — typography parity audit: last 4 blocks (hero, cards, columns, banner)
+Measured EVERY text element in the 4 instrumented blocks against the LIVE SOURCE at 390/834/1024/1280
+(fs/fw/lh/ls/family/color/align). Results:
+- HERO — h1 (80/56/40/32 USTA Sans 700) and intro subtitle (the `<strong>` inside the intro-statement p:
+  72/56/40/32 Graphik Regular, ls -0.03em) both already match. (Note: measure the `<strong>`, not its
+  wrapper `<p>` — the p reads 16px but is not the visible text.) NO drift.
+- CARDS — pricing tier 40, price 28, best-for/li 16, CTA 18(desktop/tablet)/16(mobile); media h3
+  32/28/28/28, body 16/19.2; section h2 64/56/40/28 USTA Sans. All match. (Earlier a stray read of a
+  HIDDEN a11y label showed tier=16px Arial — ignore; the visible tier is 40px Graphik Semibold.) NO drift.
+- COLUMNS — TWO real drifts found & fixed:
+  1. Quote attribution (name + role) was a flat 16/19.2; source scales 16/19.2 (mob+tab) -> 18/21.6
+     (@1024) -> 24/28.8 (@1280). Added `.columns.quote .columns-quote-body p:not(:first-child)` sizing
+     at base/1024/1280.
+  2. Media/quiz CTA ("Start Now"/"Start the Quiz") was 16 -> 18 -> 24 across breakpoints; source is a
+     FLAT 18/20/ls1px at every viewport. Set base to 18px and removed the 1024 (redundant) + 1280 (24px)
+     bumps. Verified: @1280 name/role 24/28.8, CTA 18/20; @834 name 16/19.2, CTA 18/20. Quote text
+     (28->32) unchanged (already correct).
+- BANNER — heading 40/32/28 USTA Sans 700, body 18/16/16 Graphik Semibold, CTA flat 18/20/ls1px white.
+  All match. NO drift.
+Quality gate: lint clean, breakpoint pass, overflow clean 360-1920. `check:typography` reports 8 "drifts"
+= the pricing tier h3 at 40px (Baseline/Rally/Pro/Pro Plus) vs the single global-h3 record (28/32) — this
+is INTENTIONAL source parity (the source pricing card name IS 40px), a known limitation of the one-h3
+global record, NOT a regression (no h3 rules were touched in this audit).

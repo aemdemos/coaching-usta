@@ -136,7 +136,7 @@ main > .section.columns-container:has(.columns.media) > div {
   border-radius: 12px;
   padding: 14px 22px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-size: 16px; /* source button text: 16 -> 18 -> 24 across 768/1024/1280 */
+  font-size: 18px; /* source button text is a FLAT 18px at every breakpoint */
   font-weight: 400;
   line-height: 20px;
   letter-spacing: 1px; /* source uses positive 1px tracking on the CTA */
@@ -223,7 +223,8 @@ main > .section.columns-container:has(.columns.media) > div {
     max-width: 80%;
   }
 
-  /* heading 40px, copy 18px, button 18px at the 1024 tier (source-measured) */
+  /* heading 40px, copy 18px at the 1024 tier (source-measured). The CTA stays a
+     flat 18px (set in the base rule) — the source does NOT scale it up. */
   .columns.media .columns-media-content h1,
   .columns.media .columns-media-content h2,
   .columns.media .columns-media-content h3,
@@ -232,10 +233,6 @@ main > .section.columns-container:has(.columns.media) > div {
   }
 
   .columns.media .columns-media-content p {
-    font-size: 18px;
-  }
-
-  .columns.media .columns-media-content p:last-child a {
     font-size: 18px;
   }
 
@@ -249,7 +246,8 @@ main > .section.columns-container:has(.columns.media) > div {
   }
 }
 
-/* wide desktop (>=1280): source card heading 64px, copy 24px, button 24px */
+/* wide desktop (>=1280): source card heading 64px, copy 24px. The CTA stays a
+   flat 18px (base rule) — the source does NOT scale the button text up here. */
 @media (width >= 1280px) {
   main > .section.columns-container:has(.columns.media) > div {
     padding: 0 64px;
@@ -263,10 +261,6 @@ main > .section.columns-container:has(.columns.media) > div {
   }
 
   .columns.media .columns-media-content p {
-    font-size: 24px;
-  }
-
-  .columns.media .columns-media-content p:last-child a {
     font-size: 24px;
   }
 }
@@ -314,6 +308,13 @@ main > .section.columns-container:has(.columns.media) > div {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
 }
 
+/* attribution (name + role) — every paragraph after the quote. Source scales it
+   16/19.2 (mobile+tablet) -> 18/21.6 (@1024) -> 24/28.8 (@1280). */
+.columns.quote .columns-quote-body p:not(:first-child) {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
 @media (width >= 1024px) {
   .columns.quote > div {
     flex-direction: row;
@@ -324,10 +325,20 @@ main > .section.columns-container:has(.columns.media) > div {
   .columns.quote .columns-quote-body {
     flex: 1;
   }
+
+  /* attribution grows to 18/21.6 at the 1024 tier (source) */
+  .columns.quote .columns-quote-body p:not(:first-child) {
+    font-size: 18px;
+  }
 }
 
 @media (width >= 1280px) {
   .columns.quote .columns-quote-body p:first-child {
     font-size: 32px;
+  }
+
+  /* attribution grows to 24/28.8 at wide desktop (source) */
+  .columns.quote .columns-quote-body p:not(:first-child) {
+    font-size: 24px;
   }
 }
