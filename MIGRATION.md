@@ -538,3 +538,65 @@ Two drifts fixed:
 Verified: desktop (all four btn-bottoms constant 25px, Rally list->btn = 24 min), tablet 2x2 (per-row:
 tallest tier 24px above, all btn-bottoms 25px), mobile panel (24 above / 25 below, full-width CTA). Lint
 clean, breakpoint pass.
+
+### 2026-09-14 — cards (media): equal-height images + rhythm + responsive layout parity
+The "JOIN THE COMMUNITY" feature cards drifted: images rendered at NATURAL aspect (height:auto) so the
+three were unequal heights and nothing aligned across the row; radius was 12px (source 20px); the
+uniform 16px gap didn't match the source rhythm; and the source's tablet layout was missing.
+
+Fixes to `blocks/cards/cards.css` (`.cards.media`):
+- **Equal-height images:** `aspect-ratio: 421/297` (~1.42, source-measured) + `object-fit: cover` +
+  `border-radius: 20px` (was 12) — all three images are now the same height (260 @1280) and align.
+- **Rhythm:** image -> heading 36px (h3 `margin-top`), heading -> paragraph 24px (p `margin-top`),
+  replacing the flat 16px gap. h3 line-height 1, p line-height 1.2 (16/19.2).
+- **Heading size:** 28px mobile/tablet, **32px desktop** (source), Graphik Semibold white.
+- **Responsive layout (source-matched):**
+  - mobile (<768): stacked, image on top; image aspect ~1.42, full card width.
+  - tablet (768-1023): HORIZONTAL card — image left `flex: 0 0 213px` (aspect 213/223), text right,
+    vertically centered, 36px gap; heading margin-top reset to 0 (side-by-side).
+  - desktop (>=1024): 3-up row of stacked image-top cards.
+- **Section gutters** 16/40/48/64 in a 1536-capped centered container (was a 1200 cap / 48px padding).
+  Removed a stale duplicate `.cards-container:has(.cards.media)` rule in the >=1024 block that was
+  overriding the new padding with `48px 32px`.
+
+Verified: 1280 (3x368, gutter 64, imgs equal 260 @1.418 r20, h3 32, img->h3 36, h3->p 24), tablet 768
+(horizontal, img 213x223 left, 36px gap, h3 28 at x=289 — matches source), mobile 375 (stacked, img 343
+wide r20, h3 28, 36/24 rhythm). Lint clean, breakpoint pass, no overflow from this block (360 = pre-
+existing columns.cta).
+
+### 2026-09-14 — GLOBAL FIX: section gaps regression + cards(media) image crop
+Two fixes:
+
+1. **Section gaps were gone (whole page cluttered).** The global base rule `main > .section { padding:
+   48px 0 }` provides the vertical section rhythm, but several block CONTAINER rules
+   (`.cards-container:has(.cards.media)` / `:has(.cards.pricing)`) set `padding: 0 <gutter>` **directly on
+   the section element**, which zeroed the 48px block padding — so those sections butted against their
+   neighbours with no gap. Fixed by switching those section-level rules to **`padding-inline: <gutter>`**
+   (16/40/48/64) so only the horizontal axis is overridden and the base 48px top/bottom survives. (The
+   columns/hero containers were already correct — they target the inner `> div`, not the section.)
+   Result: 48px top + 48px bottom = ~96px between section contents restored across the page.
+2. **cards(media) image crop.** Source crops the card images from the TOP (`object-position: 50% 0%`),
+   not center — the migrated center-crop showed a different slice of each photo. Added
+   `object-position: 50% 0%` to `.cards.media .cards-media-image img`. Framing now matches source.
+
+Verified @1280: media images equal 260px, object-position 50% 0%, all sections padTop/padBottom 48px,
+content gap between pricing cards and JOIN heading restored (was 0). Screenshot confirms top-crop framing
++ section spacing match source. Lint clean, breakpoint pass.
+
+### 2026-09-14 — Content: group section headings with their cards (+ full-width heading fix)
+Per source structure, the section headings now live in the SAME section as their cards (previously each
+trailed the PREVIOUS section as trailing default content):
+- **PACKAGES FOR EVERY KIND OF TENNIS COACH** -> moved into the `cards (pricing)` section (was trailing
+  the quiz `columns media` section).
+- **JOIN THE USTA TENNIS COACHING COMMUNITY** -> moved into the `cards (media)` section (was trailing the
+  pricing section).
+Done in both `content/index.plain.html` and `content/es/index.plain.html` (ES: PAQUETES / ÚNETE),
+carrying each heading's `center` style (ES pricing/media sections already had `dark`; combined to
+`dark, center`). Each section keeps exactly one section-metadata.
+
+**CSS follow-up (required):** the `cards (media)` section IS a 3-column grid
+(`.cards-container:has(.cards.media)`), so a heading placed above the cards became a grid ITEM in column
+1 and shoved the card row. Added `.cards-container:has(.cards.media) > .default-content-wrapper {
+grid-column: 1 / -1 }` so the heading spans all columns full-width above the row. Verified @1280: JOIN
+heading 1152px full-width + centered, 3 media cards back in a clean row (x=64/456/848, images equal 260).
+Lint clean, breakpoint pass.

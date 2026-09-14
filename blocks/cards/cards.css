@@ -40,8 +40,14 @@
 
 /* the "JOIN THE COMMUNITY" feature cards on the black section. Each is authored
    as its own single-card block, so the three sibling blocks are laid out as a
-   3-up row via their shared section container. Source: image on top, 32px white
-   Graphik heading, white body copy, transparent card. */
+   3-up row via their shared section container. Source layout by viewport:
+     - mobile  (<768): STACKED — image on top, text below.
+     - tablet  (768-1023): HORIZONTAL — image left (~213px), text right.
+     - desktop (>=1024): 3-up row, image on top, text below.
+   Image: rounded 20px, object-fit cover at a FIXED ~1.42 aspect so all three
+   images are the same height across the row (source: 421x297 desktop). Heading
+   32px desktop / 28px tablet+mobile Graphik Semibold white; body 16/19.2 white.
+   Rhythm: image -> heading 36px, heading -> paragraph 24px. */
 .cards.media > ul {
   list-style: none;
   margin: 0;
@@ -54,7 +60,6 @@
 .cards.media .cards-media-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .cards.media .cards-media-image {
@@ -65,40 +70,124 @@
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 12px;
+  aspect-ratio: 421 / 297; /* source ~1.42 — keeps all 3 images equal height */
+  object-fit: cover;
+  object-position: 50% 0%; /* source crops from the TOP (not center) */
+  border-radius: 20px;
 }
 
+/* image -> heading 36px */
 .cards.media .cards-media-card h3 {
-  margin: 0;
+  margin: 36px 0 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 28px; /* mobile/tablet; 32px at desktop */
   line-height: 1;
   color: #fff;
 }
 
+/* heading -> paragraph 24px */
 .cards.media .cards-media-card p {
-  margin: 0;
+  margin: 24px 0 0;
   color: #fff;
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 /* the three single-card media blocks are separate `.cards-wrapper` divs that
    are themselves the section's direct children — grid the section so they lay
    out as a 3-up row, and drop the per-wrapper max-width/centering. Scoped with
-   :has() so only media sections get the 3-up wrapper grid (not pricing). */
+   :has() so only media sections get the wrapper grid (not pricing). Mobile:
+   single column (stacked cards). Gutter grows 16/40/48/64 like the site. */
 .cards-container:has(.cards.media) {
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
   box-sizing: border-box;
-  max-width: 1200px;
+  max-width: 1536px;
   margin-inline: auto;
-  padding: 48px 24px;
+  padding-inline: 16px; /* inline only — keep the base section 48px block padding (section gap) */
 }
 
 .cards-container:has(.cards.media) > .cards-wrapper {
   max-width: none;
   margin: 0;
   padding: 0;
+}
+
+/* a section heading (e.g. "JOIN THE …") authored above the cards is loose
+   default content, so it becomes a grid item — span it across all columns so
+   it sits full-width above the card row instead of taking one grid cell. */
+.cards-container:has(.cards.media) > .default-content-wrapper {
+  grid-column: 1 / -1;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* tablet (768-1023): HORIZONTAL cards — image left (~213px fixed), text right,
+   vertically centered. The three cards stack (the wrapper grid stays 1 column).
+   Heading margin resets (no top gap when side-by-side). */
+@media (width >= 768px) {
+  .cards-container:has(.cards.media) {
+    padding-inline: 40px;
+  }
+
+  .cards.media .cards-media-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 36px;
+  }
+
+  .cards.media .cards-media-image {
+    flex: 0 0 213px;
+  }
+
+  .cards.media .cards-media-image img {
+    aspect-ratio: 213 / 223; /* source tablet image box */
+  }
+
+  .cards.media .cards-media-body {
+    flex: 1;
+  }
+
+  .cards.media .cards-media-card h3 {
+    margin: 0; /* side-by-side: no image->heading top gap */
+  }
+}
+
+/* desktop (>=1024): back to a 3-up row of stacked (image-top) cards. */
+@media (width >= 1024px) {
+  .cards-container:has(.cards.media) {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    padding-inline: 48px;
+  }
+
+  .cards.media .cards-media-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .cards.media .cards-media-image {
+    flex: none;
+  }
+
+  .cards.media .cards-media-image img {
+    aspect-ratio: 421 / 297;
+  }
+
+  .cards.media .cards-media-card h3 {
+    margin: 36px 0 0;
+    font-size: 32px; /* desktop heading */
+  }
+}
+
+@media (width >= 1280px) {
+  .cards-container:has(.cards.media) {
+    padding-inline: 64px;
+  }
 }
 
 /* ---------------------------------------------------------------- pricing -- */
@@ -115,7 +204,7 @@
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
-  padding: 0 16px;
+  padding-inline: 16px; /* inline only — keep base section 48px block padding */
 }
 
 .cards-container:has(.cards.pricing) > .cards-wrapper {
@@ -329,19 +418,13 @@
   }
 
   .cards-container:has(.cards.pricing) {
-    padding: 0 40px;
+    padding-inline: 40px;
   }
 }
 
 @media (width >= 1024px) {
-  .cards-container:has(.cards.media) {
-    grid-template-columns: repeat(3, 1fr);
-    align-items: start;
-    padding: 48px 32px;
-  }
-
   .cards-container:has(.cards.pricing) {
-    padding: 0 48px;
+    padding-inline: 48px;
   }
 }
 
@@ -351,6 +434,6 @@
   }
 
   .cards-container:has(.cards.pricing) {
-    padding: 0 64px;
+    padding-inline: 64px;
   }
 }
