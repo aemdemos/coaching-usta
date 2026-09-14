@@ -9,7 +9,11 @@
  *
  * Authoring model: one row whose cells hold the heading, the body copy, and the
  * CTA link (the importer groups heading+body in one cell and the link in
- * another; this normalises either shape into three tagged parts).
+ * another; this normalises either shape into two columns).
+ *
+ * Layout (source): two top-level columns — the HEADING on the left, and a
+ * CONTENT column on the right holding the body copy with the CTA stacked below
+ * it. On mobile the whole thing stacks into a single column.
  *
  * @param {Element} block the banner block element
  */
@@ -29,19 +33,24 @@ export default function decorate(block) {
     heading.classList.add('banner-heading');
     inner.append(heading);
   }
+
+  // right column: body copy on top, CTA stacked below it
+  const content = document.createElement('div');
+  content.className = 'banner-content';
   if (bodyParas.length) {
     const body = document.createElement('div');
     body.className = 'banner-body';
     bodyParas.forEach((p) => body.append(p));
-    inner.append(body);
+    content.append(body);
   }
   if (link) {
     link.classList.add('banner-cta');
     const action = document.createElement('div');
     action.className = 'banner-action';
     action.append(link);
-    inner.append(action);
+    content.append(action);
   }
+  if (content.childElementCount) inner.append(content);
 
   block.replaceChildren(inner);
 }

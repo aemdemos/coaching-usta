@@ -665,3 +665,58 @@ banner had been set to the header's 16/40/36/52 (left 52), leaving it 12px left 
 the banner-container gutters to 16/40/48/64 so the blue bar's left/right edges line up exactly with the
 cards. Verified @1440: banner panel left 64 = pricing/media card left 64; right 1376 = pricing right.
 Lint clean, breakpoint pass, overflow clean at all viewports.
+
+### 2026-09-14 — banner: align to HEADER gridline (final, per user)
+Final decision (user): the blue banner's left edge should line up with the HEADER (hamburger start at
+the 52px gutter), NOT the 64px content/cards grid — cards and header left unchanged. Set the
+banner-container inline gutters to match the header exactly: 16 / 40 / 36 / 52 (mobile/768/1024/1280).
+Verified @1512: banner panel left = 52 = header hamburger left (right 1460, symmetric). Note this is an
+intentional deviation from the cards' 64px grid for this block. Lint clean, breakpoint pass, overflow
+clean at all viewports. (Supersedes the two prior banner-alignment entries.)
+
+### 2026-09-14 — banner: tablet row layout (was stacking)
+At tablet the source keeps the 3-column ROW (heading left, body + CTA right, vertically centered) — but
+the migrated banner was stacking because the row layout was gated at >=1024. Moved the row layout
+(flex-row, align center, 36px 24px panel padding, heading flex 0 1 auto / max-width 50%, body flex 1) to
+>=768, with heading 32px at tablet and a >=1024 bump to 40px. Verified @834: row layout, panel x=40 =
+header hamburger, heading 32px at x=64, heading->body gap 24, CTA content-width; mobile (375) still
+stacks at 28px. Lint clean, breakpoint pass, overflow clean at all viewports.
+
+### 2026-09-14 — banner: tablet 2-column structure + desktop compact row (final)
+Refined the tablet layout. The source at tablet (768–1023) is NOT a 3-in-a-row; it is TWO top-level
+columns — HEADING (left) | CONTENT (right), where the content column stacks BODY over the CTA. Restructured
+banner.js to wrap the body paragraphs and the CTA together in a `.banner-content` column (`.banner-body`
+over `.banner-action`), leaving the heading as the first row child. CSS: at >=768 `.banner-inner` is a
+centered flex row with heading and content each `flex: 1 1 0; min-width: 0` (both can shrink so long words
+wrap instead of overflowing); `.banner-content` is a column (body above button). At >=1024 `.banner-content`
+becomes a row (body beside button) → the source's single 3-across line. This fixed two earlier bugs: (a)
+body copy collapsing to one-word-per-line at ~1024 (caused by `max-width:50%` + `flex:0 1 auto` starving
+the body — removed), and (b) heading overflowing when tried with `flex:0 0 auto` (reverted). Verified:
+@834 heading|body-over-button, no overflow; @1280 single row, heading 3 lines, panel 192px; @1440 single
+row, heading 2 lines, panel 152px (more compact than source ~216px — no height regression). Panel left edge
+= 52 (header gutter) at all desktop widths. Lint clean (0 errors), breakpoint pass.
+
+### 2026-09-14 — banner: fixed CTA width + per-viewport panel padding (parity)
+Two source-parity bugs found by re-measuring the live source at all three viewports:
+1. CTA button: source is a FIXED 280x56 pill at EVERY viewport, and it is CENTERED under the body on
+   mobile/tablet. Mine was content-width (~195px) and left-aligned. Fixed: `.banner-cta { width: 280px;
+   max-width: 100% }` and `.banner-action { align-self: center }`.
+2. Panel top/bottom padding: source uses 12px at mobile AND tablet, and only grows to 36px at DESKTOP.
+   My `>=768` rule was applying 36px at tablet too, inflating the tablet panel to 207px (source 186px)
+   and making the whole band look "longer". Fixed: tablet padding stays 12px 24px; a new `>=1024` rule
+   bumps it to 36px 24px. Verified panel heights now: desktop(1512) 152px / tablet(834) 159px /
+   mobile(390) 260px — all matching the source's compact band; CTA 280px centered at tablet+mobile,
+   beside the body at desktop. Lint clean (0 err), breakpoint pass, overflow clean 360–1920.
+
+### 2026-09-14 — banner: align to CONTENT/CARDS grid (corrected from header gutter)
+The blue banner was overshooting to the left/right of the cards above it and reading as "too long". Root
+cause: the banner-container was using the HEADER's gutter set (16/40/36/52). Re-measured the LIVE SOURCE
+against its own content grid at two widths and confirmed the source banner aligns to the CONTENT/CARDS
+grid, NOT the header: @1600 panel x=96/right=1504 = packages-grid x=96/right=1504 (w=1408); @1280 panel
+x=64/right=1216 = grid x=64. The header hamburger sits at x=84 @1600 / x=64 @1280, so the banner does NOT
+follow the hamburger at wide widths — it follows the cards. Switched the banner-container gutters to the
+cards grid (16/40/48/64, 1536 cap, margin-inline:auto). Verified migrated now matches exactly: @1600
+x=96->1504 w=1408; @1280 x=64->1216 w=1152. CTA stays 280px; heading 2 lines @1600. This supersedes the
+three earlier banner-alignment entries (the "align to header" decision was wrong at wide widths because
+the source's header gutter and content gutter diverge above 1280). Lint clean, breakpoint pass, overflow
+clean 360-1920.

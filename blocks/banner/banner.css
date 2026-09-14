@@ -11,12 +11,16 @@
    desktop; stacked column, left-aligned on mobile. */
 
 /* the banner section uses the site's wide container (1536-capped) so the panel
-   spans the full content width and its side gutters (16/40/48/64) match the
-   CARDS/CONTENT grid above it — the blue bar's left/right edges line up with the
-   cards. Override only the inline padding so the base section 48px block padding
+   spans the full content width. Its side gutters match the CONTENT/CARDS GRID
+   (16 / 40 / 48 / 64 at mobile/768/1024/1280) so the blue bar's left/right edges
+   line up EXACTLY with the cards above it — that's what the source does (measured
+   at 1600: panel x=96 = packages-grid x=96; at 1280: panel x=64 = grid x=64).
+   Override only the inline padding so the base section 48px block padding
    (section gap) survives. */
 main > .section.banner-container > div {
+  box-sizing: border-box;
   max-width: 1536px;
+  margin-inline: auto;
   padding-inline: 16px;
 }
 
@@ -42,6 +46,13 @@ main > .section.banner-container > div {
   line-height: 1;
 }
 
+/* right column: body copy with the CTA stacked below it */
+.banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .banner-body {
   display: flex;
   flex-direction: column;
@@ -55,9 +66,11 @@ main > .section.banner-container > div {
   line-height: 1.2;
 }
 
-/* CTA — a fully-rounded solid pill */
+/* CTA — a fully-rounded solid pill. Source: a FIXED 280x56 pill at every
+   viewport (not content-width), centered below the body on mobile/tablet. */
 .banner-action {
   flex: 0 0 auto;
+  align-self: center;
 }
 
 .banner-cta {
@@ -65,6 +78,8 @@ main > .section.banner-container > div {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  width: 280px;
+  max-width: 100%;
   padding: 14px 32px;
   border-radius: 9999px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
@@ -115,12 +130,19 @@ main > .section.banner-container > div {
   color: #000;
 }
 
-/* ---- desktop: 3-up centered row -------------------------------------------- */
-@media (width >= 1024px) {
-  /* content inset 24px from the panel edge (source: panel pad 12 + inner row 12
-     = 24px to the heading/CTA); use 24px inline padding directly. */
+/* ---- tablet+: two-column centered row --------------------------------------
+   the source switches to the horizontal layout at tablet already: HEADING on the
+   left, a CONTENT column on the right (body copy with the CTA stacked below it),
+   both vertically centered. Content inset 24px from the panel edge (source:
+   panel pad 12 + inner row 12). Heading 32px at tablet. Heading and content
+   share the row evenly (each flex-basis:0, grow 1) so the heading wraps to 2-3
+   lines and the body keeps a readable ~half-width column; min-width:0 lets both
+   shrink so long words wrap instead of overflowing. */
+@media (width >= 768px) {
+  /* tablet keeps the source's SLIM 12px top/bottom padding (only desktop grows
+     to 36px); LR inset 24px to line content up with the heading. */
   .banner.block {
-    padding: 36px 24px;
+    padding: 12px 24px;
   }
 
   .banner-inner {
@@ -129,16 +151,21 @@ main > .section.banner-container > div {
     gap: 24px;
   }
 
-  /* heading sizes to its content (~2 lines), body takes the remaining space,
-     CTA stays auto — matches the source's heading | body | button proportions */
   .banner-heading {
-    flex: 0 1 auto;
-    max-width: 50%;
-    font-size: 40px;
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 32px;
+  }
+
+  /* tablet: right column stacks body ABOVE the CTA (source). */
+  .banner-content {
+    flex: 1 1 0;
+    min-width: 0;
+    align-items: flex-start;
   }
 
   .banner-body {
-    flex: 1;
+    min-width: 0;
   }
 
   .banner-body p {
@@ -147,8 +174,35 @@ main > .section.banner-container > div {
   }
 }
 
-/* side gutters match the CARDS/CONTENT grid (40 @768, 48 @1024, 64 @1280) so
-   the blue bar's left/right edges line up with the cards above it */
+/* desktop: heading grows to 40px, and the right column goes side-by-side
+   (body beside the CTA) — matching the source's 3-across desktop row. */
+@media (width >= 1024px) {
+  /* desktop grows the panel's top/bottom padding to 36px (source) */
+  .banner.block {
+    padding: 36px 24px;
+  }
+
+  .banner-heading {
+    font-size: 40px;
+  }
+
+  .banner-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .banner-body {
+    flex: 1 1 0;
+  }
+
+  .banner-action {
+    flex: 0 0 auto;
+  }
+}
+
+/* side gutters match the CONTENT/CARDS GRID (40 @768, 48 @1024, 64 @1280) so the
+   blue bar's left/right edges line up with the cards above it (source behaviour) */
 @media (width >= 768px) {
   main > .section.banner-container > div {
     padding-inline: 40px;
