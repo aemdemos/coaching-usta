@@ -600,3 +600,68 @@ carrying each heading's `center` style (ES pricing/media sections already had `d
 grid-column: 1 / -1 }` so the heading spans all columns full-width above the row. Verified @1280: JOIN
 heading 1152px full-width + centered, 3 media cards back in a clean row (x=64/456/848, images equal 260).
 Lint clean, breakpoint pass.
+
+### 2026-09-14 — New `banner` block (blue/black colour variants) replaces columns(cta)
+The blue "Explore workshops & events" band is a distinct BANNER pattern (not a columns layout), and the
+site uses two colour treatments of it, so it's now its own block with switchable colour variants:
+- **`banner (events, blue)`** — blue panel, black text, solid BLACK pill button (the events banner; the
+  homepage instance). `blue` is also the default when no colour class is given.
+- **`banner (events, black)`** / **`banner (black)`** — black panel, white text, solid LIME-GREEN pill
+  button. Available for the other banner treatment seen across the site; author just swaps the colour
+  token (`blue` <-> `black`).
+
+**Block** (`blocks/banner/`): `banner.js` normalises the authored cells into heading / body / CTA and
+tags them (`.banner-heading` / `.banner-body` / `.banner-cta`); `banner.css` is the contained rounded
+panel. Source-measured: radius 20px; padding 36px 12px desktop / 12px 16px mobile; heading USTA Sans
+700, 40px desktop / 28px mobile; body Graphik Semibold 18/16; CTA fully-rounded pill (radius 9999),
+18px, +1px tracking, 14px 32px padding. Layout: 3-up centered row (heading | body | CTA, 24px gaps) at
+>=1024; stacked left-aligned column on mobile. Colour variants set panel bg / text / button palette only.
+
+**Content** (`content/index.plain.html` + ES): `columns (cta)` -> `banner (events, blue)`, and the
+section's `accent` style token was DROPPED (the banner is its own blue panel now; `accent` had wrongly
+tinted the whole band — incl. SUCCESS STORIES — blue). Kept `center`.
+
+**Cleanup:** removed the `cta` variant from the columns block — `decorateCta` + the `.columns.cta` CSS
+deleted, the `cta` dispatch branch removed, and the default-variant `:not(.media, .cta, .quote)` guards
+simplified to `:not(.media, .quote)`. Columns is now three variants (default/media/quote).
+
+Verified: desktop 1280 (blue panel radius 20, heading USTA Sans 40 black, black pill radius 9999 ls 1px,
+3-col row heading|body|CTA 24px gaps), mobile 375 (stacked, padding 12/16, heading 28, full palette).
+Lint clean, breakpoint pass, and overflow now PASSES at 360 (the old columns.cta was the long-standing
+360 overflow offender — gone).
+
+### 2026-09-14 — banner: width/container + heading-wrap parity fix
+Follow-up on the banner. Two drifts:
+1. **Panel too narrow.** The banner sat in the section's default 1200px wrapper, so at 1440 it was
+   narrower than the source (panel x=64 w=1312 in the 1536-capped/64px-gutter container). Added
+   `main > .section.banner-container > div { max-width: 1536px; padding-inline: 16/40/48/64 }` (inline
+   only, so the base 48px block padding / section gap survives) — panel now x=64 w=1312, matching source.
+2. **Heading wrapped to 3 lines** vs the source's 2 ("EXPLORE WORKSHOPS" / "& EVENTS"). Root cause was
+   the narrow container plus a too-tight `max-width: 44%` on the heading; with the correct 1536 container
+   and `max-width: 50%` the 40px USTA Sans heading now wraps to exactly 2 lines (w 644, h 80).
+
+Verified @1440 (panel x=64 w=1312, heading 2 lines, 3-col row heading|body|CTA 24px gaps) and @375
+(panel x=16 w=343, padding 12/16, stacked, heading 28). Lint clean, breakpoint pass, overflow clean at
+360/768/1024/1280/1920.
+
+### 2026-09-14 — banner: content inset parity (heading left-edge alignment)
+The banner content sat 12px inside the panel edge; the source insets it 24px (panel padding 12 + an inner
+row wrapper 12). At 1440 the source banner heading text starts at x=88 (panel edge 64 + 24), but the
+migrated heading was at x=76 (only +12). Fixed the desktop panel padding `36px 12px` -> `36px 24px` so
+the heading/CTA sit 24px in — banner heading now at x=88, matching source exactly (panel edge 64 shared
+with the cards grid). Lint clean, breakpoint pass, overflow clean at all viewports.
+
+### 2026-09-14 — banner: left edge aligned to header hamburger
+Per request, the blue banner panel's left edge must start exactly where the header hamburger/content
+starts. The header uses gutters 16/40/36/52 (mobile/768/1024/1280); the banner was using 16/40/48/64, so
+its panel started at x=64 while the hamburger was at x=52. Changed the banner-container inline gutters to
+MATCH THE HEADER (40 @768, 36 @1024, 52 @1280). Verified @1440: banner panel left = 52 = hamburger left
+(and right = 1388, symmetric). Lint clean, breakpoint pass, overflow clean at all viewports.
+
+### 2026-09-14 — banner: align to CARDS grid (not header) — corrected
+Correction to the prior entry: the banner should align with the CONTENT BLOCKS above it (the cards),
+not the header. The cards/pricing grid sits at a 16/40/48/64 gutter (left 64, right 1376 @1440); the
+banner had been set to the header's 16/40/36/52 (left 52), leaving it 12px left of the cards. Reverted
+the banner-container gutters to 16/40/48/64 so the blue bar's left/right edges line up exactly with the
+cards. Verified @1440: banner panel left 64 = pricing/media card left 64; right 1376 = pricing right.
+Lint clean, breakpoint pass, overflow clean at all viewports.

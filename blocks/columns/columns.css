@@ -1,43 +1,42 @@
 /* stylelint-disable no-descending-specificity */
 
-/* columns — four variants share this block:
+/* columns — three variants share this block:
    • default (boilerplate N-column layout)
    • media   (image beside a white promo card; `media-right` flips sides)
-   • cta     (blue banner: heading + copy left, black pill CTA right)
    • quote   (headshot beside a testimonial quote + attribution)
    Each variant is authored as `columns (variant)`; selectors below are scoped
    by the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .cta, .quote) > div {
+.columns.block:not(.media, .quote) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .cta, .quote) img {
+.columns.block:not(.media, .quote) img {
   width: 100%;
 }
 
-.columns.block:not(.media, .cta, .quote) > div > div {
+.columns.block:not(.media, .quote) > div > div {
   order: 1;
 }
 
-.columns.block:not(.media, .cta, .quote) > div > .columns-img-col {
+.columns.block:not(.media, .quote) > div > .columns-img-col {
   order: 0;
 }
 
-.columns.block:not(.media, .cta, .quote) > div > .columns-img-col img {
+.columns.block:not(.media, .quote) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .cta, .quote) > div {
+  .columns.block:not(.media, .quote) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns.block:not(.media, .cta, .quote) > div > div {
+  .columns.block:not(.media, .quote) > div > div {
     flex: 1;
     order: unset;
   }
@@ -272,73 +271,9 @@ main > .section.columns-container:has(.columns.media) > div {
   }
 }
 
-/* -------------------------------------------------------------------- cta -- */
-
-/* the blue "Explore workshops & events" banner. Source: a contained blue
-   rounded panel (20px radius, ~36px padding), heading + body on the left in
-   black, a black pill "VIEW EVENTS" CTA on the right. */
-.columns.cta {
-  box-sizing: border-box;
-  border-radius: 20px;
-  background-color: var(--usta-blue);
-  color: #000;
-  padding: 36px;
-}
-
-.columns.cta > div {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.columns.cta h2 {
-  margin: 0;
-  color: #000;
-  font-size: 40px;
-  line-height: 1;
-}
-
-.columns.cta p {
-  margin: 0;
-  color: #000;
-}
-
-/* the VIEW EVENTS CTA is a solid black pill with white text (source) */
-.columns.cta .columns-cta-action a,
-.columns.cta a.button {
-  display: inline-flex;
-  background-color: #000;
-  color: #fff;
-  border-color: #000;
-  border-radius: 9999px;
-}
-
-.columns.cta .columns-cta-action a:hover,
-.columns.cta a.button:hover {
-  color: #fff;
-  opacity: 0.9;
-}
-
-@media (width >= 1024px) {
-  .columns.cta {
-    padding: 36px 48px;
-  }
-
-  .columns.cta > div {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-  }
-
-  .columns.cta .columns-cta-text {
-    flex: 1;
-  }
-
-  .columns.cta .columns-cta-action {
-    flex: 0 0 auto;
-  }
-}
+/* (the former `cta` variant — the blue "Explore workshops & events" banner —
+   is now its own reusable `banner` block with blue/black colour variants; see
+   blocks/banner.) */
 
 /* ------------------------------------------------------------------ quote -- */
 

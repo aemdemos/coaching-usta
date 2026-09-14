@@ -1,11 +1,10 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
- * columns — a two-column layout. Four variants share this block:
+ * columns — a two-column layout. Three variants share this block:
  *   • default : generic N-column layout (boilerplate).
  *   • media   : image beside text (heading + paragraph + CTA); `media-right`
  *               forces the image to the right (text-first).
- *   • cta     : heading + copy on one side, a CTA button on the other.
  *   • quote   : headshot beside a testimonial quote + attribution.
  * The variant is authored as a class on the block (e.g. `columns (media)`), so
  * we dispatch on it here and keep each variant's own inner class names.
@@ -30,22 +29,6 @@ function decorateMedia(block) {
 
   block.querySelectorAll('.columns-media-media img').forEach((img) => {
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '900' }]));
-  });
-}
-
-function decorateCta(block) {
-  const row = block.firstElementChild;
-  if (!row) return;
-
-  [...row.children].forEach((cell) => {
-    // A cell whose only meaningful content is a link is the CTA action.
-    const link = cell.querySelector('a');
-    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p:not(.button-container)');
-    if (link && !hasText) {
-      cell.classList.add('columns-cta-action');
-    } else {
-      cell.classList.add('columns-cta-text');
-    }
   });
 }
 
@@ -96,7 +79,6 @@ function decorateDefault(block) {
 
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
-  else if (block.classList.contains('cta')) decorateCta(block);
   else if (block.classList.contains('quote')) decorateQuote(block);
   else decorateDefault(block);
 }
