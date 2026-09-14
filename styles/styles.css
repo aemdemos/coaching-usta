@@ -505,6 +505,15 @@ main > .section.narrow > div {
   }
 }
 
+/* ---- Center section (section-metadata style: center) ----
+   Centers a section's default content — used by the source's section headings
+   (PACKAGES, JOIN THE COMMUNITY, SUCCESS STORIES, DISCOVER YOUR PATH), which are
+   all `text-align: center` on the source. Block-owned content keeps its own
+   alignment; this only targets the section's loose default-content wrappers. */
+main > .section.center > .default-content-wrapper {
+  text-align: center;
+}
+
 /* loose (default-content) images inside a section — e.g. the Success Stories
    headshot authored as a bare picture — are centered and size-capped so they
    don't blow up to full width. Block-owned images set their own sizing. */

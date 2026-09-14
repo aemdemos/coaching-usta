@@ -429,3 +429,112 @@ baseline, unrelated to hero).
 
 After this pass `blocks/` is: accordion-path, cards, columns, footer, form, fragment, header, hero,
 widget (down from 15 -> 10 blocks).
+
+### 2026-09-14 — Section headings: center alignment + lime accent phrase
+The source's section headings (PACKAGES, JOIN THE COMMUNITY, SUCCESS STORIES, DISCOVER YOUR PATH) are
+all `text-align: center` and several colour a trailing phrase lime (`rgb(207,255,5)` = `--usta-lime`) via
+an inline colored `<span>`. The migration had them left-aligned and all-white. Fixed with a new section
+style + the existing semantic-colour convention — no new per-heading CSS.
+
+**New `center` section style** (`styles/styles.css`, alongside `narrow`):
+```
+main > .section.center > .default-content-wrapper { text-align: center; }
+```
+Scoped to the section's **default-content wrapper only**, so a section's *blocks* keep their own
+alignment (verified: columns.cta text, cards.pricing tiles, cards.media cards all stay `start` even when
+their section also carries `center`). Authored via section-metadata `style: center` (composes with other
+tokens — SUCCESS STORIES uses `accent, center`, and the ES sections combine `dark, center`).
+
+**Lime phrases** — authored SEMANTICALLY with `<em>` (the global `main em → lime; font-style: normal`
+rule already colours it), NOT a hardcoded span/colour. Applied per source:
+- EN: PACKAGES FOR EVERY KIND OF *TENNIS COACH* · JOIN THE *USTA TENNIS COACHING* COMMUNITY · DISCOVER
+  YOUR PATH WITH *USTA COACHING* (SUCCESS STORIES has no lime).
+- ES: PAQUETES PARA CADA TIPO DE *ENTRENADOR DE TENIS* · ÚNETE A LA COMUNIDAD *DE ENTRENADORES DE TENIS
+  DE LA USTA* · DESCUBRE TU CAMINO CON *USTA COACHING* (HISTORIAS DE ÉXITO has no lime).
+
+**Content** — `content/index.plain.html` + `content/es/index.plain.html`: wrapped the lime phrases in
+`<em>` and added `center` to each heading's section (own trailing `section-metadata` where the section
+had none; appended to the existing `style` token list where it did — e.g. `accent, center`,
+`dark, center`).
+
+**Verified @1440 (draft, new markup):** all four headings `text-align: center`; the three lime `<em>`
+spans compute to `rgb(207,255,5)`, `font-style: normal`; block content in the same sections stays
+left-aligned. Lint clean (0 errors), breakpoint pass. Typography check shows 8 drifts — all
+`cards.pricing h3` (40 vs 28/32), the PRE-EXISTING pricing-tier backlog item, NOT the section headings
+(this change added no font rules). Overflow 360px 409>360 is the pre-existing columns.cta baseline.
+
+### 2026-09-14 — cards (pricing): full parity rebuild + mobile tabs
+Rebuilt the pricing tiers to match the source pixel-for-pixel at all three viewports and added the
+mobile tabs interaction that was missing.
+
+**Corrections to the card (all viewports):**
+- **1px solid white border** + 16px radius (was borderless). 24px inner padding (unchanged).
+- **Blue check** `#0373F3` (= --usta-blue) — was wrongly lime. SVG 24x24, list `padding-left: 32px`.
+- **Price line** (Free / $49/year) 28px Graphik Semibold — now tagged `.cards-pricing-price` in JS
+  (the standalone `<p>` immediately before the feature list) and scoped
+  `.cards-pricing-card p.cards-pricing-price` so it outranks the generic 16px `p` rule.
+- **Title** (tier name) 40px Graphik Semibold, `margin-bottom: 8px` (matches source).
+- **CTA** lime pill, 18px Graphik Semibold, radius 12px, padding 16px 24px; content-width on
+  tablet/desktop, **full-width in the mobile panel** (source).
+
+**Grid (source-measured):**
+- `>=1280`: 4 x **310px**, 24px gap (was `repeat(4,1fr)` gap 20 at the 1024 tier — wrong count/gap).
+- `>=768`: 2 x **332px**, 24px gap. Section gutters 16/40/48/64 in the 1536-capped centered container
+  (added `.cards-container:has(.cards.pricing)` — the pricing section previously had no gutter rule).
+- Cards are row-equal-height (flex column + `flex:1` on the list pushes the CTA to the bottom).
+
+**Mobile tabs (< 768) — NEW.** Source collapses the 4 cards into a tab UI. Built in `cards.js`
+(`decoratePricing`): a `.cards-pricing-tabs` role=tablist strip with one button per tier (name + price
+stacked), each card gets `.is-active` toggled on click; first tier active by default. CSS: strip is a
+horizontal `overflow-x: auto` flex row (12px gap, tabs 96px tall, radius 12px, 0 24px padding); **active
+tab** = lime bg + black text (no border), **inactive** = black bg + 1px white border + lime name +
+white price. Below 768 only the `.is-active` card shows (`display:none` otherwise); at >=768 the strip is
+hidden and all cards show in the grid. Panel height follows the active tier's content (verified switching
+Baseline<->Rally). The strip's overflow is clipped by its own `overflow-x:auto` (confirmed it does NOT
+add to document horizontal overflow at 360).
+
+**Content** — `content/index.plain.html`: the four CTA labels were imported as bare "Select"; the source
+reads "Select Baseline/Rally/Pro/Pro Plus" — corrected. (ES source uses plain "Seleccione" — left as-is.)
+
+**Verified:** desktop 1440 (4x310, cards 607 equal-height, border/radius/padding/title/price/li/button
+all match source rects), tablet 768 (2x332, tabs hidden, price 28, content-width button), mobile 375/360
+(tab strip 96 tall, active lime, inactive lime-name+border, single full-width panel, tab-switch works).
+Lint clean (0 errors), breakpoint pass. Overflow 360 409>360 = pre-existing columns.cta, NOT pricing
+(pricing strip is internally scrolled/clipped). Typography check flags h3 40 vs 32 — the pricing tier
+title is INTENTIONALLY 40px per source (direct-measured), a known scale exception for this block.
+
+### 2026-09-14 — cards (pricing): button-alignment + internal spacing parity
+Follow-up pixel pass on the pricing tiers. Two drifts fixed:
+
+1. **CTA not bottom-aligned.** The importer wraps each tile's content in a single `<div>`, so the card's
+   flex column had ONE child and `flex:1` on the feature list couldn't grow — the button sat right under
+   the content in shorter cards (Pro/Pro Plus) instead of pinning to the card bottom. Fix in `cards.js`
+   (`decoratePricing`): unwrap that single wrapper `<div>` so the card's flex column sees the content
+   elements (h3 / intro p / price / ul / cta) directly. Now `flex:1` on `.cards-pricing-features` pushes
+   the CTA to the bottom → all four buttons align (verified all btn-bottoms equal at desktop, and
+   per-row at tablet 2x2).
+2. **Internal vertical rhythm.** Replaced the uniform `gap: 12px` with the source's explicit per-element
+   spacing (measured): title `margin-bottom: 8px`, intro `p` line-height 1.25 (tight), price
+   `margin: 15px 0 27px`, list gap 13px, li line-height 1.25 (2-line items = 40px). Now
+   title->bestFor 8, bestFor->price 15, price->list 27, first-li 40 — all match source exactly.
+
+Cards remain equal-height per row (flex column + list `flex:1`); buttons are content-width pills sized to
+each label (172/143/131/169 — matches source). Lint clean (0 errors), breakpoint pass, overflow 360 =
+pre-existing columns.cta.
+
+### 2026-09-14 — cards (pricing): CTA gap parity (above button / below content)
+Padding pass on the CTA spacing. Source model (measured): the button is pinned to the card bottom with a
+CONSTANT 25px below (24px padding + 1px border), and a MINIMUM 24px gap above it — the tallest tier in a
+row (Rally at desktop) shows exactly 24px list->button; shorter tiers show more (flex fills the slack).
+
+Two drifts fixed:
+1. Previously `flex: 1` on the feature list made the list touch the button (0px) in the tallest card
+   instead of the source's 24px minimum. Replaced with `margin-bottom: 24px` on the list (the fixed
+   minimum) + `margin-top: auto` on the CTA (pushes it to the bottom in shorter cards).
+2. The CTA is authored as a `<p>`, so the generic `.cards-pricing-card p { margin: 0 }` rule (specificity
+   0,3,1) was overriding `.cards-pricing-cta` (0,2,1) -> `margin-top: auto` never applied and the button
+   un-pinned. Scoped the CTA rule as `.cards-pricing-card p.cards-pricing-cta` so it wins.
+
+Verified: desktop (all four btn-bottoms constant 25px, Rally list->btn = 24 min), tablet 2x2 (per-row:
+tallest tier 24px above, all btn-bottoms 25px), mobile panel (24 above / 25 below, full-width CTA). Lint
+clean, breakpoint pass.

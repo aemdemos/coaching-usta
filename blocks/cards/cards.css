@@ -103,10 +103,27 @@
 
 /* ---------------------------------------------------------------- pricing -- */
 
-/* USTA membership tiers on the dark "PACKAGES" section. Source desktop: 4-up
-   row of black rounded cards (16px radius, 24px padding), white text; tier name
-   40px, price 28px, features 16px with a lime check bullet; a lime "Select"
-   pill pinned to the bottom of each card. */
+/* USTA membership tiers on the dark "PACKAGES" section. Source: black rounded
+   cards (16px radius, 1px WHITE border, 24px inner padding), white text; tier
+   name 40px Graphik Semibold, price 28px, features 16px with a BLUE check; a
+   lime "Select" pill. Grid: below 768 it collapses to a TAB UI (scrollable tab
+   strip + one visible panel); 2-up at >=768; 4-up at >=1280 (each col 310px).
+   Section gutters 16/40/48/64 in the 1536-capped centered container. */
+
+/* section container gutters + centering (matches the site grid) */
+.cards-container:has(.cards.pricing) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+.cards-container:has(.cards.pricing) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 .cards.pricing > ul {
   list-style: none;
   margin: 0;
@@ -116,19 +133,32 @@
   gap: 24px;
 }
 
+/* Card is a flex column; spacing between blocks comes from explicit margins
+   (matching the source rhythm) rather than a uniform gap, because the intro
+   paragraphs sit tight together while price/list carry larger gaps. */
 .cards.pricing .cards-pricing-card {
-  display: flex;
+  display: none; /* mobile: only the active tier's card shows (tab UI) */
   flex-direction: column;
-  gap: 12px;
   box-sizing: border-box;
   padding: 24px;
+  border: 1px solid #fff; /* source: 1px white border */
   border-radius: 16px;
   background-color: #000;
   color: #fff;
 }
 
-.cards.pricing .cards-pricing-card h3 {
-  margin: 0;
+.cards.pricing .cards-pricing-card.is-active {
+  display: flex;
+}
+
+/* tier name (Baseline / Rally / …) */
+.cards.pricing .cards-pricing-card h1,
+.cards.pricing .cards-pricing-card h2,
+.cards.pricing .cards-pricing-card h3,
+.cards.pricing .cards-pricing-card h4,
+.cards.pricing .cards-pricing-card h5,
+.cards.pricing .cards-pricing-card h6 {
+  margin: 0 0 8px; /* source: title has 8px bottom margin */
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 40px;
@@ -136,28 +166,33 @@
   color: #fff;
 }
 
+/* intro paragraph(s) — "Best for:" and the optional "(Safe Play …)" line sit
+   tight together (source line-height ~1.25, no inter-paragraph margin). */
 .cards.pricing .cards-pricing-card p {
   margin: 0;
   color: #fff;
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.25;
 }
 
 .cards.pricing .cards-pricing-card p strong {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
 }
 
-/* the price line is the standalone paragraph (Free / $49/year) — larger */
-.cards.pricing .cards-pricing-card > p:not(:has(strong)) {
+/* the price line (Free / $49/year) — larger Graphik Semibold, with the source's
+   15px gap above (from the intro) and 27px below (to the list). Scoped under the
+   card so it outranks the generic `.cards-pricing-card p` (16px) rule. */
+.cards.pricing .cards-pricing-card p.cards-pricing-price {
+  margin: 15px 0 27px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 28px;
+  line-height: 1;
 }
 
 .cards.pricing .cards-pricing-features {
   list-style: none;
-  margin: 8px 0;
+  margin: 0 0 24px; /* source: 24px minimum gap between the list and the CTA */
   padding: 0;
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 13px;
@@ -165,9 +200,9 @@
 
 .cards.pricing .cards-pricing-features li {
   position: relative;
-  padding-left: 34px;
+  padding-left: 32px; /* source: 32px */
   font-size: 16px;
-  line-height: 1.3;
+  line-height: 1.25; /* source: normal — 20px/line, so 2-line items are 40px */
   color: #fff;
 }
 
@@ -178,22 +213,123 @@
   top: 0;
   width: 24px;
   height: 24px;
-  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3e%3cpath d='M20.3637 7.74311L20.697 7.38985L20.3536 7.04645L18.9536 5.64645L18.59 5.28288L18.2367 5.65646L9.87802 14.4955L5.74116 10.6345L5.38802 10.3049L5.04645 10.6464L3.64645 12.0464L3.29289 12.4L3.64645 12.7535L9.52145 18.6285L9.88785 18.9949L10.2413 18.6165L20.3637 7.74311Z' fill='%23CFFF05' stroke='%23CFFF05'/%3e%3c/svg%3e") no-repeat center / contain;
+
+  /* source check is BLUE (#0373F3), not lime */
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3e%3cpath d='M20.3637 7.74311L20.697 7.38985L20.3536 7.04645L18.9536 5.64645L18.59 5.28288L18.2367 5.65646L9.87802 14.4955L5.74116 10.6345L5.38802 10.3049L5.04645 10.6464L3.64645 12.0464L3.29289 12.4L3.64645 12.7535L9.52145 18.6285L9.88785 18.9949L10.2413 18.6165L20.3637 7.74311Z' fill='%230373F3' stroke='%230373F3'/%3e%3c/svg%3e") no-repeat center / contain;
 }
 
-/* CTA pinned to the bottom of each tile so buttons align across the row */
-.cards.pricing .cards-pricing-cta {
+/* CTA pinned to the bottom of each tile (source uses a content-width pill).
+   `margin-top: auto` pushes it to the card bottom in shorter cards; the list's
+   own 24px bottom margin keeps the minimum gap above the button in the TALLEST
+   card (source: the tallest tier, Rally, has exactly 24px between the list end
+   and the button). */
+.cards.pricing .cards-pricing-card p.cards-pricing-cta {
+  margin: 0;
   margin-top: auto;
 }
 
 .cards.pricing .cards-pricing-cta a {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+.cards.pricing .cards-pricing-cta a:hover {
+  opacity: 0.9;
+  color: #000;
+  text-decoration: none;
+}
+
+/* ---- mobile tab strip (< 768): scrollable row of tier tabs above one panel -- */
+.cards.pricing .cards-pricing-tabs {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 24px;
+}
+
+.cards.pricing .cards-pricing-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cards.pricing .cards-pricing-tab {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 96px;
+  padding: 0 24px;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  background-color: #000;
+  cursor: pointer;
+  text-align: center;
+}
+
+.cards.pricing .cards-pricing-tab-name {
+  font-size: 16px;
+  line-height: 1;
+  color: var(--usta-lime); /* inactive: tier name lime */
+}
+
+.cards.pricing .cards-pricing-tab-price {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 24px;
+  line-height: 1;
+  color: #fff;
+}
+
+/* active tab: solid lime, black text, no border */
+.cards.pricing .cards-pricing-tab[aria-selected="true"] {
+  border-color: transparent;
+  background-color: var(--usta-lime);
+}
+
+.cards.pricing .cards-pricing-tab[aria-selected="true"] .cards-pricing-tab-name,
+.cards.pricing .cards-pricing-tab[aria-selected="true"] .cards-pricing-tab-price {
+  color: #000;
+}
+
+/* mobile panel: the active tier's CTA is full-width (source) */
+.cards.pricing .cards-pricing-card.is-active .cards-pricing-cta a {
+  width: 100%;
 }
 
 /* ------------------------------------------------------------ breakpoints -- */
 @media (width >= 768px) {
+  /* tablet+: hide the tab strip, show all cards in a 2-up grid */
+  .cards.pricing .cards-pricing-tabs {
+    display: none;
+  }
+
   .cards.pricing > ul {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cards.pricing .cards-pricing-card,
+  .cards.pricing .cards-pricing-card.is-active {
+    display: flex;
+  }
+
+  .cards.pricing .cards-pricing-card.is-active .cards-pricing-cta a {
+    width: auto; /* content-width pill on tablet/desktop */
+  }
+
+  .cards-container:has(.cards.pricing) {
+    padding: 0 40px;
   }
 }
 
@@ -204,8 +340,17 @@
     padding: 48px 32px;
   }
 
+  .cards-container:has(.cards.pricing) {
+    padding: 0 48px;
+  }
+}
+
+@media (width >= 1280px) {
   .cards.pricing > ul {
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+  }
+
+  .cards-container:has(.cards.pricing) {
+    padding: 0 64px;
   }
 }
