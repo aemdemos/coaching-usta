@@ -271,3 +271,161 @@ added `header nav { padding: 0 40px }` in the `>=768` block, changed the `>=1024
 `0 36px`, and added `header nav { padding: 0 52px }` in the `>=1280` block. Verified migrated == source at
 768 (ham 40, video 40 flush), 1024 (ham 36, video 48, +12 inset), 1440 (ham 52, video 64, +12). Lint
 (css+js), breakpoint check, and a11y all pass.
+
+### 2026-09-14 — intro-statement width parity via a `narrow` section style
+The intro line ("If tennis…coaches like you.") wrapped differently from source because it used the global
+section container (max-width 1200, x=120 @1440) while the SOURCE uses a narrower box. Measured source
+intro across viewports: font 40/56/72 at 768/1024/1280+ (line-height 1, letter-spacing -0.03em); content
+box x=40 w=688 @768, x=48 w=928 @1024, x=162 w=956 @1280, x=175 w=1089 @1440. Two gaps: (1) migrated
+skipped the **56px @1024** tier (jumped 40→72); (2) at >=1280 the source insets to **81.6%** of the
+1536-capped container (same ratio as the footer), not the 1200 box.
+Fix — per user's suggestion, added a reusable **`narrow` section style** (section-metadata `style: narrow`)
+in `styles.css`: 1536-max centered container with hero gutters 16/40/48 through 1024, then at >=1280 the
+content insets to 81.6% (max 1170). Also added the missing 56px intro tier. Applied it to the intro
+section in `content/index.plain.html` via a `section-metadata` block (`style: narrow`). Verified migrated
+== source at 768/1024/1280/1440 (x/width within ≤4px sub-pixel on the 81.6% calc). NOTE: the local aem-cli
+dev server strips trailing section-metadata when serving `.plain.html` (so `narrow` isn't visible on
+localhost), but DA/EDS applies section-metadata normally — same pattern as the `<em>`/`<u>` accents that
+were confirmed working on aem.live. Lint + breakpoint check pass. Push `content/index.plain.html` +
+`styles/styles.css` to DA to see it live.
+
+### 2026-09-14 — columns-media block: rebuilt to source (white card + lime CTA)
+The block was a bare "structural only" placeholder — plain white text on black, no card, unstyled link.
+Source is a two-column promo: a WHITE ROUNDED CARD (heading + copy + lime CTA button) beside a rounded
+image. Extracted source spec at 768/1024/1280/1440: card bg #fff, border-radius 20px, ~48px padding,
+content uses space-between so the CTA pins to the card bottom; heading Graphik Semibold #000 line-height 1
+at 32/40/64 (768/1024/1280); body copy #000 at 16/18/24 line-height 1.2; CTA = lime (#cfff05) button,
+#000 text, radius 12px, padding 14px 22px, 18px. Layout: stacked on mobile/tablet, 50/50 side-by-side at
+>=1024 with a 24px gap and equal-height columns (image object-fit: cover); gutters 16/40/48/64 on the
+1536 centered container. Rewrote `blocks/columns-media/columns-media.css` accordingly (the quiz card
+authors its heading as the first <p>, so `p:first-child` is styled as the heading; the lone trailing link
+`p:last-child a` becomes the lime button). The 2nd instance (Safe Play) is authored image-first, so it
+renders image-left / card-right (the source's media-right layout) with no extra option needed — verified
+h2 64px, white card on the right, lime "Start Now". Both instances verified at 1440 (quiz card x=64 white
+radius20 + lime "Start the Quiz"; Safe Play image-left card-right). Lint + breakpoint + a11y pass.
+Note: source's "Start Now" has a 2px black border and "Start the Quiz" has none — kept both borderless
+(negligible on lime/#000); revisit if strict border parity is wanted.
+
+### 2026-09-14 — columns-media: exact 50/50 split + heading 3-line wrap parity
+Follow-up pixel pass on both columns-media instances (quiz + Safe Play — same block, different image
+aspect/content, so 100% parity is achievable). Two drifts fixed:
+1. **Uneven column split** — was card 692 / image 596 (54/46) because `flex:1 1 0` let the card's text
+   min-content and the optimized image's intrinsic width skew the flex. Source is 50/50 (card 644 + 24
+   gap + image 644 @1440). Fixed with `flex: 0 0 calc(50% - 12px)` + `min-width: 0` on both columns →
+   now exactly 644/644.
+2. **Heading wrapped to 2 lines vs source's 3** — the source caps the card's text to ~80% of the card
+   width (an AEM inner-grid artifact: text sits in a 5-of-6 subcolumn, ~491px measure in a 644 card,
+   leaving right whitespace). That narrower measure is what wraps the 64px heading to "Can't decide? /
+   Find your / perfect fit.". Added `.columns-media-content > * { max-width: 80% }` at desktop → heading
+   now wraps to 3 lines matching source. Verified @1440: card x=64 w=644, image x=732 w=644, heading 3
+   lines. Same block drives both instances (Safe Play image-left/card-right via image-first authoring).
+   Lint + breakpoint pass.
+
+### 2026-09-14 — columns-media: full typography parity + padding + button border
+Detailed source typography audit across 768/1024/1440 for the card. Fixes to
+`blocks/columns-media/columns-media.css`:
+- **Card left padding** — was 48px (text too far right); source insets content only **25px left/right,
+  49px top/bottom**. Set base `padding: 49px 25px` and removed the 40/48px desktop overrides.
+- **Button border** — source CTA has a **2px solid #000** border (both quiz + Safe Play); added it.
+- **Button typography** — source CTA text is Graphik Semibold with **letter-spacing 1px** (positive) and
+  font-size **16 → 18 → 24** at 768/1024/1280 (was flat 18px); added the responsive sizes + tracking.
+- **Text typography (verified exact, all viewports):** heading Graphik Semibold #000 lh 1, ls -0.03em,
+  32→40→64; body Graphik Regular #000 lh 1.2 (16/19.2 → 18/21.6 → 24/28.8), ls -0.03em. Confirmed
+  migrated == source at 1440 (padL 25, heading 64/64/-1.92, para 24/28.8/-0.72, btn 24/ls1px/2px border)
+  and 768 (padL 25, heading 32/32, para 16/19.2, btn 16px/2px border).
+- **Image** — re-verified the Safe Play image is ALREADY correct: migrated `media_1e6f408d…jpg` is
+  byte-identical (md5 c487b16…) to the current source `get-early-access.jpeg` (green-hoodie handshake).
+  No change needed; the earlier "wrong image" was a stale screenshot.
+Lint + breakpoint + a11y pass.
+
+### 2026-09-14 — Safe Play image corrected (was the wrong photo)
+User was right: the Safe Play image differed from source. Root cause: the SOURCE renders the Safe Play
+photo via a CSS **background-image** (`content/dam/coaching/decorative/983b964b…jpg` — the green-hoodie
+handshake, 1440×1795 portrait), while the `<img>` fallback in its markup is a DIFFERENT photo
+(`get-early-access.jpeg`, blue-court, 1440×810). The importer captured the `<img>` fallback, so the
+migration showed the wrong (blue-court) image. My earlier md5 "match" compared the wrong source URL
+(the fallback), which is why I mistakenly concluded it was correct — apologies.
+Fix: downloaded the real displayed image (`983b964b…jpg`, md5 a4ec8360…) and overwrote the local asset
+`content/media-da/index/get-early-access-f650bc83-577f619a.jpeg` in place (same filename → all content
+`<picture>` refs keep working, pushes to DA cleanly). Disk verified: md5 a4ec8360…, 1440×1795. NOTE: the
+local aem-cli media proxy still serves a stale 900×506 optimized derivative keyed by the old file (display
+cache only); the raw served file is already the new image (md5 verified) and DA will regenerate the
+derivative from the correct source on push. Lint clean.
+
+### 2026-09-14 — Block consolidation: variant classes (cards, columns)
+Refactor to eliminate near-duplicate blocks and adopt the idiomatic EDS **`blockname (variant)`**
+pattern (the block name is `classList[0]`; extra classes are variant modifiers). No visual/behavioural
+change — verified byte-for-byte parity of the decorated DOM + computed styles before/after.
+
+**Consolidated 7 blocks → 2:**
+- `cards-media` → **`cards (media)`**, `cards-pricing` → **`cards (pricing)`**. Deleted
+  `blocks/cards-media/`, `blocks/cards-pricing/`.
+- `columns-media` → **`columns (media)`**, `columns-cta` → **`columns (cta)`**, `columns-quote` →
+  **`columns (quote)`**. Deleted `blocks/columns-cta/`, `blocks/columns-media/`, `blocks/columns-quote/`.
+
+**How it works:**
+- **JS** — each base block (`blocks/cards/cards.js`, `blocks/columns/columns.js`) keeps one `decorate()`
+  that dispatches on the variant class: `if (block.classList.contains('media')) …`, else `cta`/`quote`/
+  `pricing`, else the boilerplate default. Each variant's decoration logic was moved in **verbatim**
+  (same inner class names — `cards-media-*`, `cards-pricing-*`, `columns-media-*`, `columns-cta-*`,
+  `columns-quote-*`) so the CSS ported over unchanged.
+- **CSS** — each variant's rules are prefixed with the variant class (`.cards.media …`,
+  `.columns.cta …`). The **default** variant's rules are guarded with `:not(.media, .pricing)` /
+  `:not(.media, .cta, .quote)` so they don't leak onto variants. The section-container rules that used
+  the old per-block container class (`.cards-media-container`, `.columns-media-container`) are now
+  re-scoped via **`:has()`** on the shared container: `.cards-container:has(.cards.media)` and
+  `main > .section.columns-container:has(.columns.media) > div`. Added a
+  `stylelint-disable no-descending-specificity` header to `cards.css` (variant rules intentionally
+  follow the lower-specificity default rules); `columns.css` already had it. stylelint also required the
+  complex `:not(a, b)` notation over chained `:not(a):not(b)`.
+
+**Content** — `content/index.plain.html` + `content/es/index.plain.html`: `class="cards-media"` →
+`"cards media"`, `"cards-pricing"` → `"cards pricing"`, `"columns-media"` → `"columns media"`,
+`"columns-cta"` → `"columns cta"`, `"columns-quote"` → `"columns quote"`. Mechanical class rename on
+existing blocks (not new HTML) — required to match the block rename.
+
+**Gotcha (verification):** the local aem-cli serves the **published** page at `/` (proxied from
+`…aem.page`), so it still shows the OLD class names and would 404 the now-deleted block folders — it
+can't reflect the rename until the content is pushed to DA. To verify the refactored blocks against the
+**new** markup locally, copied the content to `drafts/refactor-check.plain.html` and restarted the dev
+server with `--html-folder drafts`, rendering at `/drafts/refactor-check`.
+
+**Verified @1440 (draft, new markup):** columns.media quiz row 772 + space-between + 80% text cap;
+columns.media Safe Play media `aspect-ratio: 644/567` + `object-fit: cover`; columns.cta blue banner,
+`flex-direction: row`; columns.quote body+attribution tagged; cards.media 3-up section grid; cards.pricing
+4-up grid, tier h3 40px. Lint clean (0 errors), breakpoint check pass, overflow OK at 768/1024/1280/1920
+(the 360px 409>360 is the pre-existing columns.cta baseline overflow, unchanged by this refactor — no
+`main` element exceeds 360px).
+
+### 2026-09-14 — Block consolidation cont'd: hero-video → hero (video variant)
+Same variant-class consolidation as cards/columns. Folded `hero-video` into the boilerplate `hero`
+block as **`hero (video)`**. Deleted `blocks/hero-video/`. The plain `hero` variant (CSS-only background
+hero) was unused in content but kept as the default.
+
+**How it works:**
+- **JS** — `blocks/hero/hero.js` (was an empty boilerplate file) now dispatches: `if
+  (block.classList.contains('video')) decorateVideo(block)`, else no-op (the default hero is CSS-only).
+  `decorateVideo` + its helpers (`resolveVideoSrc`, `isVideoHref`, `buildVideo`, `HERO_POSTER`) are the
+  former `hero-video.js` verbatim, so the video-src resolution (DAM path -> `/assets/media/...`, mangled
+  `-mp4` -> `.mp4`) and the play/pause toggle are unchanged. Inner JS-created class names
+  (`hero-video-content`, `hero-video-bg`, `hero-video-media`, `hero-video-toggle`) kept as-is so the CSS
+  ported over unchanged.
+- **CSS** — `blocks/hero/hero.css`: default rules guarded with `:not(.video)` /
+  `:not(:has(.hero.video))`; video rules re-scoped from the old per-block container/wrapper names to the
+  shared ones via `:has()` — `hero-video-container` -> `main > .section.hero-container:has(.hero.video)`,
+  `.hero-video-wrapper` -> `.hero-container:has(.hero.video) .hero-wrapper`, `.hero-video` -> `.hero.video`.
+  Added `stylelint-disable no-descending-specificity` header (variant rules follow the lower-specificity
+  default/`:has()` rules).
+
+**Content** — `content/index.plain.html` + `content/es/index.plain.html`: `class="hero-video"` ->
+`"hero video"`.
+
+**Verified @360/768/1024/1280 (draft, new markup):** video panel height 477/550/522/694, side gutter
+16/40/48/64, radius 20px + overflow hidden, toggle bottom-left 24/24, section padding-top 72, inner
+max-width 1536, video src resolved to `/assets/media/coaching-video-loop-compressed.mp4`, `decorateVideo`
+built the panel + "Pause video" toggle. All identical to pre-refactor hero-video. Lint clean (0 errors),
+breakpoint check pass, overflow OK at 768/1024/1280/1920 (360px 409>360 is the pre-existing columns.cta
+baseline, unrelated to hero).
+
+After this pass `blocks/` is: accordion-path, cards, columns, footer, form, fragment, header, hero,
+widget (down from 15 -> 10 blocks).

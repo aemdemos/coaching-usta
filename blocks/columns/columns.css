@@ -1,33 +1,398 @@
-.columns > div {
+/* stylelint-disable no-descending-specificity */
+
+/* columns — four variants share this block:
+   • default (boilerplate N-column layout)
+   • media   (image beside a white promo card; `media-right` flips sides)
+   • cta     (blue banner: heading + copy left, black pill CTA right)
+   • quote   (headshot beside a testimonial quote + attribution)
+   Each variant is authored as `columns (variant)`; selectors below are scoped
+   by the variant class so they never leak across variants. */
+
+/* ---------------------------------------------------------------- default -- */
+.columns.block:not(.media, .cta, .quote) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns img {
+.columns.block:not(.media, .cta, .quote) img {
   width: 100%;
 }
 
-.columns > div > div {
+.columns.block:not(.media, .cta, .quote) > div > div {
   order: 1;
 }
 
-.columns > div > .columns-img-col {
+.columns.block:not(.media, .cta, .quote) > div > .columns-img-col {
   order: 0;
 }
 
-.columns > div > .columns-img-col img {
+.columns.block:not(.media, .cta, .quote) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns > div {
+  .columns.block:not(.media, .cta, .quote) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns > div > div {
+  .columns.block:not(.media, .cta, .quote) > div > div {
     flex: 1;
     order: unset;
+  }
+}
+
+/* ------------------------------------------------------------------ media -- */
+
+/* a two-column promo: a WHITE ROUNDED CARD (heading + copy + lime CTA) beside a
+   rounded image. Mobile-first: stacks (card, then image); side-by-side 50/50 at
+   >=1024 with a 24px gap. The `media-right` option puts the image on the right
+   (text-first) — used by the Safe Play block. Card bg #fff, radius 20px, ~48px
+   inner padding, button pinned to the card bottom. Card heading Graphik
+   Semibold #000 (32 -> 40 -> 64 across 768/1024/1280), copy #000 (16 -> 18 ->
+   24), CTA is the lime .button. Gutters 16/40/48/64 like the site. */
+
+/* section gutters match the site grid (16/40/48/64) and the 1536 centered box */
+main > .section.columns-container:has(.columns.media) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* the row: stacked on mobile */
+.columns.media > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- media column (rounded image) ---- */
+.columns.media .columns-media-media {
+  order: 0;
+}
+
+.columns.media .columns-media-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+/* ---- content column = the white card ----
+   Source content inset (measured): ~25px left/right, ~49px top/bottom. */
+.columns.media .columns-media-content {
+  order: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  color: #000;
+  border-radius: 20px;
+  padding: 49px 25px;
+}
+
+/* body copy — source: 16/19.2 (768) -> 18/21.6 (1024) -> 24/28.8 (1280); the
+   line-height is a flat 1.2 ratio, letter-spacing -0.03em. */
+.columns.media .columns-media-content p {
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: #000;
+}
+
+/* heading: real <h2>/<h3> (Safe Play) OR the first <p> (quiz card authored the
+   heading as bold copy). Graphik Semibold #000, line-height 1, ls -0.03em.
+   Sizes 32 -> 40 -> 64 across 768/1024/1280. Placed AFTER the generic p rule so
+   it wins for the first paragraph. */
+.columns.media .columns-media-content h1,
+.columns.media .columns-media-content h2,
+.columns.media .columns-media-content h3,
+.columns.media .columns-media-content p:first-child {
+  margin: 0 0 16px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #000;
+}
+
+/* the CTA: a lone link in the content card becomes the lime button. It's pinned
+   to the bottom of the card (source uses space-between), so push it down. */
+.columns.media .columns-media-content p:last-child {
+  margin: 0;
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.columns.media .columns-media-content p:last-child a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 2px solid #000; /* source button has a 2px black border */
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 16px; /* source button text: 16 -> 18 -> 24 across 768/1024/1280 */
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 1px; /* source uses positive 1px tracking on the CTA */
+  text-decoration: none;
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+.columns.media .columns-media-content p:last-child a:hover {
+  opacity: 0.9;
+  color: #000;
+  text-decoration: none;
+}
+
+/* tablet (>=768): larger gutter; still stacked */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.media) > div {
+    padding: 0 40px;
+  }
+}
+
+/* desktop (>=1024): 50/50 side-by-side, equal-height columns, 24px gap */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.media) > div {
+    padding: 0 48px;
+  }
+
+  .columns.media > div {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  /* exact 50/50 split (source: card 644 + 24 gap + image 644). Use an explicit
+     50% basis with no grow/shrink and min-width:0 so neither the card's text
+     nor the image's intrinsic (optimized) width skews the columns unequal —
+     that was making the card too wide and its heading wrap to 2 lines instead
+     of the source's 3. The 24px row gap is subtracted evenly by the browser. */
+  .columns.media .columns-media-media,
+  .columns.media .columns-media-content {
+    flex: 0 0 calc(50% - 12px);
+    min-width: 0;
+    order: unset;
+  }
+
+  /* The two instances treat their image DIFFERENTLY on the source, which is why
+     they differ in height:
+       - QUIZ (heading authored as <p>): the image is shown at its NATURAL
+         portrait aspect (644x772, ~0.83), so the row is tall (772). The card
+         stretches to match via align-items:stretch.
+       - SAFE PLAY (real <h2>): the image is COVER-CROPPED into a shorter
+         landscape frame (644x567, ~1.14), so the row is ~567. The portrait
+         source image is cropped, not shown full-height.
+     Default = natural aspect (the quiz behaviour). */
+  .columns.media .columns-media-media img {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Safe Play: crop the image to the source's landscape frame (644/567). The
+     aspect-ratio scales responsively; object-fit:cover crops the tall portrait
+     source image to the frame instead of letting it render full-height. */
+  .columns.media:has(.columns-media-content h2) .columns-media-media {
+    aspect-ratio: 644 / 567;
+  }
+
+  .columns.media:has(.columns-media-content h2) .columns-media-media img {
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* card can be taller than its own text (image-driven) — pin the CTA to the
+     card bottom (source uses space-between; para->button gap ~120px desktop). */
+  .columns.media .columns-media-content {
+    justify-content: space-between;
+  }
+
+  /* ONLY the quiz card (heading authored as a <p>, no real <h2>) caps its text
+     to ~80% of the card — a source inner-grid artifact (text in a 5-of-6
+     subcolumn) that wraps the 64px heading to 3 lines. The Safe Play card uses
+     a real <h2> and its content spans nearly full width (~93%, 24px insets), so
+     exclude blocks that contain an h2/h3 from the cap. */
+  .columns.media .columns-media-content:not(:has(h2, h3)) > * {
+    max-width: 80%;
+  }
+
+  /* heading 40px, copy 18px, button 18px at the 1024 tier (source-measured) */
+  .columns.media .columns-media-content h1,
+  .columns.media .columns-media-content h2,
+  .columns.media .columns-media-content h3,
+  .columns.media .columns-media-content p:first-child {
+    font-size: 40px;
+  }
+
+  .columns.media .columns-media-content p {
+    font-size: 18px;
+  }
+
+  .columns.media .columns-media-content p:last-child a {
+    font-size: 18px;
+  }
+
+  /* media-right option: text column first, image column second */
+  .columns.media.media-right .columns-media-content {
+    order: 0;
+  }
+
+  .columns.media.media-right .columns-media-media {
+    order: 1;
+  }
+}
+
+/* wide desktop (>=1280): source card heading 64px, copy 24px, button 24px */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.media) > div {
+    padding: 0 64px;
+  }
+
+  .columns.media .columns-media-content h1,
+  .columns.media .columns-media-content h2,
+  .columns.media .columns-media-content h3,
+  .columns.media .columns-media-content p:first-child {
+    font-size: 64px;
+  }
+
+  .columns.media .columns-media-content p {
+    font-size: 24px;
+  }
+
+  .columns.media .columns-media-content p:last-child a {
+    font-size: 24px;
+  }
+}
+
+/* -------------------------------------------------------------------- cta -- */
+
+/* the blue "Explore workshops & events" banner. Source: a contained blue
+   rounded panel (20px radius, ~36px padding), heading + body on the left in
+   black, a black pill "VIEW EVENTS" CTA on the right. */
+.columns.cta {
+  box-sizing: border-box;
+  border-radius: 20px;
+  background-color: var(--usta-blue);
+  color: #000;
+  padding: 36px;
+}
+
+.columns.cta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.columns.cta h2 {
+  margin: 0;
+  color: #000;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.columns.cta p {
+  margin: 0;
+  color: #000;
+}
+
+/* the VIEW EVENTS CTA is a solid black pill with white text (source) */
+.columns.cta .columns-cta-action a,
+.columns.cta a.button {
+  display: inline-flex;
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
+  border-radius: 9999px;
+}
+
+.columns.cta .columns-cta-action a:hover,
+.columns.cta a.button:hover {
+  color: #fff;
+  opacity: 0.9;
+}
+
+@media (width >= 1024px) {
+  .columns.cta {
+    padding: 36px 48px;
+  }
+
+  .columns.cta > div {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .columns.cta .columns-cta-text {
+    flex: 1;
+  }
+
+  .columns.cta .columns-cta-action {
+    flex: 0 0 auto;
+  }
+}
+
+/* ------------------------------------------------------------------ quote -- */
+
+/* the SUCCESS STORIES testimonial on the black section. Source: the quote in
+   32px white Graphik, then attribution (name bold + role). An optional headshot
+   sits beside it on wide screens. */
+.columns.quote > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.columns.quote .columns-quote-image {
+  flex: 0 0 auto;
+}
+
+.columns.quote .columns-quote-image img {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  border-radius: 12px;
+}
+
+.columns.quote .columns-quote-body p {
+  margin: 0 0 12px;
+  color: #fff;
+}
+
+/* the quote itself is the first, large paragraph (measured: 28 -> 32 @1280) */
+.columns.quote .columns-quote-body p:first-child {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.columns.quote .columns-quote-body p strong {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+}
+
+@media (width >= 1024px) {
+  .columns.quote > div {
+    flex-direction: row;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .columns.quote .columns-quote-body {
+    flex: 1;
+  }
+}
+
+@media (width >= 1280px) {
+  .columns.quote .columns-quote-body p:first-child {
+    font-size: 32px;
   }
 }

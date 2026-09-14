@@ -1,4 +1,81 @@
-export default function decorate(block) {
+import { createOptimizedPicture } from '../../scripts/aem.js';
+
+/**
+ * columns — a two-column layout. Four variants share this block:
+ *   • default : generic N-column layout (boilerplate).
+ *   • media   : image beside text (heading + paragraph + CTA); `media-right`
+ *               forces the image to the right (text-first).
+ *   • cta     : heading + copy on one side, a CTA button on the other.
+ *   • quote   : headshot beside a testimonial quote + attribution.
+ * The variant is authored as a class on the block (e.g. `columns (media)`), so
+ * we dispatch on it here and keep each variant's own inner class names.
+ *
+ * @param {Element} block the columns block element
+ */
+function decorateMedia(block) {
+  const row = block.firstElementChild;
+  if (!row) return;
+
+  // Tag each cell as media (a picture as its only meaningful content) or content
+  // (text + CTA).
+  [...row.children].forEach((cell) => {
+    const pic = cell.querySelector('picture');
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p:not(.button-container)');
+    if (pic && !hasText) {
+      cell.classList.add('columns-media-media');
+    } else {
+      cell.classList.add('columns-media-content');
+    }
+  });
+
+  block.querySelectorAll('.columns-media-media img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '900' }]));
+  });
+}
+
+function decorateCta(block) {
+  const row = block.firstElementChild;
+  if (!row) return;
+
+  [...row.children].forEach((cell) => {
+    // A cell whose only meaningful content is a link is the CTA action.
+    const link = cell.querySelector('a');
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p:not(.button-container)');
+    if (link && !hasText) {
+      cell.classList.add('columns-cta-action');
+    } else {
+      cell.classList.add('columns-cta-text');
+    }
+  });
+}
+
+function decorateQuote(block) {
+  const row = block.firstElementChild;
+  if (!row) return;
+
+  [...row.children].forEach((cell) => {
+    const pic = cell.querySelector('picture');
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p, blockquote');
+    if (pic && !hasText) {
+      cell.classList.add('columns-quote-image');
+    } else {
+      cell.classList.add('columns-quote-body');
+    }
+  });
+
+  // The last paragraph in the body is the attribution.
+  const body = row.querySelector('.columns-quote-body');
+  if (body) {
+    const paras = body.querySelectorAll('p');
+    if (paras.length > 1) paras[paras.length - 1].classList.add('columns-quote-attribution');
+  }
+
+  block.querySelectorAll('.columns-quote-image img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '600' }]));
+  });
+}
+
+function decorateDefault(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
 
@@ -15,4 +92,11 @@ export default function decorate(block) {
       }
     });
   });
+}
+
+export default function decorate(block) {
+  if (block.classList.contains('media')) decorateMedia(block);
+  else if (block.classList.contains('cta')) decorateCta(block);
+  else if (block.classList.contains('quote')) decorateQuote(block);
+  else decorateDefault(block);
 }

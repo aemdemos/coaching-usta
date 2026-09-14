@@ -103,8 +103,12 @@ body.appear {
   display: block;
 }
 
+/* The header bar is position:fixed (see blocks/header/header.css .nav-wrapper)
+   and `body` is offset by --usta-header-height, so the header wrapper must NOT
+   also reserve flow height — the boilerplate default (var(--nav-height) = 64px)
+   double-counted and pushed the first section down ~64px past the source. */
 header {
-  height: var(--nav-height);
+  height: 0;
 }
 
 header .header,
@@ -421,6 +425,10 @@ main > .section.intro-statement p {
 
 main > .section.intro-statement strong {
   display: block;
+
+  /* Source renders this statement in Graphik Regular (a lighter weight than
+     Semibold). Our self-hosted "Graphik Regular" is a single regular master, so
+     keep the regular face at 400 — Semibold rendered too heavy vs the source. */
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 28px;
@@ -448,9 +456,52 @@ main > .section.intro-statement u {
   }
 }
 
+/* source adds a 56px tier at the 1024 desktop step (40 → 56 → 72) */
+@media (width >= 1024px) {
+  main > .section.intro-statement strong {
+    font-size: 56px;
+  }
+}
+
 @media (width >= 1280px) {
   main > .section.intro-statement strong {
     font-size: 72px;
+  }
+}
+
+/* ---- Narrow section (section-metadata style: narrow) ----
+   A content-narrower container used by the intro statement so the big centred
+   text wraps exactly like the source. Below 1280 it spans the content width
+   with the hero gutters (16/40/48 → measured source widths 688 @768, 928 @1024);
+   at >=1280 it insets its content to 81.6% of the 1536-capped container (the
+   same inset ratio the footer uses → 956 @1280, 1089 @1440). */
+main > .section.narrow > div {
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+@media (width >= 768px) {
+  main > .section.narrow > div {
+    padding: 0 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.narrow > div {
+    padding: 0 48px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.narrow > div {
+    padding: 0 52px;
+  }
+
+  main > .section.narrow > div > * {
+    width: 81.6%;
+    max-width: 1170px;
+    margin-inline: auto;
   }
 }
 
