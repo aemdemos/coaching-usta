@@ -1,8 +1,8 @@
 /* stylelint-disable no-descending-specificity */
 
 /* USTA Coaching header — solid black fixed bar, hamburger flyout.
-   Mobile-first: base styles are the mobile flyout; desktop (>=900px) shows
-   inline links in the bar. */
+   Mobile-first: base styles are the mobile flyout; at >=1024px it becomes the
+   compact desktop dropdown, and at >=1280px the inline links show in the bar. */
 
 :root {
   --usta-black: #000;
@@ -441,7 +441,7 @@ header nav .nav-flyout .nav-actions a.nav-button {
 /* ---- Desktop (>=1024px): shell + compact dropdown panel ----
    Source switches from the full-screen mobile flyout to the small lime-bordered
    dropdown at 1024px. Inline bar links (Community/Education/Benefits) do NOT
-   appear here — they only show at >=1281px (see the block after this one). */
+   appear here — they only show at >=1280px (see the block after this one). */
 @media (width >= 1024px) {
   :root {
     --usta-header-height: 116px;
@@ -573,14 +573,14 @@ header nav .nav-flyout .nav-actions a.nav-button {
 
   /* Join/Sign In are in the bar, so hide the cloned flyout action buttons.
      The flyout's inline group (Community/Education/Benefits) STAYS visible at
-     1024–1280 because those links are not in the bar yet — it's hidden only at
-     >=1281px where they move into the bar (next block). */
+     1024–1279 because those links are not in the bar yet — it's hidden only at
+     >=1280px where they move into the bar (next block). */
   header nav .nav-flyout .nav-actions {
     display: none;
   }
 }
 
-/* Wide desktop (>=1281px): the source moves Community/Education (left) and
+/* Wide desktop (>=1280px): the source moves Community/Education (left) and
    Benefits (right) out of the flyout and into the bar as inline links; the
    flyout keeps only About/Job Board/Events/Find a Coach/News/English. */
 @media (width >= 1280px) {

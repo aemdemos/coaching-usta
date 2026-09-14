@@ -89,9 +89,11 @@ export default async function decorate(block) {
   });
 
   row.append(links, social);
+  footer.append(brand, row);
 
+  // must run AFTER the links are in the tree — mirrors the source, where every
+  // footer link opens in a new tab except the internal Program Terms link.
   decorateExternalLinks(footer);
 
-  footer.append(brand, row);
   block.append(footer);
 }

@@ -50,11 +50,22 @@ header, hero, hero-video, widget. _Document each block's authoring contract + va
         h3 to `font-size: 40px`, but the source type scale (`typography.json`) has h3 at 28px (32px @1280).
         Fix so h3 matches the scale across all viewports (or confirm 40px is source-correct and update
         `typography.json` — verify against the live source first).
-  - [ ] **Horizontal overflow at 2 tiers.** (a) `columns-cta` @360: the h2 (`.columns-cta h2` = 40px,
-        `line-height:1`) has a long unbroken word wider than its 240px column → page scrolls to 407px.
-        (b) `footer` @768: `.footer-row` forces links + social into one `nowrap` row (7 links @16px+30px
-        gaps ≈599px + 157px social + 40px gap ≈796px) but only ~664px fits → scrolls to 909px. Fix per
-        `skills/grid-system` (allow wrap / reduce gaps / word-break), not bespoke widths.
+  - [ ] **Horizontal overflow — `columns-cta` @360.** The h2 (`.columns-cta h2` = 40px, `line-height:1`)
+        has a long unbroken word wider than its 240px column → page scrolls to 407px. Fix per
+        `skills/grid-system` (word-break / overflow-wrap), not bespoke widths. **Still open.**
+  - [x] **Horizontal overflow — `footer` — FIXED 2026-09-14 (source-faithful).** Root cause: the migrated
+        footer forced the desktop single-row layout starting at **768** (a deliberate deviation the old
+        comment noted), but the fixed link+social content (~796px) doesn't fit the 81.6%/1170px inner
+        container until ~1024+, so 768–1023 overflowed. **First fix attempt (`flex-flow: row wrap`) was
+        wrong** — it broke desktop parity by reflowing whole link items into a flat list and dropping the
+        social icons onto a line below (user caught this vs the source screenshot). **Correct fix:** match
+        the source exactly — verified live that the SOURCE stacks the footer into a column at ≤~1023
+        (`.footer-links` = `flex-direction: column`) and only becomes a single `nowrap` row at desktop
+        (≥1024, `justify-content: space-between`, links left / social right, each link's *text* wrapping to
+        2 lines via `li { flex: 0 1 auto; white-space: normal }`). So: base mobile column stays through the
+        768 tablet tier; single row switches on at **1024**. Verified: desktop @1440 matches source
+        geometry (social pinned x=1108→1265, links left from x=175, no overflow); tablet @1023 stacks with
+        no overflow; overflow sweep `768:OK` + `1024:OK`; lint + breakpoint check pass.
 - [ ] Re-verify the type scale against the live source (`npm run discover:typography … --write`).
 - [ ] Measure per-section content-wrapper widths and wire a shared grid/container if needed.
 - [x] **Fixed the 13 breakpoint violations** — migrated CSS now uses only `768 / 1024 / 1280`,
@@ -153,3 +164,64 @@ Ran `npm install` (378 pkgs + Playwright Chromium) and `npx aem up` (localhost:3
   the breakpoint remap. Left as open items in §6.
 - **Net:** breakpoints + heading font-family are green; a11y green. Two real block bugs (cards-pricing h3
   size, columns-cta/footer overflow) surfaced and are queued in §6.
+
+### 2026-09-14 — audit of the breakpoint changes; fixed a JS/CSS breakpoint mismatch
+Re-verified all breakpoint edits before moving on to block work. Breakpoint check + stylelint (all
+touched files) + eslint all pass clean. One thing the CSS checker can't see but the audit caught:
+- **`blocks/header/header.js` used `matchMedia('(min-width: 900px)')`** for its `isDesktop` gate, but
+  the CSS switches from the full-screen mobile flyout to the compact desktop dropdown at **1024px**.
+  Between 900–1023 the layout was the mobile flyout while JS thought it was desktop → body-scroll lock
+  (openFlyout) and the crossing-reset listener fired at the wrong width. Changed the JS to
+  `min-width: 1024px` to match the CSS. Verified live: header decorates, inline links appear at 1280.
+- Also refreshed stale comments that still referenced `900px` / `1281px` (header.css ×3,
+  columns-media.css ×1) so comments match the on-grid values. No behavioural change from those.
+
+### 2026-09-14 — fixed footer horizontal overflow (768–~1080 tier)
+User reported (with screenshot) a horizontal scrollbar on the footer between ~700 and ~900px — the
+"USTA COACHING" wordmark and "GET ON THE LIST" heading were clipped on the left. Root cause: at >=768
+the footer switches to a single `nowrap` flex row (links + social) but the fixed content (~796px:
+7 links@16px with 30px gaps ≈599px + 40px gap + 157px social) doesn't fit inside the 81.6%/max-1170px
+inner container until ~1080px+. The overflow checker only samples 360/768/1024/1280/1920 and 768 landed
+right at the edge, so it read borderline. Fix in `blocks/footer/footer.css` (>=768 block): `.footer-row`
+and `.footer-links ul` now use `flex-flow: row wrap` with row+column gaps (24/40 and 16/30) so the
+social group drops below and links wrap to a second line when narrow; the intended single-row layout is
+unchanged at wide desktop. Verified: no page overflow at 700/768/820/899, screenshot @820 shows a clean
+two-row link block + wordmark fully visible, stylelint + breakpoint check pass, a11y unaffected.
+
+### 2026-09-14 — footer parity audit vs source across ALL viewports (fixed 3 drifts)
+Full measure-and-match of the footer against the live source at 390/768/1024/1280 (extracted computed
+styles both sides). Footer link responsive scale (SOURCE truth, now replicated exactly):
+| viewport | font/line-height | letter-spacing | link gap | layout |
+|---|---|---|---|---|
+| <768 | 18/18 | -0.54px | 16px | column |
+| 768–1023 | **24/24** | -0.72px | **24px** (row 32px) | column |
+| 1024–1279 | 16/16 | -0.48px | **16px** | row |
+| >=1280 | 18/18 | -0.54px | 30px | row |
+Three drifts found & fixed in `blocks/footer/`:
+1. **Tablet links too small** — source is 24px at 768–1023 (with 24px column gap + 32px links↔social
+   container gap); migrated fell through to 18px. Added the 24px tablet tier in the `>=768` block.
+2. **Desktop link gap wrong** — source is 16px at 1024–1279 and only 30px at >=1280; migrated used 30px
+   across all >=1024. Split: 16px in the `>=1024` block, 30px in the `>=1280` block.
+3. **External-link `target` never applied (footer.js bug)** — `decorateExternalLinks(footer)` ran BEFORE
+   `footer.append(brand, row)`, so it operated on an empty container and no link got `target=_blank`.
+   Source opens every footer link + all social in a new tab except the internal "Program Terms and
+   Conditions" (`_self`). Moved the call after append; now matches (http links → `_blank rel=noopener`;
+   the relative Program-Terms link stays same-tab). Verified live at all 4 viewports.
+Logo (natural 432×36 SVG, full-width, 91px@1440 / 57px@768 / 30px@390), social gaps (18px) and icon
+sizes (IG/LI 36×36, YT 49×36) already matched source. Content complete: all 7 links (text+href) + 3
+social icons present. One deliberate a11y improvement kept over strict parity: migrated LinkedIn icon has
+`alt="LinkedIn"` where source's is empty. Lint (css+js) + breakpoint check pass; footer `768/1024:OK`.
+
+### 2026-09-14 — REVERTED the wrap fix; restored source-exact footer layout
+The `flex-flow: row wrap` fix above **broke desktop parity** — it reflowed the whole link items into a
+flat list and pushed the social icons onto a line below the links, whereas the source keeps a single row
+(links left with 2-line-wrapping labels, social pinned right). User caught it by overlaying the source vs
+migrated desktop screenshots. Investigated the SOURCE directly with Playwright: at 900px the source
+`.footer-links` is `flex-direction: column` (links stacked above social — the "tablet" layout), and only
+at ≥1024 does it become `flex; nowrap; justify-content: space-between` with each link `li` = `flex: 0 1
+auto; white-space: normal` so labels wrap to 2 lines instead of the row growing. Rewrote the footer to
+mirror that: keep the base mobile column through the 768 tablet tier, switch to the single row at **1024**
+(the source's own breakpoint, and where it fits — so no overflow, no wrap hack). Footer-link size band
+also corrected to the source's: 18px (<1024, stacked) → 16px (1024–1279) → 18px (≥1280). Verified desktop
+@1440 matches source pixel geometry (social x=1108→1265, links from x=175, single row), tablet @1023
+stacks cleanly, overflow sweep `768:OK`+`1024:OK`, stylelint + breakpoint check green.

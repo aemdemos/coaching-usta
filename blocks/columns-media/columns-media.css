@@ -1,5 +1,5 @@
 /* columns-media — image beside text/CTA. Mobile-first: stacks vertically
-   (image first), then side-by-side at >=900px. Structural only — brand color,
+   (image first), then side-by-side at >=1024px. Structural only — brand color,
    typography, and spacing tokens are applied by the design pass. */
 
 .columns-media > div {

@@ -1,5 +1,8 @@
-// media query match that indicates desktop width (inline links vs flyout-only)
-const isDesktop = window.matchMedia('(min-width: 900px)');
+// media query match that indicates desktop width (compact dropdown vs full-screen
+// mobile flyout). Must match the CSS desktop switch at 1024px (see header.css
+// `@media (width >= 1024px)`) so body-scroll lock and the crossing reset fire at
+// the same boundary the layout changes.
+const isDesktop = window.matchMedia('(min-width: 1024px)');
 
 /**
  * The active locale, derived from the page URL (/en/ vs /es/). Any page whose

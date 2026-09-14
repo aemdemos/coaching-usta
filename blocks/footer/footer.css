@@ -107,10 +107,11 @@ footer .footer-social img {
   height: 36px;
 }
 
-/* ---- Tablet / desktop (>=768px) ----
-   The source stacks the footer into a single column on tablet (a layout the
-   customer considers a bug); we intentionally give tablet the SAME single-row
-   desktop layout instead, starting at 768px. */
+/* ---- Tablet (>=768px) ----
+   Source keeps the footer as a stacked single column on tablet (verified live:
+   at 900px the source `.footer-links` is `flex-direction: column`, links above
+   social). We match that — only the section box widens; the links/social stay
+   stacked here and become a single row at >=1024 (desktop) below. */
 @media (width >= 768px) {
   /* Section box: centered, capped at 1536px, 52px side padding — matches the
      source's growing gutter (52px @1440 → 148px @1728 → 384px @2200). */
@@ -136,39 +137,84 @@ footer .footer-social img {
     margin-bottom: 66px;
   }
 
-  /* links + social share one row, spread apart */
+  /* tablet links (stacked): source enlarges them to 24px with a 24px column
+     gap and a 32px links↔social container gap. Placed here (before the >=1024
+     desktop block) so the desktop rules win on the overlapping size/gap props
+     at >=1024 via source order. */
+  footer .footer-links a,
+  footer .footer-links a:any-link {
+    font-size: 24px;
+  }
+
+  footer .footer-links ul {
+    gap: 24px;
+  }
+
+  footer .footer-row {
+    gap: 32px;
+  }
+}
+
+/* ---- Desktop (>=1024px): single row ----
+   Source switches to one row here (verified @1440): `.footer-row` is
+   `flex; justify-content: space-between; nowrap` with the links group on the
+   left and social pinned right. The links `ul` is a `nowrap` row where each
+   link SHRINKS and wraps its own text to 2 lines (li = flex 0 1 auto,
+   white-space: normal) rather than the whole items reflowing — so the row
+   never grows past the 81.6%/1170px container and never overflows.
+   Source link gap: 16px @1024–1279, 30px @>=1280 (measured). */
+@media (width >= 1024px) {
   footer .footer-row {
     display: flex;
-    flex-direction: row;
+    flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
     gap: 40px;
   }
 
   footer .footer-links ul {
-    flex-direction: row;
-    align-items: center;
-    gap: 30px;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  /* each link shrinks and wraps its label to 2 lines instead of forcing the
+     row wider — matches the source li model (flex: 0 1 auto, text wraps). */
+  footer .footer-links li {
+    flex: 0 1 auto;
+    line-height: 1;
+    white-space: normal;
+  }
+
+  /* social group keeps its intrinsic width, pinned to the right of the row */
+  footer .footer-social {
+    flex: 0 0 auto;
   }
 }
 
-/* Footer-link font-size responsive bands. Mobile (<768) = 18px (base rule).
-   Because tablet now shares the desktop single-row layout, the 768–1279 row
-   uses the desktop 16px size (matching the source's 1024 desktop row), then
-   returns to 18px at >=1280. line-height = 1em, letter-spacing = -0.03em. */
+/* Footer-link font-size responsive bands (measured from source, all viewports):
+   <768   = 18px / lh 18 (stacked column, base rule; link gap 16px)
+   768–1023 = 24px / lh 24 (stacked column; link gap 24px, container gap 32px)  [set in the >=768 block above]
+   1024–1279 = 16px / lh 16 (single row; link gap 16px)
+   >=1280  = 18px / lh 18 (single row; link gap 30px).
+   letter-spacing is -0.03em throughout (= -0.54px@18 / -0.72px@24 / -0.48px@16). */
 
-/* single-row layout (tablet + desktop) uses the 16px desktop link size */
-@media (width >= 768px) {
+/* single-row desktop uses the 16px link size */
+@media (width >= 1024px) {
   footer .footer-links a,
   footer .footer-links a:any-link {
     font-size: 16px;
   }
 }
 
-/* breakpoint-exception: source footer-link returns to 18px at >=1280 */
+/* source footer-link returns to 18px + 30px gap at >=1280 */
 @media (width >= 1280px) {
   footer .footer-links a,
   footer .footer-links a:any-link {
     font-size: 18px;
+  }
+
+  footer .footer-links ul {
+    gap: 30px;
   }
 }
