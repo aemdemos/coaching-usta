@@ -16,9 +16,21 @@
  */
 function resolveVideoSrc(src) {
   if (!src) return src;
-  const m = src.match(/\/content\/dam\/[^"']*\/([^/"']+\.mp4)(?:[?#].*)?$/i);
-  if (m) return `/assets/media/${m[1]}`;
-  return src;
+  // The importer sometimes mangles the extension dot to a hyphen when a link's
+  // text is the filename (`…coaching-video-loop-compressed-mp4`). Normalise a
+  // trailing `-mp4` (or `-webm`) back to a real extension so the asset resolves.
+  let out = src.replace(/-mp4(?=$|[?#])/i, '.mp4').replace(/-webm(?=$|[?#])/i, '.webm');
+  // Original AEM DAM paths resolve neither locally nor on EDS; rewrite them to
+  // the published DA media URL (DA 301-redirects `.mp4` to the hashed media_*).
+  const m = out.match(/\/content\/dam\/[^"']*\/([^/"']+\.mp4)(?:[?#].*)?$/i);
+  if (m) out = `/assets/media/${m[1]}`;
+  return out;
+}
+
+/* A URL points at a video if it ends in .mp4/.webm OR carries the importer's
+   mangled `-mp4`/`-webm` suffix. */
+function isVideoHref(href) {
+  return /(\.|-)(mp4|webm)(?=$|[?#])/i.test(href || '');
 }
 
 const HERO_POSTER = '/assets/media/usta-promo-placeholder.jpg';
@@ -47,7 +59,7 @@ export default function decorate(block) {
   const existingSource = block.querySelector('video source, source[src$=".mp4"]');
   if (existingSource) videoSrc = existingSource.getAttribute('src');
   if (!videoSrc) {
-    const mp4Link = [...block.querySelectorAll('a')].find((a) => (a.getAttribute('href') || '').includes('.mp4'));
+    const mp4Link = [...block.querySelectorAll('a')].find((a) => isVideoHref(a.getAttribute('href')));
     if (mp4Link) videoSrc = mp4Link.getAttribute('href');
   }
 
@@ -59,9 +71,9 @@ export default function decorate(block) {
     // link/video pointing at the mp4 (the link is often wrapped in a <p>, so we
     // must check the row's text, not merely for a <p>).
     const hasVideoRef = row.querySelector('video, source[src$=".mp4"]')
-      || [...row.querySelectorAll('a')].some((a) => (a.getAttribute('href') || '').includes('.mp4'));
+      || [...row.querySelectorAll('a')].some((a) => isVideoHref(a.getAttribute('href')));
     const hasHeadingOrCopy = [...row.querySelectorAll('h1, h2, h3, h4, p')]
-      .some((el) => el.textContent.trim() && !/\.mp4/i.test(el.textContent));
+      .some((el) => el.textContent.trim() && !/(\.|-)(mp4|webm)(?=$|[?#\s])/i.test(el.textContent.trim()));
     if (hasVideoRef && !hasHeadingOrCopy) {
       row.remove();
       return;

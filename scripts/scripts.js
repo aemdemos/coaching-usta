@@ -177,26 +177,20 @@ function decorateSectionMetadata(main) {
 
 /**
  * The homepage intro statement ("If tennis starts with love, coaches are the
- * beating heart. Discover the new community for coaches like you.") is authored
- * as plain bold copy, but the source highlights two phrases in brand colours.
- * Reproduce that by wrapping the known phrases in semantic spans the CSS can
- * colour (lime + blue). No-op on any page that doesn't contain the phrase.
+ * beating heart. Discover the new community for coaches like you.") is a big
+ * centred bold statement with two brand-coloured phrases. Colour is authored
+ * SEMANTICALLY in the document — italic (<em>) → lime, underline (<u>) → blue
+ * (see the `main em` / `main u` rules in styles.css) — so this only needs to
+ * add the `.intro-statement` class that drives the large centred typography.
+ * Detected by a bold standalone paragraph carrying an <em> or <u> accent, so
+ * there is NO hardcoded phrase. No-op on pages without such a statement.
  * @param {Element} main The main element
  */
 function decorateIntroStatement(main) {
-  const HIGHLIGHTS = [
-    { phrase: 'beating heart', cls: 'intro-accent-lime' },
-    { phrase: 'coaches like you', cls: 'intro-accent-blue' },
-  ];
   main.querySelectorAll('p > strong').forEach((strong) => {
-    if (!/beating heart/i.test(strong.textContent)) return;
+    if (!strong.querySelector('em, u')) return;
     const section = strong.closest('.section') || strong.closest('div');
     if (section) section.classList.add('intro-statement');
-    let html = strong.innerHTML;
-    HIGHLIGHTS.forEach(({ phrase, cls }) => {
-      html = html.replace(phrase, `<span class="${cls}">${phrase}</span>`);
-    });
-    strong.innerHTML = html;
   });
 }
 

@@ -225,3 +225,49 @@ mirror that: keep the base mobile column through the 768 tablet tier, switch to 
 also corrected to the source's: 18px (<1024, stacked) → 16px (1024–1279) → 18px (≥1280). Verified desktop
 @1440 matches source pixel geometry (social x=1108→1265, links from x=175, single row), tablet @1023
 stacks cleanly, overflow sweep `768:OK`+`1024:OK`, stylelint + breakpoint check green.
+
+### 2026-09-14 — Hero (video) block: rendered the video + full source parity across viewports
+The migrated hero showed the mp4 as a **plain text link** — the video never rendered. Two root causes,
+both fixed in `blocks/hero-video/`:
+1. **Import mangled the extension** — the content link href is `…coaching-video-loop-compressed-mp4`
+   (dot→hyphen). The block's `href.includes('.mp4')` detection missed it, so no `<video>` was built.
+   Fixed in `hero-video.js`: added `isVideoHref()` (matches `.mp4/.webm` OR the mangled `-mp4/-webm`) and
+   `resolveVideoSrc()` now normalises a trailing `-mp4`→`.mp4` before the DAM-path rewrite. The clean
+   `/assets/media/coaching-video-loop-compressed.mp4` 301-redirects on DA to the hashed asset
+   (`media_1dbe44fa…​.mp4`, user-confirmed). Video autoplays/loops/muted/playsinline with poster; the
+   play/pause toggle works. Did NOT hand-edit the imported content HTML (per guardrail).
+2. **Geometry was guessed (aspect-ratio), not measured** — old CSS used `aspect-ratio` 4:3→3:2→2:1 and a
+   1200px section cap. Extracted the SOURCE truth from its CSS: the video panel is FULL content width with
+   a FIXED pixel height per breakpoint (`#hero-video-container`): **477 / 550 / 522 / 694** at
+   0 / 768 / 1024 / 1289, `object-fit: cover`, 20px radius. Side gutters **16 / 40 / 48 / 64**. H1 uses the
+   global scale (32/40/56/80) with `letter-spacing: normal`; H1→video gap 24px; toggle 40×40 at 24px
+   bottom-left inset. Rewrote `hero-video.css` to those exact fixed heights + gutters (1289→our 1280 tier).
+Verified migrated == source at 390/768/1024/1440: gutter 16/40/48/64, H1 32/40/56/80, panel W×H
+358×477 / 688×550 / 928×522 / 1312×694, toggle at x=88 (=64+24) @1440, no hero overflow. Lint (css+js),
+breakpoint check, and a11y all pass. (Homepage still shows the unrelated columns-cta @360 overflow —
+`heroOverflow:false` confirmed; that item stays queued.)
+
+### 2026-09-14 — Hero (video): aligned with header container on wide screens
+User flagged the hero video not aligning vertically with the header on wide viewports. Root cause: the
+header caps its content at `max-width: 1536px; margin: 0 auto` (centered, growing gutter), but the hero
+section wrapper used `max-width: none` (full-bleed). Below ~1664px they coincided (both hit the raw
+gutter), but at 1728 the header content inset to x=148 while the video ran to x=64 — an ~84px drift.
+Verified the SOURCE: at 1728 its hamburger is x=148 and the video panel x=160 / right 1568 / width 1408
+(1536 max centered → (1728−1536)/2 = 96 margin + 64 padding = 160; video sits 12px inside the header's
+52px gutter). Fix: gave `main > .section.hero-video-container > div` `max-width: 1536px; margin-inline:
+auto; box-sizing: border-box` (keeping the 16/40/48/64 per-band padding). Now migrated == source at 1728
+(ham 148, panel 160→1568, w 1408) and unchanged below the cap (1440: ham 52, panel 64, w 1312, h 694).
+Lint + breakpoint pass; hero has no overflow (the remaining sweep 360 failure is the separate columns-cta).
+
+### 2026-09-14 — Header side-gutter scale fixed (tablet alignment with hero)
+User flagged the tablet (1024) view: hero video not aligning with the header. Root cause was in the
+HEADER, not the hero — the migrated `header nav` used a flat `52px` side gutter at all >=1024 widths and
+fell back to the mobile `16px` at 768, whereas the SOURCE steps the header gutter per breakpoint. Measured
+source header padding: **40px @768, 36px @1024–1279, 52px @>=1280** (hamburger x = 40 / 36 / 52). The hero
+video already used the correct 40/48/64 gutters (video sits flush at 768, then +12px inside the header at
+1024/1440). Because the header was 52px at 1024 while the video was 48px, the video poked ~4px left of the
+header; at 768 the header (16px) sat far left of the video (40px). Fixes in `blocks/header/header.css`:
+added `header nav { padding: 0 40px }` in the `>=768` block, changed the `>=1024` block from `0 52px` to
+`0 36px`, and added `header nav { padding: 0 52px }` in the `>=1280` block. Verified migrated == source at
+768 (ham 40, video 40 flush), 1024 (ham 36, video 48, +12 inset), 1440 (ham 52, video 64, +12). Lint
+(css+js), breakpoint check, and a11y all pass.

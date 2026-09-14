@@ -1,24 +1,35 @@
 /* Hero (video) — USTA homepage hero. Source layout: a centered condensed H1
    (SERVE YOUR PASSION) on the black section, then a wide rounded video panel
    (20px radius, overflow hidden) below it with a play/pause control bottom-left.
-   H1 size is driven by the global heading tokens (32/40/56/80). The video crop
-   height changes per viewport, so the panel uses a per-band aspect-ratio that
-   matches the source (portrait-ish on mobile -> ~2:1 on desktop). */
+   H1 size is driven by the global heading tokens (32/40/56/80, letter-spacing
+   normal). The video panel is FULL content width (no 1200px cap) with a FIXED
+   per-breakpoint height matching the source (measured from the source CSS:
+   #hero-video-container height 477 → 550 → 522 → 694 at 0/768/1024/1289) and
+   object-fit: cover — NOT an aspect-ratio. Source side gutters: 16/40/48/64. */
 
 /* Hero section vertical rhythm (measured at desktop): header bottom -> H1 top
-   = 72px, H1 -> video = 24px. The hero section carries 72px top padding and its
-   inner wrappers are zeroed so the only gaps are the intentional 24px ones. */
+   = 72px, H1 -> video = 24px. The hero section carries 72px top padding. */
 main > .section.hero-video-container {
   padding-top: 72px;
 }
 
+/* The hero aligns with the HEADER: same 1536px max-width centered container
+   (header is `max-width:1536; margin:0 auto; padding:0 52`), so on wide screens
+   the video panel and heading track the header's growing gutter instead of
+   running full-bleed. Side padding grows per breakpoint (16/40/48/64) matching
+   the source; the video sits 12px inside the header content (64 vs its 52). */
 main > .section.hero-video-container > div {
+  box-sizing: border-box;
+  max-width: 1536px;
   margin-top: 0;
   margin-bottom: 0;
+  margin-inline: auto;
+  padding: 0 16px;
 }
 
 /* The hero H1 (SERVE YOUR PASSION) is default content in the same section as
-   the video block; center it and set a 24px gap to the video below. */
+   the video block; center it. 24px gap to the video below via the block's
+   wrapper margin. */
 .hero-video-container .default-content-wrapper {
   margin: 0;
 }
@@ -26,6 +37,12 @@ main > .section.hero-video-container > div {
 .hero-video-container .default-content-wrapper h1 {
   margin: 0;
   text-align: center;
+  letter-spacing: normal;
+}
+
+/* 24px gap between the H1 (default content) and the video block below it */
+.hero-video-container .hero-video-wrapper {
+  margin-top: 24px;
 }
 
 .hero-video.block {
@@ -50,13 +67,15 @@ main > .section.hero-video-container > div {
 }
 
 /* video panel — full content width, rounded, clipped; the play/pause control
-   sits at the bottom-left inside the rounded frame */
+   sits at the bottom-left inside the rounded frame. Source uses a FIXED height
+   per breakpoint (not an aspect-ratio): 477 mobile → 550 @768 → 522 @1024 →
+   694 @1280 — with object-fit: cover cropping the 16:9 source video. */
 .hero-video .hero-video-bg {
   position: relative;
   width: 100%;
+  height: 477px;
   border-radius: 20px;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
 }
 
 .hero-video .hero-video-media {
@@ -99,16 +118,35 @@ main > .section.hero-video-container > div {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3e%3cpath d='M15 12L28 20L15 28V12Z' fill='white'/%3e%3c/svg%3e");
 }
 
-/* tablet: wider crop */
+/* tablet (>=768): 40px gutter, panel 550px tall (source) */
 @media (width >= 768px) {
+  main > .section.hero-video-container > div {
+    padding: 0 40px;
+  }
+
   .hero-video .hero-video-bg {
-    aspect-ratio: 3 / 2;
+    height: 550px;
   }
 }
 
-/* desktop: ~2:1 wide cinematic crop (matches source ~2.0–2.2) */
+/* desktop (>=1024): 48px gutter, panel 522px tall (source) */
 @media (width >= 1024px) {
+  main > .section.hero-video-container > div {
+    padding: 0 48px;
+  }
+
   .hero-video .hero-video-bg {
-    aspect-ratio: 2 / 1;
+    height: 522px;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter, panel 694px tall (source @1289) */
+@media (width >= 1280px) {
+  main > .section.hero-video-container > div {
+    padding: 0 64px;
+  }
+
+  .hero-video .hero-video-bg {
+    height: 694px;
   }
 }

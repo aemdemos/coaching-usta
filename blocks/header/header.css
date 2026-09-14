@@ -236,6 +236,13 @@ header nav .nav-hamburger-icon {
     height: 8px;
     background-size: auto;
   }
+
+  /* tablet bar side gutter is 40px (source: hamburger x=40 @768), matching the
+     hero's 40px gutter so header and video align. The >=1024 block steps this
+     to 36px, then >=1280 to 52px. */
+  header nav {
+    padding: 0 40px;
+  }
 }
 
 /* Open state: lime rounded button with the black × cross SVG (source parity). */
@@ -456,14 +463,15 @@ header nav .nav-flyout .nav-actions a.nav-button {
 
   /* nav is the positioning context for the desktop dropdown flyout.
      Content is a centered max-width container (matches source: gutter grows
-     with viewport — 52px @1440, 148px @1728, 384px @2200 — because the box
-     caps at 1536px and side padding stays 52px). */
+     with viewport because the box caps at 1536px). Source side padding steps:
+     36px @1024–1279, then 52px @>=1280 (measured: hamburger x=36 @1024,
+     x=52 @1440). */
   header nav {
     position: relative;
     min-height: 50px;
     max-width: 1536px;
     margin: 0 auto;
-    padding: 0 52px;
+    padding: 0 36px;
   }
 
   header nav .nav-bar-left,
@@ -592,5 +600,11 @@ header nav .nav-flyout .nav-actions a.nav-button {
      at the top of the dropdown flyout */
   header nav .nav-flyout .nav-flyout-inline {
     display: none;
+  }
+
+  /* source widens the header side gutter from 36px to 52px at >=1280 (stays
+     52px as the 1536px box centers on wider screens) */
+  header nav {
+    padding: 0 52px;
   }
 }

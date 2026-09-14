@@ -184,6 +184,23 @@ button {
   font: inherit;
 }
 
+/* Semantic inline color convention (authoring aid): authors have no colour
+   picker in the document, so we map two rich-text styles to the brand accents —
+   *italic* (<em>/<i>) → lime, and underline (<u>) → blue. The default body text
+   stays white. Scoped to main content and NOT applied to <u> inside links (the
+   footer/legal "Terms of Use" etc. use <u> inside <a> and must keep link
+   styling). Kept before the link rules so `a` colours still win. */
+main em,
+main i {
+  color: var(--usta-lime);
+  font-style: normal; /* the accent is the colour, not a slant (source parity) */
+}
+
+main u:not(a u) {
+  color: var(--usta-blue);
+  text-decoration: none;
+}
+
 /* links */
 a:any-link {
   color: var(--link-color);
@@ -412,12 +429,17 @@ main > .section.intro-statement strong {
   color: #fff;
 }
 
-main > .section.intro-statement .intro-accent-lime {
+/* semantic accents inside the intro: italic → lime, underline → blue (author
+   marks the phrases in the document; the global `main em`/`main u` rules set
+   the colour, these keep it consistent within the big statement). */
+main > .section.intro-statement em {
   color: var(--usta-lime);
+  font-style: normal;
 }
 
-main > .section.intro-statement .intro-accent-blue {
+main > .section.intro-statement u {
   color: var(--usta-blue);
+  text-decoration: none;
 }
 
 @media (width >= 768px) {
