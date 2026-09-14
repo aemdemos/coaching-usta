@@ -271,74 +271,169 @@ main > .section.columns-container:has(.columns.media) > div {
 
 /* ------------------------------------------------------------------ quote -- */
 
-/* the SUCCESS STORIES testimonial on the black section. Source: the quote in
-   32px white Graphik, then attribution (name bold + role). An optional headshot
-   sits beside it on wide screens. */
+/* SUCCESS STORIES testimonial (black section). Source layout: a two-column row —
+   a HEADSHOT photo on the left and a bordered rounded CARD on the right. The card
+   stacks a large blue quote glyph on top, the quote (Graphik Semibold, white),
+   and the attribution (name + role) pinned to the card BOTTOM.
+   Responsive: 50/50 row at tablet+desktop; STACKED (photo over card) on mobile.
+   Measured (desktop 1280): each column 564x592, 24px gap; card 1px white border,
+   20px radius, transparent, 36px/12px padding, content inset ~25px; glyph 77x51,
+   24px to quote; quote 32px; attribution 16px. Tablet: quote 28px, card pad 12px.
+   Mobile: photo 358x280 above, 24px gap, card below; quote 28px. */
+
+/* section gutters match the site grid (16/40/48/64) and the 1536 centered box so
+   the row's edges line up with the cards/banner above it (source behaviour) */
+main > .section.columns-container:has(.columns.quote) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* mobile-first: the row stacks (photo, then card) */
 .columns.quote > div {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.columns.quote .columns-quote-image {
-  flex: 0 0 auto;
+/* ---- headshot photo (left / top on mobile) ---- */
+.columns.quote .columns-quote-photo {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
-.columns.quote .columns-quote-image img {
+.columns.quote .columns-quote-photo img {
   display: block;
   width: 100%;
-  max-width: 360px;
-  height: auto;
-  border-radius: 12px;
+  height: 100%;
+  aspect-ratio: 358 / 280; /* mobile crop; desktop overrides to ~564/592 */
+  object-fit: cover;
+  border-radius: 20px;
 }
 
-.columns.quote .columns-quote-body p {
-  margin: 0 0 12px;
-  color: #fff;
+/* ---- the bordered card (right / below on mobile) ---- */
+.columns.quote .columns-quote-card {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 12px 16px; /* mobile; grows to 36px 12px + inset at desktop */
 }
 
-/* the quote itself is the first, large paragraph (measured: 28 -> 32 @1280) */
-.columns.quote .columns-quote-body p:first-child {
+/* blue quote glyph pinned to the top of the card */
+.columns.quote .columns-quote-glyph {
+  margin-bottom: 24px;
+}
+
+.columns.quote .columns-quote-glyph img {
+  display: block;
+  width: 77px;
+  height: 51px;
+}
+
+/* the quote itself (Graphik Semibold, white). 28 mobile/tablet -> 32 @1280 */
+.columns.quote .columns-quote-text {
+  margin: 0;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
 }
 
-.columns.quote .columns-quote-body p strong {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+/* attribution (name + role) flows naturally after the quote — the source card is
+   display:block (NOT flex-pushed), so the gap after the quote is an authored
+   margin that scales with viewport: ~24px mobile → ~96px @1024 → ~138px desktop.
+   The card stretches to the photo height, leaving natural empty space below. */
+.columns.quote .columns-quote-attribution {
+  margin-top: 24px;
 }
 
-/* attribution (name + role) — every paragraph after the quote. Source scales it
-   16/19.2 (mobile+tablet) -> 18/21.6 (@1024) -> 24/28.8 (@1280). */
-.columns.quote .columns-quote-body p:not(:first-child) {
+.columns.quote .columns-quote-attribution p {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
+  letter-spacing: normal; /* source attribution has no tracking */
+  color: #fff;
 }
 
-@media (width >= 1024px) {
+/* the name is authored as <strong>, but the source renders it in the SAME
+   Graphik Regular 400 as the role (NOT bold) — override the strong. */
+.columns.quote .columns-quote-attribution p strong {
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
+}
+
+/* tablet+ (>=768): 50/50 row, equal-height columns; larger gutter */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.quote) > div {
+    padding: 0 40px;
+  }
+
   .columns.quote > div {
     flex-direction: row;
-    align-items: center;
-    gap: 48px;
+    align-items: stretch;
+    gap: 24px;
   }
 
-  .columns.quote .columns-quote-body {
-    flex: 1;
+  /* exact 50/50: fixed basis + min-width:0 so the photo's aspect-ratio height
+     doesn't skew the columns unequal (the row gap is split evenly). */
+  .columns.quote .columns-quote-photo,
+  .columns.quote .columns-quote-card {
+    flex: 0 0 calc(50% - 12px);
+    min-width: 0;
   }
 
-  /* attribution grows to 18/21.6 at the 1024 tier (source) */
-  .columns.quote .columns-quote-body p:not(:first-child) {
+  .columns.quote .columns-quote-photo img {
+    aspect-ratio: 564 / 592;
+  }
+}
+
+/* desktop (>=1024): 48px gutter; card grows top/bottom padding to 36px + side
+   inset ~13px (source content inset ~25px = 12px border-box pad + 13px) */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.quote) > div {
+    padding: 0 48px;
+  }
+
+  /* card content inset: 36px top/bottom, ~13px sides (source content inset ~25px
+     = 12px border-box pad + 13px). Card stretches to the photo height so natural
+     empty space sits below the attribution — matching the source. */
+  .columns.quote .columns-quote-card {
+    padding: 36px 13px;
+  }
+
+  /* attribution grows to 18/21.6 at the 1024 tier; gap after the quote widens */
+  .columns.quote .columns-quote-attribution {
+    margin-top: 96px;
+  }
+
+  .columns.quote .columns-quote-attribution p {
     font-size: 18px;
   }
 }
 
+/* wide desktop (>=1280): 64px gutter (matches the cards/banner grid); quote 32px */
 @media (width >= 1280px) {
-  .columns.quote .columns-quote-body p:first-child {
+  main > .section.columns-container:has(.columns.quote) > div {
+    padding: 0 64px;
+  }
+
+  .columns.quote .columns-quote-text {
     font-size: 32px;
   }
 
-  /* attribution grows to 24/28.8 at wide desktop (source) */
-  .columns.quote .columns-quote-body p:not(:first-child) {
+  /* attribution grows to 24/28.8 at wide desktop; gap after quote ~138px (source) */
+  .columns.quote .columns-quote-attribution {
+    margin-top: 138px;
+  }
+
+  .columns.quote .columns-quote-attribution p {
     font-size: 24px;
   }
 }

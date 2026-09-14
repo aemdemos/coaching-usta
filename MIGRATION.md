@@ -744,3 +744,88 @@ Quality gate: lint clean, breakpoint pass, overflow clean 360-1920. `check:typog
 = the pricing tier h3 at 40px (Baseline/Rally/Pro/Pro Plus) vs the single global-h3 record (28/32) — this
 is INTENTIONAL source parity (the source pricing card name IS 40px), a known limitation of the one-h3
 global record, NOT a regression (no h3 rules were touched in this audit).
+
+### 2026-09-14 — columns.quote (SUCCESS STORIES) rebuilt to two-column card layout
+The migrated quote was a plain stacked text block with a 0x0 glyph — missing the source's entire
+structure. Source "SUCCESS STORIES" is ONE row: a HEADSHOT photo (left) + a bordered rounded CARD (right)
+holding a large blue quote glyph on top, the quote, and the attribution pinned to the card BOTTOM.
+Root cause: the importer fragmented the section — the headshot became an ORPHANED lone-picture paragraph
+in the PREVIOUS (banner) section (beside the SUCCESS STORIES heading), while `.columns.quote` held only
+the glyph SVG + text with no card styling, and the SVG rendered 0x0.
+Fix (blocks/columns/columns.js decorateQuote):
+  • Reunite: adopt the orphaned headshot from the previous section as the left `.columns-quote-photo`
+    column (matched as a `p > picture` with empty text; optimized via createOptimizedPicture 750w).
+  • Card: tag the text cell `.columns-quote-card`; prepend the glyph as `.columns-quote-glyph`; wrap the
+    quote as `.columns-quote-text` and the trailing name+role paragraphs as `.columns-quote-attribution`.
+Fix (blocks/columns/columns.css): 50/50 flex row at >=768 (each `flex:0 0 calc(50% - 12px)`, 24px gap,
+  align stretch), STACKED on mobile (photo over card, 24px gap). Photo: 20px radius, object-fit cover,
+  aspect 358/280 mobile -> 564/592 tablet+. Card: 1px #fff border, 20px radius, transparent, padding
+  12px16px mobile -> 36px13px @1024 (source content inset ~25px). Glyph 77x51 + 24px to quote. Quote
+  Graphik Semibold #fff 28px -> 32px @1280, ls -0.03em. Attribution 16px #fff pinned bottom via
+  margin-top:auto. Section gutters 16/40/48/64 + 1536 cap so edges line up with the cards/banner grid.
+Verified vs source: @1280 photo 64->628 (564x592) + card 652->1216 (564x592), glyph 77x51, quote 32px,
+  attribution pinned bottom — exact match. @390 stacked, photo 358x280, card below, quote 28px. @834
+  50/50 row. Lint clean (0 err), breakpoint pass, overflow clean 360-1920.
+
+### 2026-09-14 — columns.quote: fixed authoring (image inside block) + glyph/empty-p bugs
+Author feedback (DA): the headshot was NOT inside the columns(quote) block — it was a loose image in the
+banner section, so the block only held the glyph+text (wrong authoring model). Fixed WITHOUT re-import
+(would lose other blocks' manual parity work):
+  • content/index.plain.html + content/es/index.plain.html: moved the headshot picture to be the block's
+    FIRST cell and the blue quote-glyph picture to lead the SECOND (card) cell → proper two-cell columns
+    row: [headshot | glyph + quote + name + role].
+  • blocks/columns/columns.js decorateQuote: simplified — no longer borrows the headshot across sections.
+    Classifies the picture-only cell as .columns-quote-photo (optimized 750w) and the text cell as
+    .columns-quote-card; lifts the leading glyph <picture> into .columns-quote-glyph, KEEPING only the
+    <img> (drops EDS's webp <source>s that break SVGs → the glyph was rendering as a broken image on the
+    published site); drops the empty <p> EDS leaves after the glyph is moved out; classes the first
+    non-empty <p> as .columns-quote-text (32/28) and wraps the rest as .columns-quote-attribution (16px).
+  • tools/importer/parsers/columns-quote.js: updated to author the same two-cell structure on future
+    imports (scan the parent grid for the sibling portrait; glyph+paras in the card cell). Validated by the
+    parser harness (captureConfident:true).
+Verified via drafts (dev server serves REMOTE preview at /, so local content edits only render once synced
+to DA — validated the corrected authoring on /drafts): @1280 photo 64→628 564×592 (real headshot),
+card 652→1216, glyph 77×51 (not broken/giant), quote 32px, attribution 16px below. Lint clean, breakpoint
+pass. NOTE: the block at / will keep showing the old (pre-edit) layout until content/index is synced to
+the DA backend — the code + local content are correct.
+
+### 2026-09-14 — columns.quote: attribution pushed to lower card (source parity)
+Author feedback: the "Butch Staples / Nationally Recognized Coaching Leader" attribution was sitting right
+under the quote; the source pushes it DOWN into the lower third of the card with a large gap after the
+quote and reserved space below. Measured source (all vps): desktop gap 81 / attr→bottom 105 (card 592);
+tablet gap 155 / 175 (card 730); mobile gap 24 / 44 (card 468) — i.e. on mobile the short card hugs
+content, on tablet/desktop the taller card (stretched to the photo) pushes the attribution down but leaves
+a reserved bottom band. Modeled with `.columns-quote-attribution { margin-top: auto }` (pushes down when
+the card has spare height; stays near the quote on mobile) + a reserved card `padding-bottom: 105px` at
+>=1024. Verified @1280: attr→cardBottom 106 (source 105), attribution in lower third — matches source.
+Lint clean, breakpoint pass.
+
+### 2026-09-14 — columns.quote: attribution typography parity (name not bold)
+Typography audit vs source (390/834/1280): the attribution NAME "Butch Staples" is authored as <strong>
+but the SOURCE renders it in Graphik Regular weight 400 — NOT bold — identical to the role line. Mine was
+using Graphik Semibold (visually bold). Also the source attribution has letter-spacing: normal (no tracking),
+while mine inherited the section's -0.03em. Fixed: `.columns-quote-attribution p` → Graphik Regular 16/19.2
+letter-spacing normal; `.columns-quote-attribution p strong` → Graphik Regular 400 (override the strong).
+Full attribution spec now matches source at all vps: name + role both Graphik Regular 400, 16px, lh 19.2,
+ls normal, white. Quote unchanged (Graphik Semibold 28→32, ls -0.03em). Glyph renders 77×51 (SVG kept, webp
+sources dropped). Lint clean, breakpoint pass.
+
+### 2026-09-14 — columns.quote: attribution font-size scales (16→18→24) + card border confirmed
+Source DevTools (user screenshot) showed the attribution rendering at "24px Graphik Regular" on desktop,
+but my rebuild had flattened it to a fixed 16px. Restored the responsive scale confirmed in the earlier
+typography audit: attribution (name + role) 16/19.2 (mobile+tablet) → 18/21.6 (@1024) → 24/28.8 (@1280),
+all Graphik Regular weight 400, letter-spacing normal, white. Added the 18px @1024 and 24px @1280 bumps to
+`.columns-quote-attribution p`. Confirmed the card's 1px white 20px-radius border renders (it was only
+absent in the stale live view, which still serves pre-edit backend content). Verified @1440: name+role 24px
+Graphik Regular 400, card border 1px #fff r20, attribution in lower third. Lint clean, breakpoint pass.
+
+### 2026-09-14 — columns.quote: attribution flows naturally (not bottom-pinned) + gap scales
+Correcting the prior margin-top:auto approach. Inspected the source card: it's display:block (NOT flex),
+36px padding all sides, and the attribution FLOWS naturally after the quote with an authored gap that
+scales with viewport — measured quote→name gap: 24px @390 / ~96px @1024 / 138px @1440; name font 16→18→24.
+The card is a grid column stretched to the photo height, so natural empty space sits below the attribution
+(no pinning). Replaced margin-top:auto + reserved-bottom-band with a scaling margin-top on
+`.columns-quote-attribution`: 24px base → 96px @1024 → 138px @1280; card padding back to symmetric 36px
+13px at desktop. Verified: @1440 cardH 676 (source 676), gap 138 (source 138), name 24px; @390 gap 24
+(source 24), name 16px. Both match the source screenshots (desktop attribution higher; mobile just under
+the quote). Lint clean, breakpoint pass.

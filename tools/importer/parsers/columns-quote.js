@@ -15,28 +15,40 @@
  * portrait; we prefer a non-quote image for the image cell.
  */
 export default function parse(element, { document }) {
-  // Portrait / headshot image. Skip decorative quote-mark SVGs by alt/src hint.
-  const imgs = [...element.querySelectorAll('img')];
-  const portrait = imgs.find((img) => {
+  // Columns convention: one content row with two cells (→ two side-by-side
+  // columns). Here:
+  //   - cell 1: the headshot PORTRAIT image
+  //   - cell 2: the decorative quote-mark glyph, then the quote paragraph, then
+  //             the attribution paragraphs (name, role)
+  // The white-bordered card (`element`) holds the glyph + text; the portrait is a
+  // SIBLING image column in the same grid row, so scan the parent grid too. Fall
+  // back to the card itself if no sibling grid exists.
+  const grid = element.parentElement || element;
+  const scope = grid.querySelector('img') ? grid : element;
+  const imgs = [...scope.querySelectorAll('img')];
+  const isQuoteGlyph = (img) => {
     const src = (img.getAttribute('src') || '').toLowerCase();
     const alt = (img.getAttribute('alt') || '').toLowerCase();
-    return !src.includes('quote') && !alt.includes('quote');
-  });
-  const imageEl = portrait || imgs[0] || null;
-  const imageCell = imageEl ? (imageEl.closest('picture') || imageEl) : '';
+    return src.includes('quote') || alt.includes('quote');
+  };
+  const portrait = imgs.find((img) => !isQuoteGlyph(img));
+  const glyph = imgs.find((img) => isQuoteGlyph(img));
 
-  // Body: all meaningful paragraphs (quote text + attribution lines).
+  const photoCell = portrait ? (portrait.closest('picture') || portrait) : '';
+
+  // quote/attribution paragraphs live inside the card (`element`)
   const paras = [...element.querySelectorAll('.cmp-text p, p')].filter((p) => p.textContent.trim());
+  const glyphEl = glyph ? (glyph.closest('picture') || glyph) : null;
+  const cardCell = [glyphEl, ...paras].filter(Boolean);
 
   // Empty-block guard.
-  if (!imageCell && !paras.length) {
+  if (!photoCell && !cardCell.length) {
     element.replaceWith(...element.childNodes);
     return;
   }
 
-  const bodyCell = paras.length ? paras : '';
-
-  const cells = [[imageCell, bodyCell]];
+  // Second row = the two columns. First row (the block name) is added by createBlock.
+  const cells = [[photoCell, cardCell.length ? cardCell : '']];
   const block = WebImporter.Blocks.createBlock(document, { name: 'columns-quote', cells });
   element.replaceWith(block);
 }

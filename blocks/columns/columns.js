@@ -32,30 +32,80 @@ function decorateMedia(block) {
   });
 }
 
+/*
+ * quote (SUCCESS STORIES) — a two-column row: a HEADSHOT photo on the left and a
+ * bordered rounded CARD on the right. The card stacks a large blue quote glyph on
+ * top, the quote itself, and the attribution (name + role) below it.
+ *
+ * Authoring model (two cells in one row):
+ *   - cell 1: the headshot picture (portrait)
+ *   - cell 2: the blue quote-mark glyph picture, then the quote paragraph, then
+ *             the attribution paragraphs (name, role)
+ */
 function decorateQuote(block) {
   const row = block.firstElementChild;
   if (!row) return;
 
-  [...row.children].forEach((cell) => {
-    const pic = cell.querySelector('picture');
+  const cells = [...row.children];
+
+  // classify cells: a picture-only cell is the headshot photo; the cell that also
+  // has text is the quote card.
+  let photoCell = null;
+  let card = null;
+  cells.forEach((cell) => {
     const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p, blockquote');
-    if (pic && !hasText) {
-      cell.classList.add('columns-quote-image');
-    } else {
-      cell.classList.add('columns-quote-body');
-    }
+    if (!hasText && cell.querySelector('picture')) photoCell = cell;
+    else card = cell;
   });
 
-  // The last paragraph in the body is the attribution.
-  const body = row.querySelector('.columns-quote-body');
-  if (body) {
-    const paras = body.querySelectorAll('p');
-    if (paras.length > 1) paras[paras.length - 1].classList.add('columns-quote-attribution');
+  // headshot photo — optimize and tag the left column
+  if (photoCell) {
+    photoCell.classList.add('columns-quote-photo');
+    const img = photoCell.querySelector('img');
+    if (img) {
+      img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+    }
   }
 
-  block.querySelectorAll('.columns-quote-image img').forEach((img) => {
-    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '600' }]));
-  });
+  if (card) {
+    card.classList.add('columns-quote-card');
+
+    // the leading picture in the card is the decorative blue quote glyph. It's an
+    // SVG, so drop the <source> variants (EDS generates webp sources that fail for
+    // SVGs → broken image); keep the plain <img> so the SVG always renders.
+    const glyphPic = card.querySelector('picture');
+    if (glyphPic) {
+      const glyphImg = glyphPic.querySelector('img');
+      const glyph = document.createElement('div');
+      glyph.className = 'columns-quote-glyph';
+      if (glyphImg) {
+        glyphImg.removeAttribute('loading');
+        glyph.append(glyphImg);
+        glyphPic.remove();
+      } else {
+        glyph.append(glyphPic);
+      }
+      card.prepend(glyph);
+    }
+
+    // drop any empty paragraphs (EDS can wrap the leading glyph <picture> in its
+    // own <p>, left empty once we move the picture out).
+    card.querySelectorAll('p').forEach((p) => {
+      if (!p.textContent.trim() && !p.querySelector('img, picture, a')) p.remove();
+    });
+
+    // only text-bearing paragraphs: first is the quote; the rest are attribution
+    const paras = [...card.querySelectorAll('p')].filter((p) => p.textContent.trim());
+    if (paras.length) {
+      paras[0].classList.add('columns-quote-text');
+      if (paras.length > 1) {
+        const attribution = document.createElement('div');
+        attribution.className = 'columns-quote-attribution';
+        paras.slice(1).forEach((p) => attribution.append(p));
+        card.append(attribution);
+      }
+    }
+  }
 }
 
 function decorateDefault(block) {
