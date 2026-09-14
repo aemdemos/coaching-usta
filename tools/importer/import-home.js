@@ -8,7 +8,7 @@ import cardsPricingParser from './parsers/cards-pricing.js';
 import cardsMediaParser from './parsers/cards-media.js';
 import columnsCtaParser from './parsers/columns-cta.js';
 import columnsQuoteParser from './parsers/columns-quote.js';
-import accordionPathParser from './parsers/accordion-path.js';
+import accordionParser from './parsers/accordion.js';
 import formParser from './parsers/form.js';
 
 // TRANSFORMER IMPORTS
@@ -23,7 +23,7 @@ const parsers = {
   'cards-media': cardsMediaParser,
   'columns-cta': columnsCtaParser,
   'columns-quote': columnsQuoteParser,
-  'accordion-path': accordionPathParser,
+  'accordion': accordionParser,
   'form': formParser,
 };
 
@@ -39,7 +39,7 @@ const PAGE_TEMPLATE = {
     { name: 'cards-media', instances: ['.cmp-container .aem-Grid--4'] },
     { name: 'columns-cta', instances: ['.container--display--flex.container--align-items--center'] },
     { name: 'columns-quote', instances: ['.container--border--white:not(.aem-GridColumn--mobile--hide):not(.aem-GridColumn--tablet--hide)'] },
-    { name: 'accordion-path', instances: ['.accordion.panelcontainer'] },
+    { name: 'accordion', instances: ['.accordion.panelcontainer'] },
     { name: 'form', instances: ['.v-leads'] },
   ],
   sections: [
@@ -50,7 +50,7 @@ const PAGE_TEMPLATE = {
     { id: 5, name: 'Community', selector: ['.cmp-container .aem-Grid--4'], style: 'dark', blocks: ['cards-media'], defaultContent: [] },
     { id: 6, name: 'Events banner', selector: ['.container--display--flex.container--align-items--center'], style: 'accent', blocks: ['columns-cta'], defaultContent: [] },
     { id: 7, name: 'Success stories', selector: ['.container--border--white:not(.aem-GridColumn--mobile--hide):not(.aem-GridColumn--tablet--hide)'], style: 'dark', blocks: ['columns-quote'], defaultContent: [] },
-    { id: 8, name: 'Discover your path', selector: ['.accordion.panelcontainer'], style: 'dark', blocks: ['accordion-path'], defaultContent: [] },
+    { id: 8, name: 'Discover your path', selector: ['.accordion.panelcontainer'], style: 'dark', blocks: ['accordion'], defaultContent: [] },
     { id: 9, name: 'Safe Play', selector: ['.container--top-margin--36.container--bottom-margin--36.container--inner-full-height'], style: null, blocks: ['columns-media'], defaultContent: [] },
     { id: 10, name: 'Newsletter signup form', selector: ['.v-leads'], style: 'dark', blocks: ['form'], defaultContent: [] },
   ],

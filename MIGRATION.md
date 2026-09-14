@@ -829,3 +829,60 @@ The card is a grid column stretched to the photo height, so natural empty space 
 13px at desktop. Verified: @1440 cardH 676 (source 676), gap 138 (source 138), name 24px; @390 gap 24
 (source 24), name 16px. Both match the source screenshots (desktop attribution higher; mobile just under
 the quote). Lint clean, breakpoint pass.
+
+### 2026-09-14 — accordion-path rebuilt to rounded pill cards + lime open state
+The migrated accordion was plain rows with thin divider lines; the source is a stack of ROUNDED BORDERED
+PILL CARDS. Measured source (desktop 1440): each item is a card — closed: black bg, 1px #fff border, 20px
+radius, 24px padding; OPEN: lime (#cfff05) bg, NO border, black text, 24px padding; items 24px apart; item
+width on the 64px content grid (x=64→1376). Label: Graphik Semibold weight 900, 20→20→22→24 across
+breakpoints, line-height 1 (black on lime / white on black). Body: 16px mobile → 18px desktop, lh 1.2.
++/− toggle on the right (black on lime / white on black). Rewrote accordion-path.css: `.accordion-path`
+is a 24px-gap flex column; `.accordion-path-item` is the bordered card; `[open]` switches to lime + black
+text + transparent border (25px padding to compensate the removed 1px so content doesn't shift). Added the
+section container grid gutters (16/40/48/64, 1536 cap) so edges align with the other blocks. JS: open the
+FIRST item by default (source shows Parents open). Verified @1440 open lime 20r 24pad, closed black 1px
+border, gap 24, label 24/900, body 18; @390 label 20, card 20r — both match source. Lint clean (added
+stylelint-disable no-descending-specificity for the [open] overrides), breakpoint pass.
+
+### 2026-09-14 — accordion-path: single-open + full-width body
+Two source-parity fixes: (1) SINGLE-OPEN — opening one item closes the others (source is an
+exclusive accordion). Native <details> don't do this, so accordion-path.js adds a `toggle` listener per
+item that closes all siblings when one opens. (2) BODY spans the FULL card width so the copy flows BELOW
+the +/- toggle glyph (source body right edge = card padding edge, NOT reserving the toggle column) —
+changed `.accordion-path-item-body` padding from `16px 44px 0 0` to `16px 0 0`. Verified @1440: clicking
+any item leaves only it open; open item's body wraps under the − at ~26px from the card edge (matches
+source's 24px). Lint clean, breakpoint pass.
+
+### 2026-09-14 — accordion-path: typography parity audit (all viewports)
+Full type audit vs source (measured 390/834/1024/1280/1728). Label (.accordion-path-item-label):
+Graphik Semibold weight 900, letter-spacing NORMAL, line-height 1 — sizes 20/20/22/24 across
+mobile/tablet/1024/1280 (source base is 32px but overridden to 24 at >=1280; mine already matched). Body
+(.accordion-path-item-body p): Graphik Regular 400, 16/19.2 (mobile+tablet) -> 18/21.6 (>=1024), lh ratio
+1.2. FIXED: body was missing letter-spacing — added -0.03em (computes to -0.48px@16 / -0.54px@18, matching
+source) and pinned the family to Graphik Regular; added letter-spacing:normal to the label so it can't
+inherit the section's -0.03em. Verified @1440 label 24/24/900/normal + body 18/21.6/-0.54; @390 label
+20/20/900 + body 16/19.2/-0.48 — exact match. Lint clean, breakpoint pass.
+
+### 2026-09-14 — accordion-path: CORRECTED label scale to 24/28/32 (was 20/22/24)
+User's source DevTools tooltip showed the title at 32px — my prior audit had read the WRONG element (the
+<h3> heading computes 24px, but the VISIBLE text is the inner .cmp-accordion__title span). Read the
+source's actual CSS rules to get the definitive scale: .cmp-accordion__title = 32px base (>=1280), 28px
+@768-1279, 24px @<=767, line-height = font-size (1.0), letter-spacing -0.03em, Graphik Semibold. Fixed the
+label: 24px base -> 28px @768 -> 32px @1280 (was 20/22/24 — all ~4-8px too small), and set ls -0.03em
+(computes -0.72/-0.84/-0.96). Verified @1440 32/32, @834 28/28, @390 24/24 — exact match to source rules.
+Lint clean, breakpoint pass.
+
+### 2026-09-14 — accordion-path → default `accordion` block + section heading regrouping
+Per request, replaced the custom accordion-path block with the boilerplate DEFAULT `accordion` block:
+created blocks/accordion/{js,css} (details/summary, classes accordion-item / -item-label / -item-body),
+ported all source-parity styling (rounded lime/black pill cards, 24/28/32 label scale, single-open, body
+flows under the toggle) and the single-open + first-open behaviour. Removed blocks/accordion-path/ and
+tools/importer/parsers/accordion-path.js; updated import-home.js registry+template, page-templates.json,
+and the import bundle to emit `accordion`. Content: switched `class="accordion-path"` → `class="accordion"`
+in content/index + content/es/index.
+Also regrouped two section headings so each leads its own block (source grouping): moved SUCCESS STORIES /
+HISTORIAS DE ÉXITO out of the banner section into the columns.quote section (with `center` / `dark, center`
+section-metadata so the heading is centered while the quote card keeps left alignment), and moved DISCOVER
+YOUR PATH / DESCUBRE TU CAMINO out of the quote section to LEAD the accordion section. Verified @1440:
+SUCCESS STORIES centered above the quote card; DISCOVER YOUR PATH heads the accordion; accordion renders as
+lime/black pill cards. Lint clean, breakpoint pass.

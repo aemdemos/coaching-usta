@@ -237,7 +237,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/accordion-path.js
+  // tools/importer/parsers/accordion.js
   function parse7(element, { document: document2 }) {
     const items = [...element.querySelectorAll(".cmp-accordion__item")];
     const cells = [];
@@ -266,7 +266,7 @@ var CustomImportScript = (() => {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "accordion-path", cells });
+    const block = WebImporter.Blocks.createBlock(document2, { name: "accordion", cells });
     element.replaceWith(block);
   }
 
@@ -422,7 +422,7 @@ var CustomImportScript = (() => {
     "cards-media": parse4,
     "columns-cta": parse5,
     "columns-quote": parse6,
-    "accordion-path": parse7,
+    "accordion": parse7,
     "form": parse8
   };
   var PAGE_TEMPLATE = {
@@ -436,7 +436,7 @@ var CustomImportScript = (() => {
       { name: "cards-media", instances: [".cmp-container .aem-Grid--4"] },
       { name: "columns-cta", instances: [".container--display--flex.container--align-items--center"] },
       { name: "columns-quote", instances: [".container--border--white:not(.aem-GridColumn--mobile--hide):not(.aem-GridColumn--tablet--hide)"] },
-      { name: "accordion-path", instances: [".accordion.panelcontainer"] },
+      { name: "accordion", instances: [".accordion.panelcontainer"] },
       { name: "form", instances: [".v-leads"] }
     ],
     sections: [
@@ -447,7 +447,7 @@ var CustomImportScript = (() => {
       { id: 5, name: "Community", selector: [".cmp-container .aem-Grid--4"], style: "dark", blocks: ["cards-media"], defaultContent: [] },
       { id: 6, name: "Events banner", selector: [".container--display--flex.container--align-items--center"], style: "accent", blocks: ["columns-cta"], defaultContent: [] },
       { id: 7, name: "Success stories", selector: [".container--border--white:not(.aem-GridColumn--mobile--hide):not(.aem-GridColumn--tablet--hide)"], style: "dark", blocks: ["columns-quote"], defaultContent: [] },
-      { id: 8, name: "Discover your path", selector: [".accordion.panelcontainer"], style: "dark", blocks: ["accordion-path"], defaultContent: [] },
+      { id: 8, name: "Discover your path", selector: [".accordion.panelcontainer"], style: "dark", blocks: ["accordion"], defaultContent: [] },
       { id: 9, name: "Safe Play", selector: [".container--top-margin--36.container--bottom-margin--36.container--inner-full-height"], style: null, blocks: ["columns-media"], defaultContent: [] },
       { id: 10, name: "Newsletter signup form", selector: [".v-leads"], style: "dark", blocks: ["form"], defaultContent: [] }
     ]

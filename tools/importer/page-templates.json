@@ -50,7 +50,7 @@
           ]
         },
         {
-          "name": "accordion-path",
+          "name": "accordion",
           "instances": [
             ".accordion.panelcontainer"
           ]
@@ -155,7 +155,7 @@
           ],
           "style": "dark",
           "blocks": [
-            "accordion-path"
+            "accordion"
           ],
           "defaultContent": []
         },
