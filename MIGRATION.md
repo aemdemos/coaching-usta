@@ -886,3 +886,17 @@ section-metadata so the heading is centered while the quote card keeps left alig
 YOUR PATH / DESCUBRE TU CAMINO out of the quote section to LEAD the accordion section. Verified @1440:
 SUCCESS STORIES centered above the quote card; DISCOVER YOUR PATH heads the accordion; accordion renders as
 lime/black pill cards. Lint clean, breakpoint pass.
+
+### 2026-09-14 — ES page fixes: intro statement + DESCUBRE center + Safe Play image verified
+1. INTRO STATEMENT (was rendering as plain body text, not the 72px display): the ES intro <strong> was
+   missing both the semantic accent markers AND the `narrow` section-metadata. decorateIntroStatement()
+   only adds `.intro-statement` when the bold paragraph has an <em>/<u> accent. Fixed content/es/index:
+   wrapped "corazón que late" in <em> (→ lime) and "entrenadores como tú" in <u> (→ blue), and changed the
+   section-metadata style from `dark` to `narrow` — matching the EN pattern. Now scales 28→40→56→72 like EN.
+2. DESCUBRE TU CAMINO CON USTA COACHING: changed its section-metadata style `dark` → `dark, center` so the
+   heading centers (matching EN's DISCOVER YOUR PATH).
+3. SAFE PLAY IMAGE: verified — the migrated ES asset get-early-access-f650bc83.jpeg is BYTE-IDENTICAL to the
+   current live source image (md5 c487b16…); content already references the correct image. The "different
+   image" seen on /es/ is the stale published backend, not a content error.
+NOTE: /es/ serves published backend content, so these render once content/es/index is synced to DA.
+Lint clean, breakpoint pass.
