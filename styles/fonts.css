@@ -61,3 +61,12 @@
   font-display: swap;
   src: url('../fonts/GraphikXXCondensed-Bold-App.woff2') format('woff2');
 }
+
+/* USTA Sans — condensed display face referenced by --heading-font-family; self-hosted from source. */
+@font-face {
+  font-family: "USTA Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/usta-sans-bold.otf') format('opentype');
+}

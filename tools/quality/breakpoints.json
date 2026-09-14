@@ -1,0 +1,15 @@
+{
+  "$comment": "SINGLE SOURCE OF TRUTH for this project's responsive breakpoints (lift-and-shift: adopted from the source site https://www.ustacoaching.com). See AGENTS.md → The Breakpoint Rule and skills/responsive-breakpoints. Decided ONCE at the start of the migration — do NOT re-litigate per task.",
+  "breakpoints": [768, 1024, 1280],
+  "source": "https://www.ustacoaching.com/",
+  "sampledPages": [
+    "https://www.ustacoaching.com/ (clientlibs: coaching base/site/usta-proxy/vue + page structure)"
+  ],
+  "decidedOn": "2026-09-14",
+  "grid": {
+    "system": "Modern flexbox / utility layout (NOT a Bootstrap-3 float grid). display:flex ×324, float ×0, display:grid ×14. A large Vue app clientlib drives most components.",
+    "units": "PIXEL-FIRST (~7.4k px vs ~7 rem; no custom html root font-size → 16px default; notable em in component CSS). box-sizing: border-box. Author block CSS in px to match; do NOT convert fixed px to rem/clamp.",
+    "note": "Container/content widths are utility-driven (max-w-*), not one fixed .container — measure the per-section content-wrapper width from the live DOM. 992px is a minor tier (14 hits) vs dominant 768/1024/1280 and is excluded; 640/1536 unused. The site is dark by default (black bg, white text) with a lime accent (#cfff05) and blue events banner (#0373f3)."
+  },
+  "notes": "Detected via @media min-width frequency in source clientlib CSS: 768 (302), 1024 (197), 1280 (39); 992 (14) minor tier excluded. AEM-classic site (etc.clientlibs/coaching). Fallback if empty: 600/900/1200."
+}
