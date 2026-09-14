@@ -10,29 +10,29 @@
     { "family": "USTA Sans", "weight": "700", "style": "normal", "file": "fonts/usta-sans-bold.otf" }
   ],
   "fontsNote": "Graphik (Regular/Semibold/XXCond Bold) is self-hosted from the source (fonts/*.woff2) and wired in styles/fonts.css + styles.css tokens. ⚠️ USTA Sans is REFERENCED in styles.css --heading-font-family but the font file + @font-face are MISSING — re-added: fonts/usta-sans-bold.otf + an @font-face in fonts.css. Graphik is a PROPRIETARY typeface — confirm licensing before publishing.",
-  "scaleNote": "Scale captured from the source and applied in styles/styles.css (dark theme; headings line-height 1; body 16px flat, line-height 1.2, letter-spacing -0.03em). h1/h2 use the condensed display face (Graphik XXCond Bold), h3+ use Graphik Semibold, body uses Graphik Regular. This record is the enforceable regression baseline for the applied scale; re-run discover:typography against the live source to re-confirm. Only h1/h2/h3/body are pinned (the levels the source exposes).",
+  "scaleNote": "SOURCE TRUTH (confirmed from the live site + inspector): h1/h2 use the big condensed display face **USTA Sans** (verified: hero h1 = 80px 'USTA Sans' #fff; source .v-big-cta__title etc. use USTA Sans at 56/64/80px), h3 uses Graphik Semibold, body uses Graphik Regular. Sizes per breakpoint: h1 32→40→56→80, h2 28→40→56→64, h3 28→28→28→32, body 16 flat (headings line-height 1; body 1.2, letter-spacing -0.03em). ⚠️ The migrated styles.css --heading-font-family currently leads with 'Graphik XXCond Bold' (NOT USTA Sans) — a violation vs source; fix it to lead with USTA Sans so h1/h2 render the correct face. check:typography will flag the family mismatch until then. Re-run discover:typography to re-confirm h2 per level.",
   "scale": {
     "390": {
-      "h1": { "fontSizePx": 32, "lineHeightPx": 32, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
-      "h2": { "fontSizePx": 28, "lineHeightPx": 28, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
+      "h1": { "fontSizePx": 32, "lineHeightPx": 32, "fontWeight": 700, "fontFamily": "usta sans" },
+      "h2": { "fontSizePx": 28, "lineHeightPx": 28, "fontWeight": 700, "fontFamily": "usta sans" },
       "h3": { "fontSizePx": 28, "lineHeightPx": 28, "fontWeight": 700, "fontFamily": "graphik semibold" },
       "p":  { "fontSizePx": 16, "lineHeightPx": 19.2, "fontWeight": 400, "fontFamily": "graphik regular" }
     },
     "768": {
-      "h1": { "fontSizePx": 40, "lineHeightPx": 40, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
-      "h2": { "fontSizePx": 40, "lineHeightPx": 40, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
+      "h1": { "fontSizePx": 40, "lineHeightPx": 40, "fontWeight": 700, "fontFamily": "usta sans" },
+      "h2": { "fontSizePx": 40, "lineHeightPx": 40, "fontWeight": 700, "fontFamily": "usta sans" },
       "h3": { "fontSizePx": 28, "lineHeightPx": 28, "fontWeight": 700, "fontFamily": "graphik semibold" },
       "p":  { "fontSizePx": 16, "lineHeightPx": 19.2, "fontWeight": 400, "fontFamily": "graphik regular" }
     },
     "1024": {
-      "h1": { "fontSizePx": 56, "lineHeightPx": 56, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
-      "h2": { "fontSizePx": 56, "lineHeightPx": 56, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
+      "h1": { "fontSizePx": 56, "lineHeightPx": 56, "fontWeight": 700, "fontFamily": "usta sans" },
+      "h2": { "fontSizePx": 56, "lineHeightPx": 56, "fontWeight": 700, "fontFamily": "usta sans" },
       "h3": { "fontSizePx": 28, "lineHeightPx": 28, "fontWeight": 700, "fontFamily": "graphik semibold" },
       "p":  { "fontSizePx": 16, "lineHeightPx": 19.2, "fontWeight": 400, "fontFamily": "graphik regular" }
     },
     "1280": {
-      "h1": { "fontSizePx": 80, "lineHeightPx": 80, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
-      "h2": { "fontSizePx": 64, "lineHeightPx": 64, "fontWeight": 700, "fontFamily": "graphik xxcond bold" },
+      "h1": { "fontSizePx": 80, "lineHeightPx": 80, "fontWeight": 700, "fontFamily": "usta sans" },
+      "h2": { "fontSizePx": 64, "lineHeightPx": 64, "fontWeight": 700, "fontFamily": "usta sans" },
       "h3": { "fontSizePx": 32, "lineHeightPx": 32, "fontWeight": 700, "fontFamily": "graphik semibold" },
       "p":  { "fontSizePx": 16, "lineHeightPx": 19.2, "fontWeight": 400, "fontFamily": "graphik regular" }
     }

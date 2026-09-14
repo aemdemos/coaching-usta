@@ -48,6 +48,12 @@ header, hero, hero-video, widget. _Document each block's authoring contract + va
 - [ ] Re-verify the type scale against the live source (`npm run discover:typography … --write`).
 - [ ] Measure per-section content-wrapper widths and wire a shared grid/container if needed.
 - [ ] **Fix the 13 breakpoint violations below** so the migrated CSS uses only `768 / 1024 / 1280`.
+- [ ] **Typography violation — h1/h2 font family.** Source h1/h2 use **USTA Sans** (verified: hero h1 =
+      `80px "USTA Sans" #fff`; source `.v-big-cta__title` etc. use USTA Sans). But `styles/styles.css`
+      `--heading-font-family` leads with **"Graphik XXCond Bold"**, so migrated h1/h2 render the wrong
+      face. Fix: `--heading-font-family: "USTA Sans", tahoma, sans-serif;` (h3–h6 keep Graphik Semibold).
+      `typography.json` now records the correct family (`usta sans`), so `npm run check:typography` will
+      flag this until `styles.css` is fixed.
 
 ### Breakpoint violations to fix (13) — from `node tools/quality/breakpoint-check.mjs`
 
