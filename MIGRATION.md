@@ -47,6 +47,31 @@ header, hero, hero-video, widget. _Document each block's authoring contract + va
       (needs `npm install` + `npx aem up`) and fix any drift/overflow.
 - [ ] Re-verify the type scale against the live source (`npm run discover:typography … --write`).
 - [ ] Measure per-section content-wrapper widths and wire a shared grid/container if needed.
+- [ ] **Fix the 13 breakpoint violations below** so the migrated CSS uses only `768 / 1024 / 1280`.
+
+### Breakpoint violations to fix (13) — from `node tools/quality/breakpoint-check.mjs`
+
+The migrated blocks were authored off-grid (`600` / `900` / `1281`, plus a `max-width` range in the
+header). Map to the source grid `768 / 1024 / 1280`, mobile-first `min-width` only. Verify the visual
+tier before swapping a value (900 could be the tablet 768 or the desktop 1024 step — check each block).
+
+| File:line | Current | → Fix to |
+|---|---|---|
+| `blocks/cards-media/cards-media.css:64` | `@media (width >= 900px)` | 768 or 1024 |
+| `blocks/cards-pricing/cards-pricing.css:90` | `@media (width >= 600px)` | 768 |
+| `blocks/cards-pricing/cards-pricing.css:96` | `@media (width >= 900px)` | 768 or 1024 |
+| `blocks/columns/columns.css:22` | `@media (width >= 900px)` | 768 or 1024 |
+| `blocks/columns-cta/columns-cta.css:47` | `@media (width >= 900px)` | 768 or 1024 |
+| `blocks/columns-media/columns-media.css:41` | `@media (width >= 900px)` | 768 or 1024 |
+| `blocks/columns-quote/columns-quote.css:39` | `@media (width >= 900px)` | 768 or 1024 |
+| `blocks/form/form.css:46` | `@media (width >= 600px)` | 768 |
+| `blocks/header/header.css:298` | `@media (width >= 768px) and (width <= 1023px)` | split to mobile base + `min-width: 1024` (no `max-width`) |
+| `blocks/header/header.css:426` | `@media (width >= 768px) and (width <= 1023px)` | split to mobile base + `min-width: 1024` (no `max-width`) |
+| `blocks/header/header.css:585` | `@media (width >= 1281px)` | 1280 |
+| `blocks/hero/hero.css:33` | `@media (width >= 900px)` | 768 or 1024 |
+| `styles/styles.css:360` | `@media (width >= 900px)` | 768 or 1024 |
+
+Re-run `node tools/quality/breakpoint-check.mjs` until it passes clean (exit 0).
 
 ---
 
