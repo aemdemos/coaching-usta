@@ -72,13 +72,34 @@ export default function decorate(block) {
 
   block.textContent = '';
 
-  // Source layout: heading on top, then a large full-width video panel below it
-  // (the video is a flow element, not a background).
+  // Source layout: heading on top, then a large rounded video panel below it
+  // (the video is a flow element, not a background) with a play/pause control.
   block.append(content);
   if (videoSrc) {
     const media = document.createElement('div');
     media.className = 'hero-video-bg';
-    media.append(buildVideo(videoSrc));
+    const video = buildVideo(videoSrc);
+    media.append(video);
+
+    // play/pause toggle (bottom-left, matches source). aria-pressed=false means
+    // "playing" (shows the pause glyph); true means "paused" (shows play glyph).
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'hero-video-toggle';
+    toggle.setAttribute('aria-pressed', 'false');
+    toggle.setAttribute('aria-label', 'Pause video');
+    toggle.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        toggle.setAttribute('aria-pressed', 'false');
+        toggle.setAttribute('aria-label', 'Pause video');
+      } else {
+        video.pause();
+        toggle.setAttribute('aria-pressed', 'true');
+        toggle.setAttribute('aria-label', 'Play video');
+      }
+    });
+    media.append(toggle);
     block.append(media);
   }
 }

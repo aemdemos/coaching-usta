@@ -175,6 +175,31 @@ function decorateSectionMetadata(main) {
   });
 }
 
+/**
+ * The homepage intro statement ("If tennis starts with love, coaches are the
+ * beating heart. Discover the new community for coaches like you.") is authored
+ * as plain bold copy, but the source highlights two phrases in brand colours.
+ * Reproduce that by wrapping the known phrases in semantic spans the CSS can
+ * colour (lime + blue). No-op on any page that doesn't contain the phrase.
+ * @param {Element} main The main element
+ */
+function decorateIntroStatement(main) {
+  const HIGHLIGHTS = [
+    { phrase: 'beating heart', cls: 'intro-accent-lime' },
+    { phrase: 'coaches like you', cls: 'intro-accent-blue' },
+  ];
+  main.querySelectorAll('p > strong').forEach((strong) => {
+    if (!/beating heart/i.test(strong.textContent)) return;
+    const section = strong.closest('.section') || strong.closest('div');
+    if (section) section.classList.add('intro-statement');
+    let html = strong.innerHTML;
+    HIGHLIGHTS.forEach(({ phrase, cls }) => {
+      html = html.replace(phrase, `<span class="${cls}">${phrase}</span>`);
+    });
+    strong.innerHTML = html;
+  });
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
@@ -183,6 +208,7 @@ export function decorateMain(main) {
   decorateSections(main);
   decorateBlocks(main);
   decorateButtons(main);
+  decorateIntroStatement(main);
 }
 
 /**

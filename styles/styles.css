@@ -26,18 +26,23 @@
   --body-font-family: "Graphik Regular", tahoma, arial, sans-serif;
   --heading-font-family: "Graphik XXCond Bold", "USTA Sans", tahoma, sans-serif;
 
-  /* body sizes */
-  --body-font-size-m: 22px;
-  --body-font-size-s: 19px;
-  --body-font-size-xs: 17px;
+  /* Body sizes — measured from the source: body/lists are a flat 16px at every
+     viewport (line-height 1.2, letter-spacing -0.03em). */
+  --body-font-size-m: 16px;
+  --body-font-size-s: 16px;
+  --body-font-size-xs: 14px;
 
-  /* heading sizes */
-  --heading-font-size-xxl: 55px;
-  --heading-font-size-xl: 44px;
-  --heading-font-size-l: 34px;
-  --heading-font-size-m: 27px;
-  --heading-font-size-s: 24px;
-  --heading-font-size-xs: 22px;
+  /* Heading sizes — measured USTA scale (mobile <768 base). Bands step up at
+     768 / 1024 / 1280 (see media queries below):
+       h1(xxl): 32 -> 40 -> 56 -> 80
+       h2(xl):  28 -> 40 -> 56 -> 64
+       h3(l):   28 -> 28 -> 28 -> 32   */
+  --heading-font-size-xxl: 32px;
+  --heading-font-size-xl: 28px;
+  --heading-font-size-l: 28px;
+  --heading-font-size-m: 24px;
+  --heading-font-size-s: 20px;
+  --heading-font-size-xs: 18px;
 
   /* nav height */
   --nav-height: 64px;
@@ -56,20 +61,30 @@
   src: local('Arial');
 }
 
-@media (width >= 900px) {
+/* tablet band (768–1023): h1/h2 -> 40 */
+@media (width >= 768px) {
   :root {
-    /* body sizes */
-    --body-font-size-m: 18px;
-    --body-font-size-s: 16px;
-    --body-font-size-xs: 14px;
-
-    /* heading sizes */
-    --heading-font-size-xxl: 45px;
-    --heading-font-size-xl: 36px;
+    --heading-font-size-xxl: 40px;
+    --heading-font-size-xl: 40px;
     --heading-font-size-l: 28px;
-    --heading-font-size-m: 22px;
-    --heading-font-size-s: 20px;
-    --heading-font-size-xs: 18px;
+  }
+}
+
+/* small-desktop band (1024–1279): h1/h2 -> 56 */
+@media (width >= 1024px) {
+  :root {
+    --heading-font-size-xxl: 56px;
+    --heading-font-size-xl: 56px;
+    --heading-font-size-l: 28px;
+  }
+}
+
+/* desktop band (>=1280): h1 -> 80, h2 -> 64, h3 -> 32 */
+@media (width >= 1280px) {
+  :root {
+    --heading-font-size-xxl: 80px;
+    --heading-font-size-xl: 64px;
+    --heading-font-size-l: 32px;
   }
 }
 
@@ -80,7 +95,8 @@ body {
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
-  line-height: 1.6;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
 }
 
 body.appear {
@@ -111,9 +127,20 @@ h6 {
   margin-bottom: 0.25em;
   font-family: var(--heading-font-family);
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1;
   letter-spacing: normal;
   scroll-margin: 40px;
+}
+
+/* Source: the big condensed display headings (h1/h2) use the condensed display
+   face with letter-spacing:normal; the smaller headings (h3–h6) use Graphik
+   Semibold with -0.03em tracking (same as body). */
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  letter-spacing: -0.03em;
 }
 
 h1 { font-size: var(--heading-font-size-xxl); }
@@ -309,13 +336,15 @@ main img {
   width: 100%;
 }
 
-/* sections — full-bleed themed bands (source homepage is edge-to-edge dark /
-   white / blue bands, so sections carry the background and have no margin). */
+/* sections — full-bleed themed bands. The whole site is DARK by default
+   (black bg + white text), so an un-classed section stays dark; only special
+   sections opt into `light`/`accent`. This removes the need for `dark`
+   section-metadata everywhere. */
 main > .section {
   margin: 0;
   padding: 48px 0;
-  background-color: #fff;
-  color: #000;
+  background-color: #000;
+  color: #fff;
 }
 
 main > .section > div {
@@ -335,17 +364,11 @@ main > .section:first-of-type {
 }
 
 /* ---- USTA section themes (from section-metadata style) ----
-   dark = black bg + white text; accent = blue events banner; un-classed
-   sections (quiz, Safe Play) keep the default white bg + black text. */
+   The site is dark by default (base rule above). `dark` is therefore a no-op
+   kept for authored parity; `accent` is the blue events banner; `light`/
+   `highlight` opt a section into a white band. */
 main > .section.dark {
   background-color: #000;
-  color: #fff;
-}
-
-main > .section.dark a:any-link,
-main > .section.dark h1,
-main > .section.dark h2,
-main > .section.dark h3 {
   color: #fff;
 }
 
@@ -354,12 +377,59 @@ main > .section.accent {
   color: #000;
 }
 
+main > .section.accent a:any-link,
+main > .section.accent h1,
+main > .section.accent h2,
+main > .section.accent h3 {
+  color: #000;
+}
+
 /* section metadata */
-main .section.light,
-main .section.highlight {
-  background-color: var(--light-color);
+main > .section.light,
+main > .section.highlight {
+  background-color: #fff;
+  color: #000;
+}
+
+/* ---- Intro statement (below the hero) ----
+   Big centred statement in Graphik Regular with two brand-coloured phrases.
+   Measured scale: 28 (mobile) -> 40 (tablet) -> 72 (desktop), line-height 1. */
+main > .section.intro-statement {
+  text-align: center;
+}
+
+main > .section.intro-statement p {
   margin: 0;
-  padding: 40px 0;
+}
+
+main > .section.intro-statement strong {
+  display: block;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+main > .section.intro-statement .intro-accent-lime {
+  color: var(--usta-lime);
+}
+
+main > .section.intro-statement .intro-accent-blue {
+  color: var(--usta-blue);
+}
+
+@media (width >= 768px) {
+  main > .section.intro-statement strong {
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.intro-statement strong {
+    font-size: 72px;
+  }
 }
 
 /* loose (default-content) images inside a section — e.g. the Success Stories

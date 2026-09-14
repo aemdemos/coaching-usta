@@ -1,6 +1,32 @@
-/* Hero (video) — USTA homepage hero: a large left-aligned condensed H1
-   (SERVE YOUR PASSION) on the black section, with a wide video panel below it.
-   Source desktop: H1 80px/80px, video ~1312×694 (16:9) at full content width. */
+/* Hero (video) — USTA homepage hero. Source layout: a centered condensed H1
+   (SERVE YOUR PASSION) on the black section, then a wide rounded video panel
+   (20px radius, overflow hidden) below it with a play/pause control bottom-left.
+   H1 size is driven by the global heading tokens (32/40/56/80). The video crop
+   height changes per viewport, so the panel uses a per-band aspect-ratio that
+   matches the source (portrait-ish on mobile -> ~2:1 on desktop). */
+
+/* Hero section vertical rhythm (measured at desktop): header bottom -> H1 top
+   = 72px, H1 -> video = 24px. The hero section carries 72px top padding and its
+   inner wrappers are zeroed so the only gaps are the intentional 24px ones. */
+main > .section.hero-video-container {
+  padding-top: 72px;
+}
+
+main > .section.hero-video-container > div {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* The hero H1 (SERVE YOUR PASSION) is default content in the same section as
+   the video block; center it and set a 24px gap to the video below. */
+.hero-video-container .default-content-wrapper {
+  margin: 0;
+}
+
+.hero-video-container .default-content-wrapper h1 {
+  margin: 0;
+  text-align: center;
+}
 
 .hero-video.block {
   display: flex;
@@ -8,15 +34,14 @@
   gap: 24px;
 }
 
+.hero-video .hero-video-content {
+  text-align: center;
+}
+
 .hero-video .hero-video-content h1,
 .hero-video .hero-video-content h2 {
   margin: 0;
-  font-family: var(--heading-font-family);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: normal;
   color: #fff;
-  font-size: 40px;
 }
 
 .hero-video .hero-video-content p {
@@ -24,32 +49,66 @@
   margin: 8px 0 0;
 }
 
-/* video panel — full content width, below the heading (flow, not background) */
+/* video panel — full content width, rounded, clipped; the play/pause control
+   sits at the bottom-left inside the rounded frame */
 .hero-video .hero-video-bg {
+  position: relative;
   width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
 }
 
 .hero-video .hero-video-media {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   object-fit: cover;
 }
 
-/* tablet */
+/* play/pause toggle — 40x40, transparent, white glyph, bottom-left (24px in) */
+.hero-video .hero-video-toggle {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-video .hero-video-toggle::before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: no-repeat center / contain;
+}
+
+/* pause glyph (two bars) shown while playing */
+.hero-video .hero-video-toggle[aria-pressed="false"]::before {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3e%3crect x='14' y='12' width='4' height='16' fill='white'/%3e%3crect x='22' y='12' width='4' height='16' fill='white'/%3e%3c/svg%3e");
+}
+
+/* play glyph (triangle) shown while paused */
+.hero-video .hero-video-toggle[aria-pressed="true"]::before {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3e%3cpath d='M15 12L28 20L15 28V12Z' fill='white'/%3e%3c/svg%3e");
+}
+
+/* tablet: wider crop */
 @media (width >= 768px) {
-  .hero-video .hero-video-content h1,
-  .hero-video .hero-video-content h2 {
-    font-size: 64px;
+  .hero-video .hero-video-bg {
+    aspect-ratio: 3 / 2;
   }
 }
 
-/* desktop */
+/* desktop: ~2:1 wide cinematic crop (matches source ~2.0–2.2) */
 @media (width >= 1024px) {
-  .hero-video .hero-video-content h1,
-  .hero-video .hero-video-content h2 {
-    font-size: 80px;
-    line-height: 1;
+  .hero-video .hero-video-bg {
+    aspect-ratio: 2 / 1;
   }
 }

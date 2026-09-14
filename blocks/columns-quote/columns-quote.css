@@ -25,11 +25,11 @@
   color: #fff;
 }
 
-/* the quote itself is the first, large paragraph */
+/* the quote itself is the first, large paragraph (measured: 28 -> 32 @1280) */
 .columns-quote .columns-quote-body p:first-child {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-size: 24px;
-  line-height: 1.15;
+  font-size: 28px;
+  line-height: 1;
 }
 
 .columns-quote .columns-quote-body p strong {
@@ -46,7 +46,9 @@
   .columns-quote .columns-quote-body {
     flex: 1;
   }
+}
 
+@media (width >= 1280px) {
   .columns-quote .columns-quote-body p:first-child {
     font-size: 32px;
   }
