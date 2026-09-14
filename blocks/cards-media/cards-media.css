@@ -61,7 +61,7 @@
   padding: 0;
 }
 
-@media (width >= 900px) {
+@media (width >= 1024px) {
   .cards-media-container {
     grid-template-columns: repeat(3, 1fr);
     align-items: start;

@@ -24,7 +24,7 @@
 
   /* fonts — USTA Sans (bold condensed display) for headings, Graphik for body */
   --body-font-family: "Graphik Regular", tahoma, arial, sans-serif;
-  --heading-font-family: "Graphik XXCond Bold", "USTA Sans", tahoma, sans-serif;
+  --heading-font-family: "USTA Sans", tahoma, sans-serif;
 
   /* Body sizes — measured from the source: body/lists are a flat 16px at every
      viewport (line-height 1.2, letter-spacing -0.03em). */
@@ -357,7 +357,7 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
-@media (width >= 900px) {
+@media (width >= 1024px) {
   main > .section > div {
     padding: 0 32px;
   }

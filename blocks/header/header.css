@@ -292,10 +292,11 @@ header nav .nav-flyout .nav-language-switcher > a {
   letter-spacing: normal;
 }
 
-/* breakpoint-exception: tablet full-screen flyout band (768–1023). Source keeps
-   the full-screen sheet with 40px menu text and a 40px side gutter until 1024px,
-   where it switches to the compact dropdown panel. */
-@media (width >= 768px) and (width <= 1023px) {
+/* Tablet full-screen flyout band (>=768). Source keeps the full-screen sheet
+   with 40px menu text and a 40px side gutter from 768px; at >=1024 the desktop
+   block below overrides these (18px text, 24px padding) as it switches to the
+   compact dropdown panel — so this is mobile-first min-width only. */
+@media (width >= 768px) {
   header nav .nav-flyout .nav-flyout-links a,
   header nav .nav-flyout .nav-flyout-inline a,
   header nav .nav-language-switcher > a {
@@ -418,12 +419,12 @@ header nav .nav-flyout .nav-actions a.nav-button {
   font-size: 16px; /* source flyout buttons are 16px (bar buttons are 18px) */
 }
 
-/* Tablet band (768–1023): the full-screen flyout lays Join / Sign In
-   side-by-side (2-column row, ~336px each with a 16px gap) at 18px, instead of
-   the mobile stacked column. Placed after the base .nav-actions rules so it
-   wins on source order. At >=1024 the flyout actions are hidden (Join/Sign In
-   sit in the bar). */
-@media (width >= 768px) and (width <= 1023px) {
+/* Tablet band (>=768): the full-screen flyout lays Join / Sign In side-by-side
+   (2-column row, ~336px each with a 16px gap) at 18px, instead of the mobile
+   stacked column. Placed after the base .nav-actions rules so it wins on source
+   order. At >=1024 the desktop block hides the flyout actions entirely
+   (display:none — Join/Sign In sit in the bar), so this is min-width only. */
+@media (width >= 768px) {
   header nav .nav-flyout .nav-actions ul {
     flex-direction: row;
   }
@@ -582,7 +583,7 @@ header nav .nav-flyout .nav-actions a.nav-button {
 /* Wide desktop (>=1281px): the source moves Community/Education (left) and
    Benefits (right) out of the flyout and into the bar as inline links; the
    flyout keeps only About/Job Board/Events/Find a Coach/News/English. */
-@media (width >= 1281px) {
+@media (width >= 1280px) {
   header nav .nav-inline {
     display: flex;
   }

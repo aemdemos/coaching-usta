@@ -44,7 +44,7 @@
   opacity: 0.9;
 }
 
-@media (width >= 900px) {
+@media (width >= 1024px) {
   .columns-cta {
     padding: 36px 48px;
   }

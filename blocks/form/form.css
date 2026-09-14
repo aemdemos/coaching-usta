@@ -43,7 +43,7 @@
   cursor: pointer;
 }
 
-@media (width >= 600px) {
+@media (width >= 768px) {
   .form .form-form {
     flex-flow: row wrap;
     align-items: flex-start;
