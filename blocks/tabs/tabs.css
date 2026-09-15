@@ -27,7 +27,8 @@
   display: none;
 }
 
-.tabs .tabs-list button {
+.tabs .tabs-list button,
+.tabs .tabs-list a.tabs-tab {
   flex: 0 0 auto;
   margin: 0;
   border: 0;
@@ -43,6 +44,7 @@
   line-height: 18px;
   white-space: nowrap;
   text-align: center;
+  text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -64,12 +66,15 @@
   margin: 0;
 }
 
-.tabs .tabs-list button:hover {
+.tabs .tabs-list button:hover,
+.tabs .tabs-list a.tabs-tab:hover {
   background-color: #cfff05;
   color: #000;
 }
 
-.tabs .tabs-list button[aria-selected='true'] {
+.tabs .tabs-list button[aria-selected='true'],
+.tabs .tabs-list a.tabs-tab[aria-selected='true'],
+.tabs .tabs-list a.tabs-tab[aria-current='page'] {
   background-color: #cfff05;
   color: #000;
   cursor: default;
@@ -94,7 +99,8 @@
     overflow-x: visible;
   }
 
-  .tabs .tabs-list button {
+  .tabs .tabs-list button,
+  .tabs .tabs-list a.tabs-tab {
     flex: 1 1 0;
     background-color: transparent;
   }
