@@ -32,20 +32,27 @@ main > .section.accordion-container > div {
   }
 }
 
-/* stack of pill cards, 24px apart */
+/* stack of pill cards. Source: 16px apart until the 1280 breakpoint, 24px above */
 .accordion.block {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
-/* each item is a rounded card */
+@media (width >= 1280px) {
+  .accordion.block {
+    gap: 24px;
+  }
+}
+
+/* each item is a rounded card. Closed: 1px white border + 23px padding
+   (content edge at 24px). */
 .accordion .accordion-item {
   box-sizing: border-box;
   border: 1px solid #fff;
   border-radius: 20px;
   background-color: #000;
-  padding: 24px;
+  padding: 23px;
 }
 
 /* open item: lime background, black text, no border (compensate the 1px with an
@@ -53,7 +60,7 @@ main > .section.accordion-container > div {
 .accordion .accordion-item[open] {
   border-color: transparent;
   background-color: var(--usta-lime);
-  padding: 25px;
+  padding: 24px;
 }
 
 .accordion .accordion-item[open] .accordion-item-label,
@@ -61,16 +68,17 @@ main > .section.accordion-container > div {
   color: #000;
 }
 
-/* label row */
+/* label row: title left, +/- icon in a 48px box on the right (source). */
 .accordion .accordion-item-label {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 44px 0 0;
+  min-height: 48px;
+  padding: 0 60px 0 0;
   cursor: pointer;
   list-style: none;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-weight: 900;
+  font-weight: 400;
   font-size: 24px;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -95,22 +103,24 @@ main > .section.accordion-container > div {
   display: none;
 }
 
-/* +/- toggle: horizontal bar always, vertical bar only when closed */
+/* +/- toggle (source: 48px icon box, ~20px cross lines, 3.5px stroke). The
+   horizontal bar shows always; the vertical bar only when closed (- vs +).
+   Centered in the 48px slot on the right (24px from the right edge). */
 .accordion .accordion-item-label::before,
 .accordion .accordion-item-label::after {
   content: '';
   position: absolute;
   top: 50%;
-  right: 0;
-  width: 22px;
-  height: 2px;
+  right: 24px;
+  width: 20px;
+  height: 3.5px;
   background-color: currentcolor;
-  transform: translateY(-50%);
+  transform: translate(50%, -50%);
   transition: opacity 0.2s;
 }
 
 .accordion .accordion-item-label::after {
-  transform: translateY(-50%) rotate(90deg);
+  transform: translate(50%, -50%) rotate(90deg);
 }
 
 .accordion .accordion-item[open] .accordion-item-label::after {
@@ -121,7 +131,7 @@ main > .section.accordion-container > div {
    the FULL card width (no toggle-column reserve) so the text flows below the
    +/- glyph — matching the source. */
 .accordion .accordion-item-body {
-  padding: 16px 0 0;
+  padding: 10px 0 0;
 }
 
 .accordion .accordion-item-body p {
@@ -133,7 +143,8 @@ main > .section.accordion-container > div {
   letter-spacing: -0.03em; /* source: -0.48px @16 / -0.54px @18 */
 }
 
-@media (width >= 1024px) {
+/* body copy grows to 18px at the 1280 breakpoint (source) */
+@media (width >= 1280px) {
   .accordion .accordion-item-body p {
     font-size: 18px;
   }
