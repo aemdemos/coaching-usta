@@ -1,0 +1,1166 @@
+[
+  {
+    "name": "Sportsmanship & Athlete Safety Junior Tournament Courses",
+    "code": "SAS-00001",
+    "language": "English",
+    "safePlay": false,
+    "sort": 0,
+    "badgeName": null,
+    "coachTypes": [],
+    "certifications": [],
+    "membershipPackages": [],
+    "moduleCount": 2,
+    "modules": [
+      "USTA Tournaments: Levels 6 and 7",
+      "USTA Tournaments: Level 5 and Up"
+    ],
+    "description": "",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": ""
+  },
+  {
+    "name": "Introduce Your Child to Tennis",
+    "code": "PA-NB1022",
+    "language": "English",
+    "safePlay": false,
+    "sort": 1,
+    "badgeName": null,
+    "coachTypes": [
+      "PARENT_GUARDIAN_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "BASELINE"
+    ],
+    "moduleCount": 1,
+    "modules": [
+      "The Fun of Tennis"
+    ],
+    "description": "This module empowers parents to introduce tennis to their children. Also available in Spanish.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": true,
+    "spanishHref": "",
+    "badge": ""
+  },
+  {
+    "name": "Introduzca a su Hijo al Tenis (Introduce Your Child to Tennis)",
+    "code": "PA-NB1022S",
+    "language": "Spanish",
+    "safePlay": false,
+    "sort": 2,
+    "badgeName": null,
+    "coachTypes": [
+      "PARENT_GUARDIAN_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "BASELINE"
+    ],
+    "moduleCount": 1,
+    "modules": [
+      "La Diversión de Jugar al Tenis"
+    ],
+    "description": "Este módulo permite a los padres introducir a sus hijos en el tenis.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": ""
+  },
+  {
+    "name": "Supporting Your Child in Competition",
+    "code": "PC-NB1023",
+    "language": "English",
+    "safePlay": false,
+    "sort": 3,
+    "badgeName": null,
+    "coachTypes": [
+      "PARENT_GUARDIAN_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "BASELINE"
+    ],
+    "moduleCount": 7,
+    "modules": [
+      "USTA Tournaments: Levels 6 and 7",
+      "USTA Tournaments: Level 5 and Up",
+      "Training Loads for Performance",
+      "High Performing Parent",
+      "Turning Losses into Lessons: Embracing the Failure",
+      "Engagement and Determination: Compete Like a Champion (CLAC)",
+      "Nurturing Fair, Respectful Competitors: Compete Like a Champion (CLAC)"
+    ],
+    "description": "Enhancing the parent and child relationship in competition.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": ""
+  },
+  {
+    "name": "Tennis in Physical Education",
+    "code": "PET-B1024",
+    "language": "English",
+    "safePlay": false,
+    "sort": 4,
+    "badgeName": null,
+    "coachTypes": [
+      "SCHOOL_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "BASELINE"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Introduction to Net Generation and Tennis in PE",
+      "Key Components of Tennis in PE",
+      "Strategies for Effective Class Management and Safety",
+      "Delivering Tennis in PE Curriculum",
+      "Teaching Tennis in PE: Pre-K - 12th Grade",
+      "Putting It All Together: Tennis in PE"
+    ],
+    "description": "Whether you're brand new to tennis or looking to enhance your current curriculum, this course equips you with the tools, activities, and confidence to deliver inclusive, skill-based tennis lessons right in your PE class—no court required.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": ""
+  },
+  {
+    "name": "Intro to Coaching 1",
+    "code": "INC-B1001",
+    "language": "English",
+    "safePlay": false,
+    "sort": 5,
+    "badgeName": null,
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH",
+      "PARENT_GUARDIAN_COACH",
+      "SCHOOL_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "BASELINE",
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 3,
+    "modules": [
+      "See Yourself as a Coach: Discovering Your Strengths, Building Relationships, and Inspiring Player Growth",
+      "Positive Coaching: Cultivating a Fun, Supportive, and Growth-Oriented Environment",
+      "Delivering a Playful Practice for Beginner Players"
+    ],
+    "description": "These modules introduce the essentials of coaching, helping individuals explore their potential as a coach, embrace positive coaching principles, and implement play-based rally techniques to create engaging and developmentally-appropriate sessions. Also available in Spanish.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": true,
+    "spanishHref": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d758e2044-7bcc-4383-bda9-2bb7a6906cfc",
+    "badge": ""
+  },
+  {
+    "name": "Introducción al Entrenamiento 1 (Intro to Coaching 1)",
+    "code": "INC-B1001S",
+    "language": "Spanish",
+    "safePlay": false,
+    "sort": 6,
+    "badgeName": null,
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "BASELINE",
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 3,
+    "modules": [
+      "Considérese un Entrenador",
+      "Entrenamiento Positivo",
+      "Impartir Prácticas Recreativas para Jugadores Principiantes"
+    ],
+    "description": "Estos módulos presentan los fundamentos del entrenamiento, ayudan a las personas a explorar su potencial como entrenadores, adoptar principios de entrenamiento positivos e implementar técnicas de juego basadas en el intercambio de pelotas para crear sesiones atractivas y adecuadas para el desarrollo.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": ""
+  },
+  {
+    "name": "Intro to Coaching Workshop",
+    "code": "INC-W1010",
+    "language": "English",
+    "safePlay": false,
+    "sort": 7,
+    "badgeName": null,
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH",
+      "PARENT_GUARDIAN_COACH",
+      "SCHOOL_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "BASELINE",
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 0,
+    "modules": [],
+    "description": "This workshop is designed to help coaches organize players of all ages, provide basic coaching in a group setting, and establish an athlete-centered environment.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "badge": ""
+  },
+  {
+    "name": "Coaching High School Tennis",
+    "code": "CHS-B1012",
+    "language": "English",
+    "safePlay": false,
+    "sort": 8,
+    "badgeName": "Coaching High School Tennis",
+    "coachTypes": [
+      "SCHOOL_COACH",
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS",
+      "BASELINE"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Athlete-Centered Coaching and the Role of the Coach",
+      "Compliance and Season Logistics",
+      "Effective Team Management",
+      "Managing Parents and the Coaching Staff",
+      "Coaching Strategies for High School Tennis",
+      "Putting It All Together: Coaching High School Tennis"
+    ],
+    "description": "This badge signifies expertise in guiding high school athletes with an athlete-centered approach, focusing on pre-season preparation, parent and team management, effective practice execution, match play strategies, and post-season planning.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/coaching-high-school-tennis.png"
+  },
+  {
+    "name": "Empowering Girls",
+    "code": "EMG-B1010",
+    "language": "English",
+    "safePlay": false,
+    "sort": 9,
+    "badgeName": "Empowering Girls",
+    "coachTypes": [
+      "PARENT_GUARDIAN_COACH",
+      "SCHOOL_COACH",
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "BASELINE",
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Developing Girls in Sports",
+      "Challenging Gender Stereotypes",
+      "Coaching Girls",
+      "Empowering Girls' Engagement",
+      "Recognizing Girls' Identities",
+      "Supporting Girls' Needs"
+    ],
+    "description": "This badge highlights expertise in fostering girls' participation in sports by challenging gender stereotypes, recognizing their unique identities, addressing their needs, and employing strategies to engage, support, and empower them through coaching.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/empowering-girls.png"
+  },
+  {
+    "name": "Inclusive Coaching",
+    "code": "CLC-B1011",
+    "language": "English",
+    "safePlay": false,
+    "sort": 10,
+    "badgeName": "Inclusive Coaching",
+    "coachTypes": [
+      "PARENT_GUARDIAN_COACH",
+      "SCHOOL_COACH",
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "BASELINE",
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Using Inclusive Practices in Coaching",
+      "PCA Coaching with Empathy: Training Overview",
+      "PCA Coaching with Empathy: Understanding Trauma's Impact on Kids and the Role of Empathetic Coaches",
+      "PCA Coaching with Empathy: Introduction to the PACT",
+      "PCA Coaching with Empathy: Commit to the PACT",
+      "Using Trauma-Informed Practices in Coaching"
+    ],
+    "description": "Equipping coaches with emotional intelligence, empathy, and effective strategies for engaging and supporting Gen Z athletes through social and emotional learning and conflict resolution.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/inclusive-coaching.png"
+  },
+  {
+    "name": "Athlete-Centered Coaching",
+    "code": "ACC-B1003",
+    "language": "English",
+    "safePlay": false,
+    "sort": 11,
+    "badgeName": "Athlete-Centered Coaching",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH",
+      "PARENT_GUARDIAN_COACH",
+      "SCHOOL_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Defining Athlete-Centered Coaching and Developing a Growth Mindset",
+      "Mastering Communication: Building Trust, Fostering Connections, and Aligning for Success",
+      "Nurturing Holistic Growth Through Developmentally Appropriate Coaching",
+      "Coaching Strategies that Target Holistic Athlete Development",
+      "Empowering Athletes: Fostering Creativity, Motivation, and Leadership",
+      "Putting It All Together: Athlete-Centered Coaching"
+    ],
+    "description": "This badge reflects mastery of USTA's coaching philosophy, including playful learning, the 5C's, communication skills, and effective equipment use for athlete development.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/athlete-centered-coaching.png"
+  },
+  {
+    "name": "Intro to Coaching 2",
+    "code": "INC-B1002",
+    "language": "English",
+    "safePlay": true,
+    "sort": 13,
+    "badgeName": "Development Coach",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 4,
+    "modules": [
+      "Play-Based Rally: Building Engagement and Skills Through Rally Activities",
+      "Play-Based Games: Building Engagement and Skills Through Games",
+      "Putting It All Together: Intro to Coaching 2",
+      "Intro to Coaching Workshop"
+    ],
+    "description": "Access to this badge requires Safe Play approval. It equips coaches with foundational skills, including play-based games, effective feedback techniques through 'Stop-Show-Go,' and practical application of the 5C's to foster holistic player development. Also available in Spanish.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": true,
+    "spanishHref": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253dca61161a-a8df-4256-bd02-ae150ee1d8c1",
+    "badge": "badges/intro-to-coaching.png"
+  },
+  {
+    "name": "Introducción al Entrenamiento 2 (Intro to Coaching 2)",
+    "code": "INC-B1002S",
+    "language": "Spanish",
+    "safePlay": true,
+    "sort": 14,
+    "badgeName": "Development Coach",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 4,
+    "modules": [
+      "Peloteo Recreativo",
+      "Juegos Recreativos",
+      "Consolidación: Introducción al Entrenamiento",
+      "Intro to Coaching Workshop"
+    ],
+    "description": "Para acceder a esta insignia es necesario contar con la aprobación de Safe Play. Proporciona a los entrenadores habilidades fundamentales, como juegos basados en el juego, técnicas eficaces de retroalimentación a través de «Stop-Show-Go» y la aplicación práctica de las 5 C para fomentar el desarrollo integral de los jugadores.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/intro-to-coaching.png"
+  },
+  {
+    "name": "Applied Coaching Skills - Private",
+    "code": "ACS-B1008",
+    "language": "English",
+    "safePlay": true,
+    "sort": 16,
+    "badgeName": "Applied Coaching Skills - Private",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 9,
+    "modules": [
+      "Core Foundations: The importance of the tactical-technical bridge",
+      "Tactics First: Building Smart Players Through Space, Time, and Intent",
+      "Tactics in Action: Translating Game Styles, Court Zones, and Ball Control Into Winning Decisions",
+      "Creating Adaptable Technique: Foundations of Effective Technical Instruction",
+      "Applied Coaching Skills - Private",
+      "Applied Coaching Skills - Groups",
+      "Elevating Player Performance: Tactical & Technical Correction",
+      "Applied Coaching Skills - Private Workshop",
+      "Assignments"
+    ],
+    "description": "Beginner and intermediate individual lessons focused on building foundational skills and introducing basic strategies.",
+    "unlock": "To unlock this course you will have to complete the Developing Junior and Adult Players Badge and have a Rally or above package.",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/applied-coaching-skills-private.png"
+  },
+  {
+    "name": "Applied Coaching Skills - Group",
+    "code": "ACS-B1009",
+    "language": "English",
+    "safePlay": true,
+    "sort": 18,
+    "badgeName": "Applied Coaching Skills - Group",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 9,
+    "modules": [
+      "Core Foundations: The importance of the tactical-technical bridge",
+      "Tactics First: Building Smart Players Through Space, Time, and Intent",
+      "Tactics in Action: Translating Game Styles, Court Zones, and Ball Control Into Winning Decisions",
+      "Creating Adaptable Technique: Foundations of Effective Technical Instruction",
+      "Applied Coaching Skills - Private",
+      "Applied Coaching Skills - Groups",
+      "Elevating Player Performance: Tactical & Technical Correction",
+      "Applied Coaching Skills - Group Workshop",
+      "Assignments"
+    ],
+    "description": "Beginner and intermediate group lessons focused on building foundational skills and introducing basic strategies.",
+    "unlock": "To unlock this course you will have to complete the Developing Junior and Adult Players Badge and have a Rally or above package.",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/applied-coaching-skills-group.png"
+  },
+  {
+    "name": "Athletic Development by Multi SkillZ®",
+    "code": "ADV-B1007",
+    "language": "English",
+    "safePlay": true,
+    "sort": 20,
+    "badgeName": "Athletic Development by Multi SkillZ®",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Build Adaptable & Skillful Young Tennis Players",
+      "Boost Motor Magic in Players: Skills for Improvement & Play",
+      "Grow a Well-Rounded Foundation: Key Pillars of Athletic Development",
+      "Smart Skill Progression: Matching Skills to Development Stages",
+      "Set the Stage, Elevate the Learning by Crafting Strong Learning Environments",
+      "Implementing Athletic Development in Programs"
+    ],
+    "description": "Equipping players with the skills, mindset, and physical foundation needed for success.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/athletic-development.png"
+  },
+  {
+    "name": "Developing Junior and Adult Players",
+    "code": "DEP-B1005",
+    "language": "English",
+    "safePlay": true,
+    "sort": 22,
+    "badgeName": "Developing Junior and Adult Players",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 9,
+    "modules": [
+      "Building the Basics: Coaching Junior Tennis Players with Purpose and Play",
+      "Coaching Adults: Strategies for Success on the Court",
+      "Creating Energy and Activity on Your Court",
+      "Tactical and Technical Development for Junior and Adult Players",
+      "Playful Practices for Junior and Adult Beginner Through Intermediate Players",
+      "Foundations of Comprehensive Tennis Programs for Juniors and Adults",
+      "Putting It All Together: Developing Junior and Adult Players",
+      "Developing Junior and Adult Players Workshop",
+      "Assignments"
+    ],
+    "description": "Cultivate young athletes' skills through progressive, age-appropriate training. Enhancing adult players' skills through progressive, tailored training that emphasizes technical fundamentals.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/developing-junior-and-adult-players.png"
+  },
+  {
+    "name": "Coaching Wheelchair Tennis",
+    "code": "CWT-B1015",
+    "language": "English",
+    "safePlay": true,
+    "sort": 24,
+    "badgeName": "Coaching Wheelchair Tennis",
+    "coachTypes": [
+      "SCHOOL_COACH",
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 7,
+    "modules": [
+      "History of Wheelchair Tennis and Athletes with a Disability",
+      "The Sports Chair",
+      "Wheelchair Mobility",
+      "Tactical and Technical Coaching",
+      "Coaching Tactics: Singles & Doubles Strategy",
+      "Starting a Local Wheelchair Tennis Program",
+      "Coaching Wheelchair Tennis Workshop"
+    ],
+    "description": "This badge involves coaching athletes with disabilities, focusing on sport chair setup, mobility patterns, technical skills, and strategic approaches for singles and doubles play.",
+    "unlock": "To unlock this course you will have to complete the Athlete Centered Coaching Badge and have a Rally or above package.",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/coaching-wheelchair-tennis.png"
+  },
+  {
+    "name": "Coaching Intellectual and Developmental Disabilities Tennis",
+    "code": "IDD-B1025",
+    "language": "English",
+    "safePlay": true,
+    "sort": 26,
+    "badgeName": "Coaching Intellectual and Developmental Disabilities Tennis",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Understanding IDD & Disability Awareness",
+      "Creating Successful Teaching Environments",
+      "Promoting Positive Behaviors",
+      "Technical Coaching for Athletes with IDD",
+      "Pathway to Competition",
+      "Program Development"
+    ],
+    "description": "This badge equips tennis coaches with a comprehensive framework for supporting athletes with Coaching Intellectual and Developmental Disabilities Tennis (IDD), covering everything from foundational inclusion and behavioral strategies to on-court skill delivery and long-term program design.",
+    "unlock": "To unlock this course you will have to have a Rally or above package.",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/people-with-disabilities-intellectual-developmental-disability.png"
+  },
+  {
+    "name": "Events and Social Play",
+    "code": "EVE-B1013",
+    "language": "English",
+    "safePlay": true,
+    "sort": 27,
+    "badgeName": "Events and Social Play",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Importance of Play",
+      "Types of Play",
+      "Planning for Events and Social Play",
+      "Conducting and Evaluating Events and Social Play",
+      "Choosing the Right Format (Role of the Organizer)",
+      "Formats for Team Play"
+    ],
+    "description": "This badge showcases skills in fostering participation and community engagement by understanding the importance and types of play, creating inclusive experiences, and utilizing various formats for individual and team activities.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/events-and-social-play.png"
+  },
+  {
+    "name": "CPR/AED and First Aid Awareness",
+    "code": "SFC-B1004",
+    "language": "English",
+    "safePlay": false,
+    "sort": 28,
+    "badgeName": "CPR/AED and First Aid Awareness",
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS",
+      "BASELINE"
+    ],
+    "moduleCount": 2,
+    "modules": [
+      "CPR/AED Awareness",
+      "First Aid Awareness"
+    ],
+    "description": "CPR/AED and First Aid equips coaches with essential CPR, First Aid, and AED awareness to ensure safe and responsive environments for all players.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/safety-coach.png"
+  },
+  {
+    "name": "Cardio Tennis",
+    "code": "CAR-B1014",
+    "language": "English",
+    "safePlay": true,
+    "sort": 31,
+    "badgeName": "Cardio Tennis",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 7,
+    "modules": [
+      "Cardio Tennis Overview",
+      "Other Elements and Nuances in Cardio Tennis",
+      "The Cardio Tennis Sport-Specific Progressive Warm-Up",
+      "Drill, Game and Cool Down Segments",
+      "Triples: The Easiest Way to Get Started with Cardio Tennis",
+      "The Cardio Tennis Triples Experience",
+      "Cardio Tennis Workshop"
+    ],
+    "description": "This badge represents foundational knowledge and skills for delivering engaging Cardio Tennis sessions, mastering progressive triples formats, and effectively organizing activations to inspire participation and community involvement.",
+    "unlock": "To unlock this course you will have to have a Rally or above package.",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/cardio-tennis.png"
+  },
+  {
+    "name": "Cardio Tennis Workshop",
+    "code": "CAR-W1010C",
+    "language": "English",
+    "safePlay": true,
+    "sort": 31.5,
+    "badgeName": null,
+    "coachTypes": [
+      "COLLEGE_COACH",
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 0,
+    "modules": [],
+    "description": "This workshop is designed to give on court foundational knowledge and skills for delivering engaging Cardio Tennis sessions, mastering progressive triples formats, and effectively organizing activations to inspire participation and community involvement.to help coaches organize players of all ages, provide basic coaching in a group setting, and establish an athlete-centered environment.",
+    "unlock": "To unlock this course you will have to have a Rally or above package.",
+    "unlockLink": null,
+    "spanishLink": false,
+    "badge": ""
+  },
+  {
+    "name": "Coaching Female Athletes: Menstrual Health Essentials",
+    "code": "CFA-B1028",
+    "language": "English",
+    "safePlay": true,
+    "sort": 32,
+    "badgeName": "Coaching Female Athletes: Menstrual Health Essentials",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 2,
+    "modules": [
+      "Understanding the Complete Menstrual Cycle",
+      "Tackling Menstrual Taboos & Creating Period-Friendly Environments"
+    ],
+    "description": "Created by Coaching Her, this badge provides coaches insight into how the menstrual cycle impacts athletes' physical and emotional well-being, providing coaches with the knowledge and confidence to support girls, reduce stigma, foster trust, and enhance overall performance and participation.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/empowering-girls.png"
+  },
+  {
+    "name": "Player Motivation and Engagement",
+    "code": "PME-B1019",
+    "language": "English",
+    "safePlay": true,
+    "sort": 33,
+    "badgeName": "Player Motivation and Engagement",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Principles of Motivation",
+      "Understanding and Enhancing Player Motivation",
+      "Helping Players to be Motivated and Engaged (Personal Factors)",
+      "Creating an Optimal Learning Environment Using Self-Determination Theory",
+      "Facilitating a Growth Mindset through Your Coaching",
+      "Communicating as a Leader"
+    ],
+    "description": "This badge represents mastery in fostering motivation through understanding self-determination theory, creating a supportive environment, effective communication, promoting a growth mindset, and using leadership to inspire and engage players.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/player-motivation-and-engagement.png"
+  },
+  {
+    "name": "Delivering Competition",
+    "code": "DCO-B1018",
+    "language": "English",
+    "safePlay": true,
+    "sort": 34,
+    "badgeName": "Delivering Competition",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "USTA Competition Pathway",
+      "Using Serve Tennis",
+      "Ratings vs Rankings",
+      "Running USTA Tournaments",
+      "Running Team Events",
+      "Pro Circuit and Collegiate Events"
+    ],
+    "description": "This badge represents proficiency in navigating the USTA Competition Pathway, leveraging Serve Tennis tools, understanding ratings and rankings, and effectively organizing tournaments, team events, and advanced competitive opportunities like Pro Circuit and collegiate events.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/delivering-competition.png"
+  },
+  {
+    "name": "Intro to Tennis Coaching Business",
+    "code": "TCB-B1017",
+    "language": "English",
+    "safePlay": true,
+    "sort": 35,
+    "badgeName": "Intro to Tennis Coaching Business",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Work Environments in the Tennis Industry",
+      "Beyond the Baseline: Contributing to the Bigger Picture",
+      "Budgets and Pricing",
+      "Tennis Programming",
+      "Net Gains: A New Approach to Selling Tennis",
+      "Member Hospitality: Raising the Bar"
+    ],
+    "description": "This badge highlights proficiency in managing the key aspects of coaching as a business, including team leadership, programming, facility operations, financial management, and effective sales and marketing strategies.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/intro-to-tennis-coaching-business.png"
+  },
+  {
+    "name": "Coach Well-Being",
+    "code": "CWB-B1016",
+    "language": "English",
+    "safePlay": true,
+    "sort": 36,
+    "badgeName": "Coach Well-Being",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Sleep: Optimizing Imperfect Sleep",
+      "Recovery Stress Reslience: Performing Under Pressure",
+      "Movement: Staying Fit on the Road",
+      "Breathwork: Resetting Your Nervous System",
+      "Connection: Countering Isolation In Coaching",
+      "Nutrition: Fueling for Phases"
+    ],
+    "description": "Created by the USOPC, this badge helps coaches build practical, personal strategies to prevent burnout and sustain well-being in the demanding world of coaching.",
+    "unlock": "To unlock this course you will have to complete the USTA Coaching Development Coach Badge and have a Rally or above package.",
+    "unlockLink": {
+      "text": "USTA Coaching Development Coach Badge",
+      "href": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d33"
+    },
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/coach-well-being.png"
+  },
+  {
+    "name": "Intro to Park and Recreation",
+    "code": "IPR-B1024",
+    "language": "English",
+    "safePlay": true,
+    "sort": 37,
+    "badgeName": "Intro to Park and Recreation",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 6,
+    "modules": [
+      "Module 1: Overview of the Park and Recreation Industry",
+      "Module 2: How to be Successful in Park and Recreation",
+      "Module 3: Tennis Essentials",
+      "Module 4: How to Prepare for Your Lessons",
+      "Module 5: How to Deliver Your Lessons",
+      "Module 6: What to Deliver During Your Lessons"
+    ],
+    "description": "This badge supports USTA's mission to inspire healthier people and communities everywhere. It is designed to introduce parents, volunteers, coaches, and instructors to the Park and Recreation industry, equipping them with the necessary knowledge, tools, and confidence to successfully contribute to tennis programming.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/parks-and-recreation-badge-icon.png"
+  },
+  {
+    "name": "Rules and Regulations 1",
+    "code": "RR1-B1026",
+    "language": "English",
+    "safePlay": false,
+    "sort": 38,
+    "badgeName": "Rules and Regulations 1",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 1,
+    "modules": [
+      "Rules and Regulations 1"
+    ],
+    "description": "This introductory badge covers the 31 rules of tennis established by the International Tennis Federation (ITF), including who governs the rules and the process for how they are officially changed.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/rules-of-tennis-1.png"
+  },
+  {
+    "name": "Rules and Regulations 2",
+    "code": "RR2-B1027",
+    "language": "English",
+    "safePlay": false,
+    "sort": 39,
+    "badgeName": "Rules and Regulations 2",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 1,
+    "modules": [
+      "Rules and Regulations 2"
+    ],
+    "description": "This badge covers the yearly changes to the rules and regulations of tennis, its point penalty system, and an overview of medical timeouts.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/rules-of-tennis-2.png"
+  },
+  {
+    "name": "Rules and Regulations 3",
+    "code": "RR3-B1028",
+    "language": "English",
+    "safePlay": false,
+    "sort": 40,
+    "badgeName": "Rules and Regulations 3",
+    "coachTypes": [
+      "FT_PROF_COACH",
+      "PT_PROF_COACH",
+      "COLLEGE_COACH",
+      "VOLUNTEER_OR_EMERGING_COACH"
+    ],
+    "certifications": [
+      "USTA Professional Coach Certification"
+    ],
+    "membershipPackages": [
+      "RALLY",
+      "PRO",
+      "PRO_PLUS"
+    ],
+    "moduleCount": 1,
+    "modules": [
+      "Rules and Regulations 3"
+    ],
+    "description": "This badge reviews \"The Code,\" the athlete's guide to fair play, and includes a summary of the unwritten rules of tennis.",
+    "unlock": "",
+    "unlockLink": null,
+    "spanishLink": false,
+    "spanishHref": "",
+    "badge": "badges/rules-of-tennis-3.png"
+  }
+]

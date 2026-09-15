@@ -998,3 +998,170 @@ the delayed phase begins (well past LCP), guaranteeing zero impact on load perfo
 scripts/chat.js and the inline import from loadDelayed(). Verified on localhost: launcher still mounts after
 the delay — 64x64, bottom:10px/left:80px, z-index 999999, #cfff05, all 3 Zendesk iframes + "Hi! Need any
 help?" bubble. Lint 0 errors.
+
+### 2026-09-15 — Chat widget final layout + end-to-end verification + allow-list finding
+FINAL STRUCTURE: chat loader lives at top-level **widgets/usta-coach-care/chat.js** (sibling to blocks/ and
+scripts/), imported by **scripts/delayed.js** via `../widgets/usta-coach-care/chat.js`. delayed.js is fired
+by scripts.js loadDelayed() on a 3s setTimeout — snippet fetched well after LCP. Old scripts/widgets/ and
+widgets/chat/ folders removed.
+END-TO-END VERIFIED (localhost): opened the widget via `zE('messenger','open')` — the FULL messaging window
+renders in-page (380x700 overlay iframe): header "USTA Coach Care", "How can we help?", a live agent/bot
+reply ("Coach Net says: Hi! How can I help you?"), file-upload + working message box. So the widget is not
+just present — it FUNCTIONS in-page.
+ALLOW-LIST FINDING (for future ref): the Zendesk Web Widget does NOT require domain allow-listing. It is
+keyed by ACCOUNT (?key=…), runs client-side, and works on ANY host (proven: worked on localhost AND on the
+404 page). There is NO link/fallback hand-off in our implementation — only the single path of loading the
+real inline widget; when the CSP blocked it, it failed silently (no degrade-to-link). Caveat: USTA could
+later restrict embedding domains from their Zendesk dashboard (account-side toggle, not our code) — not
+active today.
+
+---
+
+## STATUS SNAPSHOT — 2026-09-15 (for a fresh LLM session)
+
+**Project:** Lift-and-shift migration of https://www.ustacoaching.com/ (+ /es/) to AEM Edge Delivery.
+Target: 100% pixel + functional parity across mobile (390/375), tablet (768/834/1024), desktop
+(1280/1440/1512/1728).
+
+**Repo:** /backups/aemdemos/coaching-usta/repo · GitHub aemdemos/coaching-usta · content source = Document
+Authoring (DA, admin.da.live/source/aemdemos/coaching-usta/…). Dev server localhost:3000 serves LOCAL code +
+REMOTE (DA-published) content — local content/ edits only render after upload to DA.
+Preview: main--coaching-usta--aemdemos.aem.page · Live: …aem.live.
+
+**DONE (built + verified):**
+- Design system captured: breakpoints 768/1024/1280 (tools/quality/breakpoints.json); grid gutters
+  16/40/48/64, 1536 max-width; tokens --usta-blue #0373f3, --usta-lime #cfff05; fonts USTA Sans / Graphik
+  Semibold / Graphik Regular (typography.json + fonts/).
+- Blocks: hero (video), cards (pricing + media), columns (media + quote), banner (events blue/black),
+  accordion (default, single-open lime pill cards), form, spacer. All typography-audited across viewports.
+- cards (media): ONE block, 3 rows (merged from 3 separate blocks) on index EN + ES. Layout grid moved onto
+  `.cards.media > ul` (3-up desktop / stacked-horizontal tablet / stacked mobile).
+- Section-heading regrouping (SUCCESS STORIES → quote section; DISCOVER YOUR PATH → accordion section).
+- ES page: intro-statement accents + narrow metadata; DESCUBRE centered; Safe Play image verified.
+- Intro-statement markdown-corruption fix on index EN + /en/home (single <strong> with nested <em>/<u> —
+  never sibling <strong> runs, or DA→md emits literal `**`).
+- Block sample pages in DA under drafts/block-samples/: accordion-base, hero-video, columns-media (both
+  P-heading + H2 variants), cards-pricing, cards-media (3 cards), banner-events-blue, columns-quote.
+- Chat widget (Zendesk "USTA Coach Care"): DONE — see entries above. Required removing
+  `require-trusted-types-for 'script'` from head.html (documented deviation).
+
+**KNOWN CAVEATS / OPEN ITEMS:**
+- spacer block JS/CSS is NOT yet on GitHub main → block-sample pages' inter-element spacers collapse on
+  aem.page preview (harmless spacer.js 404) until pushed.
+- Several fixes live only in local content/ (or were pushed to DA ad hoc) — confirm DA is the source of
+  truth before each publish. index EN + /en/home intro + cards-media merge are LIVE (published).
+- head.html no longer enforces Trusted Types (deviation for the chat widget).
+
+**NEXT TARGET: Custom Widget — "Course Filter"** — DONE 2026-09-15 (see log entry below).
+
+---
+
+### 2026-09-15 — NEW `course-filter` block (Courses and Workshops browser) — full parity
+Recreated the source's "Courses and Workshops" widget (source page /en/home/courses.html) as a new EDS
+block `blocks/course-filter/`. Investigated first: the source is a **bespoke Vue component**
+(`.v-course-list`, mounted in `data-v-app`) compiled into USTA's AEM clientlib — NOT a third-party embed,
+no iframe, no reusable snippet, and its data API sends no CORS header. **Verdict: cannot pull in as-is →
+recreated.** (Per user: full parity, baked-in JSON first; live API fetch deferred as an easy follow-up.)
+
+**Data model (baked-in JSON).** Course tags/modules/language/sort come from the public LMS API
+`https://services.ustacoaching.com/v1/lms/courses/all` (31 courses), BUT the **card descriptions + badge
+images are AEM-authored (keyed by course code) and are NOT in the API** — captured those from the live DOM
+across all 3 tabs (incl. behind "See More"). Merge pipeline in `tools/importer/course-filter/`:
+`courses-api.json` (API tags/modules) + `courses-descriptions.json` (authored desc/badge/unlock, DOM-scraped)
+→ `build-courses-json.mjs` → `blocks/course-filter/courses.json` (33 rows: 31 API + 2 workshop-only cards
+seen in the DOM but not the API — Intro to Coaching Workshop, Cardio Tennis Workshop). Re-run the build
+script to refresh. Spec + raw captures live in `tools/importer/course-filter/course-filter-spec.md`.
+
+**Badges: SVG→PNG per the Asset-Size Rule.** The 22 source badge SVGs are heavy illustrative art
+(up to 93KB; several >40KB). Rasterized to 2x PNGs (296px = 148 display ×2) via the svg-assets skill's
+converter (Chromium, transparent bg) into `blocks/course-filter/badges/*.png` — all now <37KB, total
+~614KB, lazy-loaded. Dataset badge paths rewritten `.svg`→local `badges/<name>.png` by the build script.
+
+**Behaviour (full parity, verified live):**
+- **3 persona tabs** (Parents / School Tennis / Coaches; default active = Coaches) filter the list by
+  coachType. Tab → coachType map: Parents=`PARENT_GUARDIAN_COACH`, School=`SCHOOL_COACH`,
+  Coaches=`COLLEGE/FT_PROF/PT_PROF/VOLUNTEER_OR_EMERGING`.
+- **Filter By** dropdown: 4 checkbox groups (Coach type / Certification / Membership package / Languages),
+  "Coming Soon" certs disabled, commits on **Apply filters**; each ticked option adds a removable chip in
+  the row below the tabs (the active-tab chip is shown non-removable, mirroring source). Intersect across
+  groups, union within a group.
+- **Sort by** dropdown: Default (API sort) / A to Z / Z to A.
+- **Cards** expand (chevron) to a **module timeline** (ringed-circle bullet list); badge courses show the
+  148px PNG bottom-right; long descriptions keep their unlock paragraph. **See More** pages 16 at a time.
+
+**Design (source-measured, replicated).** Dark tabs panel `#2d2d2d` r20; active tab lime `#cfff05`;
+white cards r20, 24px pad (16 @mobile), gap 24 (16 @mobile); name Graphik Semibold 18→28→32 (mob/768/1024,
+ls -0.54/-0.84/-0.96), eyebrow 12→16→18; desc Graphik Regular 16/lh1.2; Filter/Sort white pills r12;
+chip black + 1px white border r12; See More lime + 2px black border r12. Grid **1-up ≤768, 2-up ≥1024**.
+Section container aligned to the content grid (1536 cap, gutters 16/40/48/64).
+
+**A11y note / typography-gate interaction.** Card **name + eyebrow are non-heading elements** (span with
+`role="heading" aria-level="3"` for the name), matching the source markup AND keeping the block's bespoke
+title sizes off the global `h1..h6`/body type scale — so `check:typography` passes with NO per-block font
+exceptions (contrast with cards.pricing, which uses a real `<h3>` and is a standing typo-gate exception).
+Card description stays a `<p>` at the global 16px/lh1.2 Graphik Regular. Avoids a skipped heading level
+under the page's single `<h1>`.
+
+**Quality gate (all green, on `/content/course-filter-test`):** lint 0 errors; breakpoint check pass;
+overflow sweep 360/768/1024/1280/1920 all OK; typography pass; a11y pass; check:svg pass (badges live under
+blocks/, not icons/, but all PNGs <40KB anyway). Verified interactions live: tab switch (Parents=8 cards),
+Spanish+Coaches filter → 2 ES courses, chip remove restores list, sort A–Z, card expand shows 3-module
+timeline, See More.
+
+**OPEN / follow-ups:** (1) live API refresh path (fetch `/v1/lms/courses/all` at runtime to keep tags
+fresh) — deferred per user; note the API has no CORS and lacks descriptions/badges, so it can only refresh
+tags/modules, not replace the baked content. (2) Not yet authored onto a real DA page — needs a
+`course-filter` block placed on the courses page (the block is self-contained; author an empty
+`course-filter` block, no rows needed). (3) Block-sample page under drafts/block-samples not yet added.
+
+### 2026-09-15 — course-filter: pixel-parity pass on card internals + module timeline
+User overlaid source vs migrated and flagged drift in the expanded "connected dots" timeline and card
+internal spacing. Re-measured the source precisely and matched every value:
+- **Module timeline connector** — the source draws a vertical line via `.v-course__module::after`
+  (`content:""; position:absolute; width:2px; height:60px; left:6.5px; top:20px; background:#000`),
+  with each item `min-height:40px` + `margin-bottom:32px` → circle centers exactly **72px** apart. Mine
+  had loose unconnected dots (24px margin, no line). Added the `::after` connector (on all but last item)
+  + fixed item height/margin. Verified circle centers 72px apart, line 2×60 @ left6.5/top20.
+- **Card internal rhythm** — source info block is `display:block` (NOT flex-gap); spacing comes from
+  fixed paddings: name `padding:8px 0 2px`, description `padding:20px 32px 0 0` (the 32px right keeps text
+  off the expand button); content row is `align-items:center`. Mine used a 16px flex gap (wrong rhythm).
+  Rewrote to the source model. Now eyebrow→name 8px, name→desc 20px, exact at all viewports.
+- **Content gap** — 16px @mobile → 24px @tablet+ (was flat 24). Card padding already 16→24 correct.
+Verified migrated == source at 390/768/1440 (card padding, content gap, name/desc paddings, eyebrow/name
+font sizes, timeline geometry). Quality gate re-run all green: lint 0 err, breakpoint pass, overflow
+360–1920 OK, typography pass, a11y pass.
+
+### 2026-09-15 — course-filter: timeline connector fix (multi-line module titles)
+User caught the "connected dots" breaking when a module title wraps to 2 lines (circles uneven, line
+not reaching). Root cause: I'd hardcoded the connector at fixed `60px`/`top:20px`, which only works for
+single-line 40px items. Re-measured the SOURCE with a wrapping title: it uses PERCENTAGE geometry —
+`.v-course__module::after { top:50%; height:150% }` (relative to each item) + circle `align-self:center`,
+so the connector scales with item height (single-line 40px → 20/60; 2-line 60px → 30/90). Matched exactly.
+NOTE: the source connector is intentionally a short stub (ends ~12px above the next circle center at
+40px items) — NOT a full connect; my output now reproduces that same behavior. Verified at 1024 (titles
+wrap): item heights + circle-center gaps (72/82) + line geometry identical to source. Lint 0 err (fixed a
+duplicate-selector by merging align-self into the circle rule), breakpoint pass.
+
+### 2026-09-15 — course-filter: timeline circle overflow + description links
+Two fixes after visual review:
+1. **Connector line drawn through the circles.** The `::after` line overlapped the timeline circles.
+   Source hides this by stacking the opaque circle above the line. Added `position:relative; z-index:1`
+   to `.course-filter-card-timeline-circle` (line is z-index auto) so the white circle covers the
+   overlap — line now meets each circle's edge cleanly, single- and multi-line items alike.
+2. **Description links were dropped (rendered as plain text).** The source links "Spanish." (course-
+   specific CSOD deep-link, new tab) and the "USTA Coaching Development Coach Badge" unlock link. Added
+   `spanishHref` to courses-descriptions.json + build script; course-filter.js now renders real
+   underlined `<a target=_blank rel=noopener>` for the trailing "Spanish." and for the inline unlockLink
+   (built with createElement/textContent — no innerHTML, per the Security Rule). Verified links underline
+   and open new tab; unlock links inline. Lint 0 err, breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: Sort-by stays right (filter bar layout parity)
+User: on mobile/tablet "Sort by" dropped below instead of staying right. Root cause: I'd nested the
+applied-filter chips INSIDE the left group with Filter By, so the left group grew and pushed Sort down.
+Re-measured the source: the bar is 3 independent flex children — Filter By | chips | Sort by. Source
+behavior: `justify-content: space-between`; the **chips group carries `order:1; flex:1 1 100%` at mobile**
+so it wraps to its OWN row below while Filter (left) + Sort (right) share the top row; at **>=768 the
+chips switch to `order:0; flex:1 1 0`** (inline middle) and the bar goes `nowrap` so all three sit on one
+row. Restructured course-filter.js (chips is now its own bar child, not inside left group) + CSS to match.
+Verified @390 (Filter+Sort top row, Sort pinned right, chip on 2nd row, no overflow) and @768 (all three
+one row, Sort right). Lint 0 err, breakpoint/overflow/typography/a11y all pass.

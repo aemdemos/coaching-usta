@@ -1,0 +1,568 @@
+/*
+ * course-filter — USTA "Courses and Workshops" browser.
+ * Source-measured parity (mobile 390 / tablet 768 / desktop ≥1024) against the
+ * .v-course-list Vue component. Mobile-first; breakpoints 768/1024/1280.
+ * Colours use the project tokens (--usta-lime, --usta-blue); dark tab panel
+ * #2d2d2d matches source.
+ *
+ * The shared :focus-visible rule intentionally precedes the individual element
+ * rules (a single ring definition for every control), so descending-specificity
+ * is disabled — the focus ring and the element base styles never conflict.
+ */
+
+/* stylelint-disable no-descending-specificity */
+
+.course-filter {
+  --cf-dark-panel: #2d2d2d;
+
+  display: block;
+}
+
+/* Section container: align to the site content grid (1536 cap, gutters). */
+main > .section.course-filter-container > div {
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+  box-sizing: border-box;
+}
+
+/* ---- Tabs ---- */
+.course-filter-tabs {
+  background: var(--cf-dark-panel);
+  border-radius: 20px;
+  margin-bottom: 48px;
+}
+
+.course-filter-tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+}
+
+.course-filter-tab {
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 54px;
+  margin: 8px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.course-filter-tab.is-active {
+  background: var(--usta-lime);
+  color: #000;
+}
+
+.course-filter-tab-title {
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.course-filter-tab-description {
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.2;
+  display: none;
+}
+
+/* ---- Filter bar ----
+   Three groups (source): Filter By | chips | Sort by.
+   • Mobile: the bar wraps; the chips group is order:1 + flex-basis:100%, so it
+     drops to its OWN row below, while Filter By (left) and Sort by (right) share
+     the top row via space-between.
+   • Tablet+ (>=768): the chips group becomes the flexible inline middle
+     (flex:1 1 0), so all three sit on one row — Filter left, Sort right. */
+.course-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.course-filter-bar-left,
+.course-filter-bar-right {
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+}
+
+.course-filter-chips {
+  order: 1;
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.course-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.course-filter-toggle svg {
+  width: 14px;
+  height: 10px;
+  transition: transform 0.2s ease;
+}
+
+/* Filter By chevron points up (open affordance); Sort points down. */
+.course-filter-toggle-filter svg { transform: rotate(0deg); }
+.course-filter-toggle-sort svg { transform: rotate(180deg); }
+.course-filter-toggle[aria-expanded="true"].course-filter-toggle-filter svg { transform: rotate(180deg); }
+.course-filter-toggle[aria-expanded="true"].course-filter-toggle-sort svg { transform: rotate(0deg); }
+
+.course-filter-toggle:focus-visible,
+.course-filter-tab:focus-visible,
+.course-filter-chip:focus-visible,
+.course-filter-card-expand:focus-visible,
+.course-filter-apply:focus-visible,
+.course-filter-see-more:focus-visible,
+.course-filter-sort-option:focus-visible,
+.course-filter-panel-close:focus-visible {
+  outline: 2px solid var(--usta-blue);
+  outline-offset: 2px;
+}
+
+.course-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  background: #000;
+  color: #fff;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.course-filter-chip-removable {
+  cursor: pointer;
+  padding-right: 34px;
+  position: relative;
+}
+
+.course-filter-chip-removable::after {
+  content: "✕";
+  position: absolute;
+  right: 14px;
+  font-size: 14px;
+}
+
+/* ---- Dropdown panels ---- */
+.course-filter-panel {
+  position: absolute;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 12px;
+  width: min(454px, calc(100vw - 32px));
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+
+.course-filter-panel-sort {
+  right: 0;
+  width: min(260px, calc(100vw - 32px));
+}
+
+.course-filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.course-filter-panel-title {
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 18px;
+  color: #000;
+}
+
+.course-filter-panel-close {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.course-filter-panel-close::before,
+.course-filter-panel-close::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 2px;
+  background: #000;
+}
+
+.course-filter-panel-close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.course-filter-panel-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+.course-filter-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 32px;
+  padding: 24px;
+}
+
+.course-filter-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.course-filter-group legend {
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #000;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.course-filter-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  color: #000;
+  cursor: pointer;
+}
+
+.course-filter-option.is-disabled {
+  cursor: default;
+  color: #777;
+}
+
+.course-filter-option input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  accent-color: var(--usta-lime);
+  cursor: pointer;
+}
+
+.course-filter-option.is-disabled input { cursor: default; }
+
+.course-filter-apply-wrapper { padding: 0 24px 24px; }
+
+.course-filter-apply {
+  width: 100%;
+  padding: 14px 24px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #000;
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.course-filter-sort-options {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+
+.course-filter-sort-option {
+  text-align: left;
+  padding: 12px 24px;
+  border: 0;
+  background: transparent;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  color: #000;
+  cursor: pointer;
+}
+
+.course-filter-sort-option.is-selected {
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+}
+
+/* ---- Courses grid ---- */
+.course-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.course-filter-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #000;
+}
+
+/* Content row: info block + expand button, vertically centered (source).
+   Gap 16px @mobile → 24px @tablet+ (source-measured). */
+.course-filter-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Info is a plain block; internal spacing comes from the source's fixed
+   paddings on name/description (NOT a flex gap), so the rhythm matches exactly:
+   eyebrow → 8px → name → (2px + 20px) → description. */
+.course-filter-card-info {
+  display: block;
+  min-width: 0;
+}
+
+.course-filter-card-eyebrow {
+  display: block;
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: -0.36px;
+  color: #000;
+}
+
+.course-filter-card-name {
+  display: block;
+  margin: 0;
+  padding: 8px 0 2px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.54px;
+  color: #000;
+}
+
+.course-filter-card-description {
+  padding: 20px 32px 0 0;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000;
+}
+
+.course-filter-card-description p { margin: 0 0 8px; }
+.course-filter-card-description p:last-child { margin-bottom: 0; }
+
+.course-filter-card-description a {
+  color: #000;
+  text-decoration: underline;
+}
+
+.course-filter-card-expand {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-filter-card-expand svg {
+  width: 18px;
+  height: 12px;
+  transition: transform 0.2s ease;
+}
+
+.course-filter-card-expand[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.course-filter-card-badge {
+  align-self: flex-end;
+}
+
+.course-filter-card-badge img {
+  width: 148px;
+  height: 148px;
+  display: block;
+}
+
+/* Expanded module timeline */
+.course-filter-card-modules {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  position: relative;
+}
+
+.course-filter-card-module {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 40px;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.course-filter-card-module:last-child { margin-bottom: 0; }
+
+/* Vertical connector between circles. Source uses percentage geometry so it
+   scales with each item's height (single- vs multi-line titles): the line
+   starts at the item's vertical centre (where the circle sits, align-items:
+   center) and runs 150% of the item height downward toward the next circle. */
+.course-filter-card-module:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 6.5px;
+  top: 50%;
+  width: 2px;
+  height: 150%;
+  background: #000;
+}
+
+.course-filter-card-timeline-circle {
+  flex: 0 0 auto;
+  align-self: center; /* pin to item centre, where the connector begins */
+  position: relative;
+  z-index: 1; /* opaque circle sits ABOVE the connector line (no overflow into it) */
+  width: 15px;
+  height: 15px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.course-filter-card-module-text {
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000;
+}
+
+/* ---- See More ---- */
+.course-filter-see-more-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.course-filter-see-more {
+  padding: 16px 24px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 18px;
+  letter-spacing: -0.54px;
+  cursor: pointer;
+}
+
+/* ---- Tablet (>=768) ---- */
+@media (width >= 768px) {
+  main > .section.course-filter-container > div { padding-inline: 40px; }
+
+  .course-filter-tabs {
+    margin-bottom: 100px;
+  }
+
+  .course-filter-tabs-row { gap: 16px; }
+
+  .course-filter-tab {
+    min-height: 84px;
+    gap: 8px;
+  }
+
+  .course-filter-tab-title { font-size: 12px; }
+  .course-filter-tab-description { display: block; }
+
+  .course-filter-toggle { padding: 0 25px; }
+
+  /* Chips become the flexible inline middle so all three groups share one row. */
+  .course-filter-bar { flex-wrap: nowrap; }
+
+  .course-filter-chips {
+    order: 0;
+    flex: 1 1 0;
+  }
+
+  .course-filter-card {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .course-filter-card-content { gap: 24px; }
+
+  .course-filter-card-eyebrow {
+    font-size: 16px;
+    letter-spacing: -0.48px;
+  }
+
+  .course-filter-card-name {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.84px;
+  }
+}
+
+/* ---- Desktop (>=1024) — 2-up cards ---- */
+@media (width >= 1024px) {
+  main > .section.course-filter-container > div { padding-inline: 48px; }
+
+  .course-filter-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 16px;
+  }
+
+  .course-filter-tab-title { font-size: 16px; }
+
+  .course-filter-card-name {
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.96px;
+  }
+
+  .course-filter-card-eyebrow {
+    font-size: 18px;
+    letter-spacing: -0.54px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.course-filter-container > div { padding-inline: 64px; }
+}
