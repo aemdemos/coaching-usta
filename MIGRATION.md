@@ -1455,3 +1455,94 @@ source's own loose math and doesn't divide evenly by our line-height.) Fix: cap 
 with the `lh` unit — `max-height: 8lh` — so the cut always lands on a clean line boundary. Verified @1280:
 maxHeight 153.5px = 7.995 lines (clean boundary), ellipsis intact. lint 0 err, breakpoint/overflow/typography/
 a11y all pass.
+
+### 2026-09-15 — course-filter: courses.json fully removed (confirmed)
+Confirmed the baked courses.json is gone from the repo (git rm'd during the DA-sheet migration) and the block
+has ZERO references to it — data comes entirely from the live LMS API + the DA enrichment sheet, with the 2
+workshop cards as an in-code constant. A `curl` to /blocks/course-filter/courses.json still 200s only because
+the dev server proxies the copy still deployed on the issue8-custom branch; it disappears on merge. The block
+never fetches it. Nothing else references courses.json except the (repurposed) regenerator script's docs.
+
+### 2026-09-15 — hero (default): "Our Core Workshops" bg-image hero
+Instrumented the hero DEFAULT variant to match the source workshops-page hero (blocks/hero/hero.js +
+blocks/hero/hero.css). Source: https://www.ustacoaching.com/en/home/workshops.html.
+
+Design (source-measured across 390/768/1024/1280/1440):
+- Two-line H1 in USTA Sans bold, ALL-CAPS display face: "Our Core" white + "Workshops" lime (#CFFF05).
+  Font-size 32 (mobile/tablet) → 40 (≥1024) → 64 (≥1280), line-height = font-size, letter-spacing normal.
+  (The uppercase is the font itself — source text-transform is none; we set text-transform:uppercase to match
+  since our content is title-case.)
+- Full-width rounded frame: border-radius 20px, overflow hidden, background-size cover, dark overlay
+  rgb(0 0 0 / 42%) via ::before. min-height 260 → 384 (≥1024) → 470 (≥1280). Section gutters 16/40/48/64.
+- CTA "Find a Workshop" → lime pill: border-radius 9999px, Graphik Semibold 18px, black text, padding 14px 32px,
+  hover → white.
+
+Authoring contract (default hero): block rows = [ background-image LINK ] then [ heading(s) + CTA link ]. The
+2nd heading (or an <em> inside a heading) is the lime accent — JS tags it .hero-accent(-line), never nth-child.
+JS (decorateDefault): reads the bg from an image-extension LINK href and applies it as a CSS background-image on
+.hero-bg (with role=img + aria-label from the link text); groups headings + CTA into .hero-content; the first
+link becomes .hero-cta. dispatch: block.classList video → decorateVideo else decorateDefault.
+
+KEY GOTCHA — DA mangles authored <img>: a bare/<picture>-wrapped <img> whose src is a clean content path
+(/blocks/hero/media/…) gets rewritten to src="about:error" by DA's HTML/image pipeline (it only accepts its
+own hashed media_* uploads). Fix: author the background as a LINK to the image (DA leaves link hrefs intact) and
+let the block apply it as a CSS background. Reusable pattern for block bg images on clean content paths.
+
+Assets/sample: bg image at content/blocks/hero/media/our-core-workshops.jpg (published to DA source/preview/live).
+DA sample page tools/importer/hero/da-hero-default-sample.html → /drafts/block-samples/hero-default (published).
+Verified: heading 32/40/64 across breakpoints, bg loads via CSS cover, overlay + pill correct, visual parity with
+source screenshot. lint 0 err, breakpoint/overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — hero (default): pixel-parity corrections (overlay colour + spacing)
+Overlaying source vs migrated revealed two drifts, both fixed:
+1. **Overlay colour shade.** Source stacks TWO tints over the image (measured on the ancestor chain), not one:
+   a blue wash `rgb(3 115 243 / 59%)` PLUS a black scrim `rgb(0 0 0 / 42%)`. Mine used a single black overlay →
+   read too grey. Fixed: `::before` now paints both as stacked linear-gradients (black in front, blue behind) —
+   reproduces the blue-shifted look.
+2. **Content positioning / gaps.** Source rhythm @1280 (frame 468): heading block, 96px gap, CTA, symmetric
+   padding. Mine used a flat flex gap:32 that also separated the two heading LINES. Fixed: JS groups the two
+   headings into one `.hero-heading` block (zero inter-line gap, line-height:1); the `.hero-content` gap now
+   applies ONLY heading-block→CTA and scales per breakpoint (48 mobile → 64 @1024 → 96 @1280, source-measured).
+   Desktop frame set to min-height 468px with padding-block:0 so the centred content matches source proportions.
+Verified @1280: overlay = layered blue+black, CTA gap 96px, h1 64px, frame ~468 — matches the source screenshot.
+lint 0 err, breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — hero (default): frame border + mobile-only edu logo + mobile CTA width
+Another overlay pass caught three more drifts vs source:
+1. **Frame border.** Source frame has `border: 1px solid #fff` (border-radius 20px). Mine had none. Added.
+2. **Mobile-only "Education Center" logo.** Source shows a 158×93 "USTA Coaching Education Center" SVG between
+   the heading and CTA — but ONLY on mobile (display:none at ≥768). Downloaded the source DAM SVG (10.3KB) →
+   content/blocks/hero/media/education-center.svg, published to DA. Authoring: a second IMAGE link in the hero;
+   JS turns any image-href link (now incl. .svg) into `<img class="hero-logo">` placed after the heading block;
+   CSS shows it 158px on mobile, display:none at ≥768. NOTE: had to add `svg` to isImageHref() — without it the
+   .svg link fell through and wrongly became the CTA.
+3. **Mobile CTA width.** Source CTA is a fixed 280px pill on mobile → auto (sizes to text) at ≥768. Set width:280px
+   (max-width:100%, box-sizing:border-box) base, width:auto at ≥768.
+Verified @430: white border, blue overlay, heading, edu logo (158×93, visible), 280px pill — matches source mobile
+DevTools capture. @768/1280: logo hidden, CTA auto-width, border present. lint 0 err, breakpoint/overflow/
+typography/a11y/svg all pass.
+
+### 2026-09-15 — hero (default): CTA width + edu-logo sizing corrections (re-measured)
+Re-measured the source across 8 widths (390–1440), correcting two values from the prior entry:
+1. **CTA width is 280px at EVERY breakpoint** (measured 280 at 390/600/768/900/1024/1200/1280/1440) — NOT
+   auto at tablet+. My prior `width:auto` @768 made the desktop button hug its text (too narrow vs source).
+   Fixed: `width:280px` base, no ≥768 override. Now a consistent 280px pill everywhere, matching the source.
+2. **Edu logo width is FLUID, not fixed 158px.** Source sizes it ~40% of content width, capped ~260px
+   (measured 142@390, 186@500, 226@600, 260@700), visible below 768. Fixed: `width:40vw; max-width:260px`.
+   Also corrected visibility: shown <768 (incl. 600), hidden ≥768 — the media query was already right.
+Verified: @430 logo visible + 280px pill; @600 logo visible; @768/1280 logo hidden, pill still 280px. lint 0 err,
+breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — hero (default): full typography audit (per-element, per-breakpoint)
+Measured every text element on the source at 390/768/1024/1280/1440 and matched exactly. Findings:
+- **Headings (h1 "Our Core" + "Workshops"/accent):** USTA Sans, weight 700, line-height = font-size, letter-
+  spacing normal, align center. Size 32 (≤768) → 40 (1024) → 64 (≥1280). White; 2nd line accent lime #CFFF05.
+  Already matched — no change. (We apply text-transform:uppercase since our authored text is title-case; the
+  source text is pre-uppercased so its computed tt:none renders identically.)
+- **CTA "Find a Workshop" — two drifts fixed:**
+  * letter-spacing: source **1px**; mine inherited the global −0.48px → set to 1px.
+  * font-size: source CTA text is RESPONSIVE **16 (≤1023) → 18 (1024) → 24 (≥1280)** (the size lives on the
+    inner text span, which scales); mine was a flat 18px. Fixed: base 16px, 18px @1024, 24px @1280.
+  Family Graphik Semibold, weight 400, line-height 20px, color #000, align center, width 280px — already matched.
+Re-verified computed CTA: 390=16/1px, 768=16/1px, 1024=18/1px, 1280=24/1px — exact source match at every width.
+lint 0 err, breakpoint/overflow/typography/a11y all pass.

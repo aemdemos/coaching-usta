@@ -122,7 +122,118 @@ function decorateVideo(block) {
   }
 }
 
+/*
+ * default hero (USTA "Our Core Workshops" pattern): a background image with a
+ * two-line display heading centered over a dark overlay, and a lime pill CTA.
+ * Content model (from the imported table):
+ *   - a <picture>/<img> for the background
+ *   - one or more headings; a heading wrapped in <em> (or a 2nd heading) is the
+ *     LIME accent line (source colours line 2 lime).
+ *   - a link → the "Find a Workshop" CTA (rendered as a pill button)
+ * We tag the accent line with a class (never nth-child) and group the text + CTA
+ * into an overlay content wrapper so the CSS can center it over the image.
+ */
+/* True if an href points at an image file (used for the bg-as-link contract). */
+function isImageHref(href) {
+  return /\.(jpe?g|png|webp|avif|gif|svg)(?=$|[?#])/i.test(href || '');
+}
+
+function decorateDefault(block) {
+  const bg = document.createElement('div');
+  bg.className = 'hero-bg';
+
+  // The background is authored as a LINK to the image (not an <img>), because
+  // DA's HTML pipeline rewrites non-DA-media <img> srcs to about:error. A link
+  // href survives intact; we read it and apply it as a CSS background-image.
+  // (Also accept a real <picture>/<img> if one is present, for robustness.)
+  const bgLink = [...block.querySelectorAll('a')].find((a) => isImageHref(a.getAttribute('href')));
+  const bgImg = block.querySelector('picture, img');
+  if (bgLink) {
+    const url = bgLink.getAttribute('href');
+    bg.style.backgroundImage = `url("${url}")`;
+    // Use the link text as the accessible label for the (decorative) bg frame.
+    const label = bgLink.textContent.trim();
+    if (label) {
+      bg.setAttribute('role', 'img');
+      bg.setAttribute('aria-label', label);
+    }
+    bgLink.closest('p')?.remove();
+    bgLink.remove();
+  } else if (bgImg) {
+    bg.append(bgImg.closest('picture') || bgImg);
+  }
+
+  const content = document.createElement('div');
+  content.className = 'hero-content';
+
+  // Move the remaining headings + link wrappers (in document order) into the
+  // overlay content. The background is already extracted, so skip anything under it.
+  [...block.querySelectorAll('h1, h2, h3, h4, h5, h6, p')].forEach((el) => {
+    if (bg.contains(el)) return;
+    if (el.closest('.hero-content')) return;
+    // Drop an empty <p> left behind after the background link/image was extracted.
+    if (el.tagName === 'P' && !el.textContent.trim() && !el.querySelector('a, img')) {
+      el.remove();
+      return;
+    }
+    content.append(el);
+  });
+
+  // The lime accent line: an <em> inside a heading, OR the last of multiple
+  // headings. Tag it with a class so CSS colours it — no nth-child logic.
+  const headings = [...content.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+  const emHeading = headings.find((h) => h.querySelector('em'));
+  if (emHeading) {
+    // Unwrap the <em> to a span.accent (em would italicise the display face).
+    emHeading.querySelectorAll('em').forEach((em) => {
+      const span = document.createElement('span');
+      span.className = 'hero-accent';
+      span.append(...em.childNodes);
+      em.replaceWith(span);
+    });
+  } else if (headings.length > 1) {
+    headings[headings.length - 1].classList.add('hero-accent-line');
+  }
+
+  // Group the heading line(s) into one tight block so the content gap applies
+  // only between the heading block and the CTA (source: lines stack with no gap,
+  // then a large gap to the button) — not between the two heading lines.
+  if (headings.length) {
+    const group = document.createElement('div');
+    group.className = 'hero-heading';
+    headings[0].before(group);
+    headings.forEach((h) => group.append(h));
+  }
+
+  // A remaining IMAGE link (href ends in an image ext) is the mobile-only
+  // "Education Center" logo the source shows between heading and CTA. Turn it
+  // into an <img> (its own path survives DA since we build the element in JS).
+  const logoLink = [...content.querySelectorAll('a')].find((a) => isImageHref(a.getAttribute('href')));
+  if (logoLink) {
+    const logo = document.createElement('img');
+    logo.className = 'hero-logo';
+    logo.src = logoLink.getAttribute('href');
+    logo.alt = logoLink.textContent.trim() || '';
+    logo.loading = 'lazy';
+    (logoLink.closest('p') || logoLink).replaceWith(logo);
+    // Place the logo between the heading block and the CTA.
+    content.querySelector('.hero-heading')?.after(logo);
+  }
+
+  // The CTA: the first NON-image link becomes a pill button.
+  const cta = [...content.querySelectorAll('a[href]')].find((a) => !isImageHref(a.getAttribute('href')));
+  if (cta) {
+    cta.classList.add('hero-cta');
+    const wrap = cta.closest('p');
+    if (wrap) wrap.classList.add('hero-cta-wrapper');
+  }
+
+  block.textContent = '';
+  block.append(bg);
+  block.append(content);
+}
+
 export default function decorate(block) {
   if (block.classList.contains('video')) decorateVideo(block);
-  // default hero is CSS-only (boilerplate) — no decoration.
+  else decorateDefault(block);
 }

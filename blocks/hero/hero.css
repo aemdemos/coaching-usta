@@ -8,43 +8,192 @@
    guarded with `:not(.video)` / `:not(:has(.hero.video))` so they stay isolated
    from the video variant (which owns its own container/wrapper rules). */
 
-/* ---------------------------------------------------------------- default -- */
-.hero-container:not(:has(.hero.video)) .hero-wrapper {
-  max-width: unset;
-  padding: 0;
+/* ---------------------------------------------------------------- default --
+   USTA "Our Core Workshops" hero: a background image inside a 20px-rounded frame
+   with a dark overlay, a centered two-line display heading (line 2 lime), and a
+   lime pill CTA. Source-measured: heading 32 → 40 @1024 → 64 @1280 (USTA Sans
+   bold, line-height = font-size); overlay rgba(0,0,0,.42); panel ≈260 → 470 tall.
+   The section container matches the header/hero gutters (16/40/48/64). */
+main > .section.hero-container:not(:has(.hero.video)) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
 }
 
 .hero:not(.video) {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
   padding: 40px 24px;
-  min-height: 300px;
+  border: 1px solid #fff; /* source: 1px solid white frame border */
+  border-radius: 20px;
+  overflow: hidden;
+  text-align: center;
 }
 
-.hero:not(.video) h1 {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--background-color);
-}
-
-.hero:not(.video) picture {
+/* Background image fills the rounded frame; a dark overlay sits above it.
+   The image is applied as a CSS background (authored as a link — see hero.js). */
+.hero:not(.video) .hero-bg {
   position: absolute;
-  z-index: -1;
   inset: 0;
+  z-index: 0;
+  background-position: 50% 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Fallback when a real <picture>/<img> is authored instead of a link. */
+.hero:not(.video) .hero-bg picture,
+.hero:not(.video) .hero-bg img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+/* Overlay — the source stacks TWO tints over the image: a blue wash
+   rgb(3 115 243 / 59%) then a black scrim rgb(0 0 0 / 42%). Layering both
+   reproduces the blue-shifted dark look (a single black overlay reads too grey).
+   Order: blue behind, black in front (top of the list paints last = on top). */
+.hero:not(.video)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(rgb(0 0 0 / 42%), rgb(0 0 0 / 42%)),
+    linear-gradient(rgb(3 115 243 / 59%), rgb(3 115 243 / 59%));
+}
+
+/* Text + CTA sit above the overlay. The two heading lines are one tight block
+   (line-height = font-size, no inter-line gap), then a large gap to the CTA —
+   source rhythm at 1280 (frame 468): heading block, 96px gap, CTA. That gap
+   scales down on smaller frames; use a proportional gap via the flow below. */
+.hero:not(.video) .hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+/* The heading block stacks its lines with zero gap (line-height:1); the content
+   gap above separates this block from the CTA. */
+.hero:not(.video) .hero-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.hero:not(.video) h1,
+.hero:not(.video) h2 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+/* Lime accent — the source colours the 2nd heading line (or an <em> span). */
+.hero:not(.video) .hero-accent,
+.hero:not(.video) .hero-accent-line {
+  color: var(--usta-lime);
+}
+
+/* "Education Center" logo — source shows it between heading and CTA below 768px
+   only (hidden at tablet+). Source sizes it to ~40% of the content width, capped
+   at 260px (measured: 142@390, 186@500, 226@600, 260@700). */
+.hero:not(.video) .hero-logo {
+  position: relative;
+  z-index: 2;
+  width: 40vw;
+  max-width: 260px;
+  height: auto;
+  margin-top: -48px; /* offset the content gap above it — it hugs the heading */
+}
+
+/* CTA pill (source): lime bg, black Graphik Semibold 18px, fully-rounded. */
+.hero:not(.video) .hero-cta-wrapper {
+  margin: 0;
+}
+
+.hero:not(.video) a.hero-cta:any-link {
+  display: inline-block;
+  width: 280px; /* source: fixed 280px pill at EVERY breakpoint */
+  max-width: 100%;
+  padding: 14px 32px;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 16px; /* source CTA text: 16 (≤1023) → 18 (1024) → 24 (≥1280) */
+  line-height: 20px;
+  letter-spacing: 1px; /* source: +1px tracking on the CTA */
+  text-align: center;
+  text-decoration: none;
   box-sizing: border-box;
 }
 
-.hero:not(.video) img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
+.hero:not(.video) a.hero-cta:hover {
+  background: #fff;
 }
 
+.hero:not(.video) a.hero-cta:focus-visible {
+  outline: 2px solid var(--usta-blue);
+  outline-offset: 2px;
+}
+
+/* tablet (>=768): wider gutter; edu logo hidden (source: shown only <768) */
+@media (width >= 768px) {
+  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 40px; }
+
+  .hero:not(.video) .hero-logo { display: none; }
+}
+
+/* small desktop (>=1024): heading 40px, taller panel, 48px gutter */
 @media (width >= 1024px) {
+  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 48px; }
+
   .hero:not(.video) {
-    padding: 40px 32px;
+    min-height: 384px;
+    padding: 48px;
   }
+
+  .hero:not(.video) .hero-content { gap: 64px; }
+
+  .hero:not(.video) h1,
+  .hero:not(.video) h2 { font-size: 40px; }
+
+  .hero:not(.video) a.hero-cta:any-link { font-size: 18px; } /* source CTA @1024 */
+}
+
+/* wide desktop (>=1280): heading 64px, full panel, 64px gutter */
+@media (width >= 1280px) {
+  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 64px; }
+
+  .hero:not(.video) {
+    min-height: 468px; /* source frame height @1280 */
+    padding-block: 0;
+  }
+
+  .hero:not(.video) .hero-content { gap: 96px; }
+
+  .hero:not(.video) h1,
+  .hero:not(.video) h2 { font-size: 64px; }
+
+  .hero:not(.video) a.hero-cta:any-link { font-size: 24px; } /* source CTA @1280 */
 }
 
 /* ------------------------------------------------------------------ video -- */
