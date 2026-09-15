@@ -205,19 +205,21 @@ function decorateDefault(block) {
     headings.forEach((h) => group.append(h));
   }
 
-  // A remaining IMAGE link (href ends in an image ext) is the mobile-only
-  // "Education Center" logo the source shows between heading and CTA. Turn it
-  // into an <img> (its own path survives DA since we build the element in JS).
+  // The "Education Center" logo is authored in the SECOND cell of the content
+  // row (right column) as a LINK to the PNG — NOT a raw <img>, because DA's
+  // publish pipeline rewrites any authored <img> src (not uploaded via DA's
+  // media flow) to "about:error". A link href survives intact; we build the
+  // real <img> here in JS. Placed between the heading block and the CTA; shown
+  // on mobile only (CSS).
   const logoLink = [...content.querySelectorAll('a')].find((a) => isImageHref(a.getAttribute('href')));
   if (logoLink) {
-    const logo = document.createElement('img');
-    logo.className = 'hero-logo';
-    logo.src = logoLink.getAttribute('href');
-    logo.alt = logoLink.textContent.trim() || '';
-    logo.loading = 'lazy';
-    (logoLink.closest('p') || logoLink).replaceWith(logo);
-    // Place the logo between the heading block and the CTA.
-    content.querySelector('.hero-heading')?.after(logo);
+    const img = document.createElement('img');
+    img.className = 'hero-logo';
+    img.src = logoLink.getAttribute('href');
+    img.alt = logoLink.textContent.trim() || '';
+    img.loading = 'lazy';
+    (logoLink.closest('p') || logoLink).replaceWith(img);
+    content.querySelector('.hero-heading')?.after(img);
   }
 
   // The CTA: the first NON-image link becomes a pill button.
