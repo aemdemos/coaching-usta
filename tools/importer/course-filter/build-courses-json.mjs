@@ -22,9 +22,12 @@ const authored = JSON.parse(readFileSync(join(here, 'courses-descriptions.json')
 const clean = (arr) => (arr || []).filter((v) => v !== null && v !== undefined);
 
 // Source badges are heavy illustrative SVGs (up to 93KB). Per the Asset-Size
-// Rule they were rasterized to 2x PNGs in blocks/course-filter/badges/. Rewrite
-// the captured source DAM path to the local PNG the block ships.
-const localBadge = (src) => (src ? `badges/${src.split('/').pop().replace(/\.svg$/i, '.png')}` : '');
+// Rule they were rasterized to 2x PNGs. The PNGs live in the CONTENT/DAM at
+// content/assets/media/blocks/course-filter/ (published to DA), NOT in the code
+// repo — so we reference them by their root-relative content path, which
+// resolves on every host (local, preview, production).
+const BADGE_BASE = '/assets/media/blocks/course-filter';
+const localBadge = (src) => (src ? `${BADGE_BASE}/${src.split('/').pop().replace(/\.svg$/i, '.png')}` : '');
 
 const merged = api.courses.map((c) => {
   const meta = authored[c.name] || {};

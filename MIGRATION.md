@@ -1373,3 +1373,24 @@ Verified live @localhost: API 200/31 courses, 16 cards render, first card "Intro
 Spanish link (proves live-structured + baked-enrichment merge). Fallback returns 33 enriched courses incl. workshop.
 courses.json stays in the repo (enrichment + fallback) — keep running build-courses-json.mjs when authored copy changes.
 lint 0 err, overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: badge PNGs moved from code to DA content assets
+Moved all 22 rasterized badge PNGs out of the code repo (blocks/course-filter/badges/, ~664KB) and into the
+DA content/DAM at content/assets/media/blocks/course-filter/, published so they serve from the content host.
+Keeps binary assets out of git; the block references them by URL.
+
+Steps:
+- Copied the 22 PNGs to content/assets/media/blocks/course-filter/ (byte-identical), then dropped the code
+  copies (blocks/course-filter/badges/ gone entirely).
+- Rewrote badge refs from `badges/x.png` to root-relative `/assets/media/blocks/course-filter/x.png` in
+  courses.json (24 refs; some shared) and in build-courses-json.mjs (BADGE_BASE const in localBadge) so
+  future rebuilds emit the same path.
+- JS: `img.src = course.badge` directly (was `${basePath}/${course.badge}`) — the badge is now an absolute
+  content path that resolves on every host. Dropped the now-unused basePath param from buildCard/renderCourses.
+- Published to DA: POST each PNG to admin.da.live/source/aemdemos/coaching-usta/assets/media/blocks/course-filter/
+  (22/22 → 201), then admin.hlx.page/preview/ (22/22 → 200).
+Why root-relative absolute: works on local dev (direct 200), preview, and prod without a hardcoded domain. On
+the published host the clean path 301-redirects to DA's content-hashed filename (media_<hash>.png, image/png,
+200) — browsers follow it transparently for <img>. Verified all 22 resolve on main--coaching-usta--aemdemos.aem.page.
+Content assets are DA-managed (content/ is gitignored), so they live in DA, not the code repo — the goal.
+lint 0 err, breakpoint/overflow/typography/a11y/svg all pass; badges load from /assets/ locally + published.
