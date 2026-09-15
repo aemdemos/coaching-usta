@@ -55,10 +55,11 @@ main > .section.accordion-container > div {
   padding: 23px;
 }
 
-/* open item: lime background, black text, no border (compensate the 1px with an
-   extra 1px padding so the content doesn't shift) */
+/* open item: lime background, black text, NO border (source has border-width:0).
+   Padding grows to 24px so the content box (1104px) and edge alignment match the
+   closed card's 23px+1px exactly — no shift on toggle. */
 .accordion .accordion-item[open] {
-  border-color: transparent;
+  border-width: 0;
   background-color: var(--usta-lime);
   padding: 24px;
 }
@@ -68,13 +69,14 @@ main > .section.accordion-container > div {
   color: #000;
 }
 
-/* label row: title left, +/- icon in a 48px box on the right (source). */
+/* label row: title left, +/- icon in a 48px box on the right (source). The row
+   is exactly 48px tall (source), matching the 48px icon box. */
 .accordion .accordion-item-label {
   position: relative;
   display: flex;
   align-items: center;
   min-height: 48px;
-  padding: 0 60px 0 0;
+  padding: 0 48px 0 0;
   cursor: pointer;
   list-style: none;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
@@ -83,6 +85,13 @@ main > .section.accordion-container > div {
   line-height: 1;
   letter-spacing: -0.03em;
   color: #fff;
+}
+
+/* the title text is wrapped in a <p> by EDS — strip its default paragraph
+   margins so the header row stays 48px (otherwise the row inflates to ~66px and
+   every card grows taller than the source). */
+.accordion .accordion-item-label p {
+  margin: 0;
 }
 
 /* accordion row title scale (source .cmp-accordion__title): 24 (<=767) -> 28
