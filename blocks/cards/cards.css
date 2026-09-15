@@ -1,14 +1,18 @@
 /* stylelint-disable no-descending-specificity */
 
-/* cards — three variants share this block:
+/* cards — variants share this block:
    • default  (boilerplate bordered tiles)
    • media    (editorial photo + heading + copy, transparent)
    • pricing  (dark membership tiers with a lime check list + CTA)
-   Each variant is authored as `cards (variant)`; selectors below are scoped by
-   the variant class so they never leak across variants. */
+   • logos    (partner logo tiles — white rounded squares in a 4-up grid)
+   Each variant is authored as `cards (variant)` and its CSS is scoped by that
+   variant class, so styles never leak across variants. The DEFAULT variant is
+   tagged with a positive `cards-default` class in JS (rather than a growing
+   `:not(.media, .pricing, …)` exclusion), so new variants never inherit base
+   styles. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block:not(.media, .pricing) > ul {
+.cards.cards-default > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -17,7 +21,7 @@
   gap: 24px;
 }
 
-.cards.block:not(.media, .pricing) > ul > li {
+.cards.cards-default > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -30,7 +34,7 @@
   line-height: 0;
 }
 
-.cards.block:not(.media, .pricing) > ul > li img {
+.cards.cards-default > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
@@ -424,4 +428,43 @@
   .cards-container:has(.cards.pricing) {
     padding-inline: 64px;
   }
+}
+
+/* ------------------------------------------------------------------ logos -- */
+
+/* partner/affiliation logo grid on the dark "OUR PARTNERS & AFFILIATIONS"
+   section (ustacoaching.com/en/home/about.html). Source: 4 equal columns at
+   EVERY breakpoint (does NOT collapse on mobile); each logo is a white rounded
+   square (20px radius) centred in its column, capped at 202px and scaling down
+   as the column narrows. Cells carry 12px padding. */
+.cards.logos > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.cards.logos .cards-logo-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.cards.logos .cards-logo-card picture,
+.cards.logos .cards-logo-card a {
+  display: block;
+  width: 100%;
+  max-width: 202px;
+}
+
+.cards.logos .cards-logo-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  background-color: #fff;
+  object-fit: contain;
 }
