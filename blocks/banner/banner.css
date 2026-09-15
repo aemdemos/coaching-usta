@@ -253,9 +253,19 @@ main > .section.banner-container > div {
   letter-spacing: normal; /* source heading uses normal, not the global -0.96px */
 }
 
+/* Source detail column: the label/body text does NOT run the full panel width.
+   It sits on the source's 12-col grid spanning 10 columns offset by 1 — i.e. a
+   centered 83.333% column (heading stays full 12-col width above it). This is
+   what makes the body wrap to 2 lines and gives the panel its correct height;
+   without it the text stays on one line and the panel is too wide/short.
+   Inner text padding: 8px mobile → 12px at ≥768 (source `.text` cell padding). */
 .banner.info .banner-details {
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  width: 83.3333%;
+  margin-inline: auto;
+  padding-inline: 8px;
 }
 
 .banner.info .banner-detail {
@@ -290,6 +300,10 @@ main > .section.banner-container > div {
   .banner.info .banner-heading {
     font-size: 40px;
     line-height: 40px;
+  }
+
+  .banner.info .banner-details {
+    padding-inline: 12px; /* source `.text` cell padding grows to 12px */
   }
 }
 
