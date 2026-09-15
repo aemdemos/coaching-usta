@@ -24,10 +24,16 @@ main > .section.banner-container > div {
   padding-inline: 16px;
 }
 
+/* base = the default (blue) panel. Variants (.black, .info, …) override only
+   what they change; heading/body use `color: inherit`, so a variant that only
+   recolours text needs one `color` declaration. Never add a variant to a
+   `:not()` list on this rule — that's what makes the default un-scalable. */
 .banner.block {
   box-sizing: border-box;
   border-radius: 20px;
   padding: 12px 16px; /* mobile; grows at desktop */
+  background-color: var(--usta-blue);
+  color: #000;
 }
 
 .banner-inner {
@@ -37,13 +43,14 @@ main > .section.banner-container > div {
   gap: 24px;
 }
 
-/* heading — USTA Sans condensed display, black on blue / white on black */
+/* heading — USTA Sans condensed display. Colour inherits from the panel. */
 .banner-heading {
   margin: 0;
   font-family: var(--heading-font-family);
   font-weight: 700;
   font-size: 28px;
   line-height: 1;
+  color: inherit;
 }
 
 /* right column: body copy with the CTA stacked below it */
@@ -64,6 +71,7 @@ main > .section.banner-container > div {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
+  color: inherit;
 }
 
 /* CTA — a fully-rounded solid pill. Source: a FIXED 280x56 pill at every
@@ -89,6 +97,10 @@ main > .section.banner-container > div {
   letter-spacing: 1px;
   text-decoration: none;
   white-space: nowrap;
+
+  /* default (blue panel): black pill + white label */
+  background-color: #000;
+  color: #fff;
 }
 
 .banner-cta:hover {
@@ -96,32 +108,14 @@ main > .section.banner-container > div {
   text-decoration: none;
 }
 
-/* ---- colour variants ------------------------------------------------------ */
-
-/* blue (default): blue panel, black text, black pill + white label */
-.banner.block:not(.black) {
-  background-color: var(--usta-blue);
-  color: #000;
-}
-
-.banner.block:not(.black) .banner-heading,
-.banner.block:not(.black) .banner-body p {
-  color: #000;
-}
-
-.banner.block:not(.black) .banner-cta {
-  background-color: #000;
-  color: #fff;
-}
+/* ---- colour variants ------------------------------------------------------
+   Each variant overrides ONLY what it changes vs the blue base above. Heading
+   and body text inherit the panel `color`, so a recolour is one line. Adding a
+   new fill variant here never requires touching the base rule. */
 
 /* black: black panel, white text, lime pill + black label */
 .banner.black {
   background-color: #000;
-  color: #fff;
-}
-
-.banner.black .banner-heading,
-.banner.black .banner-body p {
   color: #fff;
 }
 
@@ -218,5 +212,90 @@ main > .section.banner-container > div {
 @media (width >= 1280px) {
   main > .section.banner-container > div {
     padding-inline: 64px;
+  }
+}
+
+/* ---- info variant ---------------------------------------------------------
+   Source: the "WHAT TO EXPECT AFTER APPROVAL" panel on the equivalency page.
+   A fill-less, OUTLINED detail panel on the black page. Typography measured
+   live from the source computed styles at 390 / 768 / 1024 / 1280:
+
+   ┌────────────┬───────────────────┬──────────────────┬──────────────────┐
+   │            │ mobile (<768)     │ tablet (≥768)    │ desktop (≥1280)  │
+   ├────────────┼───────────────────┼──────────────────┼──────────────────┤
+   │ panel pad  │ 12px 16px         │ 12px             │ 36px 12px        │
+   │ heading    │ USTA Sans 700     │ 40px / 40px      │ 40px / 40px      │
+   │  fs/lh     │ 32px / 32px       │ (centered, #fff) │ (centered, #fff) │
+   │ label      │ Graphik Semibold 700, 18px / 24px, #fff, left, m:24px 0   │
+   │ body       │ Graphik Semibold 400, 18px / 24px, #fff, left, m:0        │
+   └────────────┴───────────────────┴──────────────────┴──────────────────┘
+   Border 1px solid #fff, radius 20px, transparent bg at every viewport.
+   Letter-spacing: normal everywhere. Heading/label/body colour inherits #fff
+   from the panel. */
+.banner.info {
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+  padding: 12px 16px;
+}
+
+/* the info panel is always a single centered column (never the row layout) */
+.banner.info .banner-inner {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.banner.info .banner-heading {
+  text-align: center;
+  font-size: 32px;
+  line-height: 32px;
+  letter-spacing: normal; /* source heading uses normal, not the global -0.96px */
+}
+
+.banner.info .banner-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner.info .banner-detail {
+  margin: 0;
+}
+
+/* label/body inherit the panel's white colour from .banner.info */
+.banner.info .banner-label {
+  margin: 24px 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+.banner.info .banner-detail-body {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+/* tablet (≥768): slim all-round 12px padding; heading grows to 40px/40px */
+@media (width >= 768px) {
+  .banner.info {
+    padding: 12px;
+  }
+
+  .banner.info .banner-heading {
+    font-size: 40px;
+    line-height: 40px;
+  }
+}
+
+/* desktop (≥1280): panel top/bottom padding grows to 36px (source) */
+@media (width >= 1280px) {
+  .banner.info {
+    padding: 36px 12px;
   }
 }
