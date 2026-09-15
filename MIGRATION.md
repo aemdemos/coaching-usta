@@ -1165,3 +1165,43 @@ chips switch to `order:0; flex:1 1 0`** (inline middle) and the bar goes `nowrap
 row. Restructured course-filter.js (chips is now its own bar child, not inside left group) + CSS to match.
 Verified @390 (Filter+Sort top row, Sort pinned right, chip on 2nd row, no overflow) and @768 (all three
 one row, Sort right). Lint 0 err, breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: block-sample page under drafts/block-samples
+Added `drafts/block-samples/course-filter.plain.html` following the existing block-sample template
+(heading + description + Source line, a 48/40/32 spacer, then the block). The course-filter block is
+self-contained/data-driven, so the sample places an EMPTY `course-filter` block (no authored rows) — it
+reads its data from blocks/course-filter/courses.json. Source line points to
+/en/home/courses.html "Courses and Workshops". NOTE: the earlier ad-hoc test page
+content/course-filter-test.plain.html could NOT be deleted (content dir is delete-protected by the
+guardrail — "never delete existing content; use the import script to regenerate"); it's a harmless local
+test page and is superseded by the block sample. Lint clean. (Render-verify via `--html-folder drafts` at
+/drafts/block-samples/course-filter, or upload to DA like the other samples; the block itself is already
+verified on the content test page across all viewports.)
+
+### 2026-09-15 — course-filter: block sample uploaded to DA (appears in block-samples)
+The block-samples list is served from DA, so the local drafts/ file wasn't enough. Built the DA-format
+HTML (full <body> doc, intro spacer 160/120, H1 + description + Source <em> line, an H2 section + empty
+`course-filter` block, closing spacer + section-metadata Style:dark + metadata Title/Robots noindex — matching
+the existing accordion sample), saved at tools/importer/course-filter/da-course-filter-sample.html, then:
+  POST → https://admin.da.live/source/aemdemos/coaching-usta/drafts/block-samples/course-filter.html (201)
+  POST → https://admin.hlx.page/preview/.../drafts/block-samples/course-filter (200)
+Now listed under drafts/block-samples in the preview window. Content verified served (plain.html 200:
+heading/desc/source/spacer + empty course-filter block div present). NOTE: renders EMPTY on the main
+preview until the block code (course-filter.js/.css + courses.json + badges) is merged to main — those live
+only on the issue8-custom working branch today. Empty block div is correct authoring (self-populates from
+courses.json at runtime).
+
+### 2026-09-15 — course-filter: unified tab/coach-type/chip state (default Coaches + removable chip)
+User: (1) on load the panel's "For Coaches" checkbox should be pre-checked (matching the active Coaches tab),
+and (2) the "For Coaches" chip needs a removable ✕. Root cause: I'd modeled the persona tab and the
+"Coach type" filter as SEPARATE state, so the panel checkbox wasn't synced and the tab chip was
+non-removable. Source treats them as ONE state — the tab IS the Coach-type filter.
+Refactor (course-filter.js): dropped `activeTab`; state now seeds `filters['Coach type'] = {COACHES}`.
+`activeTabKey()` derives the active pill from a single-value Coach-type selection. `selectCourses` filters
+purely on `filters` (no separate tab gate). Panel checkboxes initialize `checked` from state (so "For
+Coaches" is ticked on load). `renderChips` now emits a removable chip for EVERY ticked option incl. Coach
+type (chip shows "For Coaches ✕", aria-label "Remove For Coaches filter"). Tab click sets
+`filters['Coach type'] = {tabKey}` and mirrors into the coach-type checkboxes; `syncTabs()` re-derives the
+active pill on every rerender (so removing the chip clears the active tab). Verified: default = Coaches tab
++ "For Coaches" checked + removable chip; Parents tab → For Parents checked/chip/8 cards; remove chip →
+no tab active, all checkboxes off. Lint 0 err, breakpoint/overflow/a11y pass.

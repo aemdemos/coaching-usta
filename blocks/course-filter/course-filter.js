@@ -89,22 +89,31 @@ function moduleLabel(n) {
 }
 
 /**
- * State for one block instance. `activeTab` gates the list to a persona; the
- * checkbox filters (grouped) intersect across groups and union within a group.
+ * State for one block instance. The persona is NOT separate from the filters —
+ * the "Coach type" filter group IS the persona (source behaviour): the tab, the
+ * panel checkbox, and the removable chip all reflect `filters['Coach type']`.
+ * Defaults to {COACHES} so the Coaches tab is active, "For Coaches" is checked,
+ * and a removable "For Coaches" chip shows on load. Other groups intersect
+ * across groups and union within a group.
  */
 function createState() {
   return {
-    activeTab: 'COACHES',
-    filters: {}, // legend -> Set(values)
+    filters: { 'Coach type': new Set(['COACHES']) }, // legend -> Set(values)
     sort: 'Default',
     visible: PAGE_SIZE,
   };
 }
 
-/** Returns the courses passing the tab + filter selection, sorted. */
+/** The tab key whose single value the Coach-type selection currently equals (or null). */
+function activeTabKey(state) {
+  const chosen = state.filters['Coach type'];
+  if (chosen && chosen.size === 1) return [...chosen][0];
+  return null;
+}
+
+/** Returns the courses passing the filter selection, sorted. */
 function selectCourses(courses, state) {
-  const tab = TABS.find((t) => t.key === state.activeTab);
-  let list = courses.filter((c) => c.coachTypes.some((ct) => tab.coachTypes.includes(ct)));
+  let list = courses.slice();
 
   FILTER_GROUPS.forEach((group) => {
     const chosen = state.filters[group.legend];
@@ -256,12 +265,10 @@ function renderCourses(grid, seeMoreWrap, courses, state, basePath) {
   seeMoreWrap.hidden = selected.length <= state.visible;
 }
 
-/** Chip row reflecting the active tab + each ticked filter option. */
+/** Chip row — one removable chip per ticked filter option (Coach type included). */
 function renderChips(chipsWrap, state, onRemove) {
   chipsWrap.replaceChildren();
   const chips = [];
-  const tab = TABS.find((t) => t.key === state.activeTab);
-  chips.push({ label: tab.chip, remove: null }); // tab chip mirrors source (non-removable persona)
 
   FILTER_GROUPS.forEach((group) => {
     const chosen = state.filters[group.legend];
@@ -276,15 +283,10 @@ function renderChips(chipsWrap, state, onRemove) {
   chips.forEach(({ label, remove }) => {
     const chip = document.createElement('button');
     chip.type = 'button';
-    chip.className = 'course-filter-chip';
+    chip.className = 'course-filter-chip course-filter-chip-removable';
     chip.textContent = label;
-    if (remove) {
-      chip.classList.add('course-filter-chip-removable');
-      chip.setAttribute('aria-label', `Remove ${label} filter`);
-      chip.addEventListener('click', remove);
-    } else {
-      chip.disabled = true;
-    }
+    chip.setAttribute('aria-label', `Remove ${label} filter`);
+    chip.addEventListener('click', remove);
     chipsWrap.append(chip);
   });
 }
@@ -315,7 +317,8 @@ export default async function decorate(block) {
     b.type = 'button';
     b.className = 'course-filter-tab';
     b.setAttribute('role', 'tab');
-    b.setAttribute('aria-selected', String(t.key === state.activeTab));
+    const active = t.key === activeTabKey(state);
+    b.setAttribute('aria-selected', String(active));
     const title = document.createElement('span');
     title.className = 'course-filter-tab-title';
     title.textContent = t.title;
@@ -323,7 +326,7 @@ export default async function decorate(block) {
     desc.className = 'course-filter-tab-description';
     desc.textContent = t.description;
     b.append(title, desc);
-    if (t.key === state.activeTab) b.classList.add('is-active');
+    if (active) b.classList.add('is-active');
     tabsRow.append(b);
     return { tab: t, el: b };
   });
@@ -394,6 +397,8 @@ export default async function decorate(block) {
       input.id = id;
       input.dataset.legend = group.legend;
       input.dataset.value = opt.value;
+      // Reflect initial state (e.g. "For Coaches" checked on load).
+      if (state.filters[group.legend]?.has(opt.value)) input.checked = true;
       if (opt.disabled) { input.disabled = true; label.classList.add('is-disabled'); }
       label.append(span, input);
       fs.append(label);
@@ -456,6 +461,17 @@ export default async function decorate(block) {
   block.append(tabsWrap, bar, filterPanel, sortPanel, coursesWrap);
 
   // ---- Wiring ----
+  // Keep the tab pills in sync with the Coach-type selection (they are the same
+  // state): a tab is active only when Coach type == exactly that one value.
+  const syncTabs = () => {
+    const key = activeTabKey(state);
+    tabButtons.forEach(({ tab, el }) => {
+      const active = tab.key === key;
+      el.classList.toggle('is-active', active);
+      el.setAttribute('aria-selected', String(active));
+    });
+  };
+
   const rerender = () => {
     renderChips(chipsWrap, state, (legend, value) => {
       state.filters[legend]?.delete(value);
@@ -464,18 +480,19 @@ export default async function decorate(block) {
       state.visible = PAGE_SIZE;
       rerender();
     });
+    syncTabs();
     renderCourses(grid, seeMoreWrap, courses, state, basePath);
   };
 
+  // Selecting a persona tab sets Coach type to exactly that value (replacing any
+  // prior coach-type selection) and mirrors it into the panel checkboxes.
   tabButtons.forEach(({ tab, el }) => {
     el.addEventListener('click', () => {
-      state.activeTab = tab.key;
-      state.visible = PAGE_SIZE;
-      tabButtons.forEach(({ el: other }) => {
-        const active = other === el;
-        other.classList.toggle('is-active', active);
-        other.setAttribute('aria-selected', String(active));
+      state.filters['Coach type'] = new Set([tab.key]);
+      groupsWrap.querySelectorAll('input[data-legend="Coach type"]').forEach((input) => {
+        input.checked = input.dataset.value === tab.key;
       });
+      state.visible = PAGE_SIZE;
       rerender();
     });
   });
