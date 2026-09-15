@@ -228,7 +228,7 @@ function clampDescription(card) {
 }
 
 /** Builds one course card (collapsed; expands to its module timeline). */
-function buildCard(course, basePath) {
+function buildCard(course) {
   const card = document.createElement('article');
   card.className = 'course-filter-card';
 
@@ -312,7 +312,9 @@ function buildCard(course, basePath) {
     const badgeWrap = document.createElement('div');
     badgeWrap.className = 'course-filter-card-badge';
     const img = document.createElement('img');
-    img.src = `${basePath}/${course.badge}`;
+    // Badge is a root-relative content asset (/assets/media/blocks/course-filter/…)
+    // published to DA, so it resolves on every host without a domain or basePath.
+    img.src = course.badge;
     img.alt = `${course.name} badge`;
     img.loading = 'lazy';
     img.width = 148;
@@ -383,10 +385,10 @@ function buildCard(course, basePath) {
 }
 
 /** Renders the cards grid + See More for the current state. */
-function renderCourses(grid, seeMoreWrap, courses, state, basePath) {
+function renderCourses(grid, seeMoreWrap, courses, state) {
   const selected = selectCourses(courses, state);
   const shown = selected.slice(0, state.visible);
-  const cards = shown.map((c) => buildCard(c, basePath));
+  const cards = shown.map((c) => buildCard(c));
   grid.replaceChildren(...cards);
 
   seeMoreWrap.hidden = selected.length <= state.visible;
@@ -610,7 +612,7 @@ export default async function decorate(block) {
       rerender();
     });
     syncTabs();
-    renderCourses(grid, seeMoreWrap, courses, state, basePath);
+    renderCourses(grid, seeMoreWrap, courses, state);
   };
 
   // Selecting a persona tab sets Coach type to exactly that value (replacing any

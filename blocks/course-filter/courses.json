@@ -267,7 +267,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/coaching-high-school-tennis.png"
+    "badge": "/assets/media/blocks/course-filter/coaching-high-school-tennis.png"
   },
   {
     "name": "Empowering Girls",
@@ -307,7 +307,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/empowering-girls.png"
+    "badge": "/assets/media/blocks/course-filter/empowering-girls.png"
   },
   {
     "name": "Inclusive Coaching",
@@ -347,7 +347,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/inclusive-coaching.png"
+    "badge": "/assets/media/blocks/course-filter/inclusive-coaching.png"
   },
   {
     "name": "Athlete-Centered Coaching",
@@ -386,7 +386,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/athlete-centered-coaching.png"
+    "badge": "/assets/media/blocks/course-filter/athlete-centered-coaching.png"
   },
   {
     "name": "Intro to Coaching 2",
@@ -419,7 +419,7 @@
     "unlockLink": null,
     "spanishLink": true,
     "spanishHref": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253dca61161a-a8df-4256-bd02-ae150ee1d8c1",
-    "badge": "badges/intro-to-coaching.png"
+    "badge": "/assets/media/blocks/course-filter/intro-to-coaching.png"
   },
   {
     "name": "Introducción al Entrenamiento 2 (Intro to Coaching 2)",
@@ -452,7 +452,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/intro-to-coaching.png"
+    "badge": "/assets/media/blocks/course-filter/intro-to-coaching.png"
   },
   {
     "name": "Applied Coaching Skills - Private",
@@ -492,7 +492,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/applied-coaching-skills-private.png"
+    "badge": "/assets/media/blocks/course-filter/applied-coaching-skills-private.png"
   },
   {
     "name": "Applied Coaching Skills - Group",
@@ -532,7 +532,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/applied-coaching-skills-group.png"
+    "badge": "/assets/media/blocks/course-filter/applied-coaching-skills-group.png"
   },
   {
     "name": "Athletic Development by Multi SkillZ®",
@@ -572,7 +572,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/athletic-development.png"
+    "badge": "/assets/media/blocks/course-filter/athletic-development.png"
   },
   {
     "name": "Developing Junior and Adult Players",
@@ -615,7 +615,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/developing-junior-and-adult-players.png"
+    "badge": "/assets/media/blocks/course-filter/developing-junior-and-adult-players.png"
   },
   {
     "name": "Coaching Wheelchair Tennis",
@@ -654,7 +654,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/coaching-wheelchair-tennis.png"
+    "badge": "/assets/media/blocks/course-filter/coaching-wheelchair-tennis.png"
   },
   {
     "name": "Coaching Intellectual and Developmental Disabilities Tennis",
@@ -691,7 +691,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/people-with-disabilities-intellectual-developmental-disability.png"
+    "badge": "/assets/media/blocks/course-filter/people-with-disabilities-intellectual-developmental-disability.png"
   },
   {
     "name": "Events and Social Play",
@@ -731,7 +731,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/events-and-social-play.png"
+    "badge": "/assets/media/blocks/course-filter/events-and-social-play.png"
   },
   {
     "name": "CPR/AED and First Aid Awareness",
@@ -765,7 +765,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/safety-coach.png"
+    "badge": "/assets/media/blocks/course-filter/safety-coach.png"
   },
   {
     "name": "Cardio Tennis",
@@ -803,7 +803,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/cardio-tennis.png"
+    "badge": "/assets/media/blocks/course-filter/cardio-tennis.png"
   },
   {
     "name": "Cardio Tennis Workshop",
@@ -868,7 +868,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/empowering-girls.png"
+    "badge": "/assets/media/blocks/course-filter/empowering-girls.png"
   },
   {
     "name": "Player Motivation and Engagement",
@@ -908,7 +908,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/player-motivation-and-engagement.png"
+    "badge": "/assets/media/blocks/course-filter/player-motivation-and-engagement.png"
   },
   {
     "name": "Delivering Competition",
@@ -948,7 +948,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/delivering-competition.png"
+    "badge": "/assets/media/blocks/course-filter/delivering-competition.png"
   },
   {
     "name": "Intro to Tennis Coaching Business",
@@ -988,7 +988,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/intro-to-tennis-coaching-business.png"
+    "badge": "/assets/media/blocks/course-filter/intro-to-tennis-coaching-business.png"
   },
   {
     "name": "Coach Well-Being",
@@ -1028,7 +1028,7 @@
     },
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/coach-well-being.png"
+    "badge": "/assets/media/blocks/course-filter/coach-well-being.png"
   },
   {
     "name": "Intro to Park and Recreation",
@@ -1065,7 +1065,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/parks-and-recreation-badge-icon.png"
+    "badge": "/assets/media/blocks/course-filter/parks-and-recreation-badge-icon.png"
   },
   {
     "name": "Rules and Regulations 1",
@@ -1097,7 +1097,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/rules-of-tennis-1.png"
+    "badge": "/assets/media/blocks/course-filter/rules-of-tennis-1.png"
   },
   {
     "name": "Rules and Regulations 2",
@@ -1129,7 +1129,7 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/rules-of-tennis-2.png"
+    "badge": "/assets/media/blocks/course-filter/rules-of-tennis-2.png"
   },
   {
     "name": "Rules and Regulations 3",
@@ -1161,6 +1161,6 @@
     "unlockLink": null,
     "spanishLink": false,
     "spanishHref": "",
-    "badge": "badges/rules-of-tennis-3.png"
+    "badge": "/assets/media/blocks/course-filter/rules-of-tennis-3.png"
   }
 ]
