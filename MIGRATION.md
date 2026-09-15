@@ -900,3 +900,14 @@ lime/black pill cards. Lint clean, breakpoint pass.
    image" seen on /es/ is the stale published backend, not a content error.
 NOTE: /es/ serves published backend content, so these render once content/es/index is synced to DA.
 Lint clean, breakpoint pass.
+
+### 2026-09-14 — spacer block + Accordion (base) block sample
+Added a `spacer` block (blocks/spacer/{js,css,metadata.json}) — an authorable vertical gap / full-bleed
+colored band. Config key/value rows: desktop (>=1200px), tablet (>=992px), mobile (<992px), optional color
+(raw CSS color / var(--x) / bare design-token name → var(--…)). Full-bleed when colored; a spacer-only
+section carries no margin/padding so authors control the rhythm via spacer heights.
+Added the first block sample under drafts/block-samples/: `accordion.plain.html` — "Accordion (base)"
+heading + a short no-noise description + the Source URL (ustacoaching.com "Discover your path") + a 48/40/32
+spacer for breathing room + the accordion block with the 5 audience rows. Verified: spacer renders a real
+48px gap @desktop / 32px @mobile between the intro and the accordion; accordion shows the lime open item +
+single-open. Lint clean, overflow clean 360–1920.
