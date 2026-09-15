@@ -998,3 +998,378 @@ the delayed phase begins (well past LCP), guaranteeing zero impact on load perfo
 scripts/chat.js and the inline import from loadDelayed(). Verified on localhost: launcher still mounts after
 the delay — 64x64, bottom:10px/left:80px, z-index 999999, #cfff05, all 3 Zendesk iframes + "Hi! Need any
 help?" bubble. Lint 0 errors.
+
+### 2026-09-15 — Chat widget final layout + end-to-end verification + allow-list finding
+FINAL STRUCTURE: chat loader lives at top-level **widgets/usta-coach-care/chat.js** (sibling to blocks/ and
+scripts/), imported by **scripts/delayed.js** via `../widgets/usta-coach-care/chat.js`. delayed.js is fired
+by scripts.js loadDelayed() on a 3s setTimeout — snippet fetched well after LCP. Old scripts/widgets/ and
+widgets/chat/ folders removed.
+END-TO-END VERIFIED (localhost): opened the widget via `zE('messenger','open')` — the FULL messaging window
+renders in-page (380x700 overlay iframe): header "USTA Coach Care", "How can we help?", a live agent/bot
+reply ("Coach Net says: Hi! How can I help you?"), file-upload + working message box. So the widget is not
+just present — it FUNCTIONS in-page.
+ALLOW-LIST FINDING (for future ref): the Zendesk Web Widget does NOT require domain allow-listing. It is
+keyed by ACCOUNT (?key=…), runs client-side, and works on ANY host (proven: worked on localhost AND on the
+404 page). There is NO link/fallback hand-off in our implementation — only the single path of loading the
+real inline widget; when the CSP blocked it, it failed silently (no degrade-to-link). Caveat: USTA could
+later restrict embedding domains from their Zendesk dashboard (account-side toggle, not our code) — not
+active today.
+
+---
+
+## STATUS SNAPSHOT — 2026-09-15 (for a fresh LLM session)
+
+**Project:** Lift-and-shift migration of https://www.ustacoaching.com/ (+ /es/) to AEM Edge Delivery.
+Target: 100% pixel + functional parity across mobile (390/375), tablet (768/834/1024), desktop
+(1280/1440/1512/1728).
+
+**Repo:** /backups/aemdemos/coaching-usta/repo · GitHub aemdemos/coaching-usta · content source = Document
+Authoring (DA, admin.da.live/source/aemdemos/coaching-usta/…). Dev server localhost:3000 serves LOCAL code +
+REMOTE (DA-published) content — local content/ edits only render after upload to DA.
+Preview: main--coaching-usta--aemdemos.aem.page · Live: …aem.live.
+
+**DONE (built + verified):**
+- Design system captured: breakpoints 768/1024/1280 (tools/quality/breakpoints.json); grid gutters
+  16/40/48/64, 1536 max-width; tokens --usta-blue #0373f3, --usta-lime #cfff05; fonts USTA Sans / Graphik
+  Semibold / Graphik Regular (typography.json + fonts/).
+- Blocks: hero (video), cards (pricing + media), columns (media + quote), banner (events blue/black),
+  accordion (default, single-open lime pill cards), form, spacer. All typography-audited across viewports.
+- cards (media): ONE block, 3 rows (merged from 3 separate blocks) on index EN + ES. Layout grid moved onto
+  `.cards.media > ul` (3-up desktop / stacked-horizontal tablet / stacked mobile).
+- Section-heading regrouping (SUCCESS STORIES → quote section; DISCOVER YOUR PATH → accordion section).
+- ES page: intro-statement accents + narrow metadata; DESCUBRE centered; Safe Play image verified.
+- Intro-statement markdown-corruption fix on index EN + /en/home (single <strong> with nested <em>/<u> —
+  never sibling <strong> runs, or DA→md emits literal `**`).
+- Block sample pages in DA under drafts/block-samples/: accordion-base, hero-video, columns-media (both
+  P-heading + H2 variants), cards-pricing, cards-media (3 cards), banner-events-blue, columns-quote.
+- Chat widget (Zendesk "USTA Coach Care"): DONE — see entries above. Required removing
+  `require-trusted-types-for 'script'` from head.html (documented deviation).
+
+**KNOWN CAVEATS / OPEN ITEMS:**
+- spacer block JS/CSS is NOT yet on GitHub main → block-sample pages' inter-element spacers collapse on
+  aem.page preview (harmless spacer.js 404) until pushed.
+- Several fixes live only in local content/ (or were pushed to DA ad hoc) — confirm DA is the source of
+  truth before each publish. index EN + /en/home intro + cards-media merge are LIVE (published).
+- head.html no longer enforces Trusted Types (deviation for the chat widget).
+
+**NEXT TARGET: Custom Widget — "Course Filter"** — DONE 2026-09-15 (see log entry below).
+
+---
+
+### 2026-09-15 — NEW `course-filter` block (Courses and Workshops browser) — full parity
+Recreated the source's "Courses and Workshops" widget (source page /en/home/courses.html) as a new EDS
+block `blocks/course-filter/`. Investigated first: the source is a **bespoke Vue component**
+(`.v-course-list`, mounted in `data-v-app`) compiled into USTA's AEM clientlib — NOT a third-party embed,
+no iframe, no reusable snippet, and its data API sends no CORS header. **Verdict: cannot pull in as-is →
+recreated.** (Per user: full parity, baked-in JSON first; live API fetch deferred as an easy follow-up.)
+
+**Data model (baked-in JSON).** Course tags/modules/language/sort come from the public LMS API
+`https://services.ustacoaching.com/v1/lms/courses/all` (31 courses), BUT the **card descriptions + badge
+images are AEM-authored (keyed by course code) and are NOT in the API** — captured those from the live DOM
+across all 3 tabs (incl. behind "See More"). Merge pipeline in `tools/importer/course-filter/`:
+`courses-api.json` (API tags/modules) + `courses-descriptions.json` (authored desc/badge/unlock, DOM-scraped)
+→ `build-courses-json.mjs` → `blocks/course-filter/courses.json` (33 rows: 31 API + 2 workshop-only cards
+seen in the DOM but not the API — Intro to Coaching Workshop, Cardio Tennis Workshop). Re-run the build
+script to refresh. Spec + raw captures live in `tools/importer/course-filter/course-filter-spec.md`.
+
+**Badges: SVG→PNG per the Asset-Size Rule.** The 22 source badge SVGs are heavy illustrative art
+(up to 93KB; several >40KB). Rasterized to 2x PNGs (296px = 148 display ×2) via the svg-assets skill's
+converter (Chromium, transparent bg) into `blocks/course-filter/badges/*.png` — all now <37KB, total
+~614KB, lazy-loaded. Dataset badge paths rewritten `.svg`→local `badges/<name>.png` by the build script.
+
+**Behaviour (full parity, verified live):**
+- **3 persona tabs** (Parents / School Tennis / Coaches; default active = Coaches) filter the list by
+  coachType. Tab → coachType map: Parents=`PARENT_GUARDIAN_COACH`, School=`SCHOOL_COACH`,
+  Coaches=`COLLEGE/FT_PROF/PT_PROF/VOLUNTEER_OR_EMERGING`.
+- **Filter By** dropdown: 4 checkbox groups (Coach type / Certification / Membership package / Languages),
+  "Coming Soon" certs disabled, commits on **Apply filters**; each ticked option adds a removable chip in
+  the row below the tabs (the active-tab chip is shown non-removable, mirroring source). Intersect across
+  groups, union within a group.
+- **Sort by** dropdown: Default (API sort) / A to Z / Z to A.
+- **Cards** expand (chevron) to a **module timeline** (ringed-circle bullet list); badge courses show the
+  148px PNG bottom-right; long descriptions keep their unlock paragraph. **See More** pages 16 at a time.
+
+**Design (source-measured, replicated).** Dark tabs panel `#2d2d2d` r20; active tab lime `#cfff05`;
+white cards r20, 24px pad (16 @mobile), gap 24 (16 @mobile); name Graphik Semibold 18→28→32 (mob/768/1024,
+ls -0.54/-0.84/-0.96), eyebrow 12→16→18; desc Graphik Regular 16/lh1.2; Filter/Sort white pills r12;
+chip black + 1px white border r12; See More lime + 2px black border r12. Grid **1-up ≤768, 2-up ≥1024**.
+Section container aligned to the content grid (1536 cap, gutters 16/40/48/64).
+
+**A11y note / typography-gate interaction.** Card **name + eyebrow are non-heading elements** (span with
+`role="heading" aria-level="3"` for the name), matching the source markup AND keeping the block's bespoke
+title sizes off the global `h1..h6`/body type scale — so `check:typography` passes with NO per-block font
+exceptions (contrast with cards.pricing, which uses a real `<h3>` and is a standing typo-gate exception).
+Card description stays a `<p>` at the global 16px/lh1.2 Graphik Regular. Avoids a skipped heading level
+under the page's single `<h1>`.
+
+**Quality gate (all green, on `/content/course-filter-test`):** lint 0 errors; breakpoint check pass;
+overflow sweep 360/768/1024/1280/1920 all OK; typography pass; a11y pass; check:svg pass (badges live under
+blocks/, not icons/, but all PNGs <40KB anyway). Verified interactions live: tab switch (Parents=8 cards),
+Spanish+Coaches filter → 2 ES courses, chip remove restores list, sort A–Z, card expand shows 3-module
+timeline, See More.
+
+**OPEN / follow-ups:** (1) live API refresh path (fetch `/v1/lms/courses/all` at runtime to keep tags
+fresh) — deferred per user; note the API has no CORS and lacks descriptions/badges, so it can only refresh
+tags/modules, not replace the baked content. (2) Not yet authored onto a real DA page — needs a
+`course-filter` block placed on the courses page (the block is self-contained; author an empty
+`course-filter` block, no rows needed). (3) Block-sample page under drafts/block-samples not yet added.
+
+### 2026-09-15 — course-filter: pixel-parity pass on card internals + module timeline
+User overlaid source vs migrated and flagged drift in the expanded "connected dots" timeline and card
+internal spacing. Re-measured the source precisely and matched every value:
+- **Module timeline connector** — the source draws a vertical line via `.v-course__module::after`
+  (`content:""; position:absolute; width:2px; height:60px; left:6.5px; top:20px; background:#000`),
+  with each item `min-height:40px` + `margin-bottom:32px` → circle centers exactly **72px** apart. Mine
+  had loose unconnected dots (24px margin, no line). Added the `::after` connector (on all but last item)
+  + fixed item height/margin. Verified circle centers 72px apart, line 2×60 @ left6.5/top20.
+- **Card internal rhythm** — source info block is `display:block` (NOT flex-gap); spacing comes from
+  fixed paddings: name `padding:8px 0 2px`, description `padding:20px 32px 0 0` (the 32px right keeps text
+  off the expand button); content row is `align-items:center`. Mine used a 16px flex gap (wrong rhythm).
+  Rewrote to the source model. Now eyebrow→name 8px, name→desc 20px, exact at all viewports.
+- **Content gap** — 16px @mobile → 24px @tablet+ (was flat 24). Card padding already 16→24 correct.
+Verified migrated == source at 390/768/1440 (card padding, content gap, name/desc paddings, eyebrow/name
+font sizes, timeline geometry). Quality gate re-run all green: lint 0 err, breakpoint pass, overflow
+360–1920 OK, typography pass, a11y pass.
+
+### 2026-09-15 — course-filter: timeline connector fix (multi-line module titles)
+User caught the "connected dots" breaking when a module title wraps to 2 lines (circles uneven, line
+not reaching). Root cause: I'd hardcoded the connector at fixed `60px`/`top:20px`, which only works for
+single-line 40px items. Re-measured the SOURCE with a wrapping title: it uses PERCENTAGE geometry —
+`.v-course__module::after { top:50%; height:150% }` (relative to each item) + circle `align-self:center`,
+so the connector scales with item height (single-line 40px → 20/60; 2-line 60px → 30/90). Matched exactly.
+NOTE: the source connector is intentionally a short stub (ends ~12px above the next circle center at
+40px items) — NOT a full connect; my output now reproduces that same behavior. Verified at 1024 (titles
+wrap): item heights + circle-center gaps (72/82) + line geometry identical to source. Lint 0 err (fixed a
+duplicate-selector by merging align-self into the circle rule), breakpoint pass.
+
+### 2026-09-15 — course-filter: timeline circle overflow + description links
+Two fixes after visual review:
+1. **Connector line drawn through the circles.** The `::after` line overlapped the timeline circles.
+   Source hides this by stacking the opaque circle above the line. Added `position:relative; z-index:1`
+   to `.course-filter-card-timeline-circle` (line is z-index auto) so the white circle covers the
+   overlap — line now meets each circle's edge cleanly, single- and multi-line items alike.
+2. **Description links were dropped (rendered as plain text).** The source links "Spanish." (course-
+   specific CSOD deep-link, new tab) and the "USTA Coaching Development Coach Badge" unlock link. Added
+   `spanishHref` to courses-descriptions.json + build script; course-filter.js now renders real
+   underlined `<a target=_blank rel=noopener>` for the trailing "Spanish." and for the inline unlockLink
+   (built with createElement/textContent — no innerHTML, per the Security Rule). Verified links underline
+   and open new tab; unlock links inline. Lint 0 err, breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: Sort-by stays right (filter bar layout parity)
+User: on mobile/tablet "Sort by" dropped below instead of staying right. Root cause: I'd nested the
+applied-filter chips INSIDE the left group with Filter By, so the left group grew and pushed Sort down.
+Re-measured the source: the bar is 3 independent flex children — Filter By | chips | Sort by. Source
+behavior: `justify-content: space-between`; the **chips group carries `order:1; flex:1 1 100%` at mobile**
+so it wraps to its OWN row below while Filter (left) + Sort (right) share the top row; at **>=768 the
+chips switch to `order:0; flex:1 1 0`** (inline middle) and the bar goes `nowrap` so all three sit on one
+row. Restructured course-filter.js (chips is now its own bar child, not inside left group) + CSS to match.
+Verified @390 (Filter+Sort top row, Sort pinned right, chip on 2nd row, no overflow) and @768 (all three
+one row, Sort right). Lint 0 err, breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: block-sample page under drafts/block-samples
+Added `drafts/block-samples/course-filter.plain.html` following the existing block-sample template
+(heading + description + Source line, a 48/40/32 spacer, then the block). The course-filter block is
+self-contained/data-driven, so the sample places an EMPTY `course-filter` block (no authored rows) — it
+reads its data from blocks/course-filter/courses.json. Source line points to
+/en/home/courses.html "Courses and Workshops". NOTE: the earlier ad-hoc test page
+content/course-filter-test.plain.html could NOT be deleted (content dir is delete-protected by the
+guardrail — "never delete existing content; use the import script to regenerate"); it's a harmless local
+test page and is superseded by the block sample. Lint clean. (Render-verify via `--html-folder drafts` at
+/drafts/block-samples/course-filter, or upload to DA like the other samples; the block itself is already
+verified on the content test page across all viewports.)
+
+### 2026-09-15 — course-filter: block sample uploaded to DA (appears in block-samples)
+The block-samples list is served from DA, so the local drafts/ file wasn't enough. Built the DA-format
+HTML (full <body> doc, intro spacer 160/120, H1 + description + Source <em> line, an H2 section + empty
+`course-filter` block, closing spacer + section-metadata Style:dark + metadata Title/Robots noindex — matching
+the existing accordion sample), saved at tools/importer/course-filter/da-course-filter-sample.html, then:
+  POST → https://admin.da.live/source/aemdemos/coaching-usta/drafts/block-samples/course-filter.html (201)
+  POST → https://admin.hlx.page/preview/.../drafts/block-samples/course-filter (200)
+Now listed under drafts/block-samples in the preview window. Content verified served (plain.html 200:
+heading/desc/source/spacer + empty course-filter block div present). NOTE: renders EMPTY on the main
+preview until the block code (course-filter.js/.css + courses.json + badges) is merged to main — those live
+only on the issue8-custom working branch today. Empty block div is correct authoring (self-populates from
+courses.json at runtime).
+
+### 2026-09-15 — course-filter: unified tab/coach-type/chip state (default Coaches + removable chip)
+User: (1) on load the panel's "For Coaches" checkbox should be pre-checked (matching the active Coaches tab),
+and (2) the "For Coaches" chip needs a removable ✕. Root cause: I'd modeled the persona tab and the
+"Coach type" filter as SEPARATE state, so the panel checkbox wasn't synced and the tab chip was
+non-removable. Source treats them as ONE state — the tab IS the Coach-type filter.
+Refactor (course-filter.js): dropped `activeTab`; state now seeds `filters['Coach type'] = {COACHES}`.
+`activeTabKey()` derives the active pill from a single-value Coach-type selection. `selectCourses` filters
+purely on `filters` (no separate tab gate). Panel checkboxes initialize `checked` from state (so "For
+Coaches" is ticked on load). `renderChips` now emits a removable chip for EVERY ticked option incl. Coach
+type (chip shows "For Coaches ✕", aria-label "Remove For Coaches filter"). Tab click sets
+`filters['Coach type'] = {tabKey}` and mirrors into the coach-type checkboxes; `syncTabs()` re-derives the
+active pill on every rerender (so removing the chip clears the active tab). Verified: default = Coaches tab
++ "For Coaches" checked + removable chip; Parents tab → For Parents checked/chip/8 cards; remove chip →
+no tab active, all checkboxes off. Lint 0 err, breakpoint/overflow/a11y pass.
+
+### 2026-09-15 — course-filter: missing Spanish link + typography parity audit
+Two fixes:
+1. **Missing "Spanish." link on "Introduce Your Child to Tennis".** I'd only added spanishHref for the two
+   Intro-to-Coaching courses. Swept the SOURCE across all tabs for every description link: exactly 3 courses
+   carry a "Spanish." link (Introduce Your Child to Tennis, Intro to Coaching 1, Intro to Coaching 2) plus
+   the shared "USTA Coaching Development Coach Badge" unlock link on 3 more. Added the missing spanishHref
+   (…lo=76f2f752…) to courses-descriptions.json and rebuilt courses.json. All 3 Spanish links now render.
+2. **Typography parity audit (all viewports).** Measured every text element on the source at 1440/768/390.
+   All matched EXCEPT the **description link**: source renders it LARGER than body copy — 18px/lh21.6 at
+   desktop+tablet, 16px/lh19.2 at mobile (an intentional source quirk); mine inherited the 16px paragraph
+   size. Also the description paragraph had an inherited letter-spacing:-0.48px vs source `normal`. Fixed:
+   `.course-filter-card-description a { font-size:16px; line-height:1.2 }` + `>=768 { 18px/21.6px }`;
+   desc paragraph `letter-spacing: normal`. Re-verified full type table matches source at all 3 vps:
+   tabTitle 16/12/14, eyebrow 18/16/12, name 32/28/18 (ls -0.96/-0.84/-0.54), desc 16, descLink 18/18/16,
+   SeeMore 18/18/16, filter/sort/chip 16. Lint 0 err, breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: tablet/mobile tab layout parity (tall-panel fix)
+User: on tablet the tabs panel ballooned tall with "Coaches" floating mid-panel (vs source's tight rows).
+Root cause: tabs used `flex: 1 1 140px`, so at tablet widths they wrapped AND stretched to fill. Source
+uses `flex: 1 1 0; min-width: 120px` (measured) — equal-width thirds that stay on ONE compact row while
+they fit and stay compact (min-width, no stretch) when wrapping. Matched exactly (added align-items:stretch
+on the row for parity). Verified: mobile 390 = Parents+School row1 / Coaches full-width row2 (source-exact);
+tablet 760–834 = all 3 tabs one compact row; desktop unchanged. Lint 0 err, breakpoint/overflow(360–1920)/
+typography/a11y all pass.
+
+### 2026-09-15 — course-filter: description clamp + "..." indicator + chevron direction
+Tablet parity pass. Source clamps each COLLAPSED card's description to a fixed height and shows a
+bottom-right "..." when truncated (keeping cards uniform/compact); mine showed full text (over-tall cards).
+Measured source: `.v-course__description.clamp { overflow:hidden; max-height:~150px }` + absolute
+`.v-course__description-ellipsis` (right:0; bottom:-2px; 30px/700). Implemented:
+- CSS `.course-filter-card-description.is-clamped { position:relative; max-height:154px; overflow:hidden }`
+  + `.course-filter-card-description-ellipsis` (absolute bottom-right, 30px/700, white bg to mask text).
+- JS `clampDescription(card)`: after layout (rAF) adds `.is-clamped` + a "..." span only when the text
+  overflows; expanding removes the clamp (full text shows), collapsing re-clamps; re-runs on resize
+  (debounced) since 1-up↔2-up changes overflow. Hoisted above buildCard (eslint no-use-before-define).
+Also fixed the **expand chevron direction**: source shows it DOWN when collapsed (SVG rotated 180°) and UP
+when expanded; mine was inverted. Flipped: `svg { transform: rotate(180deg) }` default, `[aria-expanded=true] svg { rotate(0) }`.
+Verified @1024: clamped copy + "..." bottom-right on long cards, uniform card height, down chevron collapsed.
+Lint 0 err, breakpoint/overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: title 3-line clamp + description stays clamped on expand
+Two source-parity fixes (tablet 2-up cards):
+1. **Title clamp.** Source clamps the course name to 3 lines with an ellipsis (`-webkit-line-clamp: 3`,
+   display:-webkit-box, overflow:hidden). Mine showed the full title (long names like "Introducción al
+   Entrenamiento 2 (Intro to Coaching 2)" pushed the card taller). Added the 3-line clamp to
+   `.course-filter-card-name` (+ standard `line-clamp` for parity). Verified: long titles truncate to 3
+   lines with "…".
+2. **Expanded card keeps the description clamped.** Source does NOT reveal the full description on expand —
+   the `.clamp` + "..." stay and ONLY the module timeline is toggled below (confirmed live: expanded
+   "Intro to Coaching 2" still shows clamped copy + "..." then the 4-module timeline). Mine was releasing
+   the clamp on expand. Fixed: removed the `is-expanded` early-return in clampDescription and the
+   expand handler no longer strips `.is-clamped`/ellipsis — expanding only toggles `modules.hidden`.
+Verified @1024: titles 3-line clamped, expanded card shows clamped desc + "..." + module timeline, chevron
+flips. Lint 0 err, breakpoint/overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: source-CSS extraction + full parity cross-check
+Pulled the source's own `.v-course*` / `.v-course-list*` rules straight from the live stylesheet
+(`clientlib-vue.min.css`) — 147 rules — as an authoritative reference, then diffed every property against
+`blocks/course-filter/course-filter.css` at each breakpoint. (We do NOT wire up the source CSS: it's a
+3,543-rule unscoped Vue app bundle that would collide with our global grid/typography and break
+block-isolation + PageSpeed. We reproduce only the measured values in our scoped block CSS.)
+
+Drifts found & fixed (source → ours was wrong):
+- **Card name font-size.** Source: 18px mobile / **28px @768–1279** / 32px @≥1280. Ours had 32px kicking in
+  at 1024, which also caused the mid-word horizontal clip ("Introduccić…") in the 2-up tablet column.
+  Moved the 32px rule to `@media (width >= 1280px)`; 28px now holds through the tablet range. Clip gone.
+- **Grid gap.** Source is `16px` at every breakpoint; ours was `24px` base / `24px 16px` desktop → now `16px`.
+- **Badge size.** Source: 80px mobile / **120px @768–1279** / 148px @≥1280; ours jumped to 148 at 768.
+  Now 120 at tablet, 148 moved to ≥1280.
+- **Tabs panel.** Source: wrapper transparent on mobile with individual dark (#2d2d2d) pills; wrapper
+  becomes the dark panel at tablet+. Margin-bottom 36 / 44 / 100. Tab height 70 mobile / 100 tablet+.
+  Ours had the wrapper always dark, margin 48/100, tab min-height 54/84. Corrected all.
+- **Description clamp height.** Source `calc(1.57rem * 6)`; ours hardcoded 154px → now the exact calc.
+- **Module text.** Source 14px/600 mobile → 16px/400 tablet+; ours was 16px everywhere → fixed.
+Verified @1024 (computed): name 28/28/-0.84, badge 120, grid gap 16, tabs #2d2d2d 100px/44px — all match.
+Lint 0 err, breakpoint/overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: expand-button hover + mobile description (2 source-parity fixes)
+1. **Expand chevron turns green only on :hover.** Source has `.v-course__expand-button:hover { background:#CFFF05 }`;
+   the expanded state itself is transparent. Mine had no hover rule (button looked dead on hover, and the
+   "green box" the user saw on the expanded source card was just the hover state). Added
+   `.course-filter-card-expand:hover { background: var(--usta-lime) }`. Verified expanded bg stays transparent.
+2. **Mobile shows the FULL description, un-clamped, at 14px.** Source only clamps at tablet+ (>=768): on mobile
+   the `.v-course__additional-content .v-course__description` is always visible, 14px/400, NO clamp, NO "...".
+   Mine was clamping on mobile too (150px cap + "..."), which read as "blank boxes" until expanded. Fixed:
+   - JS `clampDescription` early-returns (strips `.is-clamped`) when `matchMedia('(width < 768px)')` matches.
+   - CSS `.course-filter-card-description` base font-size 14px (mobile) → 16px at >=768.
+   Verified @390: desc full, un-clamped, 14px, no ellipsis. @1024 still clamps at 16px with "…" (unchanged).
+
+**Rule deviation (justified) — typography gate.** `npm run check:typography` now reports 2 "drifts" at @390 for
+`p` (14px vs global body 16px). This is the block-scoped mobile card copy, which the source itself renders at
+14px (block-specific, NOT the global body scale — the `:root` body token in styles.css is unchanged at 16px).
+The checker's heuristic grabs the first visible `<p>`, and on this block-ONLY sample page that's the card
+description; on a real authored page it would measure the intro body copy (16px) and pass. Keeping 14px is the
+parity-correct choice per The Typography Rule's intent (match the source); forcing 16px would break parity.
+lint 0 err, breakpoint/overflow(360–1920)/a11y all pass; typography drift is the intentional block-scoped 14px.
+
+### 2026-09-15 — course-filter: CORRECTION — mobile description is expand-only (not always-on)
+Reverses the previous entry's mobile-description decision, which was based on a mis-measurement (I had
+inspected the source AFTER a card was already expanded). Re-measured the source on a FRESH mobile (390) load
+with nothing clicked: the collapsed card shows the **title only** — `.v-course__additional-content` has
+`offsetHeight: 0` (an ancestor is collapsed). Tapping the chevron reveals the description (14px, un-clamped)
+**and** the module timeline together. So on mobile the description is part of the expandable region, hidden
+until expand — matching the user's source screenshot (blank-looking cards = title-only, by design).
+Contrast: at tablet/desktop (>=768) the description is ALWAYS visible (clamped + "…"), and the toggle only
+reveals the timeline.
+
+Implementation:
+- JS: every card now renders an expand toggle (previously only module-bearing cards had one). Cards with 0
+  modules get `.course-filter-card-standalone`. The toggle handler flips `.is-expanded` (reveals the mobile
+  description via CSS) and toggles the timeline when present.
+- CSS: `.course-filter-card-description { display: none }` base (mobile collapsed) → `display: block` when
+  `.is-expanded`; at >=768 it is `display: block` unconditionally (always visible) at 16px. Standalone cards
+  hide their toggle at >=768 (nothing to expand there; description already inline) but keep it <768.
+Verified @390: collapsed = title only (desc height 0); expand → desc (14px) + 3-module timeline; standalone
+0-module card keeps its mobile toggle. @1024: all descriptions inline + "…", standalone card has no toggle.
+lint 0 err, breakpoint/overflow(360–1920)/typography/a11y ALL pass (typography now green — the mobile 14px
+copy is hidden when collapsed, so the checker no longer reads it as a body drift).
+
+### 2026-09-15 — course-filter: mobile description is FULL-WIDTH below the row (two-copy model) + green expanded chevron
+Pixel-diffing the source vs migrated expanded mobile card revealed the real structural drift: the source
+renders the description in TWO DOM positions, one shown per viewport (its Vue markup has both
+`.v-course__info-section .v-course__description` AND `.v-course__additional-content .v-course__description`):
+- **Desktop (>=768):** description is INLINE inside the info column, beside the badge (info copy visible,
+  additional-content copy hidden). Measured: badge 148@x672, inline desc @x844 w276.
+- **Mobile (<768):** description is FULL-WIDTH BELOW the badge/title/expand row (additional-content copy
+  visible, info copy hidden). Measured: badge 80@x32 top-left, desc @x32 w326 spanning the whole card,
+  then the module timeline below it.
+Mine had a SINGLE description trapped in the narrow info column on mobile (squished beside the badge) — the
+positioning/dimension drift the user flagged.
+
+Fix (mirrors the source's two-copy approach; the hidden copy is display:none so no duplicate a11y text):
+- JS: extracted `buildDescription()` and render it twice — `.course-filter-card-description-inline` inside
+  the info column, and `.course-filter-card-description-mobile` appended full-width below the content row.
+  Module timeline now appended at the card bottom (order: title row → mobile desc → timeline). clampDescription
+  targets only the inline copy.
+- CSS: `-inline` display:none on mobile → block at >=768 (clamped, 16px, beside badge). `-mobile` display:none
+  on desktop; on mobile hidden when collapsed → block on `.is-expanded`, full-width (padding-right:0), 14px.
+- Green chevron: user wants the expanded (highlighted) chevron green. Source shows it green post-tap (sticky
+  :hover on touch). Added `.course-filter-card-expand[aria-expanded="true"] { background: var(--usta-lime) }`
+  alongside :hover.
+Verified @390: collapsed = title only; expand → chevron lime, badge 80 top-left, desc full-width (x32 w326,
+14px) below, then timeline. @1280: inline desc beside 148 badge (16px, clamped), mobile copy hidden.
+lint 0 err, breakpoint/overflow(360–1920)/typography/a11y ALL pass.
+
+### 2026-09-15 — course-filter: live LMS API fetch (hybrid) replaces static-only JSON
+The block now pulls fresh course data from the source's own LMS API at runtime, so course/module/tag/sort
+changes flow through automatically without a rebuild.
+
+Discovery: captured the source's network calls → the widget hits **GET https://services.ustacoaching.com/v1/lms/courses/all**.
+Verified CORS-open (`access-control-allow-origin: *`), `application/json`, `{courses:[...]}` — SAME shape as our
+baked file, 31 courses. BUT the API carries STRUCTURED data only (name/code/language/filters/modules/sort/badgeName);
+it has NO authored descriptions, badge images, unlock text, or Spanish links (those were DOM-scraped into
+courses-descriptions.json and merged by build-courses-json.mjs), and it omits the 2 workshop-only cards.
+
+Design — hybrid (fetch + baked enrichment, with offline fallback), in blocks/course-filter/course-filter.js:
+- `LMS_API` constant; `loadCourses(basePath)`:
+  1. Always load baked `courses.json` (it is BOTH the enrichment lookup, keyed by `code`, AND the fallback).
+  2. Fetch the live API; `mergeCourse()` normalizes each API course (mirrors build-courses-json.mjs) and grafts
+     the baked description/badge/unlock/Spanish by `code`.
+  3. Append baked-only cards the API doesn't return (the 2 workshop cards), sort by `sort`.
+  4. On any API error (network/!ok/empty) → return the fully-baked, already-enriched dataset. Block always renders.
+- Join key confirmed: all 31 API `code`s match baked; only INC-W1010 + CAR-W1010C are baked-only.
+Verified live @localhost: API 200/31 courses, 16 cards render, first card "Intro to Coaching 1" with description +
+Spanish link (proves live-structured + baked-enrichment merge). Fallback returns 33 enriched courses incl. workshop.
+courses.json stays in the repo (enrichment + fallback) — keep running build-courses-json.mjs when authored copy changes.
+lint 0 err, overflow(360–1920)/typography/a11y all pass.

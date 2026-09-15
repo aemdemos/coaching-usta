@@ -1,0 +1,688 @@
+/*
+ * course-filter — USTA "Courses and Workshops" browser.
+ * Source-measured parity (mobile 390 / tablet 768 / desktop ≥1024) against the
+ * .v-course-list Vue component. Mobile-first; breakpoints 768/1024/1280.
+ * Colours use the project tokens (--usta-lime, --usta-blue); dark tab panel
+ * #2d2d2d matches source.
+ *
+ * The shared :focus-visible rule intentionally precedes the individual element
+ * rules (a single ring definition for every control), so descending-specificity
+ * is disabled — the focus ring and the element base styles never conflict.
+ */
+
+/* stylelint-disable no-descending-specificity */
+
+.course-filter {
+  --cf-dark-panel: #2d2d2d;
+
+  display: block;
+}
+
+/* Section container: align to the site content grid (1536 cap, gutters). */
+main > .section.course-filter-container > div {
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+  box-sizing: border-box;
+}
+
+/* ---- Tabs ---- */
+.course-filter-tabs {
+  background: transparent; /* mobile: transparent; becomes dark panel at tablet+ */
+  border-radius: 20px;
+  margin-bottom: 36px; /* source: 36px mobile / 44px tablet / 100px desktop */
+}
+
+.course-filter-tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  padding: 0;
+}
+
+/* Tabs are equal-width thirds that stay on one row as long as they fit
+   (source: flex 1 1 0 + min-width 120px); when they must wrap, min-width keeps
+   each tab compact rather than stretching to fill the panel. */
+.course-filter-tab {
+  flex: 1 1 0;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 70px; /* source: 70px mobile / 100px tablet+ */
+  margin: 8px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--cf-dark-panel); /* mobile: individual dark pills; panel itself is transparent */
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.course-filter-tab.is-active {
+  background: var(--usta-lime);
+  color: #000;
+}
+
+.course-filter-tab-title {
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.course-filter-tab-description {
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.2;
+  display: none;
+}
+
+/* ---- Filter bar ----
+   Three groups (source): Filter By | chips | Sort by.
+   • Mobile: the bar wraps; the chips group is order:1 + flex-basis:100%, so it
+     drops to its OWN row below, while Filter By (left) and Sort by (right) share
+     the top row via space-between.
+   • Tablet+ (>=768): the chips group becomes the flexible inline middle
+     (flex:1 1 0), so all three sit on one row — Filter left, Sort right. */
+.course-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.course-filter-bar-left,
+.course-filter-bar-right {
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+}
+
+.course-filter-chips {
+  order: 1;
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.course-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.course-filter-toggle svg {
+  width: 14px;
+  height: 10px;
+  transition: transform 0.2s ease;
+}
+
+/* Filter By chevron points up (open affordance); Sort points down. */
+.course-filter-toggle-filter svg { transform: rotate(0deg); }
+.course-filter-toggle-sort svg { transform: rotate(180deg); }
+.course-filter-toggle[aria-expanded="true"].course-filter-toggle-filter svg { transform: rotate(180deg); }
+.course-filter-toggle[aria-expanded="true"].course-filter-toggle-sort svg { transform: rotate(0deg); }
+
+.course-filter-toggle:focus-visible,
+.course-filter-tab:focus-visible,
+.course-filter-chip:focus-visible,
+.course-filter-card-expand:focus-visible,
+.course-filter-apply:focus-visible,
+.course-filter-see-more:focus-visible,
+.course-filter-sort-option:focus-visible,
+.course-filter-panel-close:focus-visible {
+  outline: 2px solid var(--usta-blue);
+  outline-offset: 2px;
+}
+
+.course-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  background: #000;
+  color: #fff;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.course-filter-chip-removable {
+  cursor: pointer;
+  padding-right: 34px;
+  position: relative;
+}
+
+.course-filter-chip-removable::after {
+  content: "✕";
+  position: absolute;
+  right: 14px;
+  font-size: 14px;
+}
+
+/* ---- Dropdown panels ---- */
+.course-filter-panel {
+  position: absolute;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 12px;
+  width: min(454px, calc(100vw - 32px));
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+
+.course-filter-panel-sort {
+  right: 0;
+  width: min(260px, calc(100vw - 32px));
+}
+
+.course-filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.course-filter-panel-title {
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 18px;
+  color: #000;
+}
+
+.course-filter-panel-close {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.course-filter-panel-close::before,
+.course-filter-panel-close::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 2px;
+  background: #000;
+}
+
+.course-filter-panel-close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.course-filter-panel-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+.course-filter-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 32px;
+  padding: 24px;
+}
+
+.course-filter-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.course-filter-group legend {
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #000;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.course-filter-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  color: #000;
+  cursor: pointer;
+}
+
+.course-filter-option.is-disabled {
+  cursor: default;
+  color: #777;
+}
+
+.course-filter-option input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  accent-color: var(--usta-lime);
+  cursor: pointer;
+}
+
+.course-filter-option.is-disabled input { cursor: default; }
+
+.course-filter-apply-wrapper { padding: 0 24px 24px; }
+
+.course-filter-apply {
+  width: 100%;
+  padding: 14px 24px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #000;
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.course-filter-sort-options {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+
+.course-filter-sort-option {
+  text-align: left;
+  padding: 12px 24px;
+  border: 0;
+  background: transparent;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 16px;
+  color: #000;
+  cursor: pointer;
+}
+
+.course-filter-sort-option.is-selected {
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+}
+
+/* ---- Courses grid ---- */
+.course-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px; /* source: 16px at every breakpoint */
+}
+
+.course-filter-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #000;
+}
+
+/* Content row: info block + expand button, vertically centered (source).
+   Gap 16px @mobile → 24px @tablet+ (source-measured). */
+.course-filter-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Info is a plain block; internal spacing comes from the source's fixed
+   paddings on name/description (NOT a flex gap), so the rhythm matches exactly:
+   eyebrow → 8px → name → (2px + 20px) → description. */
+.course-filter-card-info {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.course-filter-card-eyebrow {
+  display: block;
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: -0.36px;
+  color: #000;
+}
+
+.course-filter-card-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* source clamps the title to 3 lines with an ellipsis */
+  line-clamp: 3;
+  overflow: hidden;
+  margin: 0;
+  padding: 8px 0 2px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.54px;
+  color: #000;
+}
+
+/* The description renders in TWO copies, one shown per viewport (source):
+   • -inline  : inside the info column beside the badge — desktop only (>=768).
+   • -mobile  : full-width below the badge/title/expand row — mobile only (<768).
+   Base (mobile-first): inline hidden, mobile copy present but collapsed. */
+.course-filter-card-description {
+  padding: 20px 32px 0 0;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 14px; /* source: 14px mobile → 16px tablet+ */
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #000;
+}
+
+/* Desktop-only inline copy: hidden on mobile. */
+.course-filter-card-description-inline { display: none; }
+
+/* Mobile full-width copy: hidden when collapsed (card shows title only), shown
+   on expand. Spans the whole card (no right padding reserved for the badge). */
+.course-filter-card-description-mobile {
+  display: none;
+  padding-right: 0;
+}
+
+.course-filter-card.is-expanded .course-filter-card-description-mobile { display: block; }
+
+/* Collapsed clamp (source): cap the description height and hide the overflow;
+   JS adds .is-clamped + the "..." indicator only when the text overflows
+   (typically the 2-up tablet layout where copy is taller than the badge/toggle).
+   The cap ≈ 8 lines of body copy (source measured ~150px at 16px/lh1.2). */
+.course-filter-card-description.is-clamped {
+  position: relative;
+  max-height: calc(1.57rem * 6); /* source: 6 lines @ 1.57rem line-box */
+  overflow: hidden;
+}
+
+.course-filter-card-description-ellipsis {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  background: #fff;
+  padding-left: 8px;
+}
+
+.course-filter-card-description p { margin: 0 0 8px; }
+.course-filter-card-description p:last-child { margin-bottom: 0; }
+
+/* Description links render slightly LARGER than the body copy (source quirk):
+   16px/lh1.2 on mobile, 18px/lh1.2 at tablet+ — see the >=768 override below. */
+.course-filter-card-description a {
+  font-size: 16px;
+  line-height: 1.2;
+  color: #000;
+  text-decoration: underline;
+}
+
+.course-filter-card-expand {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CHEVRON art points up; source shows it DOWN when collapsed (rotated 180°) and
+   UP when expanded. So rotate by default, un-rotate on expand. */
+.course-filter-card-expand svg {
+  width: 18px;
+  height: 12px;
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.course-filter-card-expand[aria-expanded="true"] svg { transform: rotate(0deg); }
+
+/* Hover fills the button lime (source: .v-course__expand-button:hover). The
+   expanded/active button is also lime to match the source's post-tap state. */
+.course-filter-card-expand:hover,
+.course-filter-card-expand[aria-expanded="true"] { background: var(--usta-lime); }
+
+/* Standalone cards (no module timeline) still need the toggle on MOBILE to reveal
+   the description; at tablet+ the description shows inline so the toggle is hidden
+   (source: .v-course--standalone .v-course__expand-button display none, block <768). */
+
+/* Badge sits to the LEFT of the text inside the centered content row (source).
+   Responsive size: 80×80 on mobile, 148×148 at tablet+ (see >=768 override).
+   flex:0 0 auto so it sizes to the image and never inflates card height. */
+.course-filter-card-badge {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.course-filter-card-badge img {
+  width: 80px;
+  height: 80px;
+  display: block;
+}
+
+/* Expanded module timeline */
+.course-filter-card-modules {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  position: relative;
+}
+
+.course-filter-card-module {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 40px;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.course-filter-card-module:last-child { margin-bottom: 0; }
+
+/* Vertical connector between circles. Source uses percentage geometry so it
+   scales with each item's height (single- vs multi-line titles): the line
+   starts at the item's vertical centre (where the circle sits, align-items:
+   center) and runs 150% of the item height downward toward the next circle. */
+.course-filter-card-module:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 6.5px;
+  top: 50%;
+  width: 2px;
+  height: 150%;
+  background: #000;
+}
+
+.course-filter-card-timeline-circle {
+  flex: 0 0 auto;
+  align-self: center; /* pin to item centre, where the connector begins */
+  position: relative;
+  z-index: 1; /* opaque circle sits ABOVE the connector line (no overflow into it) */
+  width: 15px;
+  height: 15px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.course-filter-card-module-text {
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 14px; /* source: 14px/600 mobile → 16px/400 tablet+ */
+  font-weight: 600;
+  line-height: 1.2;
+  max-width: 90%;
+  color: #000;
+}
+
+/* ---- See More ---- */
+.course-filter-see-more-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.course-filter-see-more {
+  padding: 16px 24px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 18px;
+  letter-spacing: -0.54px;
+  cursor: pointer;
+}
+
+/* ---- Tablet (>=768) ---- */
+@media (width >= 768px) {
+  main > .section.course-filter-container > div { padding-inline: 40px; }
+
+  /* Wrapper becomes the dark panel at tablet+; margin steps 44px → 100px @desktop. */
+  .course-filter-tabs {
+    background: var(--cf-dark-panel);
+    margin-bottom: 44px;
+  }
+
+  .course-filter-tabs-row { gap: 16px; }
+
+  .course-filter-tab {
+    height: 100px;
+    gap: 8px;
+  }
+
+  .course-filter-tab-title { font-size: 12px; }
+  .course-filter-tab-description { display: block; }
+
+  .course-filter-toggle { padding: 0 25px; }
+
+  /* Chips become the flexible inline middle so all three groups share one row. */
+  .course-filter-bar { flex-wrap: nowrap; }
+
+  .course-filter-chips {
+    order: 0;
+    flex: 1 1 0;
+  }
+
+  .course-filter-card {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .course-filter-card-content { gap: 24px; }
+
+  .course-filter-card-eyebrow {
+    font-size: 16px;
+    letter-spacing: -0.48px;
+  }
+
+  .course-filter-card-name {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.84px;
+  }
+
+  /* At tablet+ the INLINE copy is always visible (beside the badge) at 16px; the
+     mobile full-width copy is hidden. */
+  .course-filter-card-description { font-size: 16px; }
+
+  .course-filter-card-description-inline,
+  .course-filter-card.is-expanded .course-filter-card-description-inline {
+    display: block;
+  }
+
+  .course-filter-card-description-mobile,
+  .course-filter-card.is-expanded .course-filter-card-description-mobile {
+    display: none;
+  }
+
+  /* Standalone (no-modules) cards hide the toggle at tablet+ — nothing to expand. */
+  .course-filter-card-standalone .course-filter-card-expand { display: none; }
+
+  /* Description links step up to 18px at tablet+ (source). */
+  .course-filter-card-description a {
+    font-size: 18px;
+    line-height: 21.6px;
+  }
+
+  /* Badge: 120px at 768–1279, 148px only at ≥1280 (source). */
+  .course-filter-card-badge img {
+    width: 120px;
+    height: 120px;
+  }
+
+  /* Module text returns to 16px/400 at tablet+ (source). */
+  .course-filter-card-module-text {
+    font-size: 16px;
+    font-weight: 400;
+    max-width: none;
+  }
+}
+
+/* ---- Desktop (>=1024) — 2-up cards ---- */
+@media (width >= 1024px) {
+  main > .section.course-filter-container > div { padding-inline: 48px; }
+
+  .course-filter-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .course-filter-tab-title { font-size: 16px; }
+
+  .course-filter-card-eyebrow {
+    font-size: 18px;
+    letter-spacing: -0.54px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.course-filter-container > div { padding-inline: 64px; }
+
+  /* Full-size dark panel spacing at wide desktop (source: 100px). */
+  .course-filter-tabs { margin-bottom: 100px; }
+
+  /* Course name grows to 32px only at wide desktop (source: 28px @768–1279). */
+  .course-filter-card-name {
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.96px;
+  }
+
+  /* Badge grows to full 148px only at wide desktop (source). */
+  .course-filter-card-badge img {
+    width: 148px;
+    height: 148px;
+  }
+}
