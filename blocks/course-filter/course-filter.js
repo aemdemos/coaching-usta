@@ -195,6 +195,23 @@ function buildCard(course, basePath) {
   }
 
   info.append(eyebrow, name, desc);
+
+  // Content row (source): [badge | info | expand], vertically centered. The
+  // badge is the FIRST child, to the LEFT of the text — NOT a stacked block
+  // below (which would inflate the card height).
+  if (course.badge) {
+    const badgeWrap = document.createElement('div');
+    badgeWrap.className = 'course-filter-card-badge';
+    const img = document.createElement('img');
+    img.src = `${basePath}/${course.badge}`;
+    img.alt = `${course.name} badge`;
+    img.loading = 'lazy';
+    img.width = 148;
+    img.height = 148;
+    badgeWrap.append(img);
+    content.append(badgeWrap);
+  }
+
   content.append(info);
 
   const hasModules = course.modules && course.modules.length > 0;
@@ -210,20 +227,6 @@ function buildCard(course, basePath) {
   }
 
   card.append(content);
-
-  // Badge (illustrative PNG) sits below the content, bottom-right.
-  if (course.badge) {
-    const badgeWrap = document.createElement('div');
-    badgeWrap.className = 'course-filter-card-badge';
-    const img = document.createElement('img');
-    img.src = `${basePath}/${course.badge}`;
-    img.alt = `${course.name} badge`;
-    img.loading = 'lazy';
-    img.width = 148;
-    img.height = 148;
-    badgeWrap.append(img);
-    card.append(badgeWrap);
-  }
 
   if (hasModules) {
     const modules = document.createElement('ul');

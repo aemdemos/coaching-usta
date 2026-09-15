@@ -1205,3 +1205,19 @@ type (chip shows "For Coaches ✕", aria-label "Remove For Coaches filter"). Tab
 active pill on every rerender (so removing the chip clears the active tab). Verified: default = Coaches tab
 + "For Coaches" checked + removable chip; Parents tab → For Parents checked/chip/8 cards; remove chip →
 no tab active, all checkboxes off. Lint 0 err, breakpoint/overflow/a11y pass.
+
+### 2026-09-15 — course-filter: missing Spanish link + typography parity audit
+Two fixes:
+1. **Missing "Spanish." link on "Introduce Your Child to Tennis".** I'd only added spanishHref for the two
+   Intro-to-Coaching courses. Swept the SOURCE across all tabs for every description link: exactly 3 courses
+   carry a "Spanish." link (Introduce Your Child to Tennis, Intro to Coaching 1, Intro to Coaching 2) plus
+   the shared "USTA Coaching Development Coach Badge" unlock link on 3 more. Added the missing spanishHref
+   (…lo=76f2f752…) to courses-descriptions.json and rebuilt courses.json. All 3 Spanish links now render.
+2. **Typography parity audit (all viewports).** Measured every text element on the source at 1440/768/390.
+   All matched EXCEPT the **description link**: source renders it LARGER than body copy — 18px/lh21.6 at
+   desktop+tablet, 16px/lh19.2 at mobile (an intentional source quirk); mine inherited the 16px paragraph
+   size. Also the description paragraph had an inherited letter-spacing:-0.48px vs source `normal`. Fixed:
+   `.course-filter-card-description a { font-size:16px; line-height:1.2 }` + `>=768 { 18px/21.6px }`;
+   desc paragraph `letter-spacing: normal`. Re-verified full type table matches source at all 3 vps:
+   tabTitle 16/12/14, eyebrow 18/16/12, name 32/28/18 (ls -0.96/-0.84/-0.54), desc 16, descLink 18/18/16,
+   SeeMore 18/18/16, filter/sort/chip 16. Lint 0 err, breakpoint/overflow/typography/a11y all pass.

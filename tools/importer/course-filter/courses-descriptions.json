@@ -1,6 +1,6 @@
 {
   "_note": "AEM-authored per-course content captured from the live source DOM (NOT in the /v1/lms/courses/all API). Keyed by course name. badge = /content/dam path on source. Merge with the API dataset (courses-api.json) by name/code for tags/modules/language.",
-  "Introduce Your Child to Tennis": { "desc": "This module empowers parents to introduce tennis to their children. Also available in Spanish.", "spanishLink": true },
+  "Introduce Your Child to Tennis": { "desc": "This module empowers parents to introduce tennis to their children. Also available in Spanish.", "spanishLink": true, "spanishHref": "https://ustacoaching.csod.com/samldefault.aspx?ouid=2&returnurl=%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d76f2f752-853d-4262-b59e-55c68f1bf0bc" },
   "Introduzca a su Hijo al Tenis (Introduce Your Child to Tennis)": { "desc": "Este módulo permite a los padres introducir a sus hijos en el tenis." },
   "Supporting Your Child in Competition": { "desc": "Enhancing the parent and child relationship in competition." },
   "Tennis in Physical Education": { "desc": "Whether you're brand new to tennis or looking to enhance your current curriculum, this course equips you with the tools, activities, and confidence to deliver inclusive, skill-based tennis lessons right in your PE class—no court required." },

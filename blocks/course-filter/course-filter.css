@@ -348,6 +348,7 @@ main > .section.course-filter-container > div {
    eyebrow → 8px → name → (2px + 20px) → description. */
 .course-filter-card-info {
   display: block;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -378,13 +379,18 @@ main > .section.course-filter-container > div {
   font-family: "Graphik Regular", tahoma, sans-serif;
   font-size: 16px;
   line-height: 1.2;
+  letter-spacing: normal;
   color: #000;
 }
 
 .course-filter-card-description p { margin: 0 0 8px; }
 .course-filter-card-description p:last-child { margin-bottom: 0; }
 
+/* Description links render slightly LARGER than the body copy (source quirk):
+   16px/lh1.2 on mobile, 18px/lh1.2 at tablet+ — see the >=768 override below. */
 .course-filter-card-description a {
+  font-size: 16px;
+  line-height: 1.2;
   color: #000;
   text-decoration: underline;
 }
@@ -412,13 +418,17 @@ main > .section.course-filter-container > div {
 
 .course-filter-card-expand[aria-expanded="true"] svg { transform: rotate(180deg); }
 
+/* Badge sits to the LEFT of the text inside the centered content row (source).
+   Responsive size: 80×80 on mobile, 148×148 at tablet+ (see >=768 override).
+   flex:0 0 auto so it sizes to the image and never inflates card height. */
 .course-filter-card-badge {
-  align-self: flex-end;
+  flex: 0 0 auto;
+  align-self: center;
 }
 
 .course-filter-card-badge img {
-  width: 148px;
-  height: 148px;
+  width: 80px;
+  height: 80px;
   display: block;
 }
 
@@ -537,6 +547,18 @@ main > .section.course-filter-container > div {
     font-size: 28px;
     line-height: 28px;
     letter-spacing: -0.84px;
+  }
+
+  /* Description links step up to 18px at tablet+ (source). */
+  .course-filter-card-description a {
+    font-size: 18px;
+    line-height: 21.6px;
+  }
+
+  /* Badge grows to full 148px at tablet+ (source). */
+  .course-filter-card-badge img {
+    width: 148px;
+    height: 148px;
   }
 }
 
