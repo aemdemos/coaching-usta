@@ -188,12 +188,11 @@ function buildCourseCard(labelCell, bodyCell) {
 
   // the ordered list is the collapsible timeline; a leading <p><img> is the course
   // badge; the remaining paragraph(s) are the description. In the source the
-  // description sits FULL-WIDTH below the badge+title row (not squeezed into the
-  // narrow text column beside the badge), so collect it and append it as a sibling
-  // of the header row rather than inside the text column.
+  // description sits in the TEXT COLUMN beside the badge, aligned under the title
+  // (source `.v-course__info-section` = eyebrow + title + description, laid out in a
+  // flex row next to the badge), so append it into `head` after the title.
   const timeline = bodyCell ? bodyCell.querySelector('ol, ul') : null;
   let badgeImg = null;
-  const descNodes = [];
   if (bodyCell) {
     [...bodyCell.children].forEach((child) => {
       if (child === timeline) return;
@@ -203,7 +202,7 @@ function buildCourseCard(labelCell, bodyCell) {
         return;
       }
       child.classList.add('accordion-timeline-desc');
-      descNodes.push(child);
+      head.append(child);
     });
   }
 
@@ -217,8 +216,6 @@ function buildCourseCard(labelCell, bodyCell) {
   content.append(head);
   label.append(content);
   card.append(label);
-  // description: full-width block below the header row
-  descNodes.forEach((n) => card.append(n));
 
   if (timeline) {
     timeline.className = 'accordion-timeline-steps';

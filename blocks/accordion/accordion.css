@@ -188,7 +188,7 @@ main > .section.accordion-container > div {
 @media (width >= 1280px) {
   /* source widens the right gap to ~25px at the largest tier */
   .accordion.timeline .accordion-timeline-panel-label {
-    padding: 0 12px 12px;
+    padding: 12px;
   }
 }
 
@@ -263,15 +263,21 @@ main > .section.accordion-container > div {
   min-width: 0;
 }
 
-/* intro paragraph: Graphik Regular 16px, white. Source uses default line-height
-   (normal) and no letter-spacing on this body copy. */
+/* intro paragraph: Graphik Regular, white. Source scale: 16/1.2 mobile ->
+   18/1.2 at >=768; no letter-spacing on this body copy. */
 .accordion.timeline .accordion-timeline-panel-intro {
   margin: 0 0 24px;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
-  line-height: normal;
+  line-height: 1.2;
   letter-spacing: normal;
   color: #fff;
+}
+
+@media (width >= 768px) {
+  .accordion.timeline .accordion-timeline-panel-intro {
+    font-size: 18px;
+  }
 }
 
 .accordion.timeline .accordion-timeline-panel-intro a {
@@ -367,6 +373,7 @@ main > .section.accordion-container > div {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 12px;
 }
 
 /* Collapsed course cards are equal-height with the header at the top and white
@@ -427,7 +434,7 @@ main > .section.accordion-container > div {
 
 @media (width >= 768px) {
   .accordion.timeline .accordion-timeline-course-badge img {
-    width: 148px;
+    width: 120px;
   }
 }
 
@@ -459,14 +466,14 @@ main > .section.accordion-container > div {
   color: #000;
 }
 
-/* description: Graphik Regular 16px / lh normal at ALL viewports (source
-   `.v-course__description-wrapper`). Mobile: hidden until the card opens;
-   desktop (>=768): always visible. */
+/* description: Graphik Regular (source `.v-course__description`). Scale matches
+   the panel intro: 16/1.2 mobile -> 18/1.2 at >=768. Mobile: hidden until the
+   card opens; desktop (>=768): always visible. */
 .accordion.timeline .accordion-timeline-desc {
   margin: 12px 0 0;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
-  line-height: normal;
+  line-height: 1.2;
   letter-spacing: normal;
   color: #000;
 }
@@ -482,7 +489,11 @@ main > .section.accordion-container > div {
 }
 
 @media (width >= 768px) {
-  /* desktop: description always visible (size stays 16px/normal at all viewports) */
+  /* desktop: description always visible; steps up to 18px like the source */
+  .accordion.timeline .accordion-timeline-desc {
+    font-size: 18px;
+  }
+
   .accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
     display: block;
   }
@@ -607,9 +618,11 @@ main > .section.accordion-container > div {
 }
 
 /* ---- revealed vertical connected-dot timeline ---- */
+
+/* source `.v-course__modules` sits 16px below the description/header */
 .accordion.timeline .accordion-timeline-steps {
   list-style: none;
-  margin: 24px 0 0;
+  margin: 16px 0 0;
   padding: 0;
 }
 
@@ -633,8 +646,12 @@ main > .section.accordion-container > div {
   margin-bottom: 0;
 }
 
-/* dot */
+/* dot: z-index 1 lifts the white circle ABOVE the connector line (which starts
+   at the dot centre) so the line is hidden behind it and doesn't show through —
+   matching the source `.v-course__timeline-circle` (z-index: 1 on the flex item). */
 .accordion.timeline .accordion-timeline-circle {
+  position: relative;
+  z-index: 1;
   flex: 0 0 auto;
   box-sizing: border-box;
   width: 15px;
@@ -697,7 +714,7 @@ main > .section.accordion-container > div {
   color: #000;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
-  font-size: 14px; /* source: 14 mobile -> 16 @768 -> 18 @1280 */
+  font-size: 14px; /* source: 14 mobile -> 16 @768 -> 18 @1024 */
   line-height: 1;
   letter-spacing: normal; /* source button has no tracking */
   text-align: center;
@@ -711,7 +728,7 @@ main > .section.accordion-container > div {
   }
 }
 
-@media (width >= 1280px) {
+@media (width >= 1024px) {
   .accordion.timeline .accordion-timeline-viewall {
     font-size: 18px;
   }
