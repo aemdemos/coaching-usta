@@ -165,10 +165,11 @@ main > .section.accordion-container > div {
   }
 }
 
-/* panel header row: text/badge block + chevron, always visible */
+/* panel header row: text/badge block + chevron. The chevron sits at the BOTTOM
+   of the header (source uses align-items: flex-end), not the top. */
 .accordion.timeline .accordion-timeline-panel-label {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
   padding: 0 8px 16px;
@@ -225,13 +226,14 @@ main > .section.accordion-container > div {
   min-width: 0;
 }
 
-/* intro paragraph: Graphik Regular 16px, white */
+/* intro paragraph: Graphik Regular 16px, white. Source uses default line-height
+   (normal) and no letter-spacing on this body copy. */
 .accordion.timeline .accordion-timeline-panel-intro {
   margin: 0 0 24px;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
-  line-height: 1.2;
-  letter-spacing: -0.48px;
+  line-height: normal;
+  letter-spacing: normal;
   color: #fff;
 }
 
@@ -306,11 +308,9 @@ main > .section.accordion-container > div {
   }
 }
 
-/* collapsed regions: the JS toggle sets [hidden]; the display rules below would
-   otherwise override the UA hidden behaviour, so force it off with matching
-   specificity (class + attribute) */
-.accordion.timeline .accordion-timeline-courses[hidden],
-.accordion.timeline .accordion-timeline-steps[hidden] {
+/* collapsed course list: the panel toggle sets [hidden]; the flex rule below
+   would override the UA hidden behaviour, so force it off (class+attr specificity) */
+.accordion.timeline .accordion-timeline-courses[hidden] {
   display: none;
 }
 
@@ -321,8 +321,14 @@ main > .section.accordion-container > div {
   gap: 16px;
 }
 
+/* Collapsed course cards are equal-height with the header at the top and white
+   space below — the source's Vue app sets an inline min-height: 232px on every
+   `.v-course.description-enabled` card (overriding its own `min-height: unset`
+   media query). We reproduce that fixed 232px reserve statically. A card grows
+   past it when its timeline opens. */
 .accordion.timeline .accordion-timeline-course {
   box-sizing: border-box;
+  min-height: 232px;
   border-radius: 20px;
   background-color: #fff;
   padding: 16px; /* mobile */
@@ -342,23 +348,32 @@ main > .section.accordion-container > div {
   gap: 24px;
 }
 
-/* content row: optional badge (left) + text column, vertically centred */
+/* content row: optional badge (left) + text column, vertically centred.
+   min-height 40px matches the source .v-course__content so a collapsed card is
+   the same height as the chevron button row. Source gap: 16px mobile -> 24px >=768. */
 .accordion.timeline .accordion-timeline-course-content {
   display: flex;
   flex: 1 1 auto;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
+  min-height: 40px;
   min-width: 0;
 }
 
-/* course badge image (source .v-course__badge = 148x148) */
+@media (width >= 768px) {
+  .accordion.timeline .accordion-timeline-course-content {
+    gap: 24px;
+  }
+}
+
+/* course badge image (source .v-course__badge): 80px mobile -> 148px desktop */
 .accordion.timeline .accordion-timeline-course-badge {
   flex: 0 0 auto;
 }
 
 .accordion.timeline .accordion-timeline-course-badge img {
   display: block;
-  width: 100px;
+  width: 80px;
   height: auto;
 }
 
@@ -396,19 +411,33 @@ main > .section.accordion-container > div {
   color: #000;
 }
 
-/* always-visible description: Graphik Regular 16px */
+/* description: Graphik Regular 16px. Source is responsive:
+   - mobile: HIDDEN until the card is opened (revealed with the timeline)
+   - desktop (>=768): always visible */
 .accordion.timeline .accordion-timeline-desc {
   margin: 12px 0 0;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
-  line-height: 1.2;
-  letter-spacing: -0.48px;
+  line-height: normal;
+  letter-spacing: normal;
   color: #000;
 }
 
 .accordion.timeline .accordion-timeline-desc a {
   color: inherit;
   text-decoration: underline;
+}
+
+/* mobile: description hidden while the card is collapsed */
+.accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
+  display: none;
+}
+
+@media (width >= 768px) {
+  /* desktop: description is always visible regardless of open state */
+  .accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
+    display: block;
+  }
 }
 
 /* course eyebrow + title scale (source): 12/18 mobile -> 16/28 at 768/1024 ->
@@ -511,9 +540,15 @@ main > .section.accordion-container > div {
   transform: rotate(180deg);
 }
 
-/* hide the chevron on course cards with no timeline */
-.accordion.timeline .accordion-timeline-course-static .accordion-timeline-chevron {
-  visibility: hidden;
+/* Chevron presence matches the source per breakpoint:
+   - mobile: EVERY card has a chevron (it reveals the description ± timeline)
+   - desktop: only cards WITH a timeline keep the chevron; cards without one
+     (description always shown, nothing to toggle) hide it. */
+@media (width >= 768px) {
+  .accordion.timeline .accordion-timeline-course:not(.accordion-timeline-course-has-timeline)
+    > .accordion-timeline-course-label > .accordion-timeline-chevron {
+    visibility: hidden;
+  }
 }
 
 /* ---- revealed vertical connected-dot timeline ---- */
@@ -521,6 +556,11 @@ main > .section.accordion-container > div {
   list-style: none;
   margin: 24px 0 0;
   padding: 0;
+}
+
+/* timeline hidden until the card is open (both breakpoints) */
+.accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-steps {
+  display: none;
 }
 
 .accordion.timeline .accordion-timeline-step {
@@ -559,19 +599,20 @@ main > .section.accordion-container > div {
   background-color: #000;
 }
 
-/* step label: Graphik Regular, 14px mobile -> 16px desktop */
+/* step label: 14px mobile -> 16px desktop. Source is SEMIBOLD (600) with default
+   line-height (normal) and no letter-spacing (source `.v-course__module-text`). */
 .accordion.timeline .accordion-timeline-step-text {
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 600;
   font-size: 14px;
-  line-height: 1.2;
-  letter-spacing: -0.42px;
+  line-height: normal;
+  letter-spacing: normal;
   color: #000;
 }
 
 @media (width >= 768px) {
   .accordion.timeline .accordion-timeline-step-text {
     font-size: 16px;
-    letter-spacing: -0.48px;
   }
 }
 
@@ -583,6 +624,8 @@ main > .section.accordion-container > div {
 }
 
 .accordion.timeline .accordion-timeline-viewall {
+  position: relative; /* keep the CTA above any sibling stacking context */
+  z-index: 1;
   display: inline-block;
   padding: 14px 22px;
   border-radius: 20px;

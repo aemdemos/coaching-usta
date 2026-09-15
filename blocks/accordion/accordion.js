@@ -82,8 +82,12 @@ function buildToggle({
   btn.setAttribute('aria-label', label);
   const setState = (isOpen) => {
     btn.setAttribute('aria-expanded', String(isOpen));
+    // host carries .is-open — drives the chevron flip and (for course cards)
+    // the per-breakpoint reveal of the description + timeline via CSS
     host.classList.toggle('is-open', isOpen);
-    region.hidden = !isOpen;
+    // when an explicit region is passed (the panel's course list) hide it
+    // outright on every breakpoint; course cards rely on CSS instead
+    if (region) region.hidden = !isOpen;
   };
   setState(open);
   btn.addEventListener('click', () => setState(btn.getAttribute('aria-expanded') !== 'true'));
@@ -193,7 +197,7 @@ function buildCourseCard(labelCell, bodyCell) {
     badge.className = 'accordion-timeline-course-badge';
     badge.append(badgeImg);
     content.append(badge);
-    card.classList.add('accordion-timeline-course--badged');
+    card.classList.add('accordion-timeline-course-badged');
   }
   content.append(head);
   label.append(content);
@@ -212,15 +216,20 @@ function buildCourseCard(labelCell, bodyCell) {
       li.append(circle, stepText);
     });
     card.append(timeline);
-    label.append(buildToggle({
-      label: `Toggle module timeline for ${titleText}`,
-      region: timeline,
-      host: card,
-    }));
-  } else {
-    // no timeline — the card header stands alone (no toggle)
-    card.classList.add('accordion-timeline-course-static');
+    card.classList.add('accordion-timeline-course-has-timeline');
   }
+
+  // Source behaviour is responsive:
+  //  - mobile: the card collapses to eyebrow+title; the chevron reveals the
+  //    description (+ timeline if any). EVERY card has a chevron.
+  //  - desktop: the description is always visible; the chevron reveals only the
+  //    timeline, and cards without a timeline have no chevron.
+  // The toggle only flips `.is-open` on the card; CSS decides what shows at each
+  // breakpoint (no explicit region — so nothing is force-hidden on desktop).
+  label.append(buildToggle({
+    label: `Toggle details for ${titleText}`,
+    host: card,
+  }));
 
   return card;
 }
