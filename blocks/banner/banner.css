@@ -268,13 +268,27 @@ main > .section.banner-container > div {
   padding-inline: 8px;
 }
 
+/* Vertical rhythm (source, 24px baseline; measured gaps constant at every vw):
+     heading → first label      = 72px  (detail :first-child margin-top)
+     label   → body (in a pair) = 24px  (label margin-bottom)
+     body    → next label       = 48px  (detail + detail margin-top)
+   The source achieves this with empty 24px spacer paragraphs; we reproduce the
+   exact gaps with margins instead. */
 .banner.info .banner-detail {
   margin: 0;
 }
 
+.banner.info .banner-detail:first-child {
+  margin-top: 72px;
+}
+
+.banner.info .banner-detail + .banner-detail {
+  margin-top: 48px;
+}
+
 /* label/body inherit the panel's white colour from .banner.info */
 .banner.info .banner-label {
-  margin: 24px 0;
+  margin: 0 0 24px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 700;
   font-size: 18px;
