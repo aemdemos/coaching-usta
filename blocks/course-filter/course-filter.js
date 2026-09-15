@@ -13,6 +13,13 @@
 
 const PAGE_SIZE = 16;
 
+// Live LMS API — the same endpoint the source site calls. It is CORS-open
+// (access-control-allow-origin: *) and returns { courses: [...] } with the
+// STRUCTURED data only (name, code, language, filters, modules, sort). It does
+// NOT carry the authored descriptions/badges/unlock/Spanish links, so we fetch
+// it for freshness and merge it with the baked enrichment file below.
+const LMS_API = 'https://services.ustacoaching.com/v1/lms/courses/all';
+
 // Persona tabs → the coachType values each maps to (from the API taxonomy).
 const TABS = [
   {
@@ -86,6 +93,66 @@ const CHEVRON = '<svg viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2
 /** Module label suffix: "N modules" / "1 module" / "0 modules". */
 function moduleLabel(n) {
   return `${n} ${n === 1 ? 'module' : 'modules'}`;
+}
+
+const clean = (arr) => (arr || []).filter((v) => v !== null && v !== undefined);
+
+/**
+ * Normalizes one raw LMS-API course into the block's shape and merges the baked
+ * enrichment (description/badge/unlock/Spanish) matched by `code`. Mirrors
+ * tools/importer/course-filter/build-courses-json.mjs, but at runtime so the
+ * structured fields (modules, tags, sort) stay fresh from the API on every load.
+ */
+function mergeCourse(apiCourse, enrichmentByCode) {
+  const e = enrichmentByCode.get(apiCourse.code) || {};
+  return {
+    name: apiCourse.name,
+    code: apiCourse.code,
+    language: apiCourse.language,
+    safePlay: apiCourse.isSafePlayRequired,
+    sort: apiCourse.sortSequence,
+    badgeName: apiCourse.badgeName,
+    coachTypes: clean(apiCourse.filters?.coachTypes),
+    certifications: clean(apiCourse.filters?.certifications),
+    membershipPackages: clean(apiCourse.filters?.membershipPackages),
+    moduleCount: (apiCourse.modules || []).length,
+    modules: (apiCourse.modules || []).map((m) => m.name).filter(Boolean),
+    // Authored fields come from the baked enrichment (the API has none of these).
+    description: e.description || '',
+    unlock: e.unlock || '',
+    unlockLink: e.unlockLink || null,
+    spanishLink: !!e.spanishLink,
+    spanishHref: e.spanishHref || '',
+    badge: e.badge || '',
+  };
+}
+
+/**
+ * Loads course data. Strategy: fetch the live LMS API for fresh structured data
+ * and merge it with the baked enrichment (which also supplies the two
+ * workshop-only cards the API doesn't return). If the API is unreachable, fall
+ * back to the fully-baked courses.json so the block always renders.
+ */
+async function loadCourses(basePath) {
+  // The baked file is BOTH the enrichment source and the offline fallback.
+  const baked = await (await fetch(`${basePath}/courses.json`)).json();
+  const enrichmentByCode = new Map(baked.map((c) => [c.code, c]));
+
+  try {
+    const res = await fetch(LMS_API);
+    if (!res.ok) throw new Error(`LMS API ${res.status}`);
+    const { courses: apiCourses } = await res.json();
+    if (!Array.isArray(apiCourses) || !apiCourses.length) throw new Error('empty API payload');
+
+    const live = apiCourses.map((c) => mergeCourse(c, enrichmentByCode));
+    // Append baked-only cards the API doesn't return (the two workshop cards).
+    const liveCodes = new Set(live.map((c) => c.code));
+    const bakedOnly = baked.filter((c) => !liveCodes.has(c.code));
+    return [...live, ...bakedOnly].sort((a, b) => a.sort - b.sort);
+  } catch (e) {
+    // Offline / API error → the fully-baked dataset (already enriched + sorted).
+    return baked;
+  }
 }
 
 /**
@@ -357,9 +424,9 @@ export default async function decorate(block) {
   const basePath = new URL('.', import.meta.url).href.replace(/\/$/, '');
   let courses = [];
   try {
-    const res = await fetch(`${basePath}/courses.json`);
-    courses = await res.json();
+    courses = await loadCourses(basePath);
   } catch (e) {
+    // Both the API and the baked fallback failed — render nothing rather than error.
     block.textContent = '';
     return;
   }

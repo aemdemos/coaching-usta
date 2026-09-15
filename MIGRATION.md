@@ -1350,3 +1350,26 @@ Fix (mirrors the source's two-copy approach; the hidden copy is display:none so 
 Verified @390: collapsed = title only; expand → chevron lime, badge 80 top-left, desc full-width (x32 w326,
 14px) below, then timeline. @1280: inline desc beside 148 badge (16px, clamped), mobile copy hidden.
 lint 0 err, breakpoint/overflow(360–1920)/typography/a11y ALL pass.
+
+### 2026-09-15 — course-filter: live LMS API fetch (hybrid) replaces static-only JSON
+The block now pulls fresh course data from the source's own LMS API at runtime, so course/module/tag/sort
+changes flow through automatically without a rebuild.
+
+Discovery: captured the source's network calls → the widget hits **GET https://services.ustacoaching.com/v1/lms/courses/all**.
+Verified CORS-open (`access-control-allow-origin: *`), `application/json`, `{courses:[...]}` — SAME shape as our
+baked file, 31 courses. BUT the API carries STRUCTURED data only (name/code/language/filters/modules/sort/badgeName);
+it has NO authored descriptions, badge images, unlock text, or Spanish links (those were DOM-scraped into
+courses-descriptions.json and merged by build-courses-json.mjs), and it omits the 2 workshop-only cards.
+
+Design — hybrid (fetch + baked enrichment, with offline fallback), in blocks/course-filter/course-filter.js:
+- `LMS_API` constant; `loadCourses(basePath)`:
+  1. Always load baked `courses.json` (it is BOTH the enrichment lookup, keyed by `code`, AND the fallback).
+  2. Fetch the live API; `mergeCourse()` normalizes each API course (mirrors build-courses-json.mjs) and grafts
+     the baked description/badge/unlock/Spanish by `code`.
+  3. Append baked-only cards the API doesn't return (the 2 workshop cards), sort by `sort`.
+  4. On any API error (network/!ok/empty) → return the fully-baked, already-enriched dataset. Block always renders.
+- Join key confirmed: all 31 API `code`s match baked; only INC-W1010 + CAR-W1010C are baked-only.
+Verified live @localhost: API 200/31 courses, 16 cards render, first card "Intro to Coaching 1" with description +
+Spanish link (proves live-structured + baked-enrichment merge). Fallback returns 33 enriched courses incl. workshop.
+courses.json stays in the repo (enrichment + fallback) — keep running build-courses-json.mjs when authored copy changes.
+lint 0 err, overflow(360–1920)/typography/a11y all pass.
