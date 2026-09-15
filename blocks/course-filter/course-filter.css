@@ -411,10 +411,12 @@ main > .section.course-filter-container > div {
 /* Collapsed clamp (source): cap the description height and hide the overflow;
    JS adds .is-clamped + the "..." indicator only when the text overflows
    (typically the 2-up tablet layout where copy is taller than the badge/toggle).
-   The cap ≈ 8 lines of body copy (source measured ~150px at 16px/lh1.2). */
+   Cap at a WHOLE number of lines (8lh) so overflow:hidden always cuts on a clean
+   line boundary — the source's ~150px cap fell mid-line (7.85 lines) which sliced
+   the last line in half. 8 lines ≈ the source's measured height. */
 .course-filter-card-description.is-clamped {
   position: relative;
-  max-height: calc(1.57rem * 6); /* source: 6 lines @ 1.57rem line-box */
+  max-height: 8lh;
   overflow: hidden;
 }
 
