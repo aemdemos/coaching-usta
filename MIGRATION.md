@@ -1394,3 +1394,64 @@ the published host the clean path 301-redirects to DA's content-hashed filename 
 200) — browsers follow it transparently for <img>. Verified all 22 resolve on main--coaching-usta--aemdemos.aem.page.
 Content assets are DA-managed (content/ is gitignored), so they live in DA, not the code repo — the goal.
 lint 0 err, breakpoint/overflow/typography/a11y/svg all pass; badges load from /assets/ locally + published.
+
+### 2026-09-15 — course-filter: enrichment moved to an author-editable DA sheet (courses.json retired)
+Replaced the baked courses.json enrichment with an author-owned DA sheet. Authors now edit badge +
+description (+ unlock/Spanish) in Document Authoring — preview/publish — and the block picks it up. No code
+change needed to update course copy or badge mapping.
+
+Architecture — runtime 3-way merge in loadCourses():
+  1. LMS API (services.ustacoaching.com/v1/lms/courses/all) — fresh STRUCTURED data (name/code/modules/tags/sort).
+  2. DA sheet /course-enrichment.json — author-owned ENRICHMENT (badge path, description, unlock, unlockLinkText/Href,
+     spanishHref), an EDS sheet { columns, data:[…] }, one row per course keyed by `code`.
+  3. WORKSHOP_CARDS (in course-filter.js) — the 2 workshop cards the API omits: ONLY their irreducible structure
+     (code/name/sort/tags/moduleCount). Their badge/description still come from the sheet by code.
+API + sheet fetched in parallel (Promise.all); each course enriched by `code` via applyEnrichment().
+
+Behaviour / decisions (per user):
+- Sheet location: /content/course-enrichment (→ /course-enrichment.json). Published to DA source→preview→live (all 200).
+- Fallback: if the sheet 404s/errs, loadEnrichment() returns an empty Map → cards render STRUCTURE-ONLY (no badge/
+  desc), never blanks the whole block. courses.json fully removed (git rm) — no longer a fallback.
+- Badges: author references an already-published asset path in the sheet's `badge` column (e.g.
+  /assets/media/blocks/course-filter/x.png). Image upload/publish stays separate (the find-on-source→rasterize→
+  publish flow). The MAPPING (course→badge) is now author-owned in the sheet, not code.
+- A brand-new API course with no sheet row still renders (structure only) until an author adds its row — graceful.
+- New-course flow now: add a row to the DA sheet (badge path + description), preview/publish. Only if the badge
+  image itself is new do you also rasterize + publish the PNG to /assets/media/blocks/course-filter/ first.
+
+Code:
+- blocks/course-filter/course-filter.js: added ENRICHMENT_SHEET + WORKSHOP_CARDS consts; new normalizeApiCourse(),
+  applyEnrichment(), loadEnrichment(); rewrote loadCourses() (no basePath). buildCard/decorate no longer touch a
+  baked file. unlockLink now assembled from unlockLinkText/Href columns.
+- build-courses-json.mjs repurposed → SEED/REGENERATOR that emits content/course-enrichment.json (32 rows, 24 with
+  badges, incl. both workshop rows) from the captured source DOM. Run once to seed; thereafter authors edit in DA.
+Verified @localhost: 16 cards from API+sheet, all 13 visible badges load (lazy — 0 broken after scroll), workshop
+card present with description, High School Tennis has badge+desc. lint 0 err, breakpoint/overflow/typography/a11y all
+pass. NOTE: the block JS change reaches .aem.live only after commit+push+merge; the sheet + badges are already live.
+
+### 2026-09-15 — course-filter: consolidated all block content under one DA folder
+Moved the sheet + badge media into a single, author-obvious location so authors know exactly where the block
+renders from. Everything for the block now lives under content/blocks/course-filter/:
+  - content/blocks/course-filter/course-enrichment.json   → served /blocks/course-filter/course-enrichment.json
+  - content/blocks/course-filter/media/*.png (22)          → served /blocks/course-filter/media/<name>.png
+Was: sheet at /course-enrichment.json + badges at /assets/media/blocks/course-filter/ (two separate places).
+
+Changes:
+- Badges copied to content/blocks/course-filter/media/ and published to DA (source+preview+live: 22/22 each).
+- Sheet regenerated at the new path with BADGE_BASE = '/blocks/course-filter/media' (rows unchanged: 32, 24 badges);
+  published to DA (source 201 / preview 200 / live 200).
+- build-courses-json.mjs: BADGE_BASE + output path updated to the consolidated folder; header documents the layout.
+- course-filter.js: ENRICHMENT_SHEET = '/blocks/course-filter/course-enrichment.json'; comment documents that the
+  sheet + its media sit side by side.
+Verified @localhost: all 13 badges load from /blocks/course-filter/media/…; sheet+badges resolve on local & live (200).
+lint 0 err, overflow/typography/a11y pass. Old published paths (/course-enrichment.json, /assets/media/blocks/
+course-filter/*) are now orphaned in DA — harmless; can be unpublished/deleted in DA later if desired.
+
+### 2026-09-15 — course-filter: fixed clamped description cut mid-line (desktop)
+The clamped inline description showed a sliced half-line at the bottom on desktop. Root cause: the clamp cap
+was `max-height: calc(1.57rem * 6)` = 150.72px, but our body line box is 16px×1.2 = 19.2px → 150.72/19.2 =
+7.85 lines, so overflow:hidden cut mid-way through the 8th line. (The 1.57rem figure was copied from the
+source's own loose math and doesn't divide evenly by our line-height.) Fix: cap at a WHOLE number of lines
+with the `lh` unit — `max-height: 8lh` — so the cut always lands on a clean line boundary. Verified @1280:
+maxHeight 153.5px = 7.995 lines (clean boundary), ellipsis intact. lint 0 err, breakpoint/overflow/typography/
+a11y all pass.

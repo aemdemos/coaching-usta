@@ -2,8 +2,13 @@
  * course-filter — the USTA "Courses and Workshops" browser.
  *
  * Recreated from the source's bespoke Vue component (.v-course-list) for EDS
- * parity. Data is baked into ./courses.json (built from the LMS API merged with
- * the AEM-authored descriptions/badges — see tools/importer/course-filter/).
+ * parity. Data is assembled at runtime from a 3-way merge (see loadCourses):
+ *   1. LMS API      — fresh STRUCTURED data (name/code/modules/filters/sort).
+ *   2. DA sheet      — author-owned ENRICHMENT (badge/description/unlock/Spanish),
+ *                      editable in Document Authoring, keyed by course `code`.
+ *   3. WORKSHOP_CARDS — the two workshop-only cards the API doesn't return
+ *                      (their irreducible structure; enrichment still comes from
+ *                      the sheet).
  *
  * UI: 3 persona tabs (Parents / School Tennis / Coaches), a Filter By dropdown
  * (4 checkbox groups → removable chips), a Sort dropdown (Default / A–Z / Z–A),
@@ -13,12 +18,51 @@
 
 const PAGE_SIZE = 16;
 
-// Live LMS API — the same endpoint the source site calls. It is CORS-open
-// (access-control-allow-origin: *) and returns { courses: [...] } with the
-// STRUCTURED data only (name, code, language, filters, modules, sort). It does
-// NOT carry the authored descriptions/badges/unlock/Spanish links, so we fetch
-// it for freshness and merge it with the baked enrichment file below.
+// Live LMS API — the same endpoint the source site calls. CORS-open
+// (access-control-allow-origin: *); returns { courses: [...] } with STRUCTURED
+// data only (name, code, language, filters, modules, sort). No authored copy.
 const LMS_API = 'https://services.ustacoaching.com/v1/lms/courses/all';
+
+// Author-editable enrichment sheet in Document Authoring (edit → preview →
+// publish in DA). Root-relative so it resolves on every host. EDS serves a
+// published sheet as { columns, data:[…] }; each row is keyed by course `code`
+// and carries badge/description/unlock/Spanish. All course-filter content lives
+// under one folder so authors know where to look:
+//   /blocks/course-filter/course-enrichment.json  ← this sheet
+//   /blocks/course-filter/media/*.png             ← the badge images it references
+const ENRICHMENT_SHEET = '/blocks/course-filter/course-enrichment.json';
+
+// The two workshop cards the LMS API does NOT return. Only their irreducible
+// STRUCTURE lives here (code/name/sort/tags/moduleCount) — NOT authored copy,
+// which still comes from the enrichment sheet by `code`. This is the sole bit of
+// course data left in code, because it's structural and the API can't supply it.
+const COACH_ALL = ['COLLEGE_COACH', 'FT_PROF_COACH', 'PT_PROF_COACH', 'VOLUNTEER_OR_EMERGING_COACH'];
+const WORKSHOP_CARDS = [
+  {
+    code: 'INC-W1010',
+    name: 'Intro to Coaching Workshop',
+    language: 'English',
+    safePlay: false,
+    sort: 7,
+    badgeName: null,
+    coachTypes: [...COACH_ALL, 'PARENT_GUARDIAN_COACH', 'SCHOOL_COACH'],
+    certifications: [],
+    membershipPackages: ['BASELINE', 'RALLY', 'PRO', 'PRO_PLUS'],
+    modules: [],
+  },
+  {
+    code: 'CAR-W1010C',
+    name: 'Cardio Tennis Workshop',
+    language: 'English',
+    safePlay: true,
+    sort: 31.5,
+    badgeName: null,
+    coachTypes: COACH_ALL,
+    certifications: ['USTA Professional Coach Certification'],
+    membershipPackages: ['RALLY', 'PRO', 'PRO_PLUS'],
+    modules: [],
+  },
+];
 
 // Persona tabs → the coachType values each maps to (from the API taxonomy).
 const TABS = [
@@ -97,62 +141,86 @@ function moduleLabel(n) {
 
 const clean = (arr) => (arr || []).filter((v) => v !== null && v !== undefined);
 
-/**
- * Normalizes one raw LMS-API course into the block's shape and merges the baked
- * enrichment (description/badge/unlock/Spanish) matched by `code`. Mirrors
- * tools/importer/course-filter/build-courses-json.mjs, but at runtime so the
- * structured fields (modules, tags, sort) stay fresh from the API on every load.
- */
-function mergeCourse(apiCourse, enrichmentByCode) {
-  const e = enrichmentByCode.get(apiCourse.code) || {};
+/** Normalizes a raw LMS-API course into the block's structural shape. */
+function normalizeApiCourse(c) {
   return {
-    name: apiCourse.name,
-    code: apiCourse.code,
-    language: apiCourse.language,
-    safePlay: apiCourse.isSafePlayRequired,
-    sort: apiCourse.sortSequence,
-    badgeName: apiCourse.badgeName,
-    coachTypes: clean(apiCourse.filters?.coachTypes),
-    certifications: clean(apiCourse.filters?.certifications),
-    membershipPackages: clean(apiCourse.filters?.membershipPackages),
-    moduleCount: (apiCourse.modules || []).length,
-    modules: (apiCourse.modules || []).map((m) => m.name).filter(Boolean),
-    // Authored fields come from the baked enrichment (the API has none of these).
+    name: c.name,
+    code: c.code,
+    language: c.language,
+    safePlay: c.isSafePlayRequired,
+    sort: c.sortSequence,
+    badgeName: c.badgeName,
+    coachTypes: clean(c.filters?.coachTypes),
+    certifications: clean(c.filters?.certifications),
+    membershipPackages: clean(c.filters?.membershipPackages),
+    moduleCount: (c.modules || []).length,
+    modules: (c.modules || []).map((m) => m.name).filter(Boolean),
+  };
+}
+
+/**
+ * Merges a structural course (from the API or WORKSHOP_CARDS) with the
+ * author-owned enrichment row from the DA sheet, matched by `code`. If no sheet
+ * row exists (e.g. a brand-new API course not yet authored), the card still
+ * renders with empty badge/description — it degrades gracefully.
+ */
+function applyEnrichment(course, enrichmentByCode) {
+  const e = enrichmentByCode.get(course.code) || {};
+  return {
+    ...course,
+    moduleCount: course.moduleCount ?? (course.modules || []).length,
     description: e.description || '',
     unlock: e.unlock || '',
-    unlockLink: e.unlockLink || null,
-    spanishLink: !!e.spanishLink,
+    unlockLink: e.unlockLinkText && e.unlockLinkHref
+      ? { text: e.unlockLinkText, href: e.unlockLinkHref } : null,
+    spanishLink: !!e.spanishHref,
     spanishHref: e.spanishHref || '',
     badge: e.badge || '',
   };
 }
 
 /**
- * Loads course data. Strategy: fetch the live LMS API for fresh structured data
- * and merge it with the baked enrichment (which also supplies the two
- * workshop-only cards the API doesn't return). If the API is unreachable, fall
- * back to the fully-baked courses.json so the block always renders.
+ * Loads the author-editable enrichment sheet from DA and returns a Map keyed by
+ * course `code`. Returns an empty Map (not an error) if the sheet is unreachable
+ * or malformed — cards then render structure-only, never blank the whole block.
  */
-async function loadCourses(basePath) {
-  // The baked file is BOTH the enrichment source and the offline fallback.
-  const baked = await (await fetch(`${basePath}/courses.json`)).json();
-  const enrichmentByCode = new Map(baked.map((c) => [c.code, c]));
-
+async function loadEnrichment() {
   try {
-    const res = await fetch(LMS_API);
-    if (!res.ok) throw new Error(`LMS API ${res.status}`);
-    const { courses: apiCourses } = await res.json();
-    if (!Array.isArray(apiCourses) || !apiCourses.length) throw new Error('empty API payload');
-
-    const live = apiCourses.map((c) => mergeCourse(c, enrichmentByCode));
-    // Append baked-only cards the API doesn't return (the two workshop cards).
-    const liveCodes = new Set(live.map((c) => c.code));
-    const bakedOnly = baked.filter((c) => !liveCodes.has(c.code));
-    return [...live, ...bakedOnly].sort((a, b) => a.sort - b.sort);
+    const res = await fetch(ENRICHMENT_SHEET);
+    if (!res.ok) throw new Error(`enrichment sheet ${res.status}`);
+    const json = await res.json();
+    const rows = Array.isArray(json?.data) ? json.data : [];
+    return new Map(rows.filter((r) => r.code).map((r) => [r.code, r]));
   } catch (e) {
-    // Offline / API error → the fully-baked dataset (already enriched + sorted).
-    return baked;
+    return new Map();
   }
+}
+
+/**
+ * Assembles the course list at runtime from three sources:
+ *   • LMS API      — fresh structured data (always current).
+ *   • DA sheet      — author-owned enrichment (badge/description/unlock/Spanish).
+ *   • WORKSHOP_CARDS — the two workshop cards the API omits.
+ * The API + sheet are fetched in parallel; each course is enriched by `code`.
+ * If the API fails, we still render the workshop cards (enriched from the sheet)
+ * rather than nothing.
+ */
+async function loadCourses() {
+  const [apiResult, enrichmentByCode] = await Promise.all([
+    fetch(LMS_API).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    loadEnrichment(),
+  ]);
+
+  const apiCourses = Array.isArray(apiResult?.courses) ? apiResult.courses : [];
+  const structural = apiCourses.map(normalizeApiCourse);
+
+  // Append workshop cards the API doesn't return (dedupe by code, just in case).
+  const apiCodes = new Set(structural.map((c) => c.code));
+  const workshops = WORKSHOP_CARDS.filter((w) => !apiCodes.has(w.code));
+
+  return [...structural, ...workshops]
+    .map((c) => applyEnrichment(c, enrichmentByCode))
+    .sort((a, b) => a.sort - b.sort);
 }
 
 /**
@@ -423,12 +491,11 @@ function renderChips(chipsWrap, state, onRemove) {
 }
 
 export default async function decorate(block) {
-  const basePath = new URL('.', import.meta.url).href.replace(/\/$/, '');
   let courses = [];
   try {
-    courses = await loadCourses(basePath);
+    courses = await loadCourses();
   } catch (e) {
-    // Both the API and the baked fallback failed — render nothing rather than error.
+    // Data assembly failed entirely — render nothing rather than error.
     block.textContent = '';
     return;
   }
