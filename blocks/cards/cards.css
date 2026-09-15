@@ -38,9 +38,9 @@
 
 /* ------------------------------------------------------------------ media -- */
 
-/* the "JOIN THE COMMUNITY" feature cards on the black section. Each is authored
-   as its own single-card block, so the three sibling blocks are laid out as a
-   3-up row via their shared section container. Source layout by viewport:
+/* the "JOIN THE COMMUNITY" feature cards on the black section. Authored as ONE
+   `cards (media)` block with three rows, so the three cards are the <li>s of the
+   block's own <ul> — grid the <ul> to lay them out. Source layout by viewport:
      - mobile  (<768): STACKED — image on top, text below.
      - tablet  (768-1023): HORIZONTAL — image left (~213px), text right.
      - desktop (>=1024): 3-up row, image on top, text below.
@@ -55,6 +55,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
+  align-items: start;
 }
 
 .cards.media .cards-media-card {
@@ -94,15 +95,10 @@
   line-height: 1.2;
 }
 
-/* the three single-card media blocks are separate `.cards-wrapper` divs that
-   are themselves the section's direct children — grid the section so they lay
-   out as a 3-up row, and drop the per-wrapper max-width/centering. Scoped with
-   :has() so only media sections get the wrapper grid (not pricing). Mobile:
-   single column (stacked cards). Gutter grows 16/40/48/64 like the site. */
+/* the media block sits in a 1536-capped centered container with the site
+   gutters (16/40/48/64). Drop the wrapper's default max-width/centering so the
+   block's own <ul> grid spans the padded container. */
 .cards-container:has(.cards.media) {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
@@ -115,18 +111,8 @@
   padding: 0;
 }
 
-/* a section heading (e.g. "JOIN THE …") authored above the cards is loose
-   default content, so it becomes a grid item — span it across all columns so
-   it sits full-width above the card row instead of taking one grid cell. */
-.cards-container:has(.cards.media) > .default-content-wrapper {
-  grid-column: 1 / -1;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-}
-
 /* tablet (768-1023): HORIZONTAL cards — image left (~213px fixed), text right,
-   vertically centered. The three cards stack (the wrapper grid stays 1 column).
+   vertically centered. The three cards stack (the <ul> grid stays 1 column).
    Heading margin resets (no top gap when side-by-side). */
 @media (width >= 768px) {
   .cards-container:has(.cards.media) {
@@ -156,12 +142,14 @@
   }
 }
 
-/* desktop (>=1024): back to a 3-up row of stacked (image-top) cards. */
+/* desktop (>=1024): a 3-up row of stacked (image-top) cards. */
 @media (width >= 1024px) {
   .cards-container:has(.cards.media) {
-    grid-template-columns: repeat(3, 1fr);
-    align-items: start;
     padding-inline: 48px;
+  }
+
+  .cards.media > ul {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .cards.media .cards-media-card {
