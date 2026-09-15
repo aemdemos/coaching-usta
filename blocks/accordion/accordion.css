@@ -165,14 +165,10 @@ main > .section.accordion-container > div {
   }
 }
 
-/* panel header row: text/badge block + chevron. Source chevron alignment:
-   - mobile (<768): BOTTOM of the header (info block is align-items: flex-end)
-   - desktop (>=768): vertically CENTRED against the header (align-items: center) */
+/* panel header wrapper: holds the head (badge + text/meta). The chevron is NOT
+   here — it lives in the `__info` row beside the meta grid (see below) so it
+   centres on the META block, matching the source, not the whole tall header. */
 .accordion.timeline .accordion-timeline-panel-label {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
   padding: 0 8px 16px;
   cursor: pointer;
   list-style: none;
@@ -189,17 +185,32 @@ main > .section.accordion-container > div {
   }
 }
 
-/* chevron centres against the header once it becomes a row (>=1024); at >=1280
-   the source widens the right gap to ~25px. */
-@media (width >= 1024px) {
+@media (width >= 1280px) {
+  /* source widens the right gap to ~25px at the largest tier */
   .accordion.timeline .accordion-timeline-panel-label {
-    align-items: center;
+    padding: 0 12px 12px;
   }
 }
 
-@media (width >= 1280px) {
-  .accordion.timeline .accordion-timeline-panel-label {
-    padding: 0 12px 12px;
+/* meta grid + chevron share a row (source `.v-classification-accordion-content__info`).
+   The chevron therefore centres on the meta block. Mobile: bottom-aligned
+   (align-items: flex-end); >=1024: vertically centred (align-items: center). The
+   chevron never shrinks and the meta grid takes the rest, so the chevron stays on
+   the row (no wrap) and flush to the right at any width. */
+.accordion.timeline .accordion-timeline-panel-info {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+@media (width >= 1024px) {
+  .accordion.timeline .accordion-timeline-panel-info {
+    align-items: center;
+
+    /* source: meta grid runs flush to the chevron (no gap) so the meta keeps its
+       full width and the Industry column is wide enough to hold "USTA Play
+       Facilitator Workshop" on one line — only the last item wraps */
+    gap: 0;
   }
 }
 
@@ -220,7 +231,11 @@ main > .section.accordion-container > div {
   .accordion.timeline .accordion-timeline-panel-head {
     flex-direction: row;
     align-items: flex-start;
-    gap: 32px;
+
+    /* source has NO gap between the badge and the text block (the badge PNG
+       carries its own internal padding); a gap here steals width from the meta
+       grid and forces the Industry column to wrap early */
+    gap: 0;
   }
 }
 
@@ -264,17 +279,34 @@ main > .section.accordion-container > div {
   text-decoration: underline;
 }
 
-/* meta grid: stacked on mobile, 3 columns on desktop */
+/* meta grid: stacked on mobile, 3 columns on desktop. It fills the info row so
+   its last column can absorb the leftover width. */
 .accordion.timeline .accordion-timeline-meta {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
 }
 
 @media (width >= 768px) {
   .accordion.timeline .accordion-timeline-meta {
     flex-direction: row;
     gap: 24px; /* source column gap */
+  }
+}
+
+/* the first two columns size to their content (short values stay one line);
+   the last column (Industry Equivalent) absorbs the remaining width and wraps
+   its long lines — matching the source grid proportions (~116/142/rest). */
+.accordion.timeline .accordion-timeline-meta-col {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+@media (width >= 768px) {
+  .accordion.timeline .accordion-timeline-meta-col-grow {
+    flex: 1 1 auto;
   }
 }
 
@@ -520,11 +552,11 @@ main > .section.accordion-container > div {
 }
 
 /* panel chevron = white */
-.accordion.timeline .accordion-timeline-panel-label > .accordion-timeline-chevron {
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron {
   border: 2px solid #fff;
 }
 
-.accordion.timeline .accordion-timeline-panel-label > .accordion-timeline-chevron::before {
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron::before {
   border-right: 2px solid #fff;
   border-bottom: 2px solid #fff;
 }
@@ -541,13 +573,13 @@ main > .section.accordion-container > div {
 
 /* ---- hover/focus (source): panel chevron border + caret turn LIME; course
    chevron fills LIME (caret stays black, reads on lime). ---- */
-.accordion.timeline .accordion-timeline-panel-label > .accordion-timeline-chevron:hover,
-.accordion.timeline .accordion-timeline-panel-label > .accordion-timeline-chevron:focus-visible {
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:hover,
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:focus-visible {
   border-color: var(--usta-lime);
 }
 
-.accordion.timeline .accordion-timeline-panel-label > .accordion-timeline-chevron:hover::before,
-.accordion.timeline .accordion-timeline-panel-label > .accordion-timeline-chevron:focus-visible::before {
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:hover::before,
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:focus-visible::before {
   border-right-color: var(--usta-lime);
   border-bottom-color: var(--usta-lime);
 }
@@ -558,7 +590,7 @@ main > .section.accordion-container > div {
 }
 
 /* both chevrons flip when their own region is open (host carries .is-open) */
-.accordion.timeline .accordion-timeline-panel.is-open > .accordion-timeline-panel-label > .accordion-timeline-chevron,
+.accordion.timeline .accordion-timeline-panel.is-open .accordion-timeline-panel-info > .accordion-timeline-chevron,
 .accordion.timeline .accordion-timeline-course.is-open > .accordion-timeline-course-label > .accordion-timeline-chevron {
   transform: rotate(180deg);
 }
