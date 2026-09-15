@@ -1221,3 +1221,132 @@ Two fixes:
    desc paragraph `letter-spacing: normal`. Re-verified full type table matches source at all 3 vps:
    tabTitle 16/12/14, eyebrow 18/16/12, name 32/28/18 (ls -0.96/-0.84/-0.54), desc 16, descLink 18/18/16,
    SeeMore 18/18/16, filter/sort/chip 16. Lint 0 err, breakpoint/overflow/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: tablet/mobile tab layout parity (tall-panel fix)
+User: on tablet the tabs panel ballooned tall with "Coaches" floating mid-panel (vs source's tight rows).
+Root cause: tabs used `flex: 1 1 140px`, so at tablet widths they wrapped AND stretched to fill. Source
+uses `flex: 1 1 0; min-width: 120px` (measured) — equal-width thirds that stay on ONE compact row while
+they fit and stay compact (min-width, no stretch) when wrapping. Matched exactly (added align-items:stretch
+on the row for parity). Verified: mobile 390 = Parents+School row1 / Coaches full-width row2 (source-exact);
+tablet 760–834 = all 3 tabs one compact row; desktop unchanged. Lint 0 err, breakpoint/overflow(360–1920)/
+typography/a11y all pass.
+
+### 2026-09-15 — course-filter: description clamp + "..." indicator + chevron direction
+Tablet parity pass. Source clamps each COLLAPSED card's description to a fixed height and shows a
+bottom-right "..." when truncated (keeping cards uniform/compact); mine showed full text (over-tall cards).
+Measured source: `.v-course__description.clamp { overflow:hidden; max-height:~150px }` + absolute
+`.v-course__description-ellipsis` (right:0; bottom:-2px; 30px/700). Implemented:
+- CSS `.course-filter-card-description.is-clamped { position:relative; max-height:154px; overflow:hidden }`
+  + `.course-filter-card-description-ellipsis` (absolute bottom-right, 30px/700, white bg to mask text).
+- JS `clampDescription(card)`: after layout (rAF) adds `.is-clamped` + a "..." span only when the text
+  overflows; expanding removes the clamp (full text shows), collapsing re-clamps; re-runs on resize
+  (debounced) since 1-up↔2-up changes overflow. Hoisted above buildCard (eslint no-use-before-define).
+Also fixed the **expand chevron direction**: source shows it DOWN when collapsed (SVG rotated 180°) and UP
+when expanded; mine was inverted. Flipped: `svg { transform: rotate(180deg) }` default, `[aria-expanded=true] svg { rotate(0) }`.
+Verified @1024: clamped copy + "..." bottom-right on long cards, uniform card height, down chevron collapsed.
+Lint 0 err, breakpoint/overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: title 3-line clamp + description stays clamped on expand
+Two source-parity fixes (tablet 2-up cards):
+1. **Title clamp.** Source clamps the course name to 3 lines with an ellipsis (`-webkit-line-clamp: 3`,
+   display:-webkit-box, overflow:hidden). Mine showed the full title (long names like "Introducción al
+   Entrenamiento 2 (Intro to Coaching 2)" pushed the card taller). Added the 3-line clamp to
+   `.course-filter-card-name` (+ standard `line-clamp` for parity). Verified: long titles truncate to 3
+   lines with "…".
+2. **Expanded card keeps the description clamped.** Source does NOT reveal the full description on expand —
+   the `.clamp` + "..." stay and ONLY the module timeline is toggled below (confirmed live: expanded
+   "Intro to Coaching 2" still shows clamped copy + "..." then the 4-module timeline). Mine was releasing
+   the clamp on expand. Fixed: removed the `is-expanded` early-return in clampDescription and the
+   expand handler no longer strips `.is-clamped`/ellipsis — expanding only toggles `modules.hidden`.
+Verified @1024: titles 3-line clamped, expanded card shows clamped desc + "..." + module timeline, chevron
+flips. Lint 0 err, breakpoint/overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: source-CSS extraction + full parity cross-check
+Pulled the source's own `.v-course*` / `.v-course-list*` rules straight from the live stylesheet
+(`clientlib-vue.min.css`) — 147 rules — as an authoritative reference, then diffed every property against
+`blocks/course-filter/course-filter.css` at each breakpoint. (We do NOT wire up the source CSS: it's a
+3,543-rule unscoped Vue app bundle that would collide with our global grid/typography and break
+block-isolation + PageSpeed. We reproduce only the measured values in our scoped block CSS.)
+
+Drifts found & fixed (source → ours was wrong):
+- **Card name font-size.** Source: 18px mobile / **28px @768–1279** / 32px @≥1280. Ours had 32px kicking in
+  at 1024, which also caused the mid-word horizontal clip ("Introduccić…") in the 2-up tablet column.
+  Moved the 32px rule to `@media (width >= 1280px)`; 28px now holds through the tablet range. Clip gone.
+- **Grid gap.** Source is `16px` at every breakpoint; ours was `24px` base / `24px 16px` desktop → now `16px`.
+- **Badge size.** Source: 80px mobile / **120px @768–1279** / 148px @≥1280; ours jumped to 148 at 768.
+  Now 120 at tablet, 148 moved to ≥1280.
+- **Tabs panel.** Source: wrapper transparent on mobile with individual dark (#2d2d2d) pills; wrapper
+  becomes the dark panel at tablet+. Margin-bottom 36 / 44 / 100. Tab height 70 mobile / 100 tablet+.
+  Ours had the wrapper always dark, margin 48/100, tab min-height 54/84. Corrected all.
+- **Description clamp height.** Source `calc(1.57rem * 6)`; ours hardcoded 154px → now the exact calc.
+- **Module text.** Source 14px/600 mobile → 16px/400 tablet+; ours was 16px everywhere → fixed.
+Verified @1024 (computed): name 28/28/-0.84, badge 120, grid gap 16, tabs #2d2d2d 100px/44px — all match.
+Lint 0 err, breakpoint/overflow(360–1920)/typography/a11y all pass.
+
+### 2026-09-15 — course-filter: expand-button hover + mobile description (2 source-parity fixes)
+1. **Expand chevron turns green only on :hover.** Source has `.v-course__expand-button:hover { background:#CFFF05 }`;
+   the expanded state itself is transparent. Mine had no hover rule (button looked dead on hover, and the
+   "green box" the user saw on the expanded source card was just the hover state). Added
+   `.course-filter-card-expand:hover { background: var(--usta-lime) }`. Verified expanded bg stays transparent.
+2. **Mobile shows the FULL description, un-clamped, at 14px.** Source only clamps at tablet+ (>=768): on mobile
+   the `.v-course__additional-content .v-course__description` is always visible, 14px/400, NO clamp, NO "...".
+   Mine was clamping on mobile too (150px cap + "..."), which read as "blank boxes" until expanded. Fixed:
+   - JS `clampDescription` early-returns (strips `.is-clamped`) when `matchMedia('(width < 768px)')` matches.
+   - CSS `.course-filter-card-description` base font-size 14px (mobile) → 16px at >=768.
+   Verified @390: desc full, un-clamped, 14px, no ellipsis. @1024 still clamps at 16px with "…" (unchanged).
+
+**Rule deviation (justified) — typography gate.** `npm run check:typography` now reports 2 "drifts" at @390 for
+`p` (14px vs global body 16px). This is the block-scoped mobile card copy, which the source itself renders at
+14px (block-specific, NOT the global body scale — the `:root` body token in styles.css is unchanged at 16px).
+The checker's heuristic grabs the first visible `<p>`, and on this block-ONLY sample page that's the card
+description; on a real authored page it would measure the intro body copy (16px) and pass. Keeping 14px is the
+parity-correct choice per The Typography Rule's intent (match the source); forcing 16px would break parity.
+lint 0 err, breakpoint/overflow(360–1920)/a11y all pass; typography drift is the intentional block-scoped 14px.
+
+### 2026-09-15 — course-filter: CORRECTION — mobile description is expand-only (not always-on)
+Reverses the previous entry's mobile-description decision, which was based on a mis-measurement (I had
+inspected the source AFTER a card was already expanded). Re-measured the source on a FRESH mobile (390) load
+with nothing clicked: the collapsed card shows the **title only** — `.v-course__additional-content` has
+`offsetHeight: 0` (an ancestor is collapsed). Tapping the chevron reveals the description (14px, un-clamped)
+**and** the module timeline together. So on mobile the description is part of the expandable region, hidden
+until expand — matching the user's source screenshot (blank-looking cards = title-only, by design).
+Contrast: at tablet/desktop (>=768) the description is ALWAYS visible (clamped + "…"), and the toggle only
+reveals the timeline.
+
+Implementation:
+- JS: every card now renders an expand toggle (previously only module-bearing cards had one). Cards with 0
+  modules get `.course-filter-card-standalone`. The toggle handler flips `.is-expanded` (reveals the mobile
+  description via CSS) and toggles the timeline when present.
+- CSS: `.course-filter-card-description { display: none }` base (mobile collapsed) → `display: block` when
+  `.is-expanded`; at >=768 it is `display: block` unconditionally (always visible) at 16px. Standalone cards
+  hide their toggle at >=768 (nothing to expand there; description already inline) but keep it <768.
+Verified @390: collapsed = title only (desc height 0); expand → desc (14px) + 3-module timeline; standalone
+0-module card keeps its mobile toggle. @1024: all descriptions inline + "…", standalone card has no toggle.
+lint 0 err, breakpoint/overflow(360–1920)/typography/a11y ALL pass (typography now green — the mobile 14px
+copy is hidden when collapsed, so the checker no longer reads it as a body drift).
+
+### 2026-09-15 — course-filter: mobile description is FULL-WIDTH below the row (two-copy model) + green expanded chevron
+Pixel-diffing the source vs migrated expanded mobile card revealed the real structural drift: the source
+renders the description in TWO DOM positions, one shown per viewport (its Vue markup has both
+`.v-course__info-section .v-course__description` AND `.v-course__additional-content .v-course__description`):
+- **Desktop (>=768):** description is INLINE inside the info column, beside the badge (info copy visible,
+  additional-content copy hidden). Measured: badge 148@x672, inline desc @x844 w276.
+- **Mobile (<768):** description is FULL-WIDTH BELOW the badge/title/expand row (additional-content copy
+  visible, info copy hidden). Measured: badge 80@x32 top-left, desc @x32 w326 spanning the whole card,
+  then the module timeline below it.
+Mine had a SINGLE description trapped in the narrow info column on mobile (squished beside the badge) — the
+positioning/dimension drift the user flagged.
+
+Fix (mirrors the source's two-copy approach; the hidden copy is display:none so no duplicate a11y text):
+- JS: extracted `buildDescription()` and render it twice — `.course-filter-card-description-inline` inside
+  the info column, and `.course-filter-card-description-mobile` appended full-width below the content row.
+  Module timeline now appended at the card bottom (order: title row → mobile desc → timeline). clampDescription
+  targets only the inline copy.
+- CSS: `-inline` display:none on mobile → block at >=768 (clamped, 16px, beside badge). `-mobile` display:none
+  on desktop; on mobile hidden when collapsed → block on `.is-expanded`, full-width (padding-right:0), 14px.
+- Green chevron: user wants the expanded (highlighted) chevron green. Source shows it green post-tap (sticky
+  :hover on touch). Added `.course-filter-card-expand[aria-expanded="true"] { background: var(--usta-lime) }`
+  alongside :hover.
+Verified @390: collapsed = title only; expand → chevron lime, badge 80 top-left, desc full-width (x32 w326,
+14px) below, then timeline. @1280: inline desc beside 148 badge (16px, clamped), mobile copy hidden.
+lint 0 err, breakpoint/overflow(360–1920)/typography/a11y ALL pass.

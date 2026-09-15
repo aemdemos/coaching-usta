@@ -28,31 +28,36 @@ main > .section.course-filter-container > div {
 
 /* ---- Tabs ---- */
 .course-filter-tabs {
-  background: var(--cf-dark-panel);
+  background: transparent; /* mobile: transparent; becomes dark panel at tablet+ */
   border-radius: 20px;
-  margin-bottom: 48px;
+  margin-bottom: 36px; /* source: 36px mobile / 44px tablet / 100px desktop */
 }
 
 .course-filter-tabs-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: stretch;
   gap: 8px;
   padding: 0;
 }
 
+/* Tabs are equal-width thirds that stay on one row as long as they fit
+   (source: flex 1 1 0 + min-width 120px); when they must wrap, min-width keeps
+   each tab compact rather than stretching to fill the panel. */
 .course-filter-tab {
-  flex: 1 1 140px;
+  flex: 1 1 0;
+  min-width: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 54px;
+  height: 70px; /* source: 70px mobile / 100px tablet+ */
   margin: 8px;
-  padding: 12px 20px;
+  padding: 0 20px;
   border: 0;
   border-radius: 20px;
-  background: transparent;
+  background: var(--cf-dark-panel); /* mobile: individual dark pills; panel itself is transparent */
   color: #fff;
   cursor: pointer;
   text-align: center;
@@ -321,7 +326,7 @@ main > .section.course-filter-container > div {
 .course-filter-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 16px; /* source: 16px at every breakpoint */
 }
 
 .course-filter-card {
@@ -363,7 +368,11 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-card-name {
-  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* source clamps the title to 3 lines with an ellipsis */
+  line-clamp: 3;
+  overflow: hidden;
   margin: 0;
   padding: 8px 0 2px;
   font-family: "Graphik Semibold", tahoma, sans-serif;
@@ -374,13 +383,52 @@ main > .section.course-filter-container > div {
   color: #000;
 }
 
+/* The description renders in TWO copies, one shown per viewport (source):
+   • -inline  : inside the info column beside the badge — desktop only (>=768).
+   • -mobile  : full-width below the badge/title/expand row — mobile only (<768).
+   Base (mobile-first): inline hidden, mobile copy present but collapsed. */
 .course-filter-card-description {
   padding: 20px 32px 0 0;
   font-family: "Graphik Regular", tahoma, sans-serif;
-  font-size: 16px;
+  font-size: 14px; /* source: 14px mobile → 16px tablet+ */
   line-height: 1.2;
   letter-spacing: normal;
   color: #000;
+}
+
+/* Desktop-only inline copy: hidden on mobile. */
+.course-filter-card-description-inline { display: none; }
+
+/* Mobile full-width copy: hidden when collapsed (card shows title only), shown
+   on expand. Spans the whole card (no right padding reserved for the badge). */
+.course-filter-card-description-mobile {
+  display: none;
+  padding-right: 0;
+}
+
+.course-filter-card.is-expanded .course-filter-card-description-mobile { display: block; }
+
+/* Collapsed clamp (source): cap the description height and hide the overflow;
+   JS adds .is-clamped + the "..." indicator only when the text overflows
+   (typically the 2-up tablet layout where copy is taller than the badge/toggle).
+   The cap ≈ 8 lines of body copy (source measured ~150px at 16px/lh1.2). */
+.course-filter-card-description.is-clamped {
+  position: relative;
+  max-height: calc(1.57rem * 6); /* source: 6 lines @ 1.57rem line-box */
+  overflow: hidden;
+}
+
+.course-filter-card-description-ellipsis {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  background: #fff;
+  padding-left: 8px;
 }
 
 .course-filter-card-description p { margin: 0 0 8px; }
@@ -410,13 +458,25 @@ main > .section.course-filter-container > div {
   justify-content: center;
 }
 
+/* CHEVRON art points up; source shows it DOWN when collapsed (rotated 180°) and
+   UP when expanded. So rotate by default, un-rotate on expand. */
 .course-filter-card-expand svg {
   width: 18px;
   height: 12px;
+  transform: rotate(180deg);
   transition: transform 0.2s ease;
 }
 
-.course-filter-card-expand[aria-expanded="true"] svg { transform: rotate(180deg); }
+.course-filter-card-expand[aria-expanded="true"] svg { transform: rotate(0deg); }
+
+/* Hover fills the button lime (source: .v-course__expand-button:hover). The
+   expanded/active button is also lime to match the source's post-tap state. */
+.course-filter-card-expand:hover,
+.course-filter-card-expand[aria-expanded="true"] { background: var(--usta-lime); }
+
+/* Standalone cards (no module timeline) still need the toggle on MOBILE to reveal
+   the description; at tablet+ the description shows inline so the toggle is hidden
+   (source: .v-course--standalone .v-course__expand-button display none, block <768). */
 
 /* Badge sits to the LEFT of the text inside the centered content row (source).
    Responsive size: 80×80 on mobile, 148×148 at tablet+ (see >=768 override).
@@ -479,8 +539,10 @@ main > .section.course-filter-container > div {
 
 .course-filter-card-module-text {
   font-family: "Graphik Regular", tahoma, sans-serif;
-  font-size: 16px;
+  font-size: 14px; /* source: 14px/600 mobile → 16px/400 tablet+ */
+  font-weight: 600;
   line-height: 1.2;
+  max-width: 90%;
   color: #000;
 }
 
@@ -507,14 +569,16 @@ main > .section.course-filter-container > div {
 @media (width >= 768px) {
   main > .section.course-filter-container > div { padding-inline: 40px; }
 
+  /* Wrapper becomes the dark panel at tablet+; margin steps 44px → 100px @desktop. */
   .course-filter-tabs {
-    margin-bottom: 100px;
+    background: var(--cf-dark-panel);
+    margin-bottom: 44px;
   }
 
   .course-filter-tabs-row { gap: 16px; }
 
   .course-filter-tab {
-    min-height: 84px;
+    height: 100px;
     gap: 8px;
   }
 
@@ -549,16 +613,40 @@ main > .section.course-filter-container > div {
     letter-spacing: -0.84px;
   }
 
+  /* At tablet+ the INLINE copy is always visible (beside the badge) at 16px; the
+     mobile full-width copy is hidden. */
+  .course-filter-card-description { font-size: 16px; }
+
+  .course-filter-card-description-inline,
+  .course-filter-card.is-expanded .course-filter-card-description-inline {
+    display: block;
+  }
+
+  .course-filter-card-description-mobile,
+  .course-filter-card.is-expanded .course-filter-card-description-mobile {
+    display: none;
+  }
+
+  /* Standalone (no-modules) cards hide the toggle at tablet+ — nothing to expand. */
+  .course-filter-card-standalone .course-filter-card-expand { display: none; }
+
   /* Description links step up to 18px at tablet+ (source). */
   .course-filter-card-description a {
     font-size: 18px;
     line-height: 21.6px;
   }
 
-  /* Badge grows to full 148px at tablet+ (source). */
+  /* Badge: 120px at 768–1279, 148px only at ≥1280 (source). */
   .course-filter-card-badge img {
-    width: 148px;
-    height: 148px;
+    width: 120px;
+    height: 120px;
+  }
+
+  /* Module text returns to 16px/400 at tablet+ (source). */
+  .course-filter-card-module-text {
+    font-size: 16px;
+    font-weight: 400;
+    max-width: none;
   }
 }
 
@@ -568,16 +656,10 @@ main > .section.course-filter-container > div {
 
   .course-filter-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 24px 16px;
+    gap: 16px;
   }
 
   .course-filter-tab-title { font-size: 16px; }
-
-  .course-filter-card-name {
-    font-size: 32px;
-    line-height: 32px;
-    letter-spacing: -0.96px;
-  }
 
   .course-filter-card-eyebrow {
     font-size: 18px;
@@ -587,4 +669,20 @@ main > .section.course-filter-container > div {
 
 @media (width >= 1280px) {
   main > .section.course-filter-container > div { padding-inline: 64px; }
+
+  /* Full-size dark panel spacing at wide desktop (source: 100px). */
+  .course-filter-tabs { margin-bottom: 100px; }
+
+  /* Course name grows to 32px only at wide desktop (source: 28px @768–1279). */
+  .course-filter-card-name {
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.96px;
+  }
+
+  /* Badge grows to full 148px only at wide desktop (source). */
+  .course-filter-card-badge img {
+    width: 148px;
+    height: 148px;
+  }
 }

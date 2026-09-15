@@ -129,6 +129,37 @@ function selectCourses(courses, state) {
   return list;
 }
 
+/**
+ * Source-parity clamp: the card description is capped (CSS max-height via
+ * .is-clamped); when the text overflows that cap, a bottom-right "..." indicator
+ * is shown (matching the source's .clamp + description-ellipsis). The clamp
+ * persists whether the card is collapsed OR expanded — expanding only reveals
+ * the module timeline, it does NOT release the description. Runs after layout
+ * since it measures overflow.
+ */
+function clampDescription(card) {
+  // Only the INLINE (desktop) copy is clamped; the mobile full-width copy is
+  // expand-only and never clamped.
+  const desc = card.querySelector('.course-filter-card-description-inline');
+  if (!desc) return;
+  desc.querySelector('.course-filter-card-description-ellipsis')?.remove();
+  // Source only clamps at tablet+ (>=768). Below that the inline copy is hidden.
+  if (window.matchMedia('(width < 768px)').matches) {
+    desc.classList.remove('is-clamped');
+    return;
+  }
+  desc.classList.add('is-clamped');
+  if (desc.scrollHeight - desc.clientHeight > 1) {
+    const ell = document.createElement('span');
+    ell.className = 'course-filter-card-description-ellipsis';
+    ell.setAttribute('aria-hidden', 'true');
+    ell.textContent = '...';
+    desc.append(ell);
+  } else {
+    desc.classList.remove('is-clamped');
+  }
+}
+
 /** Builds one course card (collapsed; expands to its module timeline). */
 function buildCard(course, basePath) {
   const card = document.createElement('article');
@@ -154,9 +185,6 @@ function buildCard(course, basePath) {
   name.setAttribute('aria-level', '3');
   name.textContent = course.name;
 
-  const desc = document.createElement('div');
-  desc.className = 'course-filter-card-description';
-
   // Appends an underlined external link (opens in a new tab) to a container.
   const appendLink = (parent, text, href) => {
     const a = document.createElement('a');
@@ -167,32 +195,46 @@ function buildCard(course, basePath) {
     parent.append(a);
   };
 
-  const p = document.createElement('p');
-  // Source ends the copy with "Also available in Spanish." where "Spanish." is
-  // a link. Render the text up to that word, then the linked "Spanish."
-  if (course.spanishLink && course.spanishHref && / Spanish\.?$/.test(course.description)) {
-    const lead = course.description.replace(/Spanish\.?$/, '');
-    p.textContent = lead;
-    appendLink(p, 'Spanish.', course.spanishHref);
-  } else {
-    p.textContent = course.description;
-  }
-  desc.append(p);
+  // The source renders the description in TWO positions, one shown per viewport:
+  //  • Desktop (>=768): INLINE inside the info column, beside the badge.
+  //  • Mobile (<768): FULL-WIDTH below the badge/title/expand row.
+  // Only one is visible at a time (CSS), so build a fresh copy for each place.
+  const buildDescription = () => {
+    const desc = document.createElement('div');
+    desc.className = 'course-filter-card-description';
 
-  if (course.unlock) {
-    const u = document.createElement('p');
-    u.className = 'course-filter-card-unlock';
-    // Some unlock lines contain an inline link (e.g. the Development Coach Badge).
-    if (course.unlockLink && course.unlock.includes(course.unlockLink.text)) {
-      const [before, after] = course.unlock.split(course.unlockLink.text);
-      u.append(document.createTextNode(before));
-      appendLink(u, course.unlockLink.text, course.unlockLink.href);
-      u.append(document.createTextNode(after));
+    const p = document.createElement('p');
+    // Source ends the copy with "Also available in Spanish." where "Spanish." is
+    // a link. Render the text up to that word, then the linked "Spanish."
+    if (course.spanishLink && course.spanishHref && / Spanish\.?$/.test(course.description)) {
+      const lead = course.description.replace(/Spanish\.?$/, '');
+      p.textContent = lead;
+      appendLink(p, 'Spanish.', course.spanishHref);
     } else {
-      u.textContent = course.unlock;
+      p.textContent = course.description;
     }
-    desc.append(u);
-  }
+    desc.append(p);
+
+    if (course.unlock) {
+      const u = document.createElement('p');
+      u.className = 'course-filter-card-unlock';
+      // Some unlock lines contain an inline link (e.g. the Development Coach Badge).
+      if (course.unlockLink && course.unlock.includes(course.unlockLink.text)) {
+        const [before, after] = course.unlock.split(course.unlockLink.text);
+        u.append(document.createTextNode(before));
+        appendLink(u, course.unlockLink.text, course.unlockLink.href);
+        u.append(document.createTextNode(after));
+      } else {
+        u.textContent = course.unlock;
+      }
+      desc.append(u);
+    }
+    return desc;
+  };
+
+  // Inline (desktop) copy inside the info column.
+  const desc = buildDescription();
+  desc.classList.add('course-filter-card-description-inline');
 
   info.append(eyebrow, name, desc);
 
@@ -214,22 +256,33 @@ function buildCard(course, basePath) {
 
   content.append(info);
 
+  // Every card gets an expand toggle. On mobile it reveals the description (which
+  // is collapsed to title-only) + any module timeline; on desktop the description
+  // is always shown and the toggle only reveals the timeline. Cards WITHOUT
+  // modules are "standalone": their toggle is hidden on desktop (source), where
+  // the description already shows inline, but stays on mobile to reveal the copy.
   const hasModules = course.modules && course.modules.length > 0;
-  let toggle;
-  if (hasModules) {
-    toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'course-filter-card-expand';
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', `Expand course details for ${course.name}`);
-    toggle.innerHTML = CHEVRON;
-    content.append(toggle);
-  }
+  if (!hasModules) card.classList.add('course-filter-card-standalone');
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'course-filter-card-expand';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-label', `Expand course details for ${course.name}`);
+  toggle.innerHTML = CHEVRON;
+  content.append(toggle);
 
   card.append(content);
 
+  // Full-width (mobile) description copy — sits BELOW the content row, spanning
+  // the whole card. Hidden at tablet+ (the inline copy shows there instead).
+  const descMobile = buildDescription();
+  descMobile.classList.add('course-filter-card-description-mobile');
+  card.append(descMobile);
+
+  let modules = null;
   if (hasModules) {
-    const modules = document.createElement('ul');
+    modules = document.createElement('ul');
     modules.className = 'course-filter-card-modules';
     modules.hidden = true;
     course.modules.forEach((m) => {
@@ -244,17 +297,20 @@ function buildCard(course, basePath) {
       li.append(circle, text);
       modules.append(li);
     });
-    // Timeline is inserted right after the content so it reads under the name.
-    content.after(modules);
-
-    toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') === 'true';
-      toggle.setAttribute('aria-expanded', String(!open));
-      toggle.setAttribute('aria-label', `${open ? 'Expand' : 'Collapse'} course details for ${course.name}`);
-      modules.hidden = open;
-      card.classList.toggle('is-expanded', !open);
-    });
+    // Timeline sits at the bottom of the card — after the mobile description
+    // (source order on mobile: title row → description → module timeline).
+    card.append(modules);
   }
+
+  toggle.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    toggle.setAttribute('aria-label', `${open ? 'Expand' : 'Collapse'} course details for ${course.name}`);
+    if (modules) modules.hidden = open;
+    // Toggling .is-expanded reveals the mobile description + timeline (CSS). On
+    // desktop the description is already visible; only the timeline reacts.
+    card.classList.toggle('is-expanded', !open);
+  });
 
   return card;
 }
@@ -263,9 +319,12 @@ function buildCard(course, basePath) {
 function renderCourses(grid, seeMoreWrap, courses, state, basePath) {
   const selected = selectCourses(courses, state);
   const shown = selected.slice(0, state.visible);
-  grid.replaceChildren(...shown.map((c) => buildCard(c, basePath)));
+  const cards = shown.map((c) => buildCard(c, basePath));
+  grid.replaceChildren(...cards);
 
   seeMoreWrap.hidden = selected.length <= state.visible;
+  // Clamp descriptions after layout (needs measured heights).
+  requestAnimationFrame(() => cards.forEach(clampDescription));
 }
 
 /** Chip row — one removable chip per ticked filter option (Coach type included). */
@@ -563,6 +622,15 @@ export default async function decorate(block) {
       || filterPanel.contains(e.target)
       || sortPanel.contains(e.target);
     if (!inside) closePanels();
+  });
+
+  // Re-clamp descriptions on resize (1-up↔2-up changes overflow) — debounced.
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      grid.querySelectorAll('.course-filter-card').forEach(clampDescription);
+    }, 150);
   });
 
   rerender();
