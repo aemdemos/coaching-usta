@@ -125,49 +125,58 @@ function decorateVideo(block) {
 /*
  * default hero (USTA "Our Core Workshops" pattern): a background image with a
  * two-line display heading centered over a dark overlay, and a lime pill CTA.
- * Content model (from the imported table):
- *   - a <picture>/<img> for the background
- *   - one or more headings; a heading wrapped in <em> (or a 2nd heading) is the
- *     LIME accent line (source colours line 2 lime).
- *   - a link → the "Find a Workshop" CTA (rendered as a pill button)
+ * Content model (from the DA table):
+ *   - row 1: a <picture>/<img> for the background (the "basket of tennis balls"
+ *     photo). Authored as a real image — DA uploads it as hashed media, which
+ *     survives its publish pipeline (unlike a clean-path <img>, which DA used to
+ *     rewrite to about:error). A legacy image LINK is still accepted as fallback.
+ *   - row 2: one or more headings; a heading wrapped in <em> (or a 2nd heading)
+ *     is the LIME accent line (source colours line 2 lime). Plus (2nd cell) a
+ *     mobile-only "Education Center" logo image, and the "Find a Workshop" CTA
+ *     link (rendered as a pill button).
  * We tag the accent line with a class (never nth-child) and group the text + CTA
  * into an overlay content wrapper so the CSS can center it over the image.
  */
-/* True if an href points at an image file (used for the bg-as-link contract). */
+/* True if an href points at an image file (legacy bg-as-link fallback). */
 function isImageHref(href) {
   return /\.(jpe?g|png|webp|avif|gif|svg)(?=$|[?#])/i.test(href || '');
+}
+
+/* Apply an image source to the .hero-bg frame as a CSS background, with an
+   accessible label (the frame is decorative but names the scene for SR users). */
+function applyBgImage(bg, url, label) {
+  bg.style.backgroundImage = `url("${url}")`;
+  if (label) {
+    bg.setAttribute('role', 'img');
+    bg.setAttribute('aria-label', label);
+  }
 }
 
 function decorateDefault(block) {
   const bg = document.createElement('div');
   bg.className = 'hero-bg';
 
-  // The background is authored as a LINK to the image (not an <img>), because
-  // DA's HTML pipeline rewrites non-DA-media <img> srcs to about:error. A link
-  // href survives intact; we read it and apply it as a CSS background-image.
-  // (Also accept a real <picture>/<img> if one is present, for robustness.)
-  const bgLink = [...block.querySelectorAll('a')].find((a) => isImageHref(a.getAttribute('href')));
-  const bgImg = block.querySelector('picture, img');
-  if (bgLink) {
-    const url = bgLink.getAttribute('href');
-    bg.style.backgroundImage = `url("${url}")`;
-    // Use the link text as the accessible label for the (decorative) bg frame.
-    const label = bgLink.textContent.trim();
-    if (label) {
-      bg.setAttribute('role', 'img');
-      bg.setAttribute('aria-label', label);
-    }
-    bgLink.closest('p')?.remove();
-    bgLink.remove();
-  } else if (bgImg) {
-    bg.append(bgImg.closest('picture') || bgImg);
+  // The background lives in the FIRST row of the block; scoping to that row
+  // means it is never confused with the logo image in the content row. Prefer a
+  // real <picture>/<img> (the authoring model); fall back to an image LINK.
+  const bgRow = block.firstElementChild;
+  const bgImg = bgRow ? bgRow.querySelector('img') : null;
+  const bgLink = bgRow
+    ? [...bgRow.querySelectorAll('a')].find((a) => isImageHref(a.getAttribute('href')))
+    : null;
+  if (bgImg) {
+    applyBgImage(bg, bgImg.currentSrc || bgImg.src, bgImg.getAttribute('alt'));
+    bgRow.remove();
+  } else if (bgLink) {
+    applyBgImage(bg, bgLink.getAttribute('href'), bgLink.textContent.trim());
+    bgRow.remove();
   }
 
   const content = document.createElement('div');
   content.className = 'hero-content';
 
   // Move the remaining headings + link wrappers (in document order) into the
-  // overlay content. The background is already extracted, so skip anything under it.
+  // overlay content. The background row is already removed above.
   [...block.querySelectorAll('h1, h2, h3, h4, h5, h6, p')].forEach((el) => {
     if (bg.contains(el)) return;
     if (el.closest('.hero-content')) return;
@@ -177,6 +186,13 @@ function decorateDefault(block) {
       return;
     }
     content.append(el);
+  });
+
+  // The "Education Center" logo (2nd content cell) may be authored as a real
+  // <img>/<picture>. Pull any remaining images (not yet in .hero-content) in too.
+  [...block.querySelectorAll('picture, img')].forEach((el) => {
+    if (bg.contains(el) || content.contains(el)) return;
+    content.append(el.closest('picture') || el);
   });
 
   // The lime accent line: an <em> inside a heading, OR the last of multiple
@@ -205,21 +221,32 @@ function decorateDefault(block) {
     headings.forEach((h) => group.append(h));
   }
 
-  // The "Education Center" logo is authored in the SECOND cell of the content
-  // row (right column) as a LINK to the PNG — NOT a raw <img>, because DA's
-  // publish pipeline rewrites any authored <img> src (not uploaded via DA's
-  // media flow) to "about:error". A link href survives intact; we build the
-  // real <img> here in JS. Placed between the heading block and the CTA; shown
-  // on mobile only (CSS).
+  // The "Education Center" logo lives in the SECOND cell of the content row.
+  // Authored as a real image (DA uploads it as hashed media, which survives its
+  // publish pipeline). Tag it and place it between the heading block and the CTA;
+  // it is shown on mobile only (CSS). A legacy image LINK is still accepted.
+  const logoImg = content.querySelector('picture img, img');
   const logoLink = [...content.querySelectorAll('a')].find((a) => isImageHref(a.getAttribute('href')));
-  if (logoLink) {
-    const img = document.createElement('img');
-    img.className = 'hero-logo';
-    img.src = logoLink.getAttribute('href');
-    img.alt = logoLink.textContent.trim() || '';
-    img.loading = 'lazy';
-    (logoLink.closest('p') || logoLink).replaceWith(img);
-    content.querySelector('.hero-heading')?.after(img);
+  let logo = null;
+  if (logoImg) {
+    logo = logoImg;
+    logo.classList.add('hero-logo');
+    logo.loading = 'lazy';
+    // Unwrap a <picture>/<p> wrapper so the standalone <img> can be repositioned.
+    const pic = logoImg.closest('picture');
+    if (pic) pic.replaceWith(logoImg);
+    const wrap = logo.closest('p');
+    if (wrap && wrap.textContent.trim() === '') wrap.replaceWith(logo);
+  } else if (logoLink) {
+    logo = document.createElement('img');
+    logo.className = 'hero-logo';
+    logo.src = logoLink.getAttribute('href');
+    logo.alt = logoLink.textContent.trim() || '';
+    logo.loading = 'lazy';
+    (logoLink.closest('p') || logoLink).replaceWith(logo);
+  }
+  if (logo) {
+    (content.querySelector('.hero-heading') || content.firstElementChild)?.after(logo);
   }
 
   // The CTA: the first NON-image link becomes a pill button.
