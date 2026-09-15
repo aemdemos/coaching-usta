@@ -140,9 +140,20 @@ function buildPanelHeader(cell) {
     body.append(node);
   });
 
-  if (meta.children.length) body.append(meta);
+  // meta grid + chevron share a row (source `.v-classification-accordion-content__info`)
+  // so the chevron centres on the META block, not the whole badge+intro header
+  const info = document.createElement('div');
+  info.className = 'accordion-timeline-panel-info';
+  if (meta.children.length) {
+    // the last meta column absorbs the remaining width (source: What To Expect /
+    // Minimum Req. are content-sized, Industry Equivalent fills the rest and wraps)
+    meta.lastElementChild.classList.add('accordion-timeline-meta-col-grow');
+    info.append(meta);
+  }
+  body.append(info);
   head.append(body);
-  return head;
+  // the chevron is appended into `info` by the caller so it sits beside the meta grid
+  return { head, info };
 }
 
 /* Build one course card from a "Title — N modules" label + body cell. */
@@ -176,9 +187,13 @@ function buildCourseCard(labelCell, bodyCell) {
   head.append(title);
 
   // the ordered list is the collapsible timeline; a leading <p><img> is the course
-  // badge; everything else (description) stays in the always-visible card header
+  // badge; the remaining paragraph(s) are the description. In the source the
+  // description sits FULL-WIDTH below the badge+title row (not squeezed into the
+  // narrow text column beside the badge), so collect it and append it as a sibling
+  // of the header row rather than inside the text column.
   const timeline = bodyCell ? bodyCell.querySelector('ol, ul') : null;
   let badgeImg = null;
+  const descNodes = [];
   if (bodyCell) {
     [...bodyCell.children].forEach((child) => {
       if (child === timeline) return;
@@ -188,7 +203,7 @@ function buildCourseCard(labelCell, bodyCell) {
         return;
       }
       child.classList.add('accordion-timeline-desc');
-      head.append(child);
+      descNodes.push(child);
     });
   }
 
@@ -202,6 +217,8 @@ function buildCourseCard(labelCell, bodyCell) {
   content.append(head);
   label.append(content);
   card.append(label);
+  // description: full-width block below the header row
+  descNodes.forEach((n) => card.append(n));
 
   if (timeline) {
     timeline.className = 'accordion-timeline-steps';
@@ -246,7 +263,8 @@ function decorateTimeline(block) {
   // always-visible header (badge + intro + meta grid) with its own toggle button
   const header = document.createElement('div');
   header.className = 'accordion-timeline-panel-label';
-  header.append(buildPanelHeader(headerRow.children[0] || headerRow));
+  const { head: panelHead, info: panelInfo } = buildPanelHeader(headerRow.children[0] || headerRow);
+  header.append(panelHead);
   panel.append(header);
 
   // a trailing single-cell row whose only content is a link is the "View All
@@ -277,7 +295,9 @@ function decorateTimeline(block) {
 
   panel.append(list);
 
-  header.append(buildToggle({
+  // chevron sits beside the meta grid (source `__info` row) so it centres on the
+  // meta block; falls back to the header row if there was no meta grid
+  (panelInfo || header).append(buildToggle({
     label: 'Toggle course list',
     region: list,
     host: panel,

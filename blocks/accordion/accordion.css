@@ -165,8 +165,9 @@ main > .section.accordion-container > div {
   }
 }
 
-/* panel header row: text/badge block + chevron. The chevron sits at the BOTTOM
-   of the header (source uses align-items: flex-end), not the top. */
+/* panel header row: text/badge block + chevron. Source chevron alignment:
+   - mobile (<768): BOTTOM of the header (info block is align-items: flex-end)
+   - desktop (>=768): vertically CENTRED against the header (align-items: center) */
 .accordion.timeline .accordion-timeline-panel-label {
   display: flex;
   align-items: flex-end;
@@ -182,21 +183,40 @@ main > .section.accordion-container > div {
 }
 
 @media (width >= 768px) {
+  /* right pad trimmed so the chevron sits ~17px from the panel edge (source) */
+  .accordion.timeline .accordion-timeline-panel-label {
+    padding: 0 4px 12px 12px;
+  }
+}
+
+/* chevron centres against the header once it becomes a row (>=1024); at >=1280
+   the source widens the right gap to ~25px. */
+@media (width >= 1024px) {
+  .accordion.timeline .accordion-timeline-panel-label {
+    align-items: center;
+  }
+}
+
+@media (width >= 1280px) {
   .accordion.timeline .accordion-timeline-panel-label {
     padding: 0 12px 12px;
   }
 }
 
-/* header content: badge logo beside the text body (stacked on mobile) */
+/* header content: badge logo stacked + CENTRED above the text below 1024 (source
+   `.v-classification-accordion-content` = column, align-items: center — this holds
+   through the tablet 768–1023 tier); switches to badge-left / text-right (row) only
+   at >=1024. */
 .accordion.timeline .accordion-timeline-panel-head {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
+  align-items: center;
   gap: 24px;
   min-width: 0;
 }
 
-@media (width >= 768px) {
+@media (width >= 1024px) {
   .accordion.timeline .accordion-timeline-panel-head {
     flex-direction: row;
     align-items: flex-start;
@@ -215,7 +235,8 @@ main > .section.accordion-container > div {
   height: auto;
 }
 
-@media (width >= 768px) {
+/* source: badge stays 300px through 1024, widens to 365px only at >=1280 */
+@media (width >= 1280px) {
   .accordion.timeline .accordion-timeline-badge img {
     width: 365px;
   }
@@ -223,6 +244,7 @@ main > .section.accordion-container > div {
 
 .accordion.timeline .accordion-timeline-panel-body {
   flex: 1 1 auto;
+  align-self: stretch; /* full width even when the head centres the badge on mobile */
   min-width: 0;
 }
 
@@ -252,19 +274,15 @@ main > .section.accordion-container > div {
 @media (width >= 768px) {
   .accordion.timeline .accordion-timeline-meta {
     flex-direction: row;
-    gap: 40px;
+    gap: 24px; /* source column gap */
   }
-}
-
-.accordion.timeline .accordion-timeline-meta-col {
-  min-width: 0;
 }
 
 /* meta heading (What To Expect / Minimum Req. Package / Industry Equivalent):
    Graphik Semibold, LIME. Source scale: 14/14 (-0.42) through 1024, stepping to
    18/18 (-0.54) only at >=1280. */
 .accordion.timeline .accordion-timeline-meta-heading {
-  margin: 0 0 12px;
+  margin: 0 0 14px; /* source: one blank 14px line between heading and first value */
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 14px;
@@ -278,9 +296,12 @@ main > .section.accordion-container > div {
   text-decoration: underline;
 }
 
-/* meta value lines: Graphik Semibold, white, same size as heading */
+/* meta value lines: Graphik Semibold, white, same size as heading. Source packs
+   the value lines back-to-back at the 14px line-height (zero margin) so a long
+   list (Industry Equivalent) has the SAME line rhythm as a short one (What To
+   Expect) — do NOT add inter-line margin here. */
 .accordion.timeline .accordion-timeline-meta-value {
-  margin: 0 0 6px;
+  margin: 0;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 14px;
@@ -289,22 +310,17 @@ main > .section.accordion-container > div {
   color: #fff;
 }
 
-.accordion.timeline .accordion-timeline-meta-value:last-child {
-  margin-bottom: 0;
-}
-
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-meta-value {
-    margin-bottom: 8px;
-  }
-}
-
 @media (width >= 1280px) {
   .accordion.timeline .accordion-timeline-meta-heading,
   .accordion.timeline .accordion-timeline-meta-value {
     font-size: 18px;
     line-height: 18px;
     letter-spacing: -0.54px;
+  }
+
+  /* blank line between heading and first value scales with the 18px line-height */
+  .accordion.timeline .accordion-timeline-meta-heading {
+    margin-bottom: 18px;
   }
 }
 
@@ -411,9 +427,9 @@ main > .section.accordion-container > div {
   color: #000;
 }
 
-/* description: Graphik Regular 16px. Source is responsive:
-   - mobile: HIDDEN until the card is opened (revealed with the timeline)
-   - desktop (>=768): always visible */
+/* description: Graphik Regular 16px / lh normal at ALL viewports (source
+   `.v-course__description-wrapper`). Mobile: hidden until the card opens;
+   desktop (>=768): always visible. */
 .accordion.timeline .accordion-timeline-desc {
   margin: 12px 0 0;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
@@ -434,7 +450,7 @@ main > .section.accordion-container > div {
 }
 
 @media (width >= 768px) {
-  /* desktop: description is always visible regardless of open state */
+  /* desktop: description always visible (size stays 16px/normal at all viewports) */
   .accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
     display: block;
   }
@@ -470,20 +486,27 @@ main > .section.accordion-container > div {
   }
 }
 
-/* ---- chevron toggle: 48x48 rounded-square <button> with a caret; flips when open
-   ---- Panel chevron is WHITE (on the dark panel); course chevron is BLACK (on the
-   white card). */
+/* ---- chevron toggle: rounded-square <button> with a caret; flips when open.
+   Source size: 40x40 on mobile -> 48x48 at >=768. Panel chevron is WHITE (on the
+   dark panel); course chevron is BLACK (on the white card). */
 .accordion.timeline .accordion-timeline-chevron {
   position: relative;
   box-sizing: border-box;
   flex: 0 0 auto;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border-radius: 12px;
   background-color: transparent;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+@media (width >= 768px) {
+  .accordion.timeline .accordion-timeline-chevron {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 .accordion.timeline .accordion-timeline-chevron::before {
@@ -563,12 +586,14 @@ main > .section.accordion-container > div {
   display: none;
 }
 
+/* step row: source `.v-course__module` = min-height 40px + margin-bottom 32px
+   (the 40px min-height is what gives the roomier vertical rhythm between steps). */
 .accordion.timeline .accordion-timeline-step {
   position: relative;
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 15px;
+  min-height: 40px;
   margin-bottom: 32px;
 }
 
@@ -587,23 +612,27 @@ main > .section.accordion-container > div {
   background-color: #fff;
 }
 
-/* connecting line between dots (source: 2px, from the circle centre down toward
-   the next dot). Fixed reach so dots read as connected even when a step wraps. */
+/* connecting line between dots (source `.v-course__module::after`): 2px wide,
+   top: 20px (just below the 15px dot), height: 60px — reaches down to the next
+   dot (dot-centre to dot-centre ≈ 72px). */
 .accordion.timeline .accordion-timeline-step:not(:last-child)::after {
   content: '';
   position: absolute;
-  top: 50%;
+  top: 20px;
   left: 6.5px;
   width: 2px;
-  height: 50px;
+  height: 60px;
   background-color: #000;
 }
 
-/* step label: 14px mobile -> 16px desktop. Source is SEMIBOLD (600) with default
-   line-height (normal) and no letter-spacing (source `.v-course__module-text`). */
+/* step label (source `.v-course__module-text`): 14px mobile -> 16px >=768,
+   lh normal, no letter-spacing. The SOURCE uses the "Graphik Regular" family
+   (a single regular master) so its computed font-weight:600 at mobile renders
+   VISUALLY as regular — NOT bold. We use Graphik Regular at 400 so it matches
+   the source's regular appearance (our Semibold face would render actually bold). */
 .accordion.timeline .accordion-timeline-step-text {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-weight: 600;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
   font-size: 14px;
   line-height: normal;
   letter-spacing: normal;
@@ -626,7 +655,10 @@ main > .section.accordion-container > div {
 .accordion.timeline .accordion-timeline-viewall {
   position: relative; /* keep the CTA above any sibling stacking context */
   z-index: 1;
+  box-sizing: border-box;
   display: inline-block;
+  width: 280px; /* source: fixed 280px wide below 1024, then content-width */
+  max-width: 100%;
   padding: 14px 22px;
   border-radius: 20px;
   background-color: var(--usta-lime);
@@ -636,11 +668,13 @@ main > .section.accordion-container > div {
   font-size: 14px; /* source: 14 mobile -> 16 @768 -> 18 @1280 */
   line-height: 1;
   letter-spacing: normal; /* source button has no tracking */
+  text-align: center;
   text-decoration: none;
 }
 
 @media (width >= 768px) {
   .accordion.timeline .accordion-timeline-viewall {
+    width: auto; /* source: fixed 280px only below 768, content-width from 768 up */
     font-size: 16px;
   }
 }
