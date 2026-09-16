@@ -435,8 +435,29 @@
 /* partner/affiliation logo grid on the dark "OUR PARTNERS & AFFILIATIONS"
    section (ustacoaching.com/en/home/about.html). Source: 4 equal columns at
    EVERY breakpoint (does NOT collapse on mobile); each logo is a white rounded
-   square (20px radius) centred in its column, capped at 202px and scaling down
-   as the column narrows. Cells carry 12px padding. */
+   square (20px radius) centred in its column. The grid spans the FULL site
+   content column (same 1536-capped, 16/40/48/64-gutter container as the media/
+   pricing variants) — NOT the narrower 1200 default — so the cells (and logos)
+   are as wide as the source. Each logo is ~65% of its cell's inner width (source
+   measured: 202px in a 334px cell @1440, 217px in a 358px cell @1920), so it
+   scales with the column and the even whitespace around it IS the inter-logo
+   gap. Cells carry 12px padding (sets the vertical row rhythm); columns are
+   flush (grid gap 0). */
+
+/* section container gutters + centering (matches media/pricing + the site grid) */
+.cards-container:has(.cards.logos) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px; /* inline only — keep base section 48px block padding */
+}
+
+.cards-container:has(.cards.logos) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 .cards.logos > ul {
   list-style: none;
   margin: 0;
@@ -453,11 +474,19 @@
   padding: 12px;
 }
 
-.cards.logos .cards-logo-card picture,
-.cards.logos .cards-logo-card a {
+/* the card's DIRECT child (a link, or a bare picture when there's no link) is
+   65% of the cell's inner width — the surrounding whitespace is the inter-logo
+   gap. A picture nested inside a link fills that link (100%), so the 65% isn't
+   applied twice. */
+.cards.logos .cards-logo-card > a,
+.cards.logos .cards-logo-card > picture {
+  display: block;
+  width: 65%;
+}
+
+.cards.logos .cards-logo-card > a > picture {
   display: block;
   width: 100%;
-  max-width: 202px;
 }
 
 .cards.logos .cards-logo-card img {
@@ -467,4 +496,22 @@
   border-radius: 20px;
   background-color: #fff;
   object-fit: contain;
+}
+
+@media (width >= 768px) {
+  .cards-container:has(.cards.logos) {
+    padding-inline: 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  .cards-container:has(.cards.logos) {
+    padding-inline: 48px;
+  }
+}
+
+@media (width >= 1280px) {
+  .cards-container:has(.cards.logos) {
+    padding-inline: 64px;
+  }
 }
