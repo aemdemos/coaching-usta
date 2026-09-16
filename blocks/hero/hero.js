@@ -262,7 +262,68 @@ function decorateDefault(block) {
   block.append(content);
 }
 
+/*
+ * content hero (USTA "Coaching Network" pattern): a full-bleed background photo
+ * with a dark overlay and LEFT-aligned content — a big display H1, a smaller
+ * uppercase H2 subheading, body paragraphs, then a lime primary CTA beside a
+ * white underlined secondary text link.
+ * Content model (from the DA table):
+ *   - row 1: a <picture>/<img> (or image link) for the background photo.
+ *   - row 2: the copy — H1, H2, one or more <p>, and up to two links. The first
+ *     non-image link becomes the lime pill CTA; the second becomes the
+ *     underlined text link.
+ */
+function decorateContent(block) {
+  const bg = document.createElement('div');
+  bg.className = 'hero-bg';
+
+  // Background lives in the first row; prefer a real <picture>/<img>, else a link.
+  const bgRow = block.firstElementChild;
+  const bgImg = bgRow ? bgRow.querySelector('img') : null;
+  const bgLink = bgRow
+    ? [...bgRow.querySelectorAll('a')].find((a) => isImageHref(a.getAttribute('href')))
+    : null;
+  if (bgImg) {
+    applyBgImage(bg, bgImg.currentSrc || bgImg.src, bgImg.getAttribute('alt'));
+    bgRow.remove();
+  } else if (bgLink) {
+    applyBgImage(bg, bgLink.getAttribute('href'), bgLink.textContent.trim());
+    bgRow.remove();
+  }
+
+  const content = document.createElement('div');
+  content.className = 'hero-content';
+
+  // Move remaining headings/paragraphs (in document order) into the overlay.
+  [...block.querySelectorAll('h1, h2, h3, h4, h5, h6, p')].forEach((el) => {
+    if (bg.contains(el) || el.closest('.hero-content')) return;
+    // Drop an empty <p> left after the bg link/image was extracted.
+    if (el.tagName === 'P' && !el.textContent.trim() && !el.querySelector('a, img')) {
+      el.remove();
+      return;
+    }
+    content.append(el);
+  });
+
+  // CTAs: first non-image link → lime pill; second → underlined text link.
+  const links = [...content.querySelectorAll('a[href]')].filter((a) => !isImageHref(a.getAttribute('href')));
+  if (links[0]) {
+    links[0].classList.add('hero-cta');
+    links[0].closest('p')?.classList.add('hero-cta-wrapper');
+  }
+  if (links[1]) {
+    links[1].classList.add('hero-cta-secondary');
+    links[1].closest('p')?.classList.add('hero-cta-wrapper');
+  }
+  // If both CTAs are in the same <p>, that wrapper groups them side by side.
+
+  block.textContent = '';
+  block.append(bg);
+  block.append(content);
+}
+
 export default function decorate(block) {
   if (block.classList.contains('video')) decorateVideo(block);
+  else if (block.classList.contains('content')) decorateContent(block);
   else decorateDefault(block);
 }

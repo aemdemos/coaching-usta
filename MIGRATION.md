@@ -1706,3 +1706,84 @@ Verified @390 migrated == source: frame 262/x16/w358, top→OurCore 27, line gap
 logo 142×84 x124, logo→CTA 26, CTA 280×52 x55, CTA→bottom 9 — all within ≤2px sub-pixel. Desktop tiers
 unaffected (≥1024 overrides padding→48/gap→64; logo display:none ≥768; ≥1280 padding-block:0). lint 0 err,
 breakpoint/overflow(360–1920)/typography/a11y ALL pass.
+
+### 2026-09-16 — hero (content) variant — Coaching Network (coach-mentorship page)
+Added a third **content** variant to the hero block for the "USTA Coaching Network" section on
+https://www.ustacoaching.com/en/home/coach-mentorship.html. Full-bleed rounded background photo + dark
+overlay with **LEFT-aligned** copy (vs default/video which are centered): big USTA Sans display H1, an
+uppercase H2 subheading, body paragraphs, then a lime primary CTA beside a white underlined secondary
+text link (two CTAs in one authored paragraph → flex row, 32px gap).
+- **JS:** `decorateContent()` — dispatched on `block.classList.contains('content')`. Bg from row 1
+  (picture/img or image link), copy from row 2; first non-image link → `.hero-cta` (lime pill), second →
+  `.hero-cta-secondary` (underlined). Reuses the shared `isImageHref`/`applyBgImage` helpers.
+- **CSS:** `.hero.content` — 20px radius, overlay `rgb(0 0 0 / 55%)`, gutters 16/40/48/64. H1 tracks the
+  recorded type scale 32→40→56→80 (USTA Sans 700 uppercase); H2 20→28→32→40; body 16 Graphik Regular.
+  Registration dates use an authored `<br>` (survives EDS) → two lines like source.
+- Authoring contract: `hero (content)` block; row1 = bg image, row2 = h1 + h2 + p's + 2 links.
+- Sample: content/drafts/block-samples/hero-content.plain.html (Style: dark).
+
+⚠️ **BUILT WHILE SOURCE WAS IN MAINTENANCE** — ustacoaching.com served a "Maintenance Page" for every
+URL, so the live DOM could NOT be measured. Structure, content, type scale, colors, gutters, CTAs and
+left-aligned layout are from the provided desktop screenshot + the recorded design tokens
+(typography.json / breakpoints.json). **STILL TO RE-VERIFY against the live source once it's back:**
+exact per-viewport H1/H2/body font-size + line-height, vertical rhythm (H1→H2→body→CTA gaps), panel
+min-height per breakpoint, overlay opacity/tint (guessed 55% black — the sibling default hero layers
+blue+black; the content hero may too), CTA exact padding/radius/size, and the secondary-link treatment.
+Also **download the background photo** (referenced at /blocks/hero/media/coaching-network.jpg — not yet
+fetched because the source/DAM is unreachable) and publish it to DA.
+Verified NOW (structure/tokens only): lint 0 err; breakpoint ✓; overflow ✓ (360–1920); a11y ✓.
+
+### 2026-09-16 — hero (content): pixel-parity pass vs LIVE source (site back up) + bg image
+Site returned from maintenance; re-measured the live DOM at 390/768/1024/1280/1440 and fixed all drifts.
+**Content had changed live** since the maintenance-era build — updated the sample to match: registration
+copy is now "Registration for the 2026 Session is Now Closed. / Next Registration Window: Opening in
+January 2027" and a SINGLE lime button "2027 Programs Coming Soon" (the earlier Apply/Find dual-CTA is
+gone). Downloaded the source background photo
+(dam/…/coach-mentorship/coaching-mentorship-handshake.jpg) → optimized to 2000×1333 / 350KB →
+content/blocks/hero/media/coaching-network.jpg.
+
+**Root-cause bug fixed:** the default-hero rules used `.hero:not(.video)`, which ALSO matched
+`.hero.content` (content isn't video) — so the content variant inherited the default's
+`justify-content:center`, `min-height`, and `.hero-content{gap:26/64/96}`. That gap stacked on top of
+the content margins (the ~96px-too-large gaps + centered layout). Fixed by scoping every default rule to
+`.hero:not(.video):not(.content)` (and the container `…:not(:has(.hero.content))`). Stylelint wanted the
+combined `:not(.video, .content)` form — applied via lint:fix.
+
+**Source model (live-measured, now matched):**
+| | 390 | 768 | 1024 | 1280 | 1440 |
+|---|---|---|---|---|---|
+| container gutter | 8 | 28 | 36 | 52 | 52 |
+| content inset (from vp) | 32 | 60 | 80 | 99 | 112 |
+| panelTop→H1 | 27 | 9 | 85 | 97 | 97 |
+| H1 | 32/32 | 40/40 | 56/56 | 80/80 | 80/80 |
+| H2 sub | 28/36.4 | 28/36.4 | 28/36.4 | 32/41.6 | 32/41.6 |
+| body/reg/must | 18/24 (Graphik Regular) | → | → | → | → |
+| CTA | lime, radius 12, pad 14×24, 18px, ls 1px | | | | |
+Gaps (desktop): H1→H2 18, H2→desc 18, desc→reg 24, reg→must 42, must→CTA 36. Mobile differs: H1→H2 36,
+reg→must 66. Overlay **rgb(0 0 0 / 74%)** (was 55% in the maintenance-era guess). 1px solid white border,
+20px radius. Content is **top-anchored** (not centered) — reproduced with per-breakpoint top padding
+(27/9/85/97). Left inset via panel padding-inline (24/32/44 then clamp(47,8.125vw−57,60) across
+1280→1440, since the Breakpoint Rule bars a 1440 media query). H1/H2 text authored in caps (tt:none).
+
+**⚠️ Typography checker:** reports 7 h2 "drifts" — EXPECTED false positives. This hero's H2 subheading is
+a per-component size (28→28→28→32, `data-custom-font-size` in source) that intentionally differs from the
+global h2 scale (28→40→56→64), same as the discussion-boards case. Live-verified the source h2 is exactly
+28/28/28/32. Not a real drift.
+Verified: lint 0 err; breakpoint ✓; overflow ✓ (360–1920); a11y ✓; svg ✓. Visual parity confirmed vs
+source at 1440 + mobile. Content inset @1440 = 113 (source 112). All gaps match.
+
+### 2026-09-16 — hero (content): fixed overall width/inset drift at wide viewports
+User flagged the panel was too WIDE (and the content inset off) vs source when compared at a wide
+screen (~1728). Measured source at 1536/1728: the hero content container is the SAME as the header —
+**max-width 1536, centered, side gutters 8/28/36/52** (body `max-width:1536; margin:auto; padding:0
+52`). So the panel caps at ~1432px wide and the OUTER gutter grows past 1536 (148 each side @1728). My
+earlier build used `max-width:1440`, so above 1440 the panel ran too wide and the gutter stayed at 52.
+Fix: container `max-width:1440 → 1536`.
+Also: the content's LEFT inset is a **constant 8.3% of the panel width** in source (a percentage margin:
+31/374 @390, 98/1176 @1280, 119/1432 @1536 — all 8.3%), NOT fixed px. My fixed-px `padding-inline`
+(24/32/44/clamp) drifted at wide viewports. Fix: panel `padding-inline: 8.3%` at all breakpoints (only
+top/bottom padding varies per tier: 27/9/85/97 top). This also removed the non-standard clamp and keeps
+the Breakpoint Rule clean (only 768/1024/1280 media queries).
+Re-verified vs source: @1728 gutter 148 / panel 1432 / inset-from-panel 120 / H1 2-line / H2 32px 2-line
+— EXACT. @1280 gutter 52 / panel 1176 / inset 99. @390 gutter 8 / panel 374 / inset 32. No overflow.
+Verified: lint 0 err; breakpoint ✓; overflow ✓ (360–1920); a11y ✓.
