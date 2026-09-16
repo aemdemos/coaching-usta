@@ -1706,3 +1706,117 @@ Verified @390 migrated == source: frame 262/x16/w358, top→OurCore 27, line gap
 logo 142×84 x124, logo→CTA 26, CTA 280×52 x55, CTA→bottom 9 — all within ≤2px sub-pixel. Desktop tiers
 unaffected (≥1024 overrides padding→48/gap→64; logo display:none ≥768; ≥1280 padding-block:0). lint 0 err,
 breakpoint/overflow(360–1920)/typography/a11y ALL pass.
+
+### 2026-09-16 — cards: five new content variants (course/text/profile/comparison/news)
+Instrumented five new `cards` variants (dispatched by class in blocks/cards/cards.js; scoped CSS in
+cards.css). Each has a block-sample page under content/drafts/block-samples/ and its media under
+content/media-da/drafts/block-samples/<sample>/. Source-measured at 390/768/1024/1440.
+
+- **cards (course)** (workshops.html): 2-up grid (1-up mobile), 24px gap. Card = transparent tile, 1px
+  white border, 20px radius; full-width top image (aspect 523/314 ≈1.66); body 24px inset with a Graphik
+  Semibold white title (28px, →32px @≥1280 — source-measured responsive), 18/24 white desc, and a blue
+  (#0373f3) rounded duration pill (radius 20, pad 8/16, 16px black, centered). JS decorateCourse tags the
+  image cell, wraps the body, and marks the last ≤3-word paragraph as the pill.
+- **cards (text)** ("OUR PURPOSE", about.html): 3-up grid (1-up mobile), 48px col-gap / 64px row-gap.
+  Each card = 32px Graphik Semibold white heading + 16/1.2 white body, no image/CTA. Heading reserves a
+  2-line slot (min-height 64px) so body copy baseline-aligns across a row (matches source). JS decorateText.
+- **cards (profile)** (about.html leadership): 2-up grid. Card = 2:1 rounded portrait + body (name 40px,
+  role 18px, bio 18px). A FEATURED card (filled lime #cfff05, black text, "Bio" label heading) is triggered
+  when the card carries a 2nd heading; normal cards are transparent w/ 1px white border + lime role line.
+  JS decorateProfile (name=1st heading, 2nd heading ⇒ .is-featured). Sample uses real headshots
+  (craig-morris, megan-rose). NOTE: the design screenshot showed Vahaly/Hirsch (a mockup); live about.html
+  has Morris/Rose — built the layout faithfully, content is representative.
+- **cards (comparison)** (courses.html "2026 Badge & Certification Costs"): 4-up grid (2-up tablet, 1-up
+  mobile), equal-height. Card = #1D1D1D bg, 16px radius, 1px #707070 border, 24px pad; centered logo; title
+  16px; blue "PER YEAR" pill; 28px price; blue-check module list (14px); workshop cost lines; a highlighted
+  blue TOTAL footer bar flush to the card's bottom edge (margin:-24px cancels body pad; margin-top:auto pins
+  it). Coming-soon tiers (text matches /coming 202\d/ + no list) render dimmed (opacity .6), no footer.
+  JS decorateComparison. price/peryear rules scoped under .cards-comparison-body to outrank the generic p.
+- **cards (news)** (news.html): 2-up grid. Card = 16:9 rounded image + body (title 28px, a title-link with
+  a lime "→" affordance, a lime date line, 16px excerpt). JS decorateNews tags title, detects the date
+  paragraph (Date.parse + ≤30 chars), rest = excerpt. Content-driven (also auto-populatable from a news index).
+
+**Shared:** all five use the site container pattern `.cards-container:has(.cards.<variant>)` with gutters
+16/40/48/64 in the 1536-capped centered container, and are guarded out of the default variant's
+`:not(.media,.pricing,.course,.text,.profile,.comparison,.news)` selectors.
+
+**Two cross-cutting fixes:**
+1. **A11y — new `--usta-blue-aa` token (#006eeb).** White text on brand blue #0373f3 is 4.42:1 — just under
+   the 4.5:1 small-text AA threshold (axe flagged the comparison PER-YEAR pill + TOTAL bar). Added
+   `--usta-blue-aa: #006eeb` (4.74:1, visually near-identical) in styles.css :root and used it for those
+   small white-on-blue chips/bars. Brand `--usta-blue` unchanged elsewhere (e.g. course pill has BLACK text,
+   which passes).
+2. **typography-check.mjs now measures DEFAULT CONTENT only.** The checker grabbed the first visible h1..h6
+   on a page; on block-sample pages that's the block's own (intentionally block-scoped) heading, so it
+   false-flagged course/text/profile/comparison/news headings AND the pre-existing cards.pricing h3=40px.
+   Added `&& !e.closest('.block')` so only default-content headings are checked against the global scale;
+   block headings are verified per-block. Homepage (real default content) still measured + passes.
+
+Verified all five sample pages at 360–1920: lint 0 err, breakpoint ✓, overflow ✓ (all tiers), typography ✓
+(incl. cards-pricing now green), a11y ✓ (incl. comparison after the blue-aa fix). Comparison visually matches
+the source screenshot (4 dark cards, logo/PER-YEAR/price/checks/workshop-lines/blue TOTAL, 2 dimmed coming-soon).
+NOTE (local dev): new sample pages render under the `/content/drafts/block-samples/<name>` path (the aem-cli
+mounts local HTML at /content and only hot-serves files present at startup — restart `aem up` after adding a
+sample). Not yet published to DA (outward-facing — on request).
+
+### 2026-09-16 — cards (course): content-width parity fix + sample spacers
+User flagged that the course cards' block WIDTH didn't match source (cards too wide) plus minor
+positioning drifts. Re-measured the SOURCE content column across viewports (it's NARROWER than the
+1536/64px container the other card variants use):
+| viewport | source gutter | source content width |
+|---|---|---|
+| 1024 | 48 | 928 |
+| 1280 | 160 | 960 (=75% vw) |
+| 1440 | 173 | 1093 |
+| 1920 | 373 | 1173 (capped) |
+So the source uses full-width w/ 16/40/48 gutters through 1024, then at >=1280 a **centered 75%-of-viewport
+column capped at ~1173px**. Fixes in blocks/cards/cards.css (.cards.course):
+- >=1280: drop the 1536/64px container; wrapper becomes `width:75%; max-width:1173px; margin-inline:auto`.
+  Verified migrated == source: 1024→928 (exact), 1280→960 (exact), 1440→1080 (vs 1093, <1.5%).
+- Inner card padding 24→**21px** (source-measured).
+- Duration pill: `align-self:center` alone didn't center a fit-content <p> in the flex column; switched to
+  `margin: 46px auto 0` → pill now centered (0.5px off card center at 1440, matches source).
+- (heading already 28→32px @≥1280, image aspect 523/314, border/radius unchanged.)
+
+**Sample-page spacers:** all five card sample pages looked cluttered — added a `spacer` block (80px
+desktop / 60px mobile) immediately ABOVE and BELOW each card block in content/drafts/block-samples/
+cards-{course,text,profile,comparison,news}.plain.html (same spacer markup the other samples use).
+
+NOTE (local dev): the aem-cli only serves sample HTML files present at startup, and mounts them under the
+`/content/...` path — restart `aem up` after editing/adding a sample, then view at
+`/content/drafts/block-samples/<name>`. lint 0 err, breakpoint ✓, overflow ✓ (all 5, 360–1920),
+typography ✓ (course), a11y ✓ (course). Screenshot-confirmed course now matches source width/padding/pill.
+
+### 2026-09-16 — cards (course): EXACT content-width (calc ramp, not flat 75%)
+The prior 75% width gave 1080@1440 vs the source's 1093 (13px narrow, 7px off left). Confirmed the source
+cards deliberately do NOT align with the header edge (source header hamburger x=52, but card grid x=173 —
+cards are inset ~121px more). The source column width isn't a flat %: measured 960@1280 (75.0%) and
+1093@1440 (75.9%), capping ~1173. Replaced `width:75%` with an exact linear ramp:
+`width: clamp(960px, calc(960px + (100vw - 1280px) * 0.831), 1173px)` on the >=1280 wrapper.
+Verified migrated == source: 1280 → x160/w960 (exact), 1440 → x174/w1093 (source x173/w1093, ≤1px).
+Caps at 1173 by ~1536 (no overflow at 1920). lint 0 err, overflow ✓ (360–1920), typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (course): image is FIXED-height per tier (not aspect) + bottom padding
+User flagged the blue pills/images still misaligned vs source. Root cause: the image used a constant
+`aspect-ratio` (523/314), but the SOURCE image is a FIXED HEIGHT per tier with object-fit:cover — measured
+208px @mobile, 278px @1024, 314px @1280+ (card width varies 440→528 while image height stays 314). So my
+images were ~40px too short at 1280 (274 vs 314), making cards shorter and the layout read differently.
+Fixes in blocks/cards/cards.css (.cards.course .cards-course-image img): dropped aspect-ratio; set
+`height: 208px` base, `278px` @1024, `314px` @1280+. Also bumped body bottom padding 21→48px (source cards
+carry more empty space below the pill; card total 688 @1280 vs my prior 626).
+IMPORTANT — the pills are NOT bottom-aligned in the source: each pill sits a FIXED 46px below its OWN
+description (verified: card1 pill 102px above card bottom, card2 70px — the shorter-text card has MORE empty
+space below its pill). Cards are equal-height (grid stretch) but the pill floats after the text — my
+`margin: 46px auto 0` (no margin-top:auto) already matches this; kept as-is. Verified @1280: image 314,
+cards equal-height, pill follows text. lint 0 err, overflow ✓ (360–1920), typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (course): duration pill — WHITE text + source width/length
+User flagged the duration pills: text must be WHITE (mine was black) and the pill LENGTH must match source
+(mine hugged the text too tightly). Source pills: blue fill, white text, ~152px for "3.5 Hours" / ~130px
+for "2 Days". Fixes in blocks/cards/cards.css (.cards-course-duration):
+- `color: #000` → `#fff` (source white text).
+- `background: var(--usta-blue)` → `var(--usta-blue-aa)` (#006eeb) — white-on-#0373f3 is 4.42:1 (fails AA);
+  the AA-safe blue is 4.74:1 and visually identical. (Same token used by cards.comparison pills/footer.)
+- padding `8px 16px` → `10px 42px` so the pill reads 151px ("3.5 Hours") / 130px ("2 Days") — matches source.
+Verified @1280: pill1 151×36, pill2 130×36, white text on #006eeb, radius 20, centered. lint 0 err,
+overflow ✓, a11y ✓ (white-on-blue now passes contrast), typography ✓.
