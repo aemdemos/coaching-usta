@@ -8,7 +8,7 @@
    the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block:not(.media, .pricing) > ul {
+.cards.block:not(.media, .pricing, .text) > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -17,7 +17,7 @@
   gap: 24px;
 }
 
-.cards.block:not(.media, .pricing) > ul > li {
+.cards.block:not(.media, .pricing, .text) > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -30,7 +30,7 @@
   line-height: 0;
 }
 
-.cards.block:not(.media, .pricing) > ul > li img {
+.cards.block:not(.media, .pricing, .text) > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
@@ -423,5 +423,110 @@
 
   .cards-container:has(.cards.pricing) {
     padding-inline: 64px;
+  }
+}
+
+/* ------------------------------------------------------------------- text -- */
+
+/* the "OUR PURPOSE" cards on the dark About section (ustacoaching.com/en/home/
+   about.html). Text-only cards: an h3 heading + a description paragraph, white
+   on black. Source layout: 1 column (mobile <768) -> 3 columns (>=768). The
+   headings and descriptions align in BANDS across the row (a short 1-line
+   heading still pushes its description down to the same line as the tallest
+   heading's) — reproduced with subgrid so each card's heading/body share the
+   <ul>'s row tracks. Column gap 48px; row gap 84px (desktop) / 48px (tablet).
+   Typography (source h3 + body scale, per breakpoint):
+     h3  32/32 -0.96px (<768) -> 24/24 -0.72px (768-1023) -> 28/28 -0.84px
+         (1024-1279) -> 32/32 -0.96px (>=1280); Graphik Semibold 700, white.
+     p   16/19.2 -0.48px (default) -> 14/16.8 -0.42px (768-1023); Graphik
+         Regular 400, white. */
+.cards.text > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px; /* mobile: cards stack (each card is heading+body) */
+}
+
+.cards.text .cards-text-card {
+  display: grid;
+  gap: 24px; /* mobile: heading -> body 24px */
+}
+
+/* heading — Graphik Semibold, white; scale set per breakpoint below */
+.cards.text .cards-text-card :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 32px;
+  letter-spacing: -0.96px;
+  color: #fff;
+}
+
+/* description — Graphik Regular, white */
+.cards.text .cards-text-card p {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19.2px;
+  letter-spacing: -0.48px;
+  color: #fff;
+}
+
+/* tablet+ (>=768): 3 columns. Cards span the <ul>'s 2 auto rows via subgrid so
+   all headings align on one band and all descriptions on another. */
+@media (width >= 768px) {
+  .cards.text > ul {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+    grid-auto-rows: min-content;
+  }
+
+  .cards.text .cards-text-card {
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+
+  /* tablet type step-down */
+  .cards.text .cards-text-card :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: -0.72px;
+  }
+
+  .cards.text .cards-text-card p {
+    font-size: 14px;
+    line-height: 16.8px;
+    letter-spacing: -0.42px;
+  }
+}
+
+@media (width >= 1024px) {
+  .cards.text > ul {
+    row-gap: 84px; /* desktop row rhythm (source) */
+  }
+
+  .cards.text .cards-text-card :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.84px;
+  }
+
+  .cards.text .cards-text-card p {
+    font-size: 16px;
+    line-height: 19.2px;
+    letter-spacing: -0.48px;
+  }
+}
+
+@media (width >= 1280px) {
+  .cards.text .cards-text-card :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.96px;
   }
 }

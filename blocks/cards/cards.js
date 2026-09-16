@@ -1,15 +1,39 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
- * cards — a row of repeating cards. Three variants share this block:
+ * cards — a row of repeating cards. Variants share this block:
  *   • default  : bordered image + body tile (boilerplate).
  *   • media    : editorial cards — photo, heading, paragraph (transparent).
  *   • pricing  : membership tiers — label, tier name, price, feature list, CTA.
+ *   • text     : text-only cards — heading + description, no image
+ *                (ustacoaching.com/…/about "OUR PURPOSE" — 3-up on a dark band).
  * The variant is authored as a class on the block (e.g. `cards (media)`), so we
  * dispatch on it here and keep each variant's own inner class names.
  *
  * @param {Element} block the cards block element
  */
+function decorateText(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-text-card';
+    // the cell holds a heading + description paragraph(s). The importer may wrap
+    // them in a single <div>; unwrap so the heading and paragraphs are direct
+    // children (lets the card's grid rows align headings and bodies across cols).
+    const cell = row.children[0] || row;
+    while (cell.firstChild) li.append(cell.firstChild);
+    if (li.children.length === 1 && li.firstElementChild.tagName === 'DIV') {
+      const wrapper = li.firstElementChild;
+      while (wrapper.firstChild) li.insertBefore(wrapper.firstChild, wrapper);
+      wrapper.remove();
+    }
+    ul.append(li);
+  });
+
+  block.replaceChildren(ul);
+}
+
 function decorateMedia(block) {
   const ul = document.createElement('ul');
 
@@ -139,5 +163,6 @@ function decorateDefault(block) {
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
   else if (block.classList.contains('pricing')) decoratePricing(block);
+  else if (block.classList.contains('text')) decorateText(block);
   else decorateDefault(block);
 }
