@@ -14,14 +14,14 @@
    lime pill CTA. Source-measured: heading 32 → 40 @1024 → 64 @1280 (USTA Sans
    bold, line-height = font-size); overlay rgba(0,0,0,.42); panel ≈260 → 470 tall.
    The section container matches the header/hero gutters (16/40/48/64). */
-main > .section.hero-container:not(:has(.hero.video)) > div {
+main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
   padding: 0 16px;
 }
 
-.hero:not(.video) {
+.hero:not(.video, .content) {
   position: relative;
   box-sizing: border-box; /* min-height is the TOTAL frame height (source: 260) */
   display: flex;
@@ -38,7 +38,7 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
 
 /* Background image fills the rounded frame; a dark overlay sits above it.
    The image is applied as a CSS background (authored as a link — see hero.js). */
-.hero:not(.video) .hero-bg {
+.hero:not(.video, .content) .hero-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -48,8 +48,8 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
 }
 
 /* Fallback when a real <picture>/<img> is authored instead of a link. */
-.hero:not(.video) .hero-bg picture,
-.hero:not(.video) .hero-bg img {
+.hero:not(.video, .content) .hero-bg picture,
+.hero:not(.video, .content) .hero-bg img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -61,7 +61,7 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
    rgb(3 115 243 / 59%) then a black scrim rgb(0 0 0 / 42%). Layering both
    reproduces the blue-shifted dark look (a single black overlay reads too grey).
    Order: blue behind, black in front (top of the list paints last = on top). */
-.hero:not(.video)::before {
+.hero:not(.video, .content)::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -75,7 +75,7 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
    (line-height = font-size, no inter-line gap), then a large gap to the CTA —
    source rhythm at 1280 (frame 468): heading block, 96px gap, CTA. That gap
    scales down on smaller frames; use a proportional gap via the flow below. */
-.hero:not(.video) .hero-content {
+.hero:not(.video, .content) .hero-content {
   position: relative;
   z-index: 2;
   display: flex;
@@ -86,15 +86,15 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
 
 /* The heading block stacks its lines with zero gap (line-height:1); the content
    gap above separates this block from the CTA. */
-.hero:not(.video) .hero-heading {
+.hero:not(.video, .content) .hero-heading {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
 }
 
-.hero:not(.video) h1,
-.hero:not(.video) h2 {
+.hero:not(.video, .content) h1,
+.hero:not(.video, .content) h2 {
   margin: 0;
   font-family: var(--heading-font-family);
   font-weight: 700;
@@ -106,15 +106,15 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
 }
 
 /* Lime accent — the source colours the 2nd heading line (or an <em> span). */
-.hero:not(.video) .hero-accent,
-.hero:not(.video) .hero-accent-line {
+.hero:not(.video, .content) .hero-accent,
+.hero:not(.video, .content) .hero-accent-line {
   color: var(--usta-lime);
 }
 
 /* "Education Center" logo — source shows it between heading and CTA below 768px
    only (hidden at tablet+). Source sizes it to ~40% of the content width, capped
    at 260px (measured: 142@390, 186@500, 226@600, 260@700). */
-.hero:not(.video) .hero-logo {
+.hero:not(.video, .content) .hero-logo {
   position: relative;
   z-index: 2;
   width: 36.5vw; /* source: logo = 36.5% of viewport (142px @390) */
@@ -124,11 +124,11 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
 }
 
 /* CTA pill (source): lime bg, black Graphik Semibold 18px, fully-rounded. */
-.hero:not(.video) .hero-cta-wrapper {
+.hero:not(.video, .content) .hero-cta-wrapper {
   margin: 0;
 }
 
-.hero:not(.video) a.hero-cta:any-link {
+.hero:not(.video, .content) a.hero-cta:any-link {
   display: inline-block;
   width: 280px; /* source: fixed 280px pill at EVERY breakpoint */
   max-width: 100%;
@@ -147,54 +147,262 @@ main > .section.hero-container:not(:has(.hero.video)) > div {
   box-sizing: border-box;
 }
 
-.hero:not(.video) a.hero-cta:hover {
+.hero:not(.video, .content) a.hero-cta:hover {
   background: #fff;
 }
 
-.hero:not(.video) a.hero-cta:focus-visible {
+.hero:not(.video, .content) a.hero-cta:focus-visible {
   outline: 2px solid var(--usta-blue);
   outline-offset: 2px;
 }
 
 /* tablet (>=768): wider gutter; edu logo hidden (source: shown only <768) */
 @media (width >= 768px) {
-  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 40px; }
+  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 40px; }
 
-  .hero:not(.video) .hero-logo { display: none; }
+  .hero:not(.video, .content) .hero-logo { display: none; }
 }
 
 /* small desktop (>=1024): heading 40px, taller panel, 48px gutter */
 @media (width >= 1024px) {
-  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 48px; }
+  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 48px; }
 
-  .hero:not(.video) {
+  .hero:not(.video, .content) {
     min-height: 384px;
     padding: 48px;
   }
 
-  .hero:not(.video) .hero-content { gap: 64px; }
+  .hero:not(.video, .content) .hero-content { gap: 64px; }
 
-  .hero:not(.video) h1,
-  .hero:not(.video) h2 { font-size: 40px; }
+  .hero:not(.video, .content) h1,
+  .hero:not(.video, .content) h2 { font-size: 40px; }
 
-  .hero:not(.video) a.hero-cta:any-link { font-size: 18px; } /* source CTA @1024 */
+  .hero:not(.video, .content) a.hero-cta:any-link { font-size: 18px; } /* source CTA @1024 */
 }
 
 /* wide desktop (>=1280): heading 64px, full panel, 64px gutter */
 @media (width >= 1280px) {
-  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 64px; }
+  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 64px; }
 
-  .hero:not(.video) {
+  .hero:not(.video, .content) {
     min-height: 468px; /* source frame height @1280 */
     padding-block: 0;
   }
 
-  .hero:not(.video) .hero-content { gap: 96px; }
+  .hero:not(.video, .content) .hero-content { gap: 96px; }
 
-  .hero:not(.video) h1,
-  .hero:not(.video) h2 { font-size: 64px; }
+  .hero:not(.video, .content) h1,
+  .hero:not(.video, .content) h2 { font-size: 64px; }
 
-  .hero:not(.video) a.hero-cta:any-link { font-size: 24px; } /* source CTA @1280 */
+  .hero:not(.video, .content) a.hero-cta:any-link { font-size: 24px; } /* source CTA @1280 */
+}
+
+/* ---------------------------------------------------------------- content --
+   USTA "Coaching Network" hero (coach-mentorship page): a full-bleed background
+   photo inside a 20px-rounded frame (1px white border) with a dark overlay, and
+   LEFT-aligned, TOP-anchored copy — a big display H1, an uppercase H2 subheading
+   (USTA Sans), body paragraphs, then a lime CTA button.
+   Source-measured across 390/768/1024/1280/1536/1728 (live DOM). The source
+   content container is the SAME as the header: max-width 1536, centered, side
+   gutters 8→28→36→52 (body margin+padding); the panel fills that (so it caps at
+   ~1432 wide and the outer gutter grows past 1536). The content's LEFT inset is
+   a constant 8.3% of the panel width (a percentage margin in source) — NOT fixed
+   px — so it scales identically at every viewport. Panel height is content-
+   driven; frame is 1px solid white, radius 20px, overlay rgb(0 0 0 / 74%). */
+main > .section.hero-container:has(.hero.content) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 8px; /* source gutter @mobile */
+}
+
+.hero.content {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 27px 8.3% 45px; /* source: top 27 @mobile; left/right inset = 8.3% of panel */
+  border: 1px solid #fff; /* source: 1px solid white frame border */
+  border-radius: 20px;
+  overflow: hidden;
+  color: #fff;
+}
+
+.hero.content .hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-position: 50% 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.hero.content .hero-bg picture,
+.hero.content .hero-bg img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dark overlay (source: rgb(0 0 0 / 74%)) so the white copy stays legible. */
+.hero.content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgb(0 0 0 / 74%);
+}
+
+.hero.content .hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* H1 — USTA Sans, 32 → 40 (≥768) → 56 (≥1024) → 80 (≥1280), line-height = size,
+   NOT uppercased in CSS (source text is authored in caps; tt:none). */
+.hero.content .hero-content h1 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #fff;
+}
+
+/* H2 subheading — USTA Sans, 28 (≤1023) → 32 (≥1280), line-height 1.3. */
+.hero.content .hero-content h2 {
+  margin: 36px 0 0; /* source h1→h2 gap @mobile = 36 */
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.3;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #fff;
+}
+
+/* Body copy — Graphik Regular 18px / line-height 24px, source normal tracking. */
+.hero.content .hero-content p {
+  margin: 18px 0 0; /* source h2→desc gap = 18 */
+  max-width: 1000px;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* The registration ("…2026 Session is Now Closed") paragraph sits 24px below
+   the intro; the eligibility ("*Must be…") note sits 42px below that; the CTA
+   36px below. These are the 2nd/3rd/last authored paragraphs. */
+.hero.content .hero-content p:nth-of-type(2) { margin-top: 24px; }
+.hero.content .hero-content p:nth-of-type(3) { margin-top: 66px; } /* source @mobile reg→must = 66 (incl. blank line) */
+
+.hero.content .hero-content .hero-cta-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin: 36px 0 0; /* source must→CTA gap = 36 */
+}
+
+/* CTA — lime pill, black Graphik Semibold 18px, radius 12px, padding 14px 24px,
+   +1px tracking (source-measured: 286×50 @desktop, text-only width). */
+.hero.content a.hero-cta:any-link {
+  display: inline-block;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.hero.content a.hero-cta:hover {
+  background: #fff;
+}
+
+.hero.content a.hero-cta:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Secondary link (used when a page authors a 2nd CTA, e.g. "Find a Mentor"):
+   white underlined text. Kept for the block's authoring contract even though the
+   current live copy shows only the single primary CTA. */
+.hero.content a.hero-cta-secondary:any-link {
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 20px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hero.content a.hero-cta-secondary:hover {
+  color: var(--usta-lime);
+}
+
+.hero.content a.hero-cta-secondary:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* tablet (>=768): gutter 28, top 9. Inline inset stays 8.3% of panel. */
+@media (width >= 768px) {
+  main > .section.hero-container:has(.hero.content) > div { padding: 0 28px; }
+
+  .hero.content {
+    padding-block: 9px 63px;
+  }
+
+  .hero.content .hero-content h1 { font-size: 40px; }
+
+  .hero.content .hero-content h2 { margin-top: 18px; }
+
+  .hero.content .hero-content p:nth-of-type(3) { margin-top: 42px; } /* reg→must = 42 at tablet+ */
+}
+
+/* small desktop (>=1024): gutter 36, top 85. */
+@media (width >= 1024px) {
+  main > .section.hero-container:has(.hero.content) > div { padding: 0 36px; }
+
+  .hero.content {
+    padding-block: 85px 121px;
+  }
+
+  .hero.content .hero-content h1 { font-size: 56px; }
+}
+
+/* wide desktop (>=1280): gutter 52 (container caps at max-width 1536), top 97,
+   H1 80, H2 32. Inline inset remains 8.3% of the panel — matches source across
+   the whole desktop range (98@1280 → 119@1536 → 120+@1728). */
+@media (width >= 1280px) {
+  main > .section.hero-container:has(.hero.content) > div { padding: 0 52px; }
+
+  .hero.content {
+    padding-block: 97px 133px;
+  }
+
+  .hero.content .hero-content h1 { font-size: 80px; }
+
+  .hero.content .hero-content h2 { font-size: 32px; }
 }
 
 /* ------------------------------------------------------------------ video -- */
