@@ -375,23 +375,27 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 /* ---------------------------------------------------------------- profile --
-   Leadership/bio cards on the about page. Source: 2-up grid; each card = a
-   rounded portrait photo on top and a body below with the person's name (large
-   Graphik Semibold), a bold role/title, and a bio paragraph. A FEATURED card is
-   filled lime (#cfff05) with black text (and a "Bio" label heading); a normal
-   card is transparent with a 1px white border and a lime role line. Section
-   gutters 16/40/48/64 in the 1536-capped centered container. */
+   Leadership/bio cards on the about page — an INTERACTIVE reveal. Source: 2-up
+   grid; each card = a rounded portrait photo on top and a black bordered panel
+   below with the name (Graphik Semibold), a lime role line, and a SHORT bio.
+   On hover (desktop) / tap (touch) the card animates over 0.3s ease-in-out: the
+   image shrinks (385→240), the panel grows (229→374) and fills LIME with black
+   text, a "Bio" label appears, and the bio swaps to the FULL text. Card total
+   height is fixed (630) so nothing reflows. Section gutters 16/40/48/64. */
 .cards-container:has(.cards.profile) {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
+
+  /* source card content sits at x=24 (mobile) — 16px section gutter + 8px card
+     inset (same grid math as the text block). */
   padding-inline: 16px;
 }
 
 .cards-container:has(.cards.profile) > .cards-wrapper {
   max-width: none;
   margin: 0;
-  padding: 0;
+  padding-inline: 8px;
 }
 
 .cards.profile > ul {
@@ -404,96 +408,205 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   align-items: start;
 }
 
+.cards.profile > ul > li {
+  list-style: none;
+}
+
+/* the card is the interactive control: a fixed-height stack of image + panel */
 .cards.profile .cards-profile-card {
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
-  overflow: hidden;
+  gap: 16px; /* source: 16px between image and panel */
+  height: 630px; /* fixed total so the reveal never reflows the grid */
+  cursor: pointer;
 }
 
+.cards.profile .cards-profile-card:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 4px;
+}
+
+/* portrait image — resting 385, shrinks to 240 on open. object-fit cover keeps
+   the crop steady while the box animates. */
 .cards.profile .cards-profile-image {
   line-height: 0;
+  height: 385px;
+  overflow: hidden;
+  border-radius: 20px;
+  transition: height 0.3s ease-in-out;
 }
 
 .cards.profile .cards-profile-image img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  aspect-ratio: 2 / 1; /* source portrait crop */
   object-fit: cover;
-  border-radius: 20px;
+  object-position: 50% 0%;
 }
 
+/* the content panel — resting: black with a 1px white border; fills the
+   remaining card height (flex) and animates its background/border on open. The
+   only geometry that animates is the image height (below) — the panel's height
+   follows via flex in the fixed-height card, so the reveal is a single smooth
+   0.3s motion (matches source). overflow:hidden clips the swapped-in taller text
+   as the panel grows, so nothing spills mid-animation. */
 .cards.profile .cards-profile-body {
+  position: relative;
+  flex: 1; /* takes the height the image gives up (229 -> 374) */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 32px 24px;
+  overflow: hidden;
+  padding: 16px;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  background-color: #000;
+  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+/* the "+" affordance (source: mobile + tablet only, hidden ≥1024 and when open).
+   36×36 white plus SVG pinned top-right of the panel. */
+.cards.profile .cards-profile-body::after {
+  content: "";
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  background: url("data:image/svg+xml,%3csvg width='48' height='48' viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M33.9922 23.7788L13.5646 23.7788' stroke='white' stroke-width='3.5' stroke-linecap='square'/%3e%3cpath d='M23.7812 33.9927L23.7812 13.5651' stroke='white' stroke-width='3.5' stroke-linecap='square'/%3e%3c/svg%3e") no-repeat center / contain;
+}
+
+/* the + is a touch affordance — only below 1024 (desktop reveals on hover) */
+@media (width >= 1024px) {
+  .cards.profile .cards-profile-body::after { display: none; }
 }
 
 /* name — source: 32px (<=1023) -> 40px (>=1024), Graphik Semibold, weight 400,
-   line-height 1.0, letter-spacing normal, mb 24 */
+   line-height 1.0, mb 24; turns black on open. The source reserves a taller name
+   box than one line (53px @mobile / 65px @>=1024) so the role/desc sit lower —
+   reproduce that with min-height. */
 .cards.profile .cards-profile-name {
   margin: 0 0 24px;
+  min-height: 53px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 1;
-  letter-spacing: normal;
   color: #fff;
+  transition: color 0.3s ease-in-out;
 }
 
-/* role / title — source: 16px flat, Graphik Regular, line-height normal, lime,
-   letter-spacing normal, mb 8 */
+/* role / title — source: Graphik SEMIBOLD (weight 400), 16px (<=1023) -> 18px
+   (>=1024), line-height 1.3, lime resting, mb 8; black on open. letter-spacing
+   normal (NOT the global -0.03em body tracking). */
 .cards.profile .cards-profile-role {
   margin: 0 0 8px;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 16px;
-  line-height: normal;
+  line-height: 1.3;
   letter-spacing: normal;
-  color: var(--usta-lime); /* normal card: lime role line */
+  color: var(--usta-lime);
+  transition: color 0.3s ease-in-out;
 }
 
-/* bio — source: 16px (<=1023) -> 18px (>=1024), Graphik Regular, line-height
-   normal, letter-spacing normal, mb 0 */
-.cards.profile .cards-profile-body p:not(.cards-profile-role) {
+/* "Bio" label (2nd heading) — hidden at rest, revealed on open. Source: 40/40
+   Graphik Semibold (32 <=1023), mb 16, black. Toggled via display (not an
+   animated height) so it doesn't stutter mid-reveal — the panel geometry is the
+   only thing that animates. */
+.cards.profile .cards-profile-bio-label {
+  display: none;
+  margin: 24px 0 16px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  color: #000;
+}
+
+/* bio paragraphs — source: 16px (<=1023) -> 18px (>=1024) Graphik Regular. The
+   short bio shows at rest; the full bio shows on open. Colour fades with the panel. */
+.cards.profile .cards-profile-desc-short,
+.cards.profile .cards-profile-desc-full {
   margin: 0;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: normal;
-  letter-spacing: normal;
+  letter-spacing: normal; /* source: normal, not the global -0.03em body tracking */
   color: #fff;
+  transition: color 0.3s ease-in-out;
 }
 
-/* the "Bio" label (2nd heading) on a featured card */
-.cards.profile .cards-profile-bio-label {
-  margin: 24px 0 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-weight: 400;
-  font-size: 32px;
-  line-height: 1;
+/* the full bio is hidden at rest (display swap, no height animation) */
+.cards.profile .cards-profile-desc-full {
+  display: none;
 }
 
-/* normal (non-featured) card: transparent tile, white border */
-.cards.profile .cards-profile-card:not(.is-featured) {
-  border: 1px solid #fff;
+/* ---- OPEN state: hover (desktop) or .is-open (tap toggle) ----
+   Only the image height animates (0.3s); the panel grows via flex to fill the
+   fixed card, and its bg/border/text colour cross-fade over the same 0.3s. The
+   text swap (short↔full bio, Bio label) is an instant display change, clipped by
+   the panel's overflow:hidden so it reveals cleanly as the panel expands. */
+.cards.profile .cards-profile-card:hover .cards-profile-image,
+.cards.profile .cards-profile-card.is-open .cards-profile-image {
+  height: 240px;
 }
 
-/* featured card: filled lime, black text throughout */
-.cards.profile .cards-profile-card.is-featured {
+.cards.profile .cards-profile-card:hover .cards-profile-body,
+.cards.profile .cards-profile-card.is-open .cards-profile-body {
+  border-color: transparent;
   background-color: var(--usta-lime);
 }
 
-.cards.profile .cards-profile-card.is-featured .cards-profile-name,
-.cards.profile .cards-profile-card.is-featured .cards-profile-role,
-.cards.profile .cards-profile-card.is-featured .cards-profile-bio-label,
-.cards.profile .cards-profile-card.is-featured .cards-profile-body p {
+/* the + affordance disappears once open (matches source) */
+.cards.profile .cards-profile-card:hover .cards-profile-body::after,
+.cards.profile .cards-profile-card.is-open .cards-profile-body::after {
+  display: none;
+}
+
+.cards.profile .cards-profile-card:hover .cards-profile-name,
+.cards.profile .cards-profile-card.is-open .cards-profile-name,
+.cards.profile .cards-profile-card:hover .cards-profile-role,
+.cards.profile .cards-profile-card.is-open .cards-profile-role,
+.cards.profile .cards-profile-card:hover .cards-profile-desc-short,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-short,
+.cards.profile .cards-profile-card:hover .cards-profile-desc-full,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-full {
   color: #000;
+}
+
+/* on open: reveal the "Bio" label + full bio, hide the short bio (display swap) */
+.cards.profile .cards-profile-card:hover .cards-profile-bio-label,
+.cards.profile .cards-profile-card.is-open .cards-profile-bio-label {
+  display: block;
+}
+
+.cards.profile .cards-profile-card:hover .cards-profile-desc-short,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-short {
+  display: none;
+}
+
+.cards.profile .cards-profile-card:hover .cards-profile-desc-full,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-full {
+  display: block;
+}
+
+/* respect reduced-motion: keep the state change, drop the timed animation */
+@media (prefers-reduced-motion: reduce) {
+  .cards.profile .cards-profile-image,
+  .cards.profile .cards-profile-body,
+  .cards.profile .cards-profile-name,
+  .cards.profile .cards-profile-role {
+    transition: none;
+  }
 }
 
 /* tablet+ : 2-up grid */
 @media (width >= 768px) {
   .cards-container:has(.cards.profile) { padding-inline: 40px; }
+
+  /* card inset 8 -> 12px at ≥768 (source item padding), so card x = 40 + 12 = 52 */
+  .cards-container:has(.cards.profile) > .cards-wrapper { padding-inline: 12px; }
 
   .cards.profile > ul { grid-template-columns: repeat(2, 1fr); }
 }
@@ -501,9 +614,18 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 @media (width >= 1024px) {
   .cards-container:has(.cards.profile) { padding-inline: 48px; }
 
-  /* source: name 32 -> 40, bio 16 -> 18 at the desktop breakpoint */
-  .cards.profile .cards-profile-name { font-size: 40px; }
-  .cards.profile .cards-profile-body p:not(.cards-profile-role) { font-size: 18px; }
+  /* source: name/"Bio" 32 -> 40, bio 16 -> 18 at the desktop breakpoint */
+  .cards.profile .cards-profile-name,
+  .cards.profile .cards-profile-bio-label { font-size: 40px; }
+
+  /* source reserves a 65px name box at >=1024 (vs 53 mobile) */
+  .cards.profile .cards-profile-name { min-height: 65px; }
+
+  /* source role span grows 16 -> 18 at >=1024 */
+  .cards.profile .cards-profile-role { font-size: 18px; }
+
+  .cards.profile .cards-profile-desc-short,
+  .cards.profile .cards-profile-desc-full { font-size: 18px; }
 }
 
 @media (width >= 1280px) {
