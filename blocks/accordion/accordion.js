@@ -187,12 +187,16 @@ function buildCourseCard(labelCell, bodyCell) {
   head.append(title);
 
   // the ordered list is the collapsible timeline; a leading <p><img> is the course
-  // badge; the remaining paragraph(s) are the description. In the source the
-  // description sits in the TEXT COLUMN beside the badge, aligned under the title
-  // (source `.v-course__info-section` = eyebrow + title + description, laid out in a
-  // flex row next to the badge), so append it into `head` after the title.
+  // badge; the remaining paragraph(s) are the description.
+  //  - NO badge: the description sits directly under the title in the text column
+  //    (append into `head`) — it's already full width, nothing to lay out around.
+  //  - WITH a badge: the source lays the description beside the badge on desktop
+  //    (>=768) but drops it to FULL WIDTH BELOW the badge on mobile. So it can't
+  //    live inside the text column; append it as a sibling of `head` in `content`
+  //    and let the CSS grid place it (row 2, full-span on mobile / col 2 on desktop).
   const timeline = bodyCell ? bodyCell.querySelector('ol, ul') : null;
   let badgeImg = null;
+  const descNodes = [];
   if (bodyCell) {
     [...bodyCell.children].forEach((child) => {
       if (child === timeline) return;
@@ -202,7 +206,7 @@ function buildCourseCard(labelCell, bodyCell) {
         return;
       }
       child.classList.add('accordion-timeline-desc');
-      head.append(child);
+      descNodes.push(child);
     });
   }
 
@@ -214,6 +218,9 @@ function buildCourseCard(labelCell, bodyCell) {
     card.classList.add('accordion-timeline-course-badged');
   }
   content.append(head);
+  // badged: description is a grid sibling of head (full-width below on mobile);
+  // unbadged: description stacks under the title inside the text column
+  descNodes.forEach((node) => (badgeImg ? content : head).append(node));
   label.append(content);
   card.append(label);
 

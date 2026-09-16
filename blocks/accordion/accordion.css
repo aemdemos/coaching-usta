@@ -376,14 +376,15 @@ main > .section.accordion-container > div {
   padding: 12px;
 }
 
-/* Collapsed course cards are equal-height with the header at the top and white
-   space below — the source's Vue app sets an inline min-height: 232px on every
-   `.v-course.description-enabled` card (overriding its own `min-height: unset`
-   media query). We reproduce that fixed 232px reserve statically. A card grows
-   past it when its timeline opens. */
+/* Course cards. On MOBILE the source collapses each card to just its
+   header (eyebrow + title) — a compact card that grows only when its chevron
+   reveals the description/timeline; there is NO fixed height reserve, so a
+   "0 modules" card stays short rather than showing a tall empty white box.
+   On DESKTOP (>=768) descriptions are always visible and the source's Vue app
+   sets an inline min-height: 232px on every `.v-course.description-enabled`
+   card so the cards line up equal-height; we reproduce that reserve there. */
 .accordion.timeline .accordion-timeline-course {
   box-sizing: border-box;
-  min-height: 232px;
   border-radius: 20px;
   background-color: #fff;
   padding: 16px; /* mobile */
@@ -391,6 +392,7 @@ main > .section.accordion-container > div {
 
 @media (width >= 768px) {
   .accordion.timeline .accordion-timeline-course {
+    min-height: 232px;
     padding: 24px;
   }
 }
@@ -418,6 +420,54 @@ main > .section.accordion-container > div {
 @media (width >= 768px) {
   .accordion.timeline .accordion-timeline-course-content {
     gap: 24px;
+  }
+}
+
+/* BADGED cards lay the badge, text column and description on a 2-col grid so the
+   description can reflow around the badge per breakpoint (source .v-course):
+     - mobile: badge (col1) + eyebrow/title (col2) on row 1; description spans the
+       FULL width on row 2, BELOW the badge — not squeezed into the text column.
+     - desktop (>=768): the badge spans both rows on the left; the text column
+       (eyebrow/title) sits on row 1 and the description beside the badge on row 2,
+       aligned under the title. */
+.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-content {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 16px;
+}
+
+.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-badge {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-head {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* mobile: description on its own row, spanning both columns (full width) */
+.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-desc {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+@media (width >= 768px) {
+  .accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-content {
+    column-gap: 24px;
+  }
+
+  /* badge spans both rows on the left, centred against the text+desc block */
+  .accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-badge {
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+
+  /* description sits beside the badge, under the title (col 2, row 2) */
+  .accordion.timeline .accordion-timeline-course-badged .accordion-timeline-desc {
+    grid-column: 2;
+    grid-row: 2;
   }
 }
 
