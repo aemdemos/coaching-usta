@@ -542,7 +542,11 @@ main > .section.accordion-container > div {
   border-radius: 12px;
   background-color: transparent;
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+
+  /* the source flips the chevron INSTANTLY (its button resolves to
+     `transition: all` with a 0s duration) — so DON'T transition `transform`.
+     Only the hover colour changes ease, matching the source's colour feedback. */
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 @media (width >= 768px) {
@@ -662,15 +666,20 @@ main > .section.accordion-container > div {
 }
 
 /* connecting line between dots (source `.v-course__module::after`): 2px wide,
-   top: 20px (just below the 15px dot), height: 60px — reaches down to the next
-   dot (dot-centre to dot-centre ≈ 72px). */
+   starting at the vertically-centred circle (top: 50%) and running DOWN with a
+   percentage height so it scales with the row — reaching the next dot no matter
+   how many lines the step text wraps to. Source values: top 50%, height 150%,
+   max-height 250px. We draw it on EVERY step (source does too — the last step's
+   line simply has no dot below it but is hidden under the card edge); keeping it
+   on all steps means tall wrapped rows never leave a gap in the connector. */
 .accordion.timeline .accordion-timeline-step:not(:last-child)::after {
   content: '';
   position: absolute;
-  top: 20px;
+  top: 50%;
   left: 6.5px;
   width: 2px;
-  height: 60px;
+  height: 150%;
+  max-height: 250px;
   background-color: #000;
 }
 
