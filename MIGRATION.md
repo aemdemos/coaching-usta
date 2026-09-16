@@ -1547,6 +1547,130 @@ Measured every text element on the source at 390/768/1024/1280/1440 and matched 
 Re-verified computed CTA: 390=16/1px, 768=16/1px, 1024=18/1px, 1280=24/1px — exact source match at every width.
 lint 0 err, breakpoint/overflow/typography/a11y all pass.
 
+### 2026-09-15 — discussion-boards block (Custom Widget, STATIC — Coaching Community page)
+Instrumented the "Now Live: Engage in our Discussion Boards" section from
+https://www.ustacoaching.com/en/home/coaching-community.html as a new **discussion-boards** block.
+**Confirmed STATIC, not dynamic:** every container in the source section carries `data-api-url="false"`
+and ALL copy (heading, description, Access CTA, and the 3 discussion cards) is present in the
+server-rendered HTML — nothing is fetched from JSON. So it is authored in-place, not data-driven.
+
+**Authoring contract (table block):**
+- Row 1 (intro): one cell with the `<h2>` (accent word wrapped in `*italic*`/`<em>` → lime via the
+  global inline-accent convention), the description `<p>`, and the "Access" link.
+- Rows 2..n (cards): two cells — card title | card body. Any row WITHOUT a heading is a card; the
+  title cell becomes an `<h3>`, the body an `<p>`.
+JS groups the intro cell's children into `.discussion-boards-intro`, builds one
+`.discussion-boards-card` per remaining row, and adds `.button` to the CTA link so the global lime
+pill styling applies.
+
+**Layout (source-measured, mobile-first):** dark `#202020` rounded panel (radius 20px). Base = stacked
+(intro above a column of cards); **two-column split at >=1280** (intro flex 41.66% ≈ source 5/12, cards
+fill the rest; measured intro ratio 0.418 vs source 0.417). Cards are `#000`, radius 20px, gap **42px**
+at every breakpoint. Panel padding steps 12px16px (mobile) → 12px (768/1024) → 36px12px (1280). Card
+padding steps 12px (mobile) → 16px4px (768/1024) → 24px16px50px (1280).
+
+**Typography — source truth for THIS section (matched exactly across 390/768/1024/1280):**
+| el | 390 | 768 | 1024 | 1280 | family |
+|---|---|---|---|---|---|
+| h2 | 24/24 | 40/40 | 56/56 | **56/56** | **Graphik Semibold 700** |
+| desc p | 16 | 16 | 18 | 24 | Graphik Regular |
+| card h3 | 16/16 | 28/28 | 28/28 | 28/28 | Graphik Semibold 700 |
+| card p | 12 | 16 | 16 | 16 | Graphik Regular |
+CTA: Graphik Semibold, 18px, letter-spacing 1px, radius 12px, padding 14px24px, lime bg / black text;
+width **280px on mobile**, auto at >=768 (source-measured). "Live" accent = lime `#cfff05`.
+
+**⚠️ DEVIATION from the global type scale (justified, source-faithful).** This section uses the source's
+per-component `data-custom-font-size="true"` overrides, so its h2 is **Graphik Semibold** at
+24→40→56→**56** and h3 at 16→28→28→**28** — intentionally different from the global scale (h2 USTA Sans
+28→40→56→64; h3 28→28→28→32). Verified live at 1280: source h2 computes to `Graphik Semibold / 56px /
+700`. Therefore `npm run check:typography` reports **12 expected "drifts"** when pointed directly at the
+sample page (h2 family/size, h3 size at 390/1280). These are FALSE POSITIVES for a lift-and-shift — the
+checker enforces the site-wide scale, but this section legitimately opts out. NOT added to the a11y
+sweep config; the block is not on the homepage, so it does not affect the homepage typography gate.
+
+Sample page: `content/drafts/block-samples/discussion-boards.plain.html` (+ mirror in
+`drafts/block-samples/`), section style `dark`. Route note: the dev CLI proxies pretty routes to the
+remote branch and only serves new local files under `/content/...` — preview at
+`http://localhost:3000/content/drafts/block-samples/discussion-boards`.
+
+**Verified:** lint 0 err; breakpoint-check ✓; overflow sweep ✓ (360/768/1024/1280/1920 all OK);
+a11y ✓ (1 passed, 0 critical/serious); typography ✗ 12 EXPECTED drifts (documented deviation above).
+Visual parity vs source screenshot confirmed at 1280 (two-col, dark panel, black cards, lime pill).
+
+### 2026-09-15 — discussion-boards: pixel-parity fixes (container alignment + card-title bug)
+User overlaid source vs migrated screenshots and flagged the panel was narrower/indented (not aligned
+with the header) and card titles looked wrong. Root-caused two real drifts and fixed both:
+1. **Container / header alignment (the big one).** The source panel is NOT in the site's 1200px content
+   column — it spans nearly full-width: **max-width 1408px, centred, with header-tracking side gutters**
+   (measured 16@390 / 40@768 / 48@1024 / 64@1280+). Verified panel widths: 358@390, 688@768, 928@1024,
+   1152@1280, 1312@1440, 1408@1920 (capped). My block was trapped in `main > .section > div` (1200px,
+   24/32px padding) → at 1440 it rendered 1200px wide, indented 120px, breaking header alignment. Fix:
+   JS adds `.full-width` to the block wrapper (escape hatch), and the block re-imposes the source
+   container via `width: calc(100% - 2*gutter); max-width:1408px; margin-inline:auto`, with the gutter
+   stepping per breakpoint. Added the global `.full-width` rule to `styles.css` (`main > .section >
+   .full-width { max-width:none; margin:0; padding:0 }`) and scoped the 1024 padding rule to
+   `:not(.full-width)`. Post-fix @1440 matches source EXACTLY: gutter 64, panel 1312, h2 left 88, h2
+   width 513, card0 625/727, card right-inset 24, intro→card gap 24. @1920 panel caps at 1408 (gutter
+   256); @1280 panel 1152 (all source-exact).
+2. **Two-column split geometry.** Source is a gapless 12-col grid: intro=5/12, cards=7/12, no flex gap,
+   each column padded 0 12px. My earlier version used `flex 41.66%` + `gap:24` + one-sided padding,
+   which shifted the card column. Fixed to `flex:0 0 41.667%` / `0 0 58.333%`, `gap:0`, symmetric
+   `padding:0 12px`, and added `box-sizing:border-box` to both columns (their 12px padding was adding to
+   the % basis → 48px overflow, cards spilling past the panel).
+3. **Card-title too small/light (real bug).** EDS wraps loose cell text in `<p>`, so my JS produced
+   `<h3><p>…</p></h3>`; the inner `<p>` rendered at 16px body size, overriding the h3's 28px → card
+   titles looked tiny and stayed on one line (source wraps to 2). Fix: in decorate(), when the title
+   cell is a sole wrapping `<p>`, move that `<p>`'s child nodes into the `<h3>` (unwrap) instead of the
+   `<p>` element. Post-fix card h3 = 28px/700/Graphik Semibold, width 695, wraps to 2 lines (height 56)
+   — exactly matching source.
+Verified: lint 0 err; breakpoint ✓; overflow ✓ (sample + homepage, 360–1920); a11y ✓ (sample + homepage);
+homepage layout unchanged (`.full-width` is unused elsewhere so `:not(.full-width)` is a no-op there).
+Container model now: panel max-width 1408, gutters 16→40→48→64; intro 5/12 + cards 7/12 gapless @1280.
+
+### 2026-09-15 — discussion-boards: per-element typography audit (all viewports)
+Full per-element type comparison vs source at 390/768/1024/1280/1440 (font family/size/weight/
+line-height/letter-spacing/color/align/wrapping). Confirmed source truth (matched exactly):
+| element | 390 | 768 | 1024 | 1280+ | family/weight | letter-spacing | color |
+|---|---|---|---|---|---|---|---|
+| h2 | 24/24 | 40/40 | 56/56 | 56/56 | Graphik Semibold 700 | -0.03em (−0.72→−1.68) | #fff |
+| desc p | 16/19.2 | 16/19.2 | 18/21.6 | 24/28.8 | Graphik Regular 400 | **normal** | #fff |
+| CTA | 18/20 flat all vp | | | | Graphik Semibold 400 | 1px | #000 |
+| card h3 | 16/16 | 28/28 | 28/28 | 28/28 | Graphik Semibold 700 | -0.03em (−0.48→−0.84) | #fff |
+| card p | 12/14.4 | 16/19.2 | 16/19.2 | 16/19.2 | Graphik Regular 400 | **normal** | #fff |
+"Live" accent: lime #cfff05, Graphik Semibold 700 (inherits h2). CTA link has text-transform:uppercase
+but its inner text span resets to none (source renders "Access" as authored) — mine authored uppercase-
+free, renders identically.
+
+**Drift found & fixed:** desc p and card p were inheriting the GLOBAL body `letter-spacing:-0.03em`, but
+the SOURCE uses `letter-spacing:normal` on this section's body text. This is a real wrapping driver — at
+390 the tighter spacing made the description wrap to 4 lines (77px) instead of the source's **5 lines
+(96px)**, changing block height. Fixed: added `letter-spacing: normal` to both `.discussion-boards-intro
+p` and `.discussion-boards-card p`. Post-fix desc @390 = 5 lines/96px, card p normal — exact source
+match. (h2 and card h3 correctly keep -0.03em, matching source.) All other properties already matched.
+Verified: lint 0 err; breakpoint/overflow/a11y all pass. Line-counts now match source at every vp
+(h2 3-line @1440 / 4-line @1280 / 2-line @768,1024,390; desc 4/5/2/2/5; card h3 2-line except 1-line @1024).
+
+### 2026-09-16 — discussion-boards: mobile/tablet padding + gap + CTA parity fixes
+User flagged (mobile screenshots) positioning/dimension drifts. Measured source vs migrated at 390/768
+and fixed all of them. Source stacked (≤1023) box model, now reproduced exactly:
+- **Intro column has its OWN padding** on top of the panel padding: `12px 8px` @390, `12px` @768 — so
+  h2/desc/CTA sit **24px** in from the panel edge (was 16). Added `padding:12px 8px` to
+  `.discussion-boards-intro` base + `12px` at 768.
+- **Cards column padding** `8px 0` @390, `8px 12px` @768. The intro's 12px bottom pad + cards' 8px top
+  pad produce the source's **20px** intro→first-card gap — replaced the old `margin-top:42` on the cards
+  wrapper with this padding model (was giving 42, source is 20).
+- **CTA button drifts:** was 48px tall / left-aligned / and the desc→CTA gap was 100 (should be 76).
+  Root cause: the authored CTA is wrapped in a `<p>` whose 24px top-margin compounded with the button's
+  76px margin. Fixes: (1) JS now unwraps the CTA's sole wrapping `<p>` so the button is a direct flex
+  child of the intro (kills the extra 24 → gap now exactly 76); (2) button set to `display:flex;
+  align-items/justify-content:center; height:56px; text-align:center` — matches source 56px-tall centred
+  pill (was 48, left); (3) at ≥768 button uses `width:fit-content` (hugs "Access" ≈120px) instead of
+  `auto` which was stretching it to the full 640px column.
+Post-fix @390 (all source-exact): intro inset 24, CTA 280×56 centred, heading→desc 24, desc→CTA 76,
+CTA→card0 20, cardGap 42, card height 94. @768: intro inset 24, CTA 116×56 (hugs text), same gaps.
+Desktop (≥1280) unaffected — its media query overrides column padding (0 12px) and the 5/12+7/12 split;
+re-verified @1440: gutter 64, panel 1312, card0 727, gaps 24/42 intact. Verified: lint 0 err;
+breakpoint/overflow/a11y all pass; no horizontal overflow 360–1920.
 ### 2026-09-16 — hero (default): direct-image authoring + mobile pixel-parity fixes
 Two changes to the default hero (the "Our Core Workshops" block sample).
 
