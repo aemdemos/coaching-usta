@@ -1671,3 +1671,38 @@ CTA→card0 20, cardGap 42, card height 94. @768: intro inset 24, CTA 116×56 (h
 Desktop (≥1280) unaffected — its media query overrides column padding (0 12px) and the 5/12+7/12 split;
 re-verified @1440: gutter 64, panel 1312, card0 727, gaps 24/42 intact. Verified: lint 0 err;
 breakpoint/overflow/a11y all pass; no horizontal overflow 360–1920.
+### 2026-09-16 — hero (default): direct-image authoring + mobile pixel-parity fixes
+Two changes to the default hero (the "Our Core Workshops" block sample).
+
+**1. Direct-image authoring (was: image-as-link workaround).** The bg + the mobile-only
+"Education Center" logo were authored as LINKS to images (a workaround for DA rewriting clean-path
+`<img>` to about:error). Reworked to author both as REAL images — DA uploads them into the page's
+hidden per-page media folder (`.hero-default/`), which survives DA's publish pipeline (same model every
+other block uses). `blocks/hero/hero.js` `decorateDefault`:
+  - Background now read from the FIRST block row's `<img>` (scoped to that row so it's never confused
+    with the logo image), applied as a CSS background on `.hero-bg` with role=img + alt as aria-label.
+    A legacy image-LINK is still accepted as fallback.
+  - Logo now taken from a real `<img>`/`<picture>` in the 2nd content cell (tagged `.hero-logo`, unwrapped
+    from picture/empty-p, placed after the heading block). Legacy link fallback kept.
+Assets: the real source images recovered and placed at `content/media-da/drafts/block-samples/hero-default/`
+(bg = `usta-coaching-her-2.jpg`, the basket-of-USTA-balls-behind-fencing photo 1920×1080, found via the
+source's `data-desktop-background-image` on the blue-overlay container; logo = white education-center PNG
+520×306). Uploaded to DA `.hero-default/` (201). Local sample `content/drafts/block-samples/hero-default.plain.html`
+authors both as `<picture><img src="/media-da/drafts/block-samples/hero-default/…">` — the `/media-da/` path
+is our LOCAL dev-server mirror of DA's `.hero-default/` folder (never shipped to DA; the DA doc references
+content.da.live/.../.hero-default/… instead). DA doc publish deferred (outward-facing, on request).
+
+**2. Mobile (≤767) pixel-parity fixes.** Overlaying source vs migrated @390 showed the components drifted
+in position/dimension (same design, looser spacing). Measured the SOURCE @390 and matched exactly:
+| item | source @390 | was | fix |
+|---|---|---|---|
+| frame height | 260 (border-box) | 296 | added `box-sizing: border-box` (min-height was content-box → padding+border inflated it) |
+| top → heading | 26 | 45 | base `padding` 40px → `26px 24px 8px` |
+| CTA → frame bottom | 8 | 45 | (same padding change) |
+| heading→logo→CTA gap | 26 | 48 | `.hero-content` gap 48 → 26; logo `margin-top` −48 → −26 |
+| logo width | 142 (36.5vw) | 156 (40vw) | `width` 40vw → 36.5vw |
+| CTA height | 52 | 48 | `border: 0` → `2px solid transparent` (source pill is 52 = lh20 + pad14×2 + border2×2) |
+Verified @390 migrated == source: frame 262/x16/w358, top→OurCore 27, line gap 0, heading→logo 0,
+logo 142×84 x124, logo→CTA 26, CTA 280×52 x55, CTA→bottom 9 — all within ≤2px sub-pixel. Desktop tiers
+unaffected (≥1024 overrides padding→48/gap→64; logo display:none ≥768; ≥1280 padding-block:0). lint 0 err,
+breakpoint/overflow(360–1920)/typography/a11y ALL pass.
