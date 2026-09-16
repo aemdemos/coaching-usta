@@ -1,20 +1,220 @@
+/* stylelint-disable no-descending-specificity */
+
+/* USTA Coaching footer — solid black, large wordmark logo above a row of
+   footer links (left) + social icons (right). Mobile-first. */
+
 footer {
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-xs);
+  background-color: #000;
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
 }
 
-footer .footer > div {
-  margin: auto;
-  max-width: 1200px;
-  padding: 40px 24px 24px;
+footer .footer-content {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 48px 16px 40px;
 }
 
-footer .footer p {
+/* ---- Brand / wordmark logo ----
+   Mobile: source leaves ~68px between the wordmark and the first link; the
+   logo box is 33px tall with a tight line-box, so a 62px bottom margin
+   reproduces that gap (measured logo-bottom → first-link = 68px). */
+footer .footer-brand {
+  margin: 0 0 62px;
+}
+
+footer .footer-brand p {
   margin: 0;
 }
 
-@media (width >= 900px) {
-  footer .footer > div {
-    padding: 40px 32px 24px;
+footer .footer-brand a {
+  display: block;
+}
+
+footer .footer-brand img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- lists reset ---- */
+footer .footer-content ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- Bottom row ---- */
+footer .footer-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+/* ---- Footer links ---- */
+footer .footer-links ul {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 16px;
+}
+
+/* Tight list rows: the <li> would otherwise inherit the body line-height
+   (~35px), inflating the mobile link pitch to ~51px. Collapsing it to 1 makes
+   each row hug its 18px text so the pitch matches the source's 36px (18px row
+   + 16px gap). */
+footer .footer-links li {
+  line-height: 1;
+}
+
+/* Footer link typography matches source responsive bands (measured):
+   <768 = 18px | 768–1023 = 24px | 1024–1279 = 16px | >=1280 = 18px.
+   Letter-spacing is -0.03em (= -0.54px@18 / -0.72px@24 / -0.48px@16); line-height = 1em. */
+footer .footer-links a,
+footer .footer-links a:any-link {
+  color: #fff;
+  text-decoration: none;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  font-weight: 400; /* the "Graphik Semibold" face is already bold; source uses 400 */
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* Hover: source turns the link lime with no underline (matches header). */
+footer .footer-links a:hover {
+  color: var(--usta-lime, #cfff05);
+  text-decoration: none;
+}
+
+/* ---- Social icons ---- */
+footer .footer-social ul {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+}
+
+footer .footer-social a {
+  display: inline-flex;
+}
+
+/* Icons are sized by height with auto width so each keeps its own aspect ratio
+   (matches source: Instagram/LinkedIn render 36×36, YouTube 49×36). */
+footer .footer-social img {
+  display: block;
+  width: auto;
+  height: 36px;
+}
+
+/* ---- Tablet (>=768px) ----
+   Source keeps the footer as a stacked single column on tablet (verified live:
+   at 900px the source `.footer-links` is `flex-direction: column`, links above
+   social). We match that — only the section box widens; the links/social stay
+   stacked here and become a single row at >=1024 (desktop) below. */
+@media (width >= 768px) {
+  /* Section box: centered, capped at 1536px, 52px side padding — matches the
+     source's growing gutter (52px @1440 → 148px @1728 → 384px @2200). */
+  footer .footer-content {
+    box-sizing: border-box;
+    max-width: 1536px;
+    margin: 0 auto;
+    padding: 80px 52px 40px;
+  }
+
+  /* Inner content (logo + links/social row) is a narrower centered container
+     — source insets it to ~81.6% of the section content width (1090px @1440),
+     capped at ~1170px on wide screens. */
+  footer .footer-brand,
+  footer .footer-row {
+    width: 81.6%;
+    max-width: 1170px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  footer .footer-brand {
+    margin-bottom: 66px;
+  }
+
+  /* tablet links (stacked): source enlarges them to 24px with a 24px column
+     gap and a 32px links↔social container gap. Placed here (before the >=1024
+     desktop block) so the desktop rules win on the overlapping size/gap props
+     at >=1024 via source order. */
+  footer .footer-links a,
+  footer .footer-links a:any-link {
+    font-size: 24px;
+  }
+
+  footer .footer-links ul {
+    gap: 24px;
+  }
+
+  footer .footer-row {
+    gap: 32px;
+  }
+}
+
+/* ---- Desktop (>=1024px): single row ----
+   Source switches to one row here (verified @1440): `.footer-row` is
+   `flex; justify-content: space-between; nowrap` with the links group on the
+   left and social pinned right. The links `ul` is a `nowrap` row where each
+   link SHRINKS and wraps its own text to 2 lines (li = flex 0 1 auto,
+   white-space: normal) rather than the whole items reflowing — so the row
+   never grows past the 81.6%/1170px container and never overflows.
+   Source link gap: 16px @1024–1279, 30px @>=1280 (measured). */
+@media (width >= 1024px) {
+  footer .footer-row {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  footer .footer-links ul {
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  /* each link shrinks and wraps its label to 2 lines instead of forcing the
+     row wider — matches the source li model (flex: 0 1 auto, text wraps). */
+  footer .footer-links li {
+    flex: 0 1 auto;
+    line-height: 1;
+    white-space: normal;
+  }
+
+  /* social group keeps its intrinsic width, pinned to the right of the row */
+  footer .footer-social {
+    flex: 0 0 auto;
+  }
+}
+
+/* Footer-link font-size responsive bands (measured from source, all viewports):
+   <768   = 18px / lh 18 (stacked column, base rule; link gap 16px)
+   768–1023 = 24px / lh 24 (stacked column; link gap 24px, container gap 32px)  [set in the >=768 block above]
+   1024–1279 = 16px / lh 16 (single row; link gap 16px)
+   >=1280  = 18px / lh 18 (single row; link gap 30px).
+   letter-spacing is -0.03em throughout (= -0.54px@18 / -0.72px@24 / -0.48px@16). */
+
+/* single-row desktop uses the 16px link size */
+@media (width >= 1024px) {
+  footer .footer-links a,
+  footer .footer-links a:any-link {
+    font-size: 16px;
+  }
+}
+
+/* source footer-link returns to 18px + 30px gap at >=1280 */
+@media (width >= 1280px) {
+  footer .footer-links a,
+  footer .footer-links a:any-link {
+    font-size: 18px;
+  }
+
+  footer .footer-links ul {
+    gap: 30px;
   }
 }

@@ -1,37 +1,356 @@
-.hero-container .hero-wrapper {
-  max-width: unset;
-  padding: 0;
+/* stylelint-disable no-descending-specificity */
+
+/* hero — two variants share this block:
+   • default (boilerplate: heading over a background picture)
+   • video   (heading above a large rounded feature-video panel with a
+     play/pause control — the USTA homepage hero)
+   Each variant is authored as `hero (variant)`; the default rules below are
+   guarded with `:not(.video)` / `:not(:has(.hero.video))` so they stay isolated
+   from the video variant (which owns its own container/wrapper rules). */
+
+/* ---------------------------------------------------------------- default --
+   USTA "Our Core Workshops" hero: a background image inside a 20px-rounded frame
+   with a dark overlay, a centered two-line display heading (line 2 lime), and a
+   lime pill CTA. Source-measured: heading 32 → 40 @1024 → 64 @1280 (USTA Sans
+   bold, line-height = font-size); overlay rgba(0,0,0,.42); panel ≈260 → 470 tall.
+   The section container matches the header/hero gutters (16/40/48/64). */
+main > .section.hero-container:not(:has(.hero.video)) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
 }
 
-.hero {
+.hero:not(.video) {
   position: relative;
-  padding: 40px 24px;
-  min-height: 300px;
+  box-sizing: border-box; /* min-height is the TOTAL frame height (source: 260) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 26px 24px 8px; /* source mobile: 26px above heading, 8px below CTA */
+  border: 1px solid #fff; /* source: 1px solid white frame border */
+  border-radius: 20px;
+  overflow: hidden;
+  text-align: center;
 }
 
-.hero h1 {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--background-color);
-}
-
-.hero picture {
+/* Background image fills the rounded frame; a dark overlay sits above it.
+   The image is applied as a CSS background (authored as a link — see hero.js). */
+.hero:not(.video) .hero-bg {
   position: absolute;
-  z-index: -1;
   inset: 0;
+  z-index: 0;
+  background-position: 50% 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Fallback when a real <picture>/<img> is authored instead of a link. */
+.hero:not(.video) .hero-bg picture,
+.hero:not(.video) .hero-bg img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+/* Overlay — the source stacks TWO tints over the image: a blue wash
+   rgb(3 115 243 / 59%) then a black scrim rgb(0 0 0 / 42%). Layering both
+   reproduces the blue-shifted dark look (a single black overlay reads too grey).
+   Order: blue behind, black in front (top of the list paints last = on top). */
+.hero:not(.video)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(rgb(0 0 0 / 42%), rgb(0 0 0 / 42%)),
+    linear-gradient(rgb(3 115 243 / 59%), rgb(3 115 243 / 59%));
+}
+
+/* Text + CTA sit above the overlay. The two heading lines are one tight block
+   (line-height = font-size, no inter-line gap), then a large gap to the CTA —
+   source rhythm at 1280 (frame 468): heading block, 96px gap, CTA. That gap
+   scales down on smaller frames; use a proportional gap via the flow below. */
+.hero:not(.video) .hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px; /* source mobile: heading→(logo)→CTA rhythm is 26px */
+}
+
+/* The heading block stacks its lines with zero gap (line-height:1); the content
+   gap above separates this block from the CTA. */
+.hero:not(.video) .hero-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.hero:not(.video) h1,
+.hero:not(.video) h2 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+/* Lime accent — the source colours the 2nd heading line (or an <em> span). */
+.hero:not(.video) .hero-accent,
+.hero:not(.video) .hero-accent-line {
+  color: var(--usta-lime);
+}
+
+/* "Education Center" logo — source shows it between heading and CTA below 768px
+   only (hidden at tablet+). Source sizes it to ~40% of the content width, capped
+   at 260px (measured: 142@390, 186@500, 226@600, 260@700). */
+.hero:not(.video) .hero-logo {
+  position: relative;
+  z-index: 2;
+  width: 36.5vw; /* source: logo = 36.5% of viewport (142px @390) */
+  max-width: 260px;
+  height: auto;
+  margin-top: -26px; /* offset the content gap above it — it hugs the heading */
+}
+
+/* CTA pill (source): lime bg, black Graphik Semibold 18px, fully-rounded. */
+.hero:not(.video) .hero-cta-wrapper {
+  margin: 0;
+}
+
+.hero:not(.video) a.hero-cta:any-link {
+  display: inline-block;
+  width: 280px; /* source: fixed 280px pill at EVERY breakpoint */
+  max-width: 100%;
+  padding: 14px 32px;
+  border: 2px solid transparent; /* source: 2px border → 52px pill height */
+  border-radius: 9999px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-weight: 400;
+  font-size: 16px; /* source CTA text: 16 (≤1023) → 18 (1024) → 24 (≥1280) */
+  line-height: 20px;
+  letter-spacing: 1px; /* source: +1px tracking on the CTA */
+  text-align: center;
+  text-decoration: none;
   box-sizing: border-box;
 }
 
-.hero img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
+.hero:not(.video) a.hero-cta:hover {
+  background: #fff;
 }
 
-@media (width >= 900px) {
-  .hero {
-    padding: 40px 32px;
+.hero:not(.video) a.hero-cta:focus-visible {
+  outline: 2px solid var(--usta-blue);
+  outline-offset: 2px;
+}
+
+/* tablet (>=768): wider gutter; edu logo hidden (source: shown only <768) */
+@media (width >= 768px) {
+  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 40px; }
+
+  .hero:not(.video) .hero-logo { display: none; }
+}
+
+/* small desktop (>=1024): heading 40px, taller panel, 48px gutter */
+@media (width >= 1024px) {
+  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 48px; }
+
+  .hero:not(.video) {
+    min-height: 384px;
+    padding: 48px;
+  }
+
+  .hero:not(.video) .hero-content { gap: 64px; }
+
+  .hero:not(.video) h1,
+  .hero:not(.video) h2 { font-size: 40px; }
+
+  .hero:not(.video) a.hero-cta:any-link { font-size: 18px; } /* source CTA @1024 */
+}
+
+/* wide desktop (>=1280): heading 64px, full panel, 64px gutter */
+@media (width >= 1280px) {
+  main > .section.hero-container:not(:has(.hero.video)) > div { padding: 0 64px; }
+
+  .hero:not(.video) {
+    min-height: 468px; /* source frame height @1280 */
+    padding-block: 0;
+  }
+
+  .hero:not(.video) .hero-content { gap: 96px; }
+
+  .hero:not(.video) h1,
+  .hero:not(.video) h2 { font-size: 64px; }
+
+  .hero:not(.video) a.hero-cta:any-link { font-size: 24px; } /* source CTA @1280 */
+}
+
+/* ------------------------------------------------------------------ video -- */
+
+/* USTA homepage hero. Source layout: a centered condensed H1 (SERVE YOUR
+   PASSION) on the black section, then a wide rounded video panel (20px radius,
+   overflow hidden) below it with a play/pause control bottom-left. H1 size is
+   driven by the global heading tokens (32/40/56/80, letter-spacing normal). The
+   video panel is FULL content width (no 1200px cap) with a FIXED per-breakpoint
+   height matching the source (from the source CSS: height 477 → 550 → 522 → 694
+   at 0/768/1024/1289) and object-fit: cover — NOT an aspect-ratio. Source side
+   gutters: 16/40/48/64. */
+
+/* Hero section vertical rhythm (measured at desktop): header bottom -> H1 top
+   = 72px, H1 -> video = 24px. The hero section carries 72px top padding and
+   zeroes the default section top margin (the body already offsets the fixed
+   header height, so the only gap below the header is this intentional 72px). */
+main > .section.hero-container:has(.hero.video) {
+  margin-top: 0;
+  padding-top: 72px;
+}
+
+/* The hero aligns with the HEADER: same 1536px max-width centered container
+   (header is `max-width:1536; margin:0 auto; padding:0 52`), so on wide screens
+   the video panel and heading track the header's growing gutter instead of
+   running full-bleed. Side padding grows per breakpoint (16/40/48/64) matching
+   the source; the video sits 12px inside the header content (64 vs its 52). */
+main > .section.hero-container:has(.hero.video) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* The hero H1 (SERVE YOUR PASSION) is default content in the same section as
+   the video block; center it. 24px gap to the video below via the block's
+   wrapper margin. */
+.hero-container:has(.hero.video) .default-content-wrapper {
+  margin: 0;
+}
+
+.hero-container:has(.hero.video) .default-content-wrapper h1 {
+  margin: 0;
+  text-align: center;
+  letter-spacing: normal;
+}
+
+/* 24px gap between the H1 (default content) and the video block below it */
+.hero-container:has(.hero.video) .hero-wrapper {
+  margin-top: 24px;
+}
+
+.hero.video.block {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero.video .hero-video-content {
+  text-align: center;
+}
+
+.hero.video .hero-video-content h1,
+.hero.video .hero-video-content h2 {
+  margin: 0;
+  color: #fff;
+}
+
+.hero.video .hero-video-content p {
+  color: #fff;
+  margin: 8px 0 0;
+}
+
+/* video panel — full content width, rounded, clipped; the play/pause control
+   sits at the bottom-left inside the rounded frame. Source uses a FIXED height
+   per breakpoint (not an aspect-ratio): 477 mobile → 550 @768 → 522 @1024 →
+   694 @1280 — with object-fit: cover cropping the 16:9 source video. */
+.hero.video .hero-video-bg {
+  position: relative;
+  width: 100%;
+  height: 477px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.hero.video .hero-video-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* play/pause toggle — 40x40, transparent, white glyph, bottom-left (24px in) */
+.hero.video .hero-video-toggle {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero.video .hero-video-toggle::before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: no-repeat center / contain;
+}
+
+/* pause glyph (two bars) shown while playing */
+.hero.video .hero-video-toggle[aria-pressed="false"]::before {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3e%3crect x='14' y='12' width='4' height='16' fill='white'/%3e%3crect x='22' y='12' width='4' height='16' fill='white'/%3e%3c/svg%3e");
+}
+
+/* play glyph (triangle) shown while paused */
+.hero.video .hero-video-toggle[aria-pressed="true"]::before {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3e%3cpath d='M15 12L28 20L15 28V12Z' fill='white'/%3e%3c/svg%3e");
+}
+
+/* tablet (>=768): 40px gutter, panel 550px tall (source) */
+@media (width >= 768px) {
+  main > .section.hero-container:has(.hero.video) > div {
+    padding: 0 40px;
+  }
+
+  .hero.video .hero-video-bg {
+    height: 550px;
+  }
+}
+
+/* desktop (>=1024): 48px gutter, panel 522px tall (source) */
+@media (width >= 1024px) {
+  main > .section.hero-container:has(.hero.video) > div {
+    padding: 0 48px;
+  }
+
+  .hero.video .hero-video-bg {
+    height: 522px;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter, panel 694px tall (source @1289) */
+@media (width >= 1280px) {
+  main > .section.hero-container:has(.hero.video) > div {
+    padding: 0 64px;
+  }
+
+  .hero.video .hero-video-bg {
+    height: 694px;
   }
 }

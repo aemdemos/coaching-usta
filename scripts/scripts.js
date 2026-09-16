@@ -10,6 +10,9 @@ import {
   loadSections,
   loadCSS,
   buildBlock,
+  readBlockConfig,
+  toCamelCase,
+  toClassName,
 } from './aem.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
@@ -146,13 +149,60 @@ function decorateButtons(main) {
  * Decorates the main element.
  * @param {Element} main The main element
  */
+/**
+ * Applies `.section-metadata` blocks as section classes / data attributes.
+ * The vendored aem.js `decorateSections` does not process section metadata,
+ * so we handle it here (before sections are decorated). A `style` key becomes
+ * one CSS class per token (e.g. "dark" → `.dark`); every other key/value is
+ * stored as a `data-*` attribute on the section.
+ * @param {Element} main The main element
+ */
+function decorateSectionMetadata(main) {
+  main.querySelectorAll(':scope > div > div.section-metadata').forEach((meta) => {
+    const section = meta.parentElement;
+    const config = readBlockConfig(meta);
+    Object.keys(config).forEach((key) => {
+      const value = config[key];
+      if (!value) return;
+      if (key === 'style') {
+        value.split(',').map((s) => toClassName(s.trim())).filter(Boolean)
+          .forEach((s) => section.classList.add(s));
+      } else {
+        section.dataset[toCamelCase(key)] = value;
+      }
+    });
+    meta.remove();
+  });
+}
+
+/**
+ * The homepage intro statement ("If tennis starts with love, coaches are the
+ * beating heart. Discover the new community for coaches like you.") is a big
+ * centred bold statement with two brand-coloured phrases. Colour is authored
+ * SEMANTICALLY in the document — italic (<em>) → lime, underline (<u>) → blue
+ * (see the `main em` / `main u` rules in styles.css) — so this only needs to
+ * add the `.intro-statement` class that drives the large centred typography.
+ * Detected by a bold standalone paragraph carrying an <em> or <u> accent, so
+ * there is NO hardcoded phrase. No-op on pages without such a statement.
+ * @param {Element} main The main element
+ */
+function decorateIntroStatement(main) {
+  main.querySelectorAll('p > strong').forEach((strong) => {
+    if (!strong.querySelector('em, u')) return;
+    const section = strong.closest('.section') || strong.closest('div');
+    if (section) section.classList.add('intro-statement');
+  });
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
   buildAutoBlocks(main);
+  decorateSectionMetadata(main);
   decorateSections(main);
   decorateBlocks(main);
   decorateButtons(main);
+  decorateIntroStatement(main);
 }
 
 /**
@@ -205,6 +255,8 @@ async function loadLazy(doc) {
  */
 function loadDelayed() {
   import('./consent-check.js');
+  // load third-party martech (chat, etc.) well after LCP — see scripts/delayed.js
+  window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
 }
 

@@ -1,0 +1,10 @@
+{
+  "variantName": "spacer",
+  "baseBlock": "spacer",
+  "visualCharacteristics": "An authorable vertical gap or full-bleed colored band. Renders no text — just controlled empty space (optionally tinted) between sections.",
+  "contentPattern": "Key/value rows: desktop (height >= 1200px), tablet (height >= 992px), mobile (height below 992px), and optional color (raw CSS color, var(--x), or a design-token name). Stack multiple spacers to build banded separators.",
+  "usage": "Insert deliberate vertical spacing between sections, or a colored separator band.",
+  "canonicalModel": "standalone",
+  "options": [],
+  "memberVariantIds": ["spacer"]
+}

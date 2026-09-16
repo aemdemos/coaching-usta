@@ -1,33 +1,439 @@
-.columns > div {
+/* stylelint-disable no-descending-specificity */
+
+/* columns — three variants share this block:
+   • default (boilerplate N-column layout)
+   • media   (image beside a white promo card; `media-right` flips sides)
+   • quote   (headshot beside a testimonial quote + attribution)
+   Each variant is authored as `columns (variant)`; selectors below are scoped
+   by the variant class so they never leak across variants. */
+
+/* ---------------------------------------------------------------- default -- */
+.columns.block:not(.media, .quote) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns img {
+.columns.block:not(.media, .quote) img {
   width: 100%;
 }
 
-.columns > div > div {
+.columns.block:not(.media, .quote) > div > div {
   order: 1;
 }
 
-.columns > div > .columns-img-col {
+.columns.block:not(.media, .quote) > div > .columns-img-col {
   order: 0;
 }
 
-.columns > div > .columns-img-col img {
+.columns.block:not(.media, .quote) > div > .columns-img-col img {
   display: block;
 }
 
-@media (width >= 900px) {
-  .columns > div {
+@media (width >= 1024px) {
+  .columns.block:not(.media, .quote) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns > div > div {
+  .columns.block:not(.media, .quote) > div > div {
     flex: 1;
     order: unset;
+  }
+}
+
+/* ------------------------------------------------------------------ media -- */
+
+/* a two-column promo: a WHITE ROUNDED CARD (heading + copy + lime CTA) beside a
+   rounded image. Mobile-first: stacks (card, then image); side-by-side 50/50 at
+   >=1024 with a 24px gap. The `media-right` option puts the image on the right
+   (text-first) — used by the Safe Play block. Card bg #fff, radius 20px, ~48px
+   inner padding, button pinned to the card bottom. Card heading Graphik
+   Semibold #000 (32 -> 40 -> 64 across 768/1024/1280), copy #000 (16 -> 18 ->
+   24), CTA is the lime .button. Gutters 16/40/48/64 like the site. */
+
+/* section gutters match the site grid (16/40/48/64) and the 1536 centered box */
+main > .section.columns-container:has(.columns.media) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* the row: stacked on mobile */
+.columns.media > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- media column (rounded image) ---- */
+.columns.media .columns-media-media {
+  order: 0;
+}
+
+.columns.media .columns-media-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+/* ---- content column = the white card ----
+   Source content inset (measured): ~25px left/right, ~49px top/bottom. */
+.columns.media .columns-media-content {
+  order: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  color: #000;
+  border-radius: 20px;
+  padding: 49px 25px;
+}
+
+/* body copy — source: 16/19.2 (768) -> 18/21.6 (1024) -> 24/28.8 (1280); the
+   line-height is a flat 1.2 ratio, letter-spacing -0.03em. */
+.columns.media .columns-media-content p {
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: #000;
+}
+
+/* heading: real <h2>/<h3> (Safe Play) OR the first <p> (quiz card authored the
+   heading as bold copy). Graphik Semibold #000, line-height 1, ls -0.03em.
+   Sizes 32 -> 40 -> 64 across 768/1024/1280. Placed AFTER the generic p rule so
+   it wins for the first paragraph. */
+.columns.media .columns-media-content h1,
+.columns.media .columns-media-content h2,
+.columns.media .columns-media-content h3,
+.columns.media .columns-media-content p:first-child {
+  margin: 0 0 16px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #000;
+}
+
+/* the CTA: a lone link in the content card becomes the lime button. It's pinned
+   to the bottom of the card (source uses space-between), so push it down. */
+.columns.media .columns-media-content p:last-child {
+  margin: 0;
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.columns.media .columns-media-content p:last-child a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 2px solid #000; /* source button has a 2px black border */
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px; /* source button text is a FLAT 18px at every breakpoint */
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 1px; /* source uses positive 1px tracking on the CTA */
+  text-decoration: none;
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+.columns.media .columns-media-content p:last-child a:hover {
+  opacity: 0.9;
+  color: #000;
+  text-decoration: none;
+}
+
+/* tablet (>=768): larger gutter; still stacked */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.media) > div {
+    padding: 0 40px;
+  }
+}
+
+/* desktop (>=1024): 50/50 side-by-side, equal-height columns, 24px gap */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.media) > div {
+    padding: 0 48px;
+  }
+
+  .columns.media > div {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  /* exact 50/50 split (source: card 644 + 24 gap + image 644). Use an explicit
+     50% basis with no grow/shrink and min-width:0 so neither the card's text
+     nor the image's intrinsic (optimized) width skews the columns unequal —
+     that was making the card too wide and its heading wrap to 2 lines instead
+     of the source's 3. The 24px row gap is subtracted evenly by the browser. */
+  .columns.media .columns-media-media,
+  .columns.media .columns-media-content {
+    flex: 0 0 calc(50% - 12px);
+    min-width: 0;
+    order: unset;
+  }
+
+  /* The two instances treat their image DIFFERENTLY on the source, which is why
+     they differ in height:
+       - QUIZ (heading authored as <p>): the image is shown at its NATURAL
+         portrait aspect (644x772, ~0.83), so the row is tall (772). The card
+         stretches to match via align-items:stretch.
+       - SAFE PLAY (real <h2>): the image is COVER-CROPPED into a shorter
+         landscape frame (644x567, ~1.14), so the row is ~567. The portrait
+         source image is cropped, not shown full-height.
+     Default = natural aspect (the quiz behaviour). */
+  .columns.media .columns-media-media img {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Safe Play: crop the image to the source's landscape frame (644/567). The
+     aspect-ratio scales responsively; object-fit:cover crops the tall portrait
+     source image to the frame instead of letting it render full-height. */
+  .columns.media:has(.columns-media-content h2) .columns-media-media {
+    aspect-ratio: 644 / 567;
+  }
+
+  .columns.media:has(.columns-media-content h2) .columns-media-media img {
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* card can be taller than its own text (image-driven) — pin the CTA to the
+     card bottom (source uses space-between; para->button gap ~120px desktop). */
+  .columns.media .columns-media-content {
+    justify-content: space-between;
+  }
+
+  /* ONLY the quiz card (heading authored as a <p>, no real <h2>) caps its text
+     to ~80% of the card — a source inner-grid artifact (text in a 5-of-6
+     subcolumn) that wraps the 64px heading to 3 lines. The Safe Play card uses
+     a real <h2> and its content spans nearly full width (~93%, 24px insets), so
+     exclude blocks that contain an h2/h3 from the cap. */
+  .columns.media .columns-media-content:not(:has(h2, h3)) > * {
+    max-width: 80%;
+  }
+
+  /* heading 40px, copy 18px at the 1024 tier (source-measured). The CTA stays a
+     flat 18px (set in the base rule) — the source does NOT scale it up. */
+  .columns.media .columns-media-content h1,
+  .columns.media .columns-media-content h2,
+  .columns.media .columns-media-content h3,
+  .columns.media .columns-media-content p:first-child {
+    font-size: 40px;
+  }
+
+  .columns.media .columns-media-content p {
+    font-size: 18px;
+  }
+
+  /* media-right option: text column first, image column second */
+  .columns.media.media-right .columns-media-content {
+    order: 0;
+  }
+
+  .columns.media.media-right .columns-media-media {
+    order: 1;
+  }
+}
+
+/* wide desktop (>=1280): source card heading 64px, copy 24px. The CTA stays a
+   flat 18px (base rule) — the source does NOT scale the button text up here. */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.media) > div {
+    padding: 0 64px;
+  }
+
+  .columns.media .columns-media-content h1,
+  .columns.media .columns-media-content h2,
+  .columns.media .columns-media-content h3,
+  .columns.media .columns-media-content p:first-child {
+    font-size: 64px;
+  }
+
+  .columns.media .columns-media-content p {
+    font-size: 24px;
+  }
+}
+
+/* (the former `cta` variant — the blue "Explore workshops & events" banner —
+   is now its own reusable `banner` block with blue/black colour variants; see
+   blocks/banner.) */
+
+/* ------------------------------------------------------------------ quote -- */
+
+/* SUCCESS STORIES testimonial (black section). Source layout: a two-column row —
+   a HEADSHOT photo on the left and a bordered rounded CARD on the right. The card
+   stacks a large blue quote glyph on top, the quote (Graphik Semibold, white),
+   and the attribution (name + role) pinned to the card BOTTOM.
+   Responsive: 50/50 row at tablet+desktop; STACKED (photo over card) on mobile.
+   Measured (desktop 1280): each column 564x592, 24px gap; card 1px white border,
+   20px radius, transparent, 36px/12px padding, content inset ~25px; glyph 77x51,
+   24px to quote; quote 32px; attribution 16px. Tablet: quote 28px, card pad 12px.
+   Mobile: photo 358x280 above, 24px gap, card below; quote 28px. */
+
+/* section gutters match the site grid (16/40/48/64) and the 1536 centered box so
+   the row's edges line up with the cards/banner above it (source behaviour) */
+main > .section.columns-container:has(.columns.quote) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* mobile-first: the row stacks (photo, then card) */
+.columns.quote > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- headshot photo (left / top on mobile) ---- */
+.columns.quote .columns-quote-photo {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.columns.quote .columns-quote-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 358 / 280; /* mobile crop; desktop overrides to ~564/592 */
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* ---- the bordered card (right / below on mobile) ---- */
+.columns.quote .columns-quote-card {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 12px 16px; /* mobile; grows to 36px 12px + inset at desktop */
+}
+
+/* blue quote glyph pinned to the top of the card */
+.columns.quote .columns-quote-glyph {
+  margin-bottom: 24px;
+}
+
+.columns.quote .columns-quote-glyph img {
+  display: block;
+  width: 77px;
+  height: 51px;
+}
+
+/* the quote itself (Graphik Semibold, white). 28 mobile/tablet -> 32 @1280 */
+.columns.quote .columns-quote-text {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* attribution (name + role) flows naturally after the quote — the source card is
+   display:block (NOT flex-pushed), so the gap after the quote is an authored
+   margin that scales with viewport: ~24px mobile → ~96px @1024 → ~138px desktop.
+   The card stretches to the photo height, leaving natural empty space below. */
+.columns.quote .columns-quote-attribution {
+  margin-top: 24px;
+}
+
+.columns.quote .columns-quote-attribution p {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal; /* source attribution has no tracking */
+  color: #fff;
+}
+
+/* the name is authored as <strong>, but the source renders it in the SAME
+   Graphik Regular 400 as the role (NOT bold) — override the strong. */
+.columns.quote .columns-quote-attribution p strong {
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
+}
+
+/* tablet+ (>=768): 50/50 row, equal-height columns; larger gutter */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.quote) > div {
+    padding: 0 40px;
+  }
+
+  .columns.quote > div {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  /* exact 50/50: fixed basis + min-width:0 so the photo's aspect-ratio height
+     doesn't skew the columns unequal (the row gap is split evenly). */
+  .columns.quote .columns-quote-photo,
+  .columns.quote .columns-quote-card {
+    flex: 0 0 calc(50% - 12px);
+    min-width: 0;
+  }
+
+  .columns.quote .columns-quote-photo img {
+    aspect-ratio: 564 / 592;
+  }
+}
+
+/* desktop (>=1024): 48px gutter; card grows top/bottom padding to 36px + side
+   inset ~13px (source content inset ~25px = 12px border-box pad + 13px) */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.quote) > div {
+    padding: 0 48px;
+  }
+
+  /* card content inset: 36px top/bottom, ~13px sides (source content inset ~25px
+     = 12px border-box pad + 13px). Card stretches to the photo height so natural
+     empty space sits below the attribution — matching the source. */
+  .columns.quote .columns-quote-card {
+    padding: 36px 13px;
+  }
+
+  /* attribution grows to 18/21.6 at the 1024 tier; gap after the quote widens */
+  .columns.quote .columns-quote-attribution {
+    margin-top: 96px;
+  }
+
+  .columns.quote .columns-quote-attribution p {
+    font-size: 18px;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter (matches the cards/banner grid); quote 32px */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.quote) > div {
+    padding: 0 64px;
+  }
+
+  .columns.quote .columns-quote-text {
+    font-size: 32px;
+  }
+
+  /* attribution grows to 24/28.8 at wide desktop; gap after quote ~138px (source) */
+  .columns.quote .columns-quote-attribution {
+    margin-top: 138px;
+  }
+
+  .columns.quote .columns-quote-attribution p {
+    font-size: 24px;
   }
 }

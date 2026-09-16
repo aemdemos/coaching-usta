@@ -1,0 +1,21 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/",
+  "path": "index",
+  "timestamp": "2026-09-12T23:42:04.592Z",
+  "title": "USTA Coaching: Tennis Coaching | Tennis Lessons | Tennis Instructors",
+  "template": "home",
+  "blocks": [
+    "hero-video",
+    "columns-media",
+    "columns-media",
+    "cards-pricing",
+    "cards-media",
+    "cards-media",
+    "cards-media",
+    "columns-cta",
+    "columns-quote",
+    "accordion-path",
+    "form"
+  ]
+}

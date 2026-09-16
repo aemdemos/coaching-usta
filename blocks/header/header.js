@@ -1,168 +1,292 @@
-import { getMetadata } from '../../scripts/aem.js';
-import { loadFragment } from '../fragment/fragment.js';
+// media query match that indicates desktop width (compact dropdown vs full-screen
+// mobile flyout). Must match the CSS desktop switch at 1024px (see header.css
+// `@media (width >= 1024px)`) so body-scroll lock and the crossing reset fire at
+// the same boundary the layout changes.
+const isDesktop = window.matchMedia('(min-width: 1024px)');
 
-// media query match that indicates mobile/tablet width
-const isDesktop = window.matchMedia('(min-width: 900px)');
-
-function closeOnEscape(e) {
-  if (e.code === 'Escape') {
-    const nav = document.getElementById('nav');
-    const navSections = nav.querySelector('.nav-sections');
-    if (!navSections) return;
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections);
-      navSectionExpanded.focus();
-    } else if (!isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleMenu(nav, navSections);
-      nav.querySelector('button').focus();
-    }
-  }
-}
-
-function closeOnFocusLost(e) {
-  const nav = e.currentTarget;
-  if (!nav.contains(e.relatedTarget)) {
-    const navSections = nav.querySelector('.nav-sections');
-    if (!navSections) return;
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections, false);
-    } else if (!isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleMenu(nav, navSections, false);
-    }
-  }
-}
-
-function openOnKeydown(e) {
-  const focused = document.activeElement;
-  const isNavDrop = focused.className === 'nav-drop';
-  if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
-    const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
-    // eslint-disable-next-line no-use-before-define
-    toggleAllNavSections(focused.closest('.nav-sections'));
-    focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
-  }
-}
-
-function focusNavSection() {
-  document.activeElement.addEventListener('keydown', openOnKeydown);
+/**
+ * The active locale, derived from the page URL (/en/ vs /es/). Any page whose
+ * path contains an `/es/` segment (localhost `/content/es/...` or production
+ * `/es/...`) uses the Spanish nav fragment; everything else uses the default.
+ * @returns {'en'|'es'} the locale code
+ */
+function currentNavLocale() {
+  return /(^|\/)es(\/|$)/i.test(window.location.pathname) ? 'es' : 'en';
 }
 
 /**
- * Toggles all nav sections
- * @param {Element} sections The container element
- * @param {Boolean} expanded Whether the element should be expanded or collapsed
+ * Fetches the nav fragment DOM. Locale-aware, metadata-independent dual-fetch:
+ * per locale, try /content first (localhost / aem up), then root (DA/EDS
+ * production). Spanish pages load the /es/ nav; the English nav is the default
+ * and also the fallback if a locale-specific fragment is missing.
+ * @returns {HTMLElement|null} a <main> wrapping the fragment sections, or null
  */
-function toggleAllNavSections(sections, expanded = false) {
-  if (!sections) return;
-  sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
+async function loadNavFragment() {
+  const locale = currentNavLocale();
+  // candidate paths in priority order; es pages fall back to the en nav
+  const candidates = locale === 'es'
+    ? ['/content/es/nav.plain.html', '/es/nav.plain.html', '/content/nav.plain.html', '/nav.plain.html']
+    : ['/content/nav.plain.html', '/nav.plain.html'];
+  let resp = null;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const path of candidates) {
+    // eslint-disable-next-line no-await-in-loop
+    const r = await fetch(path);
+    if (r.ok) { resp = r; break; }
+  }
+  if (!resp) return null;
+  const text = await resp.text();
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+  // plain.html is a list of top-level section divs; DOMParser puts them in <body>
+  const container = document.createElement('div');
+  const main = doc.querySelector('main');
+  const sections = main ? main.querySelectorAll(':scope > div') : doc.querySelectorAll('body > div');
+  sections.forEach((s) => container.append(s));
+  return container;
+}
+
+/**
+ * Closes the flyout panel and resets the hamburger toggle.
+ * @param {Element} nav the nav element
+ */
+function closeFlyout(nav) {
+  const toggle = nav.querySelector('.nav-hamburger button');
+  const flyout = nav.querySelector('.nav-flyout');
+  if (!toggle || !flyout) return;
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-label', 'Open menu');
+  flyout.setAttribute('aria-hidden', 'true');
+  document.body.style.overflowY = '';
+}
+
+/**
+ * Opens the flyout panel and marks the hamburger toggle as expanded.
+ * @param {Element} nav the nav element
+ */
+function openFlyout(nav) {
+  const toggle = nav.querySelector('.nav-hamburger button');
+  const flyout = nav.querySelector('.nav-flyout');
+  if (!toggle || !flyout) return;
+  toggle.setAttribute('aria-expanded', 'true');
+  toggle.setAttribute('aria-label', 'Close menu');
+  flyout.setAttribute('aria-hidden', 'false');
+  // lock body scroll only on mobile full-screen flyout
+  if (!isDesktop.matches) document.body.style.overflowY = 'hidden';
+}
+
+/**
+ * Toggles the flyout open/closed.
+ * @param {Element} nav the nav element
+ */
+function toggleFlyout(nav) {
+  const toggle = nav.querySelector('.nav-hamburger button');
+  const expanded = toggle.getAttribute('aria-expanded') === 'true';
+  if (expanded) closeFlyout(nav);
+  else openFlyout(nav);
+}
+
+/**
+ * EDS wraps a list item's single link in a <p> (`<li><p><a>…</a></p><ul>…`),
+ * whereas the local dev server leaves it as a bare `<li><a>…</a>`. Unwrap any
+ * such single-anchor <p> that sits directly inside an <li> so the rest of the
+ * code (and the CSS) can rely on `li > a` being a direct child in every
+ * environment — this is what makes the language switcher's nested <ul> a
+ * sibling of its toggle link, so the chevron/checkmark/toggle all work on EDS.
+ * @param {Element} scope the container to normalize
+ */
+function unwrapListItemParagraphs(scope) {
+  scope.querySelectorAll('li > p').forEach((p) => {
+    // only unwrap when the <p> is a simple wrapper around a single anchor
+    const onlyChild = p.children.length === 1 && p.firstElementChild.tagName === 'A';
+    if (onlyChild) p.replaceWith(...p.childNodes);
   });
 }
 
 /**
- * Toggles the entire nav
- * @param {Element} nav The container element
- * @param {Element} navSections The nav sections within the container element
- * @param {*} forceExpanded Optional param to force nav expand behavior when not null
+ * Wires the language switcher: a nav item whose link has a nested <ul>.
+ * Clicking the top-level label toggles the nested language list.
+ * @param {Element} scope the container to search within
  */
-function toggleMenu(nav, navSections, forceExpanded = null) {
-  const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
-  const button = nav.querySelector('.nav-hamburger button');
-  document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
-  nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-  toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
-  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
-  // enable nav dropdown keyboard accessibility
-  if (navSections) {
-    const navDrops = navSections.querySelectorAll('.nav-drop');
-    if (isDesktop.matches) {
-      navDrops.forEach((drop) => {
-        if (!drop.hasAttribute('tabindex')) {
-          drop.setAttribute('tabindex', 0);
-          drop.addEventListener('focus', focusNavSection);
-        }
-      });
-    } else {
-      navDrops.forEach((drop) => {
-        drop.removeAttribute('tabindex');
-        drop.removeEventListener('focus', focusNavSection);
-      });
-    }
-  }
+function decorateLanguageSwitcher(scope) {
+  scope.querySelectorAll('li').forEach((li) => {
+    const nested = li.querySelector(':scope > ul');
+    const link = li.querySelector(':scope > a');
+    if (!nested || !link) return;
+    li.classList.add('nav-language-switcher');
+    link.setAttribute('aria-expanded', 'false');
+    const options = [...nested.querySelectorAll(':scope > li')];
 
-  // enable menu collapse on escape keypress
-  if (!expanded || isDesktop.matches) {
-    // collapse menu on escape press
-    window.addEventListener('keydown', closeOnEscape);
-    // collapse menu on focus lost
-    nav.addEventListener('focusout', closeOnFocusLost);
-  } else {
-    window.removeEventListener('keydown', closeOnEscape);
-    nav.removeEventListener('focusout', closeOnFocusLost);
-  }
+    // Determine the active locale from the current URL (/en/ vs /es/), matching
+    // the source's behaviour where each option navigates to its locale path.
+    const localeOf = (href) => {
+      const m = (href || '').match(/\/(en|es)(\/|$)/i);
+      return m ? m[1].toLowerCase() : null;
+    };
+    const currentLocale = localeOf(window.location.pathname) || 'en';
+
+    options.forEach((opt) => {
+      const a = opt.querySelector('a');
+      if (!a) return;
+      a.setAttribute('role', 'button');
+      const optLocale = localeOf(a.getAttribute('href'));
+      const isActive = optLocale === currentLocale;
+      opt.classList.toggle('nav-language-active', isActive);
+      // the summary label reflects the active language
+      if (isActive) link.childNodes[0].nodeValue = a.textContent.trim();
+    });
+    // fall back to first option if no locale matched
+    if (!options.some((o) => o.classList.contains('nav-language-active')) && options[0]) {
+      options[0].classList.add('nav-language-active');
+    }
+
+    // clicking the summary toggles the nested language list open/closed
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const open = link.getAttribute('aria-expanded') === 'true';
+      link.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+    // each option navigates to its locale path (source: /en/ ↔ /es/ page swap) —
+    // real <a href> navigation is left intact, so no click handler is needed here.
+  });
 }
 
 /**
- * loads and decorates the header, mainly the nav
+ * Marks external links (absolute http/https URLs) so CSS can add an icon
+ * and they open in a new tab.
+ * @param {Element} scope the container to search within
+ */
+function decorateExternalLinks(scope) {
+  scope.querySelectorAll('a[href^="http"]').forEach((a) => {
+    a.classList.add('nav-external');
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener');
+  });
+}
+
+/**
+ * Turns a list of anchors into styled CTA buttons.
+ * The first action becomes the primary CTA, the rest secondary/outlined.
+ * @param {Element} list a <ul> of action links
+ */
+function decorateActionButtons(list) {
+  if (!list) return;
+  [...list.querySelectorAll(':scope > li > a')].forEach((a, i) => {
+    a.classList.add('nav-button');
+    a.classList.add(i === 0 ? 'nav-button-primary' : 'nav-button-secondary');
+  });
+}
+
+/**
+ * loads and decorates the header.
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
-  // load nav as fragment
-  const navMeta = getMetadata('nav');
-  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-  const fragment = await loadFragment(navPath);
-
-  // decorate nav DOM
+  const fragment = await loadNavFragment();
   block.textContent = '';
+  if (!fragment) return;
+
+  // Normalize EDS's <li><p><a> wrapping to <li><a> so link selectors and the
+  // language-switcher nested-list detection work the same locally and on EDS.
+  unwrapListItemParagraphs(fragment);
+
   const nav = document.createElement('nav');
   nav.id = 'nav';
-  while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
-  });
+  // Fragment sections in order:
+  // 0 brand(logo) | 1 left inline nav | 2 right inline nav |
+  // 3 flyout-only links + language | 4 action buttons (Join / Sign In)
+  const sections = [...fragment.querySelectorAll(':scope > div')];
+  const [brandSrc, leftSrc, rightSrc, extraSrc, actionsSrc] = sections;
 
-  const navBrand = nav.querySelector('.nav-brand');
-  const brandLink = navBrand.querySelector('.button');
-  if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
-  }
+  // --- Brand / logo ---
+  const brand = document.createElement('div');
+  brand.className = 'nav-brand';
+  if (brandSrc) while (brandSrc.firstChild) brand.append(brandSrc.firstChild);
 
-  const navSections = nav.querySelector('.nav-sections');
-  if (navSections) {
-    navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
-      if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
-      navSection.addEventListener('click', () => {
-        if (isDesktop.matches) {
-          const expanded = navSection.getAttribute('aria-expanded') === 'true';
-          toggleAllNavSections(navSections);
-          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        }
-      });
-    });
-  }
+  // --- Inline nav groups (shown in the bar at desktop) ---
+  const leftNav = document.createElement('div');
+  leftNav.className = 'nav-inline nav-inline-left';
+  if (leftSrc) while (leftSrc.firstChild) leftNav.append(leftSrc.firstChild);
 
-  // hamburger for mobile
+  const rightNav = document.createElement('div');
+  rightNav.className = 'nav-inline nav-inline-right';
+  if (rightSrc) while (rightSrc.firstChild) rightNav.append(rightSrc.firstChild);
+
+  // --- Flyout extra links + language switcher ---
+  const extra = document.createElement('div');
+  extra.className = 'nav-flyout-links';
+  if (extraSrc) while (extraSrc.firstChild) extra.append(extraSrc.firstChild);
+
+  // --- Action buttons (Join / Sign In) ---
+  const actions = document.createElement('div');
+  actions.className = 'nav-actions';
+  if (actionsSrc) while (actionsSrc.firstChild) actions.append(actionsSrc.firstChild);
+  decorateActionButtons(actions.querySelector('ul'));
+
+  // --- Hamburger toggle ---
   const hamburger = document.createElement('div');
-  hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+  hamburger.className = 'nav-hamburger';
+  hamburger.innerHTML = `<button type="button" aria-controls="nav-flyout" aria-expanded="false" aria-label="Open menu">
       <span class="nav-hamburger-icon"></span>
     </button>`;
-  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
-  nav.prepend(hamburger);
-  nav.setAttribute('aria-expanded', 'false');
-  // prevent mobile nav behavior on window resize
-  toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+
+  // --- Flyout panel ---
+  const flyout = document.createElement('div');
+  flyout.className = 'nav-flyout';
+  flyout.id = 'nav-flyout';
+  flyout.setAttribute('aria-hidden', 'true');
+  // Inline groups are cloned into the flyout for mobile; hidden on desktop via CSS.
+  const flyoutInline = document.createElement('div');
+  flyoutInline.className = 'nav-flyout-inline';
+  if (leftSrc || rightSrc) {
+    const cloneLeft = leftNav.querySelector('ul');
+    const cloneRight = rightNav.querySelector('ul');
+    if (cloneLeft) flyoutInline.append(cloneLeft.cloneNode(true));
+    if (cloneRight) flyoutInline.append(cloneRight.cloneNode(true));
+  }
+  flyout.append(flyoutInline);
+  flyout.append(extra);
+  // action buttons live at the bottom of the flyout too (clone for flyout)
+  const flyoutActions = actions.cloneNode(true);
+  flyout.append(flyoutActions);
+
+  // decorate behaviors
+  decorateLanguageSwitcher(flyout);
+  decorateExternalLinks(nav);
+  decorateExternalLinks(flyout);
+
+  // --- Assemble bar: [hamburger + leftNav] [brand] [rightNav + actions] ---
+  const barLeft = document.createElement('div');
+  barLeft.className = 'nav-bar-left';
+  // flyout lives inside the left group so the desktop dropdown anchors to the
+  // hamburger's left edge (left:0 relative to .nav-bar-left)
+  barLeft.append(hamburger, leftNav, flyout);
+
+  const barRight = document.createElement('div');
+  barRight.className = 'nav-bar-right';
+  barRight.append(rightNav, actions);
+
+  nav.append(barLeft, brand, barRight);
+
+  // --- Interactions ---
+  hamburger.querySelector('button').addEventListener('click', () => toggleFlyout(nav));
+
+  // close on escape
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape') closeFlyout(nav);
+  });
+
+  // close when clicking outside the nav
+  document.addEventListener('click', (e) => {
+    if (!nav.contains(e.target)) closeFlyout(nav);
+  });
+
+  // reset state cleanly when crossing the desktop/mobile breakpoint
+  isDesktop.addEventListener('change', () => {
+    closeFlyout(nav);
+    const langLinks = flyout.querySelectorAll('.nav-language-switcher > a');
+    langLinks.forEach((a) => a.setAttribute('aria-expanded', 'false'));
+  });
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';

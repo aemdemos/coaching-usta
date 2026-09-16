@@ -11,30 +11,43 @@
  */
 
 :root {
-  /* colors */
-  --background-color: white;
+  /* colors — USTA Coaching brand: the site is dark by default (black bg,
+     white text), with a lime-green accent and a blue events banner. */
+  --background-color: #000;
+  --text-color: #fff;
   --light-color: #f8f8f8;
-  --dark-color: #505050;
-  --text-color: #131313;
-  --link-color: #3b63fb;
-  --link-hover-color: #1d3ecf;
+  --dark-color: #000;
+  --usta-lime: #cfff05;
+  --usta-blue: #0373f3;
 
-  /* fonts */
-  --body-font-family: roboto, roboto-fallback, sans-serif;
-  --heading-font-family: roboto-condensed, roboto-condensed-fallback, sans-serif;
+  /* AA-compliant blue for white text on a blue fill (brand #0373f3 is 4.42:1,
+     just under the 4.5:1 small-text threshold; this is a hair darker at 4.74:1
+     and visually near-identical). Use for small white-on-blue chips/bars. */
+  --usta-blue-aa: #006eeb;
+  --link-color: #fff;
+  --link-hover-color: var(--usta-lime);
 
-  /* body sizes */
-  --body-font-size-m: 22px;
-  --body-font-size-s: 19px;
-  --body-font-size-xs: 17px;
+  /* fonts — USTA Sans (bold condensed display) for headings, Graphik for body */
+  --body-font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  --heading-font-family: "USTA Sans", tahoma, sans-serif;
 
-  /* heading sizes */
-  --heading-font-size-xxl: 55px;
-  --heading-font-size-xl: 44px;
-  --heading-font-size-l: 34px;
-  --heading-font-size-m: 27px;
-  --heading-font-size-s: 24px;
-  --heading-font-size-xs: 22px;
+  /* Body sizes — measured from the source: body/lists are a flat 16px at every
+     viewport (line-height 1.2, letter-spacing -0.03em). */
+  --body-font-size-m: 16px;
+  --body-font-size-s: 16px;
+  --body-font-size-xs: 14px;
+
+  /* Heading sizes — measured USTA scale (mobile <768 base). Bands step up at
+     768 / 1024 / 1280 (see media queries below):
+       h1(xxl): 32 -> 40 -> 56 -> 80
+       h2(xl):  28 -> 40 -> 56 -> 64
+       h3(l):   28 -> 28 -> 28 -> 32   */
+  --heading-font-size-xxl: 32px;
+  --heading-font-size-xl: 28px;
+  --heading-font-size-l: 28px;
+  --heading-font-size-m: 24px;
+  --heading-font-size-s: 20px;
+  --heading-font-size-xs: 18px;
 
   /* nav height */
   --nav-height: 64px;
@@ -53,20 +66,30 @@
   src: local('Arial');
 }
 
-@media (width >= 900px) {
+/* tablet band (768–1023): h1/h2 -> 40 */
+@media (width >= 768px) {
   :root {
-    /* body sizes */
-    --body-font-size-m: 18px;
-    --body-font-size-s: 16px;
-    --body-font-size-xs: 14px;
-
-    /* heading sizes */
-    --heading-font-size-xxl: 45px;
-    --heading-font-size-xl: 36px;
+    --heading-font-size-xxl: 40px;
+    --heading-font-size-xl: 40px;
     --heading-font-size-l: 28px;
-    --heading-font-size-m: 22px;
-    --heading-font-size-s: 20px;
-    --heading-font-size-xs: 18px;
+  }
+}
+
+/* small-desktop band (1024–1279): h1/h2 -> 56 */
+@media (width >= 1024px) {
+  :root {
+    --heading-font-size-xxl: 56px;
+    --heading-font-size-xl: 56px;
+    --heading-font-size-l: 28px;
+  }
+}
+
+/* desktop band (>=1280): h1 -> 80, h2 -> 64, h3 -> 32 */
+@media (width >= 1280px) {
+  :root {
+    --heading-font-size-xxl: 80px;
+    --heading-font-size-xl: 64px;
+    --heading-font-size-l: 32px;
   }
 }
 
@@ -77,15 +100,20 @@ body {
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
-  line-height: 1.6;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
 }
 
 body.appear {
   display: block;
 }
 
+/* The header bar is position:fixed (see blocks/header/header.css .nav-wrapper)
+   and `body` is offset by --usta-header-height, so the header wrapper must NOT
+   also reserve flow height — the boilerplate default (var(--nav-height) = 64px)
+   double-counted and pushed the first section down ~64px past the source. */
 header {
-  height: var(--nav-height);
+  height: 0;
 }
 
 header .header,
@@ -107,9 +135,21 @@ h6 {
   margin-top: 0.8em;
   margin-bottom: 0.25em;
   font-family: var(--heading-font-family);
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal;
   scroll-margin: 40px;
+}
+
+/* Source: the big condensed display headings (h1/h2) use the condensed display
+   face with letter-spacing:normal; the smaller headings (h3–h6) use Graphik
+   Semibold with -0.03em tracking (same as body). */
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  letter-spacing: -0.03em;
 }
 
 h1 { font-size: var(--heading-font-size-xxl); }
@@ -153,6 +193,23 @@ button {
   font: inherit;
 }
 
+/* Semantic inline color convention (authoring aid): authors have no colour
+   picker in the document, so we map two rich-text styles to the brand accents —
+   *italic* (<em>/<i>) → lime, and underline (<u>) → blue. The default body text
+   stays white. Scoped to main content and NOT applied to <u> inside links (the
+   footer/legal "Terms of Use" etc. use <u> inside <a> and must keep link
+   styling). Kept before the link rules so `a` colours still win. */
+main em,
+main i {
+  color: var(--usta-lime);
+  font-style: normal; /* the accent is the colour, not a slant (source parity) */
+}
+
+main u:not(a u) {
+  color: var(--usta-blue);
+  text-decoration: none;
+}
+
 /* links */
 a:any-link {
   color: var(--link-color);
@@ -178,17 +235,27 @@ button.button {
   justify-content: center;
   max-width: 100%;
   margin: 0;
-  border: 2px solid transparent;
-  border-radius: 2.4em;
-  padding: 0.5em 1.2em;
-  font: inherit;
-  font-weight: 500;
-  line-height: 1.25;
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 20px;
   text-decoration: none;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+a.button:hover,
+button.button:hover {
+  text-decoration: none;
+  opacity: 0.9;
+  color: #000;
 }
 
 a.button[aria-disabled="true"],
@@ -295,9 +362,15 @@ main img {
   width: 100%;
 }
 
-/* sections */
+/* sections — full-bleed themed bands. The whole site is DARK by default
+   (black bg + white text), so an un-classed section stays dark; only special
+   sections opt into `light`/`accent`. This removes the need for `dark`
+   section-metadata everywhere. */
 main > .section {
-  margin: 40px 0;
+  margin: 0;
+  padding: 48px 0;
+  background-color: #000;
+  color: #fff;
 }
 
 main > .section > div {
@@ -310,16 +383,159 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
-@media (width >= 900px) {
-  main > .section > div {
+/* Full-width escape hatch: opt a block wrapper out of the max-width container
+   so it can span (near) the full viewport. The block itself re-imposes any of
+   its own max-width/gutter. Defined once here — never duplicated per block. */
+main > .section > .full-width {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (width >= 1024px) {
+  main > .section > div:not(.full-width) {
     padding: 0 32px;
   }
 }
 
+/* ---- USTA section themes (from section-metadata style) ----
+   The site is dark by default (base rule above). `dark` is therefore a no-op
+   kept for authored parity; `accent` is the blue events banner; `light`/
+   `highlight` opt a section into a white band. */
+main > .section.dark {
+  background-color: #000;
+  color: #fff;
+}
+
+main > .section.accent {
+  background-color: var(--usta-blue);
+  color: #000;
+}
+
+main > .section.accent a:any-link,
+main > .section.accent h1,
+main > .section.accent h2,
+main > .section.accent h3 {
+  color: #000;
+}
+
 /* section metadata */
-main .section.light,
-main .section.highlight {
-  background-color: var(--light-color);
+main > .section.light,
+main > .section.highlight {
+  background-color: #fff;
+  color: #000;
+}
+
+/* ---- Intro statement (below the hero) ----
+   Big centred statement in Graphik Regular with two brand-coloured phrases.
+   Measured scale: 28 (mobile) -> 40 (tablet) -> 72 (desktop), line-height 1. */
+main > .section.intro-statement {
+  text-align: center;
+}
+
+main > .section.intro-statement p {
   margin: 0;
-  padding: 40px 0;
+}
+
+main > .section.intro-statement strong {
+  display: block;
+
+  /* Source renders this statement in Graphik Regular (a lighter weight than
+     Semibold). Our self-hosted "Graphik Regular" is a single regular master, so
+     keep the regular face at 400 — Semibold rendered too heavy vs the source. */
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* semantic accents inside the intro: italic → lime, underline → blue (author
+   marks the phrases in the document; the global `main em`/`main u` rules set
+   the colour, these keep it consistent within the big statement). */
+main > .section.intro-statement em {
+  color: var(--usta-lime);
+  font-style: normal;
+}
+
+main > .section.intro-statement u {
+  color: var(--usta-blue);
+  text-decoration: none;
+}
+
+@media (width >= 768px) {
+  main > .section.intro-statement strong {
+    font-size: 40px;
+  }
+}
+
+/* source adds a 56px tier at the 1024 desktop step (40 → 56 → 72) */
+@media (width >= 1024px) {
+  main > .section.intro-statement strong {
+    font-size: 56px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.intro-statement strong {
+    font-size: 72px;
+  }
+}
+
+/* ---- Narrow section (section-metadata style: narrow) ----
+   A content-narrower container used by the intro statement so the big centred
+   text wraps exactly like the source. Below 1280 it spans the content width
+   with the hero gutters (16/40/48 → measured source widths 688 @768, 928 @1024);
+   at >=1280 it insets its content to 81.6% of the 1536-capped container (the
+   same inset ratio the footer uses → 956 @1280, 1089 @1440). */
+main > .section.narrow > div {
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+@media (width >= 768px) {
+  main > .section.narrow > div {
+    padding: 0 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.narrow > div {
+    padding: 0 48px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.narrow > div {
+    padding: 0 52px;
+  }
+
+  main > .section.narrow > div > * {
+    width: 81.6%;
+    max-width: 1170px;
+    margin-inline: auto;
+  }
+}
+
+/* ---- Center section (section-metadata style: center) ----
+   Centers a section's default content — used by the source's section headings
+   (PACKAGES, JOIN THE COMMUNITY, SUCCESS STORIES, DISCOVER YOUR PATH), which are
+   all `text-align: center` on the source. Block-owned content keeps its own
+   alignment; this only targets the section's loose default-content wrappers. */
+main > .section.center > .default-content-wrapper {
+  text-align: center;
+}
+
+/* loose (default-content) images inside a section — e.g. the Success Stories
+   headshot authored as a bare picture — are centered and size-capped so they
+   don't blow up to full width. Block-owned images set their own sizing. */
+main > .section > div > picture img,
+main > .section > div > p > picture img {
+  display: block;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 12px;
 }
