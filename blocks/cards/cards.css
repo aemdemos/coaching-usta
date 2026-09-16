@@ -7,12 +7,13 @@
    • logos    (partner logo tiles — white rounded squares in a 4-up grid)
    Each variant is authored as `cards (variant)` and its CSS is scoped by that
    variant class, so styles never leak across variants. The DEFAULT variant is
-   tagged with a positive `cards-default` class in JS (rather than a growing
-   `:not(.media, .pricing, …)` exclusion), so new variants never inherit base
+   tagged with a positive `cards-default` class in JS and its CSS is scoped to
+   that class (`.cards.cards-default …`) rather than a growing
+   `:not(.media, .pricing, …)` exclusion, so new variants never inherit base
    styles. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news) > ul {
+.cards.block.cards-default > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -21,7 +22,7 @@
   gap: 24px;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news) > ul > li {
+.cards.block.cards-default > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -34,7 +35,7 @@
   line-height: 0;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news) > ul > li img {
+.cards.block.cards-default > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
@@ -1087,14 +1088,10 @@
 /* partner/affiliation logo grid on the dark "OUR PARTNERS & AFFILIATIONS"
    section (ustacoaching.com/en/home/about.html). Source: 4 equal columns at
    EVERY breakpoint (does NOT collapse on mobile); each logo is a white rounded
-   square (20px radius) centred in its column. The grid spans the FULL site
-   content column (same 1536-capped, 16/40/48/64-gutter container as the media/
-   pricing variants) — NOT the narrower 1200 default — so the cells (and logos)
-   are as wide as the source. Each logo is ~65% of its cell's inner width (source
-   measured: 202px in a 334px cell @1440, 217px in a 358px cell @1920), so it
-   scales with the column and the even whitespace around it IS the inter-logo
-   gap. Cells carry 12px padding (sets the vertical row rhythm); columns are
-   flush (grid gap 0). */
+   square (20px radius) that fills its cell, separated only by the grid gap. The
+   grid spans the FULL site content column (same 1536-capped, 16/40/48/64-gutter
+   container as the media/pricing variants) — NOT the narrower 1200 default — so
+   the cells (and logos) are as wide as the source. */
 
 /* section container gutters + centering (matches media/pricing + the site grid) */
 .cards-container:has(.cards.logos) {
@@ -1110,30 +1107,34 @@
   padding: 0;
 }
 
+/* the section heading ("Our Partners & Affiliations") sitting directly above the
+   logo grid is centred on the source */
+.cards-container:has(.cards.logos) > .default-content-wrapper:has(+ .cards-wrapper) {
+  text-align: center;
+}
+
 .cards.logos > ul {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0;
+  gap: 24px;
 }
 
 .cards.logos .cards-logo-card {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 0;
 }
 
-/* the card's DIRECT child (a link, or a bare picture when there's no link) is
-   65% of the cell's inner width — the surrounding whitespace is the inter-logo
-   gap. A picture nested inside a link fills that link (100%), so the 65% isn't
-   applied twice. */
+/* the logo square fills its cell; the grid gap is the only space between
+   logos. A picture nested inside a link fills that link (100%). */
 .cards.logos .cards-logo-card > a,
 .cards.logos .cards-logo-card > picture {
   display: block;
-  width: 65%;
+  width: 100%;
 }
 
 .cards.logos .cards-logo-card > a > picture {
