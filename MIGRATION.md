@@ -1820,3 +1820,29 @@ for "2 Days". Fixes in blocks/cards/cards.css (.cards-course-duration):
 - padding `8px 16px` → `10px 42px` so the pill reads 151px ("3.5 Hours") / 130px ("2 Days") — matches source.
 Verified @1280: pill1 151×36, pill2 130×36, white text on #006eeb, radius 20, centered. lint 0 err,
 overflow ✓, a11y ✓ (white-on-blue now passes contrast), typography ✓.
+
+### 2026-09-16 — cards (text): desktop gutter 64→52px (align with header)
+Typography audit of the "OUR PURPOSE" text cards vs source (source recorded @1440: grid x=52 / w=1336,
+52px side gutter — aligns with the header hamburger; heading 32px Graphik Semibold white lh=fontsize,
+body 16/19.2 Graphik Regular white, col-gap 48 / row-gap 64, paragraphs baseline-aligned per row via the
+reserved 2-line heading slot). All type values already matched; the only drift was the >=1280 gutter — mine
+used 64px (12px too inset each side). Changed .cards-container:has(.cards.text) >=1280 padding-inline
+64→52px. Verified @1440: grid x=52 / w=1336, aligns exactly with header hamburger (delta 0), 3-up,
+paragraphs baseline-aligned. (NOTE: live source was in maintenance mode during this pass — verified against
+prior recorded source measurements + user screenshots.) lint 0 err, overflow ✓, typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (text): block width confirmed + title→content gap
+Follow-up on width + the "OUR PURPOSE" title→cards gap.
+- WIDTH: confirmed the card grid is x=52 / w=1336 @1440 (52px gutter, aligned with the header/title edges).
+  The section title h2 sits in the global default-content-wrapper (1200 max, centered) — both are centered
+  on the viewport so they align visually; the grid spans the wider 52px-gutter column as the source does.
+- TITLE→CONTENT GAP: was only 16px (the h2's 0.25em bottom margin). Source shows a larger gap above the
+  card grid. Added `.cards-container:has(.cards.text) .cards-wrapper { margin-top: 48px }` → gap now 48px.
+Verified @1440: grid x=52/w=1336, title→first-card gap 48px. lint 0 err, overflow ✓, typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (text): gutter 52→68px (align card text with hamburger GLYPH)
+User clarified the card content should align vertically with the visible hamburger LINES, not the button
+edge. Measured: header nav pads 52px; the 48px hamburger button centers its 16px glyph, so the visible
+lines start at 52+16 = 68px (the "Community" nav link starts at 132). The cards were at 52 (button edge).
+Bumped the >=1280 gutter 52→68px so the first card heading starts at x=68 — verified aligned exactly with
+.nav-hamburger-icon (both x=68). Grid now x=68 / w=1304 @1440. lint 0 err, overflow ✓, a11y ✓.

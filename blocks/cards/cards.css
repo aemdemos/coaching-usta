@@ -202,6 +202,13 @@
   gap: 48px;
 }
 
+/* gap between a preceding section title (e.g. "OUR PURPOSE") and the text cards.
+   The default-content h2 only carries 0.25em (16px) bottom margin; the source
+   shows a larger gap above the card grid, so add it on the block's wrapper. */
+.cards-container:has(.cards.text) .cards-wrapper {
+  margin-top: 48px;
+}
+
 .cards.text .cards-text-card {
   display: flex;
   flex-direction: column;
@@ -252,8 +259,12 @@
   .cards-container:has(.cards.text) { padding-inline: 48px; }
 }
 
+/* wide desktop (>=1280): align the card text with the header's hamburger GLYPH,
+   not the button edge. The header nav pads 52px, and the 48px hamburger button
+   centers its 16px glyph — so the visible lines start at 52+16 = 68px. Match
+   that so the first card heading lines up vertically with the hamburger. */
 @media (width >= 1280px) {
-  .cards-container:has(.cards.text) { padding-inline: 64px; }
+  .cards-container:has(.cards.text) { padding-inline: 68px; }
 }
 
 /* ---------------------------------------------------------------- profile --
