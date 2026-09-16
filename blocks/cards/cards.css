@@ -1165,10 +1165,6 @@
   .cards-container:has(.cards.logos) {
     padding-inline: 40px;
   }
-
-  .cards-container:has(.cards.logos) > .default-content-wrapper:has(+ .cards-wrapper) {
-    margin-bottom: 56px;
-  }
 }
 
 @media (width >= 1024px) {
