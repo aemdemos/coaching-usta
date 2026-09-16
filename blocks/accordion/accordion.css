@@ -269,10 +269,11 @@ main > .section.accordion-container > div {
   padding: 16px; /* mobile */
 }
 
-/* card header: content (badge + text) + chevron button, always visible */
+/* card header: content (badge + text) + chevron button, always visible.
+   Source vertically CENTERS the chevron on the badge+text row (not top-aligned). */
 .accordion.timeline .accordion-timeline-course-label {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 24px;
 }
