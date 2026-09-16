@@ -255,6 +255,8 @@ async function loadLazy(doc) {
  */
 function loadDelayed() {
   import('./consent-check.js');
+  // load third-party martech (chat, etc.) well after LCP — see scripts/delayed.js
+  window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
 }
 

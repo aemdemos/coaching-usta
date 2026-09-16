@@ -1,0 +1,111 @@
+/* Segmented pill-toggle tabs (source: ustacoaching.com nav pill control).
+
+   The source inverts the treatment at its 768px breakpoint:
+   - <768px (mobile): NO track. Each tab is its own standalone dark pill
+     (#2d2d2d, radius 20px); the active tab is lime-green. The row scrolls
+     horizontally and segments size to their label.
+   - >=768px (tablet/desktop): a single dark track (#2d2d2d, radius 20px) wraps
+     three equal-width segments; inactive segments are transparent, active is
+     lime-green.
+   Active is always brand lime (#cfff05) with black text; labels are mixed-case
+   (as authored), font-weight 900. */
+
+.tabs .tabs-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabs .tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs .tabs-list button,
+.tabs .tabs-list a.tabs-tab {
+  flex: 0 0 auto;
+  margin: 0;
+  border: 0;
+  border-radius: 20px;
+
+  /* Source pill is 56px tall: line-height 18px + 19px vertical padding. */
+  padding: 19px 20px;
+  background-color: #2d2d2d;
+  color: #fff;
+
+  /* Graphik Regular only ships 400/700, so weight 900 silently caps at 700 and
+     the labels render too light. Use the Semibold face (the heaviest body face
+     shipped) to match the original's bold pill labels. */
+  font-family: "Graphik Semibold", var(--body-font-family);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 18px;
+  white-space: nowrap;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Panel body text matches the source body/description paragraph:
+   18px / line-height 24px / normal letter-spacing / left, at all viewports. */
+.tabs .tabs-panel p {
+  margin: 0;
+  color: #131313;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: normal;
+  text-align: left;
+}
+
+.tabs .tabs-list button p {
+  margin: 0;
+}
+
+.tabs .tabs-list button:hover,
+.tabs .tabs-list a.tabs-tab:hover {
+  background-color: #cfff05;
+  color: #000;
+}
+
+.tabs .tabs-list button[aria-selected='true'],
+.tabs .tabs-list a.tabs-tab[aria-selected='true'],
+.tabs .tabs-list a.tabs-tab[aria-current='page'] {
+  background-color: #cfff05;
+  color: #000;
+  cursor: default;
+}
+
+.tabs .tabs-panel {
+  margin-top: 24px;
+  padding: 0;
+}
+
+.tabs .tabs-panel[aria-hidden='true'] {
+  display: none;
+}
+
+/* Source breakpoint: 768px. From tablet up the tabs merge into a single dark
+   track with three equal segments; inactive segments become transparent. */
+@media (width >= 768px) {
+  .tabs .tabs-list {
+    gap: 16px;
+    border-radius: 20px;
+    background-color: #2d2d2d;
+    overflow-x: visible;
+  }
+
+  .tabs .tabs-list button,
+  .tabs .tabs-list a.tabs-tab {
+    flex: 1 1 0;
+    background-color: transparent;
+  }
+}

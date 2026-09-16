@@ -19,6 +19,11 @@
   --dark-color: #000;
   --usta-lime: #cfff05;
   --usta-blue: #0373f3;
+
+  /* AA-compliant blue for white text on a blue fill (brand #0373f3 is 4.42:1,
+     just under the 4.5:1 small-text threshold; this is a hair darker at 4.74:1
+     and visually near-identical). Use for small white-on-blue chips/bars. */
+  --usta-blue-aa: #006eeb;
   --link-color: #fff;
   --link-hover-color: var(--usta-lime);
 
@@ -378,8 +383,17 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
+/* Full-width escape hatch: opt a block wrapper out of the max-width container
+   so it can span (near) the full viewport. The block itself re-imposes any of
+   its own max-width/gutter. Defined once here — never duplicated per block. */
+main > .section > .full-width {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 @media (width >= 1024px) {
-  main > .section > div {
+  main > .section > div:not(.full-width) {
     padding: 0 32px;
   }
 }
