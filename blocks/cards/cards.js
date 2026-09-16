@@ -121,6 +121,283 @@ function decoratePricing(block) {
   block.replaceChildren(tabs, ul);
 }
 
+/*
+ * course — a grid of course cards (workshops page). Each card: a top image, a
+ * bold title, a description, and a blue "duration" pill (3.5 Hours / 2 Days).
+ * Authoring (one row per card):
+ *   cell 1: image (picture/img)
+ *   cell 2: heading + description paragraph(s) + a short duration line (the pill)
+ * We tag the parts by class; the LAST short text (≤ a few words, e.g. "2 Days")
+ * becomes the pill.
+ */
+function decorateCourse(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-course-card';
+    while (row.firstElementChild) li.append(row.firstElementChild);
+
+    // unwrap a single wrapping <div> so the flex column sees the parts directly
+    if (li.children.length === 1 && li.firstElementChild.tagName === 'DIV') {
+      const wrapper = li.firstElementChild;
+      while (wrapper.firstChild) li.insertBefore(wrapper.firstChild, wrapper);
+      wrapper.remove();
+    }
+
+    // image cell
+    const imageDiv = [...li.children].find((d) => d.querySelector && d.querySelector('picture, img'));
+    if (imageDiv) imageDiv.className = 'cards-course-image';
+
+    // the remaining content lives in a body wrapper for padding + flex
+    const body = document.createElement('div');
+    body.className = 'cards-course-body';
+    [...li.children].forEach((child) => {
+      if (child === imageDiv) return;
+      body.append(child);
+    });
+
+    // duration pill = the last short paragraph (e.g. "3.5 Hours" / "2 Days")
+    const paras = [...body.querySelectorAll('p')];
+    const pill = [...paras].reverse().find((p) => {
+      const t = p.textContent.trim();
+      return t && t.split(/\s+/).length <= 3;
+    });
+    if (pill) pill.classList.add('cards-course-duration');
+
+    li.append(body);
+    ul.append(li);
+  });
+
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
+/*
+ * text — a grid of text-only cards ("OUR PURPOSE" on the about page). Each card
+ * is just a bold heading + a body paragraph (no image, no CTA). One row per card.
+ */
+function decorateText(block) {
+  const ul = document.createElement('ul');
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-text-card';
+    while (row.firstElementChild) li.append(row.firstElementChild);
+    // unwrap a single wrapping div so heading + paragraph sit directly in the li
+    if (li.children.length === 1 && li.firstElementChild.tagName === 'DIV') {
+      const wrapper = li.firstElementChild;
+      while (wrapper.firstChild) li.insertBefore(wrapper.firstChild, wrapper);
+      wrapper.remove();
+    }
+    ul.append(li);
+  });
+  block.replaceChildren(ul);
+}
+
+/*
+ * profile — leadership/bio cards. Each card: a portrait photo on top, then a
+ * body with the person's name (heading), role/title, and a bio paragraph.
+ * A card is "featured" (lime background, black text) when it carries a SECOND
+ * heading (e.g. a "Bio" label) — mirrors the source's highlighted card.
+ * Authoring (one row per card):
+ *   cell 1: portrait image
+ *   cell 2: name heading, role paragraph(s), [optional "Bio" heading], bio paragraph(s)
+ */
+function decorateProfile(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-profile-card';
+    while (row.firstElementChild) li.append(row.firstElementChild);
+
+    // image cell
+    const imageDiv = [...li.children].find((d) => d.querySelector && d.querySelector('picture, img'));
+    if (imageDiv) imageDiv.className = 'cards-profile-image';
+
+    // body = everything else, wrapped for padding + background
+    const body = document.createElement('div');
+    body.className = 'cards-profile-body';
+    [...li.children].forEach((child) => {
+      if (child === imageDiv) return;
+      // unwrap a single content div so its parts sit directly in the body
+      if (child.tagName === 'DIV') {
+        while (child.firstChild) body.append(child.firstChild);
+        child.remove();
+      } else {
+        body.append(child);
+      }
+    });
+
+    // name = first heading; role = the paragraph(s) right after it; a SECOND
+    // heading marks a featured card (lime) and labels the bio.
+    const headings = [...body.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+    if (headings[0]) headings[0].classList.add('cards-profile-name');
+    if (headings.length > 1) {
+      li.classList.add('is-featured');
+      headings[1].classList.add('cards-profile-bio-label');
+    }
+    // role = first paragraph after the name heading
+    const role = headings[0] ? headings[0].nextElementSibling : body.querySelector('p');
+    if (role && role.tagName === 'P') role.classList.add('cards-profile-role');
+
+    li.append(body);
+    ul.append(li);
+  });
+
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
+/*
+ * comparison — certification-tier comparison cards (courses page). 4 columns.
+ * An ACTIVE tier card: logo image, a title + "Annual Package Fee" subtitle, a
+ * blue "PER YEAR" pill + price, a checkmarked "included modules" list, workshop
+ * cost breakdown lines, and a highlighted blue TOTAL footer bar. A COMING-SOON
+ * tier shows a disabled/skeleton state (logo + "COMING 202x").
+ * Authoring (one row per tier):
+ *   cell 1: logo image
+ *   cell 2: everything else — headings/paragraphs/list. A card is "coming soon"
+ *           when its only text is a "Coming 202x" line (no price/list).
+ * The last list/paragraph pair whose text starts with "TOTAL" becomes the footer.
+ */
+function decorateComparison(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-comparison-card';
+    while (row.firstElementChild) li.append(row.firstElementChild);
+
+    // logo cell (first cell with an image)
+    const logoDiv = [...li.children].find((d) => d.querySelector && d.querySelector('picture, img'));
+    if (logoDiv) logoDiv.className = 'cards-comparison-logo';
+
+    // body = the rest
+    const body = document.createElement('div');
+    body.className = 'cards-comparison-body';
+    [...li.children].forEach((child) => {
+      if (child === logoDiv) return;
+      if (child.tagName === 'DIV') {
+        while (child.firstChild) body.append(child.firstChild);
+        child.remove();
+      } else {
+        body.append(child);
+      }
+    });
+
+    // coming-soon card: text mentions "Coming 202x" and there is no feature list
+    const isComingSoon = /coming\s+202\d/i.test(body.textContent) && !body.querySelector('ul, ol');
+    if (isComingSoon) li.classList.add('is-coming-soon');
+
+    // the "Annual Package Fee" subtitle = the paragraph right after the title
+    const titleEl = body.querySelector('h1, h2, h3, h4, h5, h6');
+    if (titleEl && titleEl.nextElementSibling && titleEl.nextElementSibling.tagName === 'P') {
+      titleEl.nextElementSibling.classList.add('cards-comparison-subtitle');
+    }
+
+    // the feature (included modules) list gets a class + a check marker
+    const list = body.querySelector('ul, ol');
+    if (list) list.classList.add('cards-comparison-modules');
+
+    // price = the paragraph/heading that looks like "$0 - $249/year"
+    const priceEl = [...body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, strong')]
+      .find((el) => /\$\s?\d|\/year/i.test(el.textContent) && el.children.length === 0);
+    if (priceEl) priceEl.classList.add('cards-comparison-price');
+
+    // a "PER YEAR" label becomes the blue pill
+    const perYear = [...body.querySelectorAll('p, span, strong, em')]
+      .find((el) => /^per year$/i.test(el.textContent.trim()));
+    if (perYear) perYear.classList.add('cards-comparison-peryear');
+
+    // TOTAL footer: a paragraph starting with "TOTAL" and (optionally) the price
+    // line right after it. Wrap them into a highlighted footer bar.
+    const totalLabel = [...body.querySelectorAll('p, strong')]
+      .find((el) => /^total/i.test(el.textContent.trim()));
+    if (totalLabel) {
+      const footer = document.createElement('div');
+      footer.className = 'cards-comparison-total';
+      const totalValue = totalLabel.nextElementSibling;
+      body.append(footer);
+      footer.append(totalLabel);
+      if (totalValue && /\$/.test(totalValue.textContent)) footer.append(totalValue);
+    }
+
+    li.append(body);
+    ul.append(li);
+  });
+
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '400' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
+/*
+ * news — article/news cards. Each card: a top image (a link over it), a bold
+ * title, a publish date, and an excerpt. 2-up grid. Content-driven (authored
+ * rows, or auto-populated from a news index elsewhere).
+ * Authoring (one row per article):
+ *   cell 1: image (optionally wrapped in the article link)
+ *   cell 2: title heading (usually a link), a date line, an excerpt paragraph
+ * The date is the SHORT paragraph that parses as a date; the rest is the excerpt.
+ */
+function decorateNews(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-news-card';
+    while (row.firstElementChild) li.append(row.firstElementChild);
+
+    const imageDiv = [...li.children].find((d) => d.querySelector && d.querySelector('picture, img'));
+    if (imageDiv) imageDiv.className = 'cards-news-image';
+
+    const body = document.createElement('div');
+    body.className = 'cards-news-body';
+    [...li.children].forEach((child) => {
+      if (child === imageDiv) return;
+      if (child.tagName === 'DIV') {
+        while (child.firstChild) body.append(child.firstChild);
+        child.remove();
+      } else {
+        body.append(child);
+      }
+    });
+
+    const heading = body.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) heading.classList.add('cards-news-title');
+
+    // date = a short paragraph that parses as a date (e.g. "March 4, 2026")
+    const date = [...body.querySelectorAll('p')].find((p) => {
+      const t = p.textContent.trim();
+      return t.length <= 30 && !Number.isNaN(Date.parse(t));
+    });
+    if (date) date.classList.add('cards-news-date');
+
+    // remaining paragraph(s) = excerpt
+    [...body.querySelectorAll('p')].forEach((p) => {
+      if (!p.classList.contains('cards-news-date')) p.classList.add('cards-news-excerpt');
+    });
+
+    li.append(body);
+    ul.append(li);
+  });
+
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
 function decorateDefault(block) {
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
@@ -139,5 +416,10 @@ function decorateDefault(block) {
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
   else if (block.classList.contains('pricing')) decoratePricing(block);
+  else if (block.classList.contains('course')) decorateCourse(block);
+  else if (block.classList.contains('text')) decorateText(block);
+  else if (block.classList.contains('profile')) decorateProfile(block);
+  else if (block.classList.contains('comparison')) decorateComparison(block);
+  else if (block.classList.contains('news')) decorateNews(block);
   else decorateDefault(block);
 }

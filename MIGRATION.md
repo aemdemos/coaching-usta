@@ -1787,3 +1787,259 @@ the Breakpoint Rule clean (only 768/1024/1280 media queries).
 Re-verified vs source: @1728 gutter 148 / panel 1432 / inset-from-panel 120 / H1 2-line / H2 32px 2-line
 — EXACT. @1280 gutter 52 / panel 1176 / inset 99. @390 gutter 8 / panel 374 / inset 32. No overflow.
 Verified: lint 0 err; breakpoint ✓; overflow ✓ (360–1920); a11y ✓.
+### 2026-09-16 — cards: five new content variants (course/text/profile/comparison/news)
+Instrumented five new `cards` variants (dispatched by class in blocks/cards/cards.js; scoped CSS in
+cards.css). Each has a block-sample page under content/drafts/block-samples/ and its media under
+content/media-da/drafts/block-samples/<sample>/. Source-measured at 390/768/1024/1440.
+
+- **cards (course)** (workshops.html): 2-up grid (1-up mobile), 24px gap. Card = transparent tile, 1px
+  white border, 20px radius; full-width top image (aspect 523/314 ≈1.66); body 24px inset with a Graphik
+  Semibold white title (28px, →32px @≥1280 — source-measured responsive), 18/24 white desc, and a blue
+  (#0373f3) rounded duration pill (radius 20, pad 8/16, 16px black, centered). JS decorateCourse tags the
+  image cell, wraps the body, and marks the last ≤3-word paragraph as the pill.
+- **cards (text)** ("OUR PURPOSE", about.html): 3-up grid (1-up mobile), 48px col-gap / 64px row-gap.
+  Each card = 32px Graphik Semibold white heading + 16/1.2 white body, no image/CTA. Heading reserves a
+  2-line slot (min-height 64px) so body copy baseline-aligns across a row (matches source). JS decorateText.
+- **cards (profile)** (about.html leadership): 2-up grid. Card = 2:1 rounded portrait + body (name 40px,
+  role 18px, bio 18px). A FEATURED card (filled lime #cfff05, black text, "Bio" label heading) is triggered
+  when the card carries a 2nd heading; normal cards are transparent w/ 1px white border + lime role line.
+  JS decorateProfile (name=1st heading, 2nd heading ⇒ .is-featured). Sample uses real headshots
+  (craig-morris, megan-rose). NOTE: the design screenshot showed Vahaly/Hirsch (a mockup); live about.html
+  has Morris/Rose — built the layout faithfully, content is representative.
+- **cards (comparison)** (courses.html "2026 Badge & Certification Costs"): 4-up grid (2-up tablet, 1-up
+  mobile), equal-height. Card = #1D1D1D bg, 16px radius, 1px #707070 border, 24px pad; centered logo; title
+  16px; blue "PER YEAR" pill; 28px price; blue-check module list (14px); workshop cost lines; a highlighted
+  blue TOTAL footer bar flush to the card's bottom edge (margin:-24px cancels body pad; margin-top:auto pins
+  it). Coming-soon tiers (text matches /coming 202\d/ + no list) render dimmed (opacity .6), no footer.
+  JS decorateComparison. price/peryear rules scoped under .cards-comparison-body to outrank the generic p.
+- **cards (news)** (news.html): 2-up grid. Card = 16:9 rounded image + body (title 28px, a title-link with
+  a lime "→" affordance, a lime date line, 16px excerpt). JS decorateNews tags title, detects the date
+  paragraph (Date.parse + ≤30 chars), rest = excerpt. Content-driven (also auto-populatable from a news index).
+
+**Shared:** all five use the site container pattern `.cards-container:has(.cards.<variant>)` with gutters
+16/40/48/64 in the 1536-capped centered container, and are guarded out of the default variant's
+`:not(.media,.pricing,.course,.text,.profile,.comparison,.news)` selectors.
+
+**Two cross-cutting fixes:**
+1. **A11y — new `--usta-blue-aa` token (#006eeb).** White text on brand blue #0373f3 is 4.42:1 — just under
+   the 4.5:1 small-text AA threshold (axe flagged the comparison PER-YEAR pill + TOTAL bar). Added
+   `--usta-blue-aa: #006eeb` (4.74:1, visually near-identical) in styles.css :root and used it for those
+   small white-on-blue chips/bars. Brand `--usta-blue` unchanged elsewhere (e.g. course pill has BLACK text,
+   which passes).
+2. **typography-check.mjs now measures DEFAULT CONTENT only.** The checker grabbed the first visible h1..h6
+   on a page; on block-sample pages that's the block's own (intentionally block-scoped) heading, so it
+   false-flagged course/text/profile/comparison/news headings AND the pre-existing cards.pricing h3=40px.
+   Added `&& !e.closest('.block')` so only default-content headings are checked against the global scale;
+   block headings are verified per-block. Homepage (real default content) still measured + passes.
+
+Verified all five sample pages at 360–1920: lint 0 err, breakpoint ✓, overflow ✓ (all tiers), typography ✓
+(incl. cards-pricing now green), a11y ✓ (incl. comparison after the blue-aa fix). Comparison visually matches
+the source screenshot (4 dark cards, logo/PER-YEAR/price/checks/workshop-lines/blue TOTAL, 2 dimmed coming-soon).
+NOTE (local dev): new sample pages render under the `/content/drafts/block-samples/<name>` path (the aem-cli
+mounts local HTML at /content and only hot-serves files present at startup — restart `aem up` after adding a
+sample). Not yet published to DA (outward-facing — on request).
+
+### 2026-09-16 — cards (course): content-width parity fix + sample spacers
+User flagged that the course cards' block WIDTH didn't match source (cards too wide) plus minor
+positioning drifts. Re-measured the SOURCE content column across viewports (it's NARROWER than the
+1536/64px container the other card variants use):
+| viewport | source gutter | source content width |
+|---|---|---|
+| 1024 | 48 | 928 |
+| 1280 | 160 | 960 (=75% vw) |
+| 1440 | 173 | 1093 |
+| 1920 | 373 | 1173 (capped) |
+So the source uses full-width w/ 16/40/48 gutters through 1024, then at >=1280 a **centered 75%-of-viewport
+column capped at ~1173px**. Fixes in blocks/cards/cards.css (.cards.course):
+- >=1280: drop the 1536/64px container; wrapper becomes `width:75%; max-width:1173px; margin-inline:auto`.
+  Verified migrated == source: 1024→928 (exact), 1280→960 (exact), 1440→1080 (vs 1093, <1.5%).
+- Inner card padding 24→**21px** (source-measured).
+- Duration pill: `align-self:center` alone didn't center a fit-content <p> in the flex column; switched to
+  `margin: 46px auto 0` → pill now centered (0.5px off card center at 1440, matches source).
+- (heading already 28→32px @≥1280, image aspect 523/314, border/radius unchanged.)
+
+**Sample-page spacers:** all five card sample pages looked cluttered — added a `spacer` block (80px
+desktop / 60px mobile) immediately ABOVE and BELOW each card block in content/drafts/block-samples/
+cards-{course,text,profile,comparison,news}.plain.html (same spacer markup the other samples use).
+
+NOTE (local dev): the aem-cli only serves sample HTML files present at startup, and mounts them under the
+`/content/...` path — restart `aem up` after editing/adding a sample, then view at
+`/content/drafts/block-samples/<name>`. lint 0 err, breakpoint ✓, overflow ✓ (all 5, 360–1920),
+typography ✓ (course), a11y ✓ (course). Screenshot-confirmed course now matches source width/padding/pill.
+
+### 2026-09-16 — cards (course): EXACT content-width (calc ramp, not flat 75%)
+The prior 75% width gave 1080@1440 vs the source's 1093 (13px narrow, 7px off left). Confirmed the source
+cards deliberately do NOT align with the header edge (source header hamburger x=52, but card grid x=173 —
+cards are inset ~121px more). The source column width isn't a flat %: measured 960@1280 (75.0%) and
+1093@1440 (75.9%), capping ~1173. Replaced `width:75%` with an exact linear ramp:
+`width: clamp(960px, calc(960px + (100vw - 1280px) * 0.831), 1173px)` on the >=1280 wrapper.
+Verified migrated == source: 1280 → x160/w960 (exact), 1440 → x174/w1093 (source x173/w1093, ≤1px).
+Caps at 1173 by ~1536 (no overflow at 1920). lint 0 err, overflow ✓ (360–1920), typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (course): image is FIXED-height per tier (not aspect) + bottom padding
+User flagged the blue pills/images still misaligned vs source. Root cause: the image used a constant
+`aspect-ratio` (523/314), but the SOURCE image is a FIXED HEIGHT per tier with object-fit:cover — measured
+208px @mobile, 278px @1024, 314px @1280+ (card width varies 440→528 while image height stays 314). So my
+images were ~40px too short at 1280 (274 vs 314), making cards shorter and the layout read differently.
+Fixes in blocks/cards/cards.css (.cards.course .cards-course-image img): dropped aspect-ratio; set
+`height: 208px` base, `278px` @1024, `314px` @1280+. Also bumped body bottom padding 21→48px (source cards
+carry more empty space below the pill; card total 688 @1280 vs my prior 626).
+IMPORTANT — the pills are NOT bottom-aligned in the source: each pill sits a FIXED 46px below its OWN
+description (verified: card1 pill 102px above card bottom, card2 70px — the shorter-text card has MORE empty
+space below its pill). Cards are equal-height (grid stretch) but the pill floats after the text — my
+`margin: 46px auto 0` (no margin-top:auto) already matches this; kept as-is. Verified @1280: image 314,
+cards equal-height, pill follows text. lint 0 err, overflow ✓ (360–1920), typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (course): duration pill — WHITE text + source width/length
+User flagged the duration pills: text must be WHITE (mine was black) and the pill LENGTH must match source
+(mine hugged the text too tightly). Source pills: blue fill, white text, ~152px for "3.5 Hours" / ~130px
+for "2 Days". Fixes in blocks/cards/cards.css (.cards-course-duration):
+- `color: #000` → `#fff` (source white text).
+- `background: var(--usta-blue)` → `var(--usta-blue-aa)` (#006eeb) — white-on-#0373f3 is 4.42:1 (fails AA);
+  the AA-safe blue is 4.74:1 and visually identical. (Same token used by cards.comparison pills/footer.)
+- padding `8px 16px` → `10px 42px` so the pill reads 151px ("3.5 Hours") / 130px ("2 Days") — matches source.
+Verified @1280: pill1 151×36, pill2 130×36, white text on #006eeb, radius 20, centered. lint 0 err,
+overflow ✓, a11y ✓ (white-on-blue now passes contrast), typography ✓.
+
+### 2026-09-16 — cards (text): desktop gutter 64→52px (align with header)
+Typography audit of the "OUR PURPOSE" text cards vs source (source recorded @1440: grid x=52 / w=1336,
+52px side gutter — aligns with the header hamburger; heading 32px Graphik Semibold white lh=fontsize,
+body 16/19.2 Graphik Regular white, col-gap 48 / row-gap 64, paragraphs baseline-aligned per row via the
+reserved 2-line heading slot). All type values already matched; the only drift was the >=1280 gutter — mine
+used 64px (12px too inset each side). Changed .cards-container:has(.cards.text) >=1280 padding-inline
+64→52px. Verified @1440: grid x=52 / w=1336, aligns exactly with header hamburger (delta 0), 3-up,
+paragraphs baseline-aligned. (NOTE: live source was in maintenance mode during this pass — verified against
+prior recorded source measurements + user screenshots.) lint 0 err, overflow ✓, typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (text): block width confirmed + title→content gap
+Follow-up on width + the "OUR PURPOSE" title→cards gap.
+- WIDTH: confirmed the card grid is x=52 / w=1336 @1440 (52px gutter, aligned with the header/title edges).
+  The section title h2 sits in the global default-content-wrapper (1200 max, centered) — both are centered
+  on the viewport so they align visually; the grid spans the wider 52px-gutter column as the source does.
+- TITLE→CONTENT GAP: was only 16px (the h2's 0.25em bottom margin). Source shows a larger gap above the
+  card grid. Added `.cards-container:has(.cards.text) .cards-wrapper { margin-top: 48px }` → gap now 48px.
+Verified @1440: grid x=52/w=1336, title→first-card gap 48px. lint 0 err, overflow ✓, typography ✓, a11y ✓.
+
+### 2026-09-16 — cards (text): gutter 52→68px (align card text with hamburger GLYPH)
+User clarified the card content should align vertically with the visible hamburger LINES, not the button
+edge. Measured: header nav pads 52px; the 48px hamburger button centers its 16px glyph, so the visible
+lines start at 52+16 = 68px (the "Community" nav link starts at 132). The cards were at 52 (button edge).
+Bumped the >=1280 gutter 52→68px so the first card heading starts at x=68 — verified aligned exactly with
+.nav-hamburger-icon (both x=68). Grid now x=68 / w=1304 @1440. lint 0 err, overflow ✓, a11y ✓.
+
+### 2026-09-16 — cards (course)+(text): live-source typography audit (site back up)
+Re-measured both against the LIVE source at 390/768/1440.
+- **cards (course):** source title 28/28 (→32 @1280) Graphik Semibold ls **normal**, desc 18/24 Graphik
+  Regular ls **normal**, pill 16/19.2 Graphik Regular **700** white center. My h3/p inherited the global
+  −0.03em tracking — added `letter-spacing: normal` to the course title + desc; set the pill to
+  Graphik Regular 700 / lh 19.2 / ls normal (was lh:1). Verified migrated == source at 1440.
+- **cards (text):** source heading 32/32 Graphik Semibold ls −0.03em, body 16/19.2 Graphik Regular
+  −0.03em (matched already). SPACING FIX: my prior `min-height:64px` forced every heading to a 2-line
+  reserve, so short titles ("Access Drives Progress" etc.) reserved 2 lines and the gap read wrong. Source
+  keeps headings at their NATURAL line count (row 1 = 2-line, row 2 = 1-line) with bodies aligned per row.
+  Removed the min-height; headings now wrap naturally with a fixed 56px bottom margin (source 2-line gap;
+  1-line rows read ~12px tighter than source's grid-stretch but bodies still align per row). Verified @1440:
+  row1 2-line/gap56, row2 1-line/gap56, bodies aligned within each row. (Tried a subgrid reproduction of the
+  source's per-row heading-track stretch but it double-counted the row-gap → reverted to the simpler fixed
+  margin.) lint 0 err, overflow/typography/a11y ✓ on both.
+
+### 2026-09-16 — cards (text): OUR PURPOSE title→cards gap corrected to source (108px)
+User flagged the gap between "OUR PURPOSE" and the first card row was too small. Measured live source
+@1440: title-bottom → first-card-heading-top = 108px (my prior value was ~48px). Set
+`.cards-container:has(.cards.text) .cards-wrapper { margin-top: 108px }`. Verified migrated gap = 108px
+@1440. lint 0 err, overflow ✓, a11y ✓.
+
+### 2026-09-16 — cards (text): row/card vertical gap matched to source (84 desktop / 86 mobile)
+User flagged the vertical spacing between the two card rows was too small. Measured live source:
+row1-body-bottom → row2-heading-top = **84px @1440**; mobile 1-up card→card = **86px @390**. My grid used
+64px (desktop row) / 48px (mobile). Updated `.cards.text > ul`: base `gap: 86px` (mobile), `>=768`
+`gap: 84px 48px` (row/column). Verified migrated == source: desktop 84, mobile 86. Combined with the
+earlier fixes (title→cards 108px, heading→body 56px, natural line-count, header-aligned 3-col grid), the
+block now matches source spacing at both viewports. lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (text): restored 2-line heading reserve (row-wide body alignment)
+CORRECTION to the earlier "removed min-height" note. The source DOES align ALL bodies in a row to the same
+baseline even when one title is shorter: verified live @1440 — row-1 bodies all at top 1312 (col3 "Coaches
+Need Coaches Too" — which itself wraps to 2 lines at the source's 397px column, h=64 — is NOT higher).
+Removing the reserve had made col3's body rise above cols 1&2 (user flagged). Restored
+`min-height: 64px; margin-bottom: 24px` on the >=768 heading so every heading reserves a 2-line slot and the
+whole row's bodies align. Verified migrated @1440: row-1 bodies all top 726 (aligned), row-2 bodies all top
+975 (aligned), row gap 84px, col3 heading 2 lines (matches source). lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (text): responsive heading scale + subgrid per-row alignment (all viewports)
+Tablet/mobile audit revealed two more drifts:
+1. **Heading font-size is responsive** (I had it flat 32). Source: 32 (mobile) → 24 (768) → 28 (1024) →
+   32 (1280). Added per-breakpoint font-size.
+2. **Per-row body alignment across DIFFERENT heading heights.** At 768 the source headings wrap to 3/4/2
+   lines (heights 72/96/48) yet all row bodies align — a `min-height` reserve can't do this (row1 needs 96,
+   row2 needs 48). Reproduced the source's per-row grid stretch with **CSS subgrid**: `.cards.text > ul` is
+   a 3-col grid; each `.cards-text-card` is `grid-template-rows: subgrid; grid-row: span 2` so every heading
+   in a row stretches to that row's tallest heading and all bodies line up. Gaps: ul `row-gap: 24px` =
+   head→body; card `margin-bottom: 60px` (+24 = 84px card→card). Removed the old min-height reserves.
+Verified: 768 heading 24, row1 bodies aligned (609) despite 3/4/2-line titles, row gap 84; 1024 heading 28;
+1440 heading 32, bodies aligned, row gap 84, title gap 108, head→body 24; mobile 32/1-up/86px card gap.
+lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — typography audit: cards (profile) (all viewports)
+Measured source `.v-person-card` (about page → OUR LEADERSHIP) at 390/900/1024/1280/1440. Scale is responsive:
+- **name** 32px (≤1023) → 40px (≥1024); Graphik Semibold, weight 400, line-height 1.0, letter-spacing
+  normal, margin-bottom 24. (I had flat 40 / lh 1.05 / mb 0.)
+- **role** 16px flat; Graphik Regular (I had Semibold 18), lime, line-height normal, ls normal, mb 8.
+- **bio** 16px (≤1023) → 18px (≥1024); Graphik Regular, line-height normal, ls normal, mb 0. (I had flat 18.)
+Fixed all three + added the 1024 jump. Gotcha: the role is a `<p>` inside `.cards-profile-body`, so the
+generic `.cards-profile-body p` rule was overriding it to 18px at desktop — scoped the bio rule to
+`p:not(.cards-profile-role)`. Verified migrated: 32/16/16 at ≤1023, 40/16/18 at ≥1024. lint/overflow/typo/a11y ✓.
+Note: source leadership cards are text-only (no portrait/border/featured) — our sample keeps the richer
+image+featured design intentionally; this task was scoped to typography parity.
+
+### 2026-09-16 — typography audit: cards (comparison) (all viewports)
+Measured source `.v-cost-card` (courses page → "2026 Badge & Certification Costs") at 390 & 1440. The scale
+is FLAT across all viewports (no responsive jumps). Corrected drifts:
+- title: line-height 1.3→1.0, added letter-spacing -0.64px, margin 0→16 0 8.
+- NEW "Annual Package Fee" subtitle (tagged `.cards-comparison-subtitle` in JS — the p right after the
+  title): 14px Graphik Semibold w400, lh 1.0, ls -0.64, mb 21.
+- body p: line-height 1.4→1.2, added ls -0.42.
+- PER YEAR pill: added Graphik Regular family, lh 1.3→1.0, ls -0.36.
+- price: added ls -1.12.
+- section labels (strong): family Semibold→Regular, weight→700, size 12→14, lh→1.2, ls 0.04em→-0.42px.
+- module list li: lh 1.3→1.2, added ls -0.42.
+- TOTAL label: size 12→14, added lh 1.0 + ls -0.42.
+- TOTAL value: added lh 1.0 + ls -0.8.
+Verified all 8 element types match source 1:1. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — typography audit: cards (news) + cards (media) (all viewports)
+**News** — measured source `.v-news-related-tile__{title,date,description}` (news.html) at 390/900/1440:
+- title responsive: 24 (≤767, ls -0.72) → 28 (768, -0.84) → 32 (≥1024, -0.96); Graphik Semibold w400,
+  line-height 1.0. (I had flat 28 / lh 1.1.) ls values = the global -0.03em tracking → set ls -0.03em +
+  added the 768/1024 font-size jumps.
+- date: was 14px/lh1.3/lime — source is 16px Graphik Regular, lh 1.2, ls normal, WHITE. Fixed.
+- excerpt: lh 1.4→1.2, added family + ls normal.
+(The lime title-arrow affordance is kept as our design embellishment; the date lime was a drift, corrected.)
+**Media** — measured source benefits row `.cmp-text` (home.html): heading 28 (≤1023) → 32 (≥1024),
+Graphik Semibold, lh 1.0, ls -0.03em; body 16px Graphik Regular, lh 1.2 (19.2px), ls -0.03em. Our media CSS
+already matched (28→32 heading, 16/1.2 body, global tracking) — verified, no change needed.
+Verified both migrated: news 24/16/16 mobile → 32 title desktop; media 28→32 heading, body 16/19.2.
+lint/overflow/typo/a11y ✓ on both pages.
+
+### 2026-09-16 — cards (text): fixed reserved heading BANDS (vertical rhythm parity)
+Earlier subgrid pass aligned bodies per row but used a flat 24px head→body gap — the source doesn't
+work that way. Re-measured the source `.cmp-text` heading boxes: each heading sits in a **fixed reserved
+band, constant at every breakpoint ≥768** — row1 = **96px**, row2 = **76px** — taller than the heading
+text, with the body 24px below the band. That yields per-row head→body gaps of **56px (row1) / 68px (row2)**
+at desktop and **48/24/72 (row1, by title line-count) / 52 (row2)** at tablet — NOT a flat 24. My flat gap
+was the drift the user saw.
+Fix: set explicit grid tracks on `.cards.text > ul` — `grid-template-rows: minmax(96px,auto) auto
+minmax(76px,auto) auto` — and `align-self: start` on the subgrid headings so the band slack falls BELOW the
+title. Removed the heading `margin-bottom`/ul flat row-gap reliance for the gap.
+Verified migrated == source: desktop head→body 56/68, tablet 48/24/72 & 52, row-to-row 84, mobile 24 (1-up,
+86px card gap); bodies align per row at all breakpoints. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — cards (text): mobile/tablet parity (6 measured bugs, verified per-element)
+Probed live source + preview with getBoundingClientRect/getComputedStyle at the SAME width (390/417/480/768/900/1024) and fixed:
+1. **h2→first-card gap**: 108→**60px** flat below 1024 (was the visible mobile "extra space"). Restored 76px @1024, 108px @1280.
+2. **Mobile title slot**: was collapsing cards 4–6 to 56px; now uniform **88px** (h3 min-height 64 + 24 gap) for all six, card 2 grows to 120 only <480 (3-line title). No row1/row2 distinction on mobile (1 column).
+3. **Tablet body**: 16→**14px / 16.8 / -0.42px** for 768–1023 only; 16/19.2/-0.48 restored ≥1024.
+4. **h3 font-weight**: 400→**700** at every breakpoint (Graphik Semibold is a variable 400–700 face).
+5. **Horizontal gutters**: h2 now uses the section gutter (x=16 mobile / 40 tablet / 48 @1024); cards inset +8px (<768) / +12px (≥768) → card x=24/52/60. Widths now 342@390, 369@417, 432@480, 189.33@768, 233.33@900, 269.33@1024.
+6. **Inter-row flow gap**: 84→**60px** (768–1023) via card margin-bottom 36 + 24 ul row-gap; 68px @1024 (mb 44); 84px @1280 (mb 60).
+Mechanism: section `padding-inline` carries the h2 gutter; `.cards-wrapper padding-inline` adds the card inset; the h2 default-content-wrapper padding is zeroed so h2 sits flush to the section gutter. Desktop (≥1280) x/width/gaps unchanged except the intended weight-700 fix. lint/breakpoint/overflow/typography/a11y all ✓.

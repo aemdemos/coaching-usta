@@ -8,7 +8,7 @@
    the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block:not(.media, .pricing) > ul {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news) > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -17,7 +17,7 @@
   gap: 24px;
 }
 
-.cards.block:not(.media, .pricing) > ul > li {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news) > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -30,10 +30,835 @@
   line-height: 0;
 }
 
-.cards.block:not(.media, .pricing) > ul > li img {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news) > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
+}
+
+/* ----------------------------------------------------------------- course --
+   Workshops course cards. Source: 2-up grid, 24px gap; each card = full-width
+   top image (523x314, ~1.66, radius 20) + body (21px inset) with a Graphik
+   Semibold white title (28px, 32px @≥1280), an 18/24 white description, and a
+   blue (#0373F3) rounded "duration" pill (radius 20, 8px padding, 16px black).
+   Card is a transparent tile with a 1px white border + 20px radius. Rhythm:
+   image→title 30px, title→desc 24px, desc→pill 46px.
+   CONTENT WIDTH (source-measured): full-width w/ 16/40/48 gutters through 1024,
+   then a NARROW centered column at >=1280 — 75% of viewport, capped ~1173px
+   (measured: 1024→928 @48px gutter, 1280→960 =75%, 1440→~1080, 1920→1173 cap).
+   This is narrower than the 1536/64px container the other variants use. */
+.cards-container:has(.cards.course) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+.cards-container:has(.cards.course) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cards.course > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.cards.course .cards-course-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.cards.course .cards-course-image {
+  line-height: 0;
+}
+
+/* Source image is a FIXED height per tier (object-fit: cover), not a constant
+   aspect: measured 208px @mobile → 278px @1024 → 314px @1280+ (card width varies
+   440→528 while height stays 314). Reproduce with fixed heights + cover. */
+.cards.course .cards-course-image img {
+  width: 100%;
+  height: 208px;
+  display: block;
+  object-fit: cover;
+}
+
+.cards.course .cards-course-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 21px 21px 48px; /* source: 21px sides/top, larger bottom breathing room */
+}
+
+.cards.course .cards-course-body h1,
+.cards.course .cards-course-body h2,
+.cards.course .cards-course-body h3,
+.cards.course .cards-course-body h4,
+.cards.course .cards-course-body h5,
+.cards.course .cards-course-body h6 {
+  margin: 6px 0 0; /* source: image→title 30px (24px card pad + 6px) */
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 28px; /* source: 28px through 1024, 32px at >=1280 */
+  line-height: 1;
+  letter-spacing: normal; /* source: title ls normal (overrides global h3 -0.03em) */
+  color: #fff;
+}
+
+.cards.course .cards-course-body p {
+  margin: 24px 0 0; /* title→desc 24px */
+  font-size: 18px; /* source: 18/24 at every breakpoint */
+  line-height: 24px;
+  letter-spacing: normal; /* source: desc ls normal (overrides global body -0.03em) */
+  color: #fff;
+}
+
+/* the blue duration pill — content-width, centered under the description.
+   Source: blue (#0373f3) fill, WHITE text, generous horizontal padding so the
+   pill reads ~150px for "3.5 Hours" (not hugging the text). */
+.cards.course .cards-course-body p.cards-course-duration {
+  align-self: center;
+  width: fit-content; /* pill sizes to text + padding, centered */
+  margin: 46px auto 0; /* desc→pill 46px; auto-inline centers the pill */
+  padding: 10px 42px;
+  border-radius: 20px;
+  background-color: var(--usta-blue-aa); /* AA-safe blue for white text (see styles.css) */
+  color: #fff; /* source: white pill text */
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 700; /* source pill text is bold (<b>) */
+  font-size: 16px;
+  line-height: 19.2px; /* source: 16/19.2 */
+  letter-spacing: normal;
+  text-align: center;
+}
+
+/* tablet+ : 2-up grid, wider gutters */
+@media (width >= 768px) {
+  .cards-container:has(.cards.course) { padding-inline: 40px; }
+
+  .cards.course > ul { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (width >= 1024px) {
+  .cards-container:has(.cards.course) { padding-inline: 48px; }
+
+  .cards.course .cards-course-image img { height: 278px; } /* source @1024 */
+}
+
+/* wide desktop (>=1280): the source narrows to a centered column (not the full
+   64px-gutter container). Its width is NOT a flat %: measured 960@1280 and
+   1093@1440, capping at 1173 (~1536+). Reproduce that exact ramp with a linear
+   calc — 960px at 1280 growing 0.831px per viewport px — clamped to 1173.
+   clamp(960, 960 + (100vw-1280)*0.831, 1173): exact at 1280/1440, caps at 1536. */
+@media (width >= 1280px) {
+  .cards-container:has(.cards.course) {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  .cards-container:has(.cards.course) > .cards-wrapper {
+    box-sizing: border-box;
+    width: clamp(960px, calc(960px + (100vw - 1280px) * 0.831), 1173px);
+    margin-inline: auto;
+  }
+
+  .cards.course .cards-course-image img { height: 314px; } /* source @1280+ */
+
+  .cards.course .cards-course-body h1,
+  .cards.course .cards-course-body h2,
+  .cards.course .cards-course-body h3,
+  .cards.course .cards-course-body h4,
+  .cards.course .cards-course-body h5,
+  .cards.course .cards-course-body h6 { font-size: 32px; }
+}
+
+/* ------------------------------------------------------------------- text --
+   "OUR PURPOSE" text-only cards on the about page. Source (desktop): a 3-up grid
+   (mobile 1-up), each cell = a 32px Graphik Semibold white heading + a 16/19.2
+   white body paragraph, no image/CTA. Column gap ~48px, generous row gap. The
+   heading reserves a 2-line slot so the body copy baseline-aligns across a row.
+   Section gutters 16/40/48/64 in the 1536-capped centered container. */
+.cards-container:has(.cards.text) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+
+  /* Section outer gutter = the H2's gutter (source h2 x=16 mobile / 40 tablet).
+     The cards get an extra +8px inset via the cards-wrapper to land at x=24/52. */
+  padding-inline: 16px;
+}
+
+/* cards sit 8px further in than the section gutter (source card content x=24
+   mobile / 52 tablet vs h2 x=16 / 40). */
+.cards-container:has(.cards.text) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding-inline: 8px;
+}
+
+.cards.text > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 86px; /* mobile 1-up: source card→card vertical gap = 86px */
+}
+
+/* gap between a preceding section title (e.g. "OUR PURPOSE") and the text cards.
+   Source-measured: title-bottom → first-card title-slot-top = FLAT 60px at every
+   width below 1024 (and the same flow at desktop). */
+.cards-container:has(.cards.text) .cards-wrapper {
+  margin-top: 60px;
+}
+
+.cards.text .cards-text-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* heading: source is Graphik Semibold WEIGHT 700 (the face is variable 400–700),
+   white. On mobile the title sits in a reserved 64px min-height slot (top-aligned)
+   with a 24px gap to the body → an 88px title slot; a 3-line title (card 2 @<480)
+   grows the slot to 120px naturally. No per-row distinction on mobile (1 column). */
+.cards.text .cards-text-card h1,
+.cards.text .cards-text-card h2,
+.cards.text .cards-text-card h3,
+.cards.text .cards-text-card h4,
+.cards.text .cards-text-card h5,
+.cards.text .cards-text-card h6 {
+  margin: 0 0 24px;
+  min-height: 64px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  color: #fff;
+}
+
+
+.cards.text .cards-text-card p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #fff;
+}
+
+/* the preceding section heading (e.g. "OUR PURPOSE") uses the SAME outer gutter as
+   the cards' section box — source h2 x=16 (mobile) / 40 (tablet). Drop the default
+   center-wrapper padding so the h2 sits flush to the section gutter (no extra
+   inset — the cards, not the h2, carry the +8px). */
+main > .section.center:has(.cards.text) > .default-content-wrapper {
+  padding-inline: 0;
+}
+
+@media (width >= 768px) {
+  /* tablet: section gutter 40 (h2 x=40) + 12px card inset = card x=52 (source). */
+  .cards-container:has(.cards.text) { padding-inline: 40px; }
+
+  /* card inset grows to 12px at ≥768 (source item padding is 8px<768, 12px≥768) */
+  .cards-container:has(.cards.text) > .cards-wrapper { padding-inline: 12px; }
+
+  /* Per-row heading-height equalization (matches source): the ul is a 3-col grid;
+     each card is a SUBGRID spanning a [heading, body] row pair, so every heading
+     in a row stretches to the tallest heading in THAT row and all bodies line up.
+     Source reserves a FIXED heading band per row (constant ≥768): row1 = 96px,
+     row2 = 76px. minmax() keeps the band but lets an over-long title grow it.
+     Rows: [row1 head, row1 body, row2 head, row2 body]. The 24px ul row-gap is
+     the band→body gap; the card margin-bottom (36px) + 24px = 60px flow gap from
+     row1 body text to row2 title slot — the source's measured inter-row spacing. */
+  .cards.text > ul {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: minmax(96px, auto) auto minmax(76px, auto) auto;
+    gap: 24px 48px; /* row-gap (band→body) / column-gap */
+  }
+
+  @supports (grid-template-rows: subgrid) {
+    .cards.text .cards-text-card {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: span 2;
+      margin-bottom: 36px; /* + 24px ul row-gap = 60px row1-body → row2-slot */
+    }
+
+    /* the heading top-aligns in its reserved band so the slack falls BELOW the
+       title — reproducing the source's large, per-row head→body gap. */
+    .cards.text .cards-text-card h1,
+    .cards.text .cards-text-card h2,
+    .cards.text .cards-text-card h3,
+    .cards.text .cards-text-card h4,
+    .cards.text .cards-text-card h5,
+    .cards.text .cards-text-card h6 {
+      align-self: start;
+    }
+  }
+
+  /* Tablet (768–1023): source heading 24px/24; the band (not margin) drives the
+     head→body gap, so clear the base min-height/margin. Body drops to 14/16.8. */
+  .cards.text .cards-text-card h1,
+  .cards.text .cards-text-card h2,
+  .cards.text .cards-text-card h3,
+  .cards.text .cards-text-card h4,
+  .cards.text .cards-text-card h5,
+  .cards.text .cards-text-card h6 {
+    min-height: 0;
+    font-size: 24px;
+    margin-bottom: 0;
+  }
+
+  /* tablet body: source is 14px / 16.8px line-height, letter-spacing -0.42px */
+  .cards.text .cards-text-card p {
+    font-size: 14px;
+    line-height: 1.2; /* 16.8px */
+    letter-spacing: -0.42px;
+  }
+}
+
+@media (width >= 1024px) {
+  /* small desktop (1024–1279): source h2 x=48, card x=60 (48 gutter + 12 inset),
+     h2→first-card 76px, inter-row flow gap 68px. */
+  .cards-container:has(.cards.text) { padding-inline: 48px; }
+  .cards-container:has(.cards.text) .cards-wrapper { margin-top: 76px; }
+
+  @supports (grid-template-rows: subgrid) {
+    .cards.text .cards-text-card { margin-bottom: 44px; } /* +24 ul row-gap = 68 */
+  }
+
+  /* small desktop (1024–1279): source heading 28px/28 */
+  .cards.text .cards-text-card h1,
+  .cards.text .cards-text-card h2,
+  .cards.text .cards-text-card h3,
+  .cards.text .cards-text-card h4,
+  .cards.text .cards-text-card h5,
+  .cards.text .cards-text-card h6 {
+    font-size: 28px;
+  }
+
+  /* ≥1024 body returns to 16px / 19.2px (only the 768–1023 band is 14px) */
+  .cards.text .cards-text-card p {
+    font-size: 16px;
+    line-height: 1.2; /* 19.2px */
+    letter-spacing: -0.48px;
+  }
+}
+
+/* wide desktop (>=1280): align the card text with the header's hamburger GLYPH,
+   not the button edge. The header nav pads 52px, and the 48px hamburger button
+   centers its 16px glyph — so the visible lines start at 52+16 = 68px. Source
+   h2→first-card 108px, inter-row flow gap 84px. */
+@media (width >= 1280px) {
+  .cards-container:has(.cards.text) { padding-inline: 64px; }
+  .cards-container:has(.cards.text) .cards-wrapper { margin-top: 108px; }
+
+  @supports (grid-template-rows: subgrid) {
+    .cards.text .cards-text-card { margin-bottom: 60px; } /* +24 ul row-gap = 84 */
+  }
+
+  /* wide desktop (>=1280): source heading back to 32px/32 */
+  .cards.text .cards-text-card h1,
+  .cards.text .cards-text-card h2,
+  .cards.text .cards-text-card h3,
+  .cards.text .cards-text-card h4,
+  .cards.text .cards-text-card h5,
+  .cards.text .cards-text-card h6 {
+    font-size: 32px;
+  }
+}
+
+/* ---------------------------------------------------------------- profile --
+   Leadership/bio cards on the about page. Source: 2-up grid; each card = a
+   rounded portrait photo on top and a body below with the person's name (large
+   Graphik Semibold), a bold role/title, and a bio paragraph. A FEATURED card is
+   filled lime (#cfff05) with black text (and a "Bio" label heading); a normal
+   card is transparent with a 1px white border and a lime role line. Section
+   gutters 16/40/48/64 in the 1536-capped centered container. */
+.cards-container:has(.cards.profile) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+.cards-container:has(.cards.profile) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cards.profile > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.cards.profile .cards-profile-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.cards.profile .cards-profile-image {
+  line-height: 0;
+}
+
+.cards.profile .cards-profile-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 2 / 1; /* source portrait crop */
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.cards.profile .cards-profile-body {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+}
+
+/* name — source: 32px (<=1023) -> 40px (>=1024), Graphik Semibold, weight 400,
+   line-height 1.0, letter-spacing normal, mb 24 */
+.cards.profile .cards-profile-name {
+  margin: 0 0 24px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* role / title — source: 16px flat, Graphik Regular, line-height normal, lime,
+   letter-spacing normal, mb 8 */
+.cards.profile .cards-profile-role {
+  margin: 0 0 8px;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: normal;
+  letter-spacing: normal;
+  color: var(--usta-lime); /* normal card: lime role line */
+}
+
+/* bio — source: 16px (<=1023) -> 18px (>=1024), Graphik Regular, line-height
+   normal, letter-spacing normal, mb 0 */
+.cards.profile .cards-profile-body p:not(.cards-profile-role) {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* the "Bio" label (2nd heading) on a featured card */
+.cards.profile .cards-profile-bio-label {
+  margin: 24px 0 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+}
+
+/* normal (non-featured) card: transparent tile, white border */
+.cards.profile .cards-profile-card:not(.is-featured) {
+  border: 1px solid #fff;
+}
+
+/* featured card: filled lime, black text throughout */
+.cards.profile .cards-profile-card.is-featured {
+  background-color: var(--usta-lime);
+}
+
+.cards.profile .cards-profile-card.is-featured .cards-profile-name,
+.cards.profile .cards-profile-card.is-featured .cards-profile-role,
+.cards.profile .cards-profile-card.is-featured .cards-profile-bio-label,
+.cards.profile .cards-profile-card.is-featured .cards-profile-body p {
+  color: #000;
+}
+
+/* tablet+ : 2-up grid */
+@media (width >= 768px) {
+  .cards-container:has(.cards.profile) { padding-inline: 40px; }
+
+  .cards.profile > ul { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (width >= 1024px) {
+  .cards-container:has(.cards.profile) { padding-inline: 48px; }
+
+  /* source: name 32 -> 40, bio 16 -> 18 at the desktop breakpoint */
+  .cards.profile .cards-profile-name { font-size: 40px; }
+  .cards.profile .cards-profile-body p:not(.cards-profile-role) { font-size: 18px; }
+}
+
+@media (width >= 1280px) {
+  .cards-container:has(.cards.profile) { padding-inline: 64px; }
+}
+
+/* ------------------------------------------------------------- comparison --
+   Certification-tier comparison cards on the courses page. Source: 4-up grid of
+   dark (#1D1D1D) rounded (16px) cards with a 1px #707070 border. Each active
+   card: a centered logo, a title + "Annual Package Fee" subtitle, a blue
+   "PER YEAR" pill + a 28px price, a checkmarked included-modules list, workshop
+   cost lines, and a highlighted blue (#0373F3) TOTAL footer bar flush to the
+   card's bottom edge. Coming-soon cards render a dimmed/disabled state. Below
+   1024 the row stacks to 1-up. Section gutters 16/40/48/64. */
+.cards-container:has(.cards.comparison) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+.cards-container:has(.cards.comparison) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cards.comparison > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.cards.comparison .cards-comparison-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #707070;
+  border-radius: 16px;
+  background-color: #1d1d1d;
+  color: #fff;
+}
+
+.cards.comparison .cards-comparison-logo {
+  display: flex;
+  justify-content: center;
+  padding: 24px 24px 0;
+}
+
+.cards.comparison .cards-comparison-logo img {
+  width: auto;
+  max-width: 60%;
+  height: auto;
+}
+
+.cards.comparison .cards-comparison-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 24px;
+}
+
+/* title (Development Coach Badge / Coaching Professional Certification)
+   source: 16px Graphik Semibold, weight 400, line-height 16px (1.0),
+   letter-spacing -0.64px, margin 16 0 8 */
+.cards.comparison .cards-comparison-body h1,
+.cards.comparison .cards-comparison-body h2,
+.cards.comparison .cards-comparison-body h3,
+.cards.comparison .cards-comparison-body h4,
+.cards.comparison .cards-comparison-body h5,
+.cards.comparison .cards-comparison-body h6 {
+  margin: 16px 0 8px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: -0.64px;
+  color: #fff;
+}
+
+/* body copy (workshop cost lines) — source: 14px Graphik Regular, line-height
+   16.8px (1.2), letter-spacing -0.42px */
+.cards.comparison .cards-comparison-body p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.42px;
+  color: #fff;
+}
+
+/* "Annual Package Fee" subtitle — source: 14px Graphik Semibold, weight 400,
+   line-height 14px (1.0), letter-spacing -0.64px, margin-bottom 21 */
+.cards.comparison .cards-comparison-body p.cards-comparison-subtitle {
+  margin: 0 0 21px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.64px;
+}
+
+/* blue "PER YEAR" pill (scoped under the body to outrank the generic p rule)
+   source: 12px Graphik Regular, line-height 12px (1.0), letter-spacing -0.36px,
+   uppercase, pad 3px 9px, radius 20 */
+.cards.comparison .cards-comparison-body p.cards-comparison-peryear {
+  align-self: flex-start;
+  width: fit-content;
+  margin: 16px 0 8px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background-color: var(--usta-blue-aa); /* AA contrast for white 12px text */
+  color: #fff;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: -0.36px;
+}
+
+/* price (scoped under .cards-comparison-body to outrank the generic p rule)
+   source: 28px Graphik Semibold, line-height 28px (1.0), letter-spacing -1.12px */
+.cards.comparison .cards-comparison-body p.cards-comparison-price {
+  margin: 0 0 8px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -1.12px;
+  color: #fff;
+}
+
+/* section labels (INCLUDED ONLINE MODULES / WORKSHOP COSTS) — source:
+   14px Graphik Regular, weight 700, line-height 16.8px (1.2), letter-spacing
+   -0.42px, uppercase */
+.cards.comparison .cards-comparison-body p strong {
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.42px;
+  text-transform: uppercase;
+}
+
+/* included-modules list with a blue check */
+.cards.comparison .cards-comparison-modules {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* included-modules items — source: 14px Graphik Regular, line-height 16.8px
+   (1.2), letter-spacing -0.42px */
+.cards.comparison .cards-comparison-modules li {
+  position: relative;
+  padding-left: 28px;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.42px;
+  color: #fff;
+}
+
+.cards.comparison .cards-comparison-modules li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none'%3e%3cpath d='M20.3637 7.74311L20.697 7.38985L20.3536 7.04645L18.9536 5.64645L18.59 5.28288L18.2367 5.65646L9.87802 14.4955L5.74116 10.6345L5.38802 10.3049L5.04645 10.6464L3.64645 12.0464L3.29289 12.4L3.64645 12.7535L9.52145 18.6285L9.88785 18.9949L10.2413 18.6165L20.3637 7.74311Z' fill='%230373F3' stroke='%230373F3'/%3e%3c/svg%3e") no-repeat center / contain;
+}
+
+/* highlighted blue TOTAL footer bar — flush to the card's bottom edge, pinned */
+.cards.comparison .cards-comparison-total {
+  margin: 24px -24px -24px; /* cancel the body's 24px padding so it's edge-to-edge */
+  margin-top: auto; /* pin to the bottom */
+  padding: 14px 24px;
+  background-color: var(--usta-blue-aa); /* AA contrast for white text */
+  text-align: center;
+}
+
+.cards.comparison .cards-comparison-total p {
+  margin: 0;
+  color: #fff;
+}
+
+/* TOTAL label — source: 14px Graphik Regular, line-height 14px (1.0),
+   letter-spacing -0.42px, uppercase */
+.cards.comparison .cards-comparison-total p:first-child {
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.42px;
+  text-transform: uppercase;
+}
+
+/* TOTAL value — source: 18px Graphik Semibold, line-height 18px (1.0),
+   letter-spacing -0.8px */
+.cards.comparison .cards-comparison-total p:last-child {
+  margin-top: 2px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.8px;
+}
+
+/* coming-soon: dimmed, centered label, no footer */
+.cards.comparison .cards-comparison-card.is-coming-soon {
+  opacity: 0.6;
+}
+
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body {
+  justify-content: flex-start;
+}
+
+/* tablet: 2-up */
+@media (width >= 768px) {
+  .cards-container:has(.cards.comparison) { padding-inline: 40px; }
+
+  .cards.comparison > ul { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* desktop: 4-up */
+@media (width >= 1024px) {
+  .cards-container:has(.cards.comparison) { padding-inline: 48px; }
+
+  .cards.comparison > ul { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (width >= 1280px) {
+  .cards-container:has(.cards.comparison) { padding-inline: 64px; }
+}
+
+/* ------------------------------------------------------------------- news --
+   News/article cards: a 2-up grid of article cards, each = a top image (rounded)
+   + a bold title (a link), a publish date, and an excerpt. The title link shows
+   a lime arrow affordance. Section gutters 16/40/48/64 in the 1536-capped
+   centered container. */
+.cards-container:has(.cards.news) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+.cards-container:has(.cards.news) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cards.news > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.cards.news .cards-news-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cards.news .cards-news-image {
+  line-height: 0;
+}
+
+.cards.news .cards-news-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.cards.news .cards-news-body {
+  display: flex;
+  flex-direction: column;
+  padding-top: 24px;
+}
+
+/* title (usually a link) with a lime arrow affordance — source:
+   24px (<=767) -> 28px (768) -> 32px (>=1024), Graphik Semibold weight 400,
+   line-height 1.0, letter-spacing -0.03em (the global tracking) */
+.cards.news .cards-news-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.cards.news .cards-news-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cards.news .cards-news-title a::after {
+  content: " →";
+  color: var(--usta-lime);
+}
+
+/* publish date — source: 16px Graphik Regular, line-height 19.2px (1.2),
+   letter-spacing normal, white */
+.cards.news .cards-news-date {
+  margin: 12px 0 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* excerpt — source: 16px Graphik Regular, line-height 19.2px (1.2),
+   letter-spacing normal, white */
+.cards.news .cards-news-excerpt {
+  margin: 12px 0 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+@media (width >= 768px) {
+  .cards-container:has(.cards.news) { padding-inline: 40px; }
+
+  .cards.news > ul {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+
+  /* title 24 -> 28 at the tablet breakpoint */
+  .cards.news .cards-news-title { font-size: 28px; }
+}
+
+@media (width >= 1024px) {
+  .cards-container:has(.cards.news) { padding-inline: 48px; }
+
+  /* title 28 -> 32 at the desktop breakpoint */
+  .cards.news .cards-news-title { font-size: 32px; }
+}
+
+@media (width >= 1280px) {
+  .cards-container:has(.cards.news) { padding-inline: 64px; }
 }
 
 /* ------------------------------------------------------------------ media -- */

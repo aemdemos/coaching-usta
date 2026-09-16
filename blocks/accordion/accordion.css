@@ -14,24 +14,6 @@ main > .section.accordion-container > div {
   padding-inline: 16px;
 }
 
-@media (width >= 768px) {
-  main > .section.accordion-container > div {
-    padding-inline: 40px;
-  }
-}
-
-@media (width >= 1024px) {
-  main > .section.accordion-container > div {
-    padding-inline: 48px;
-  }
-}
-
-@media (width >= 1280px) {
-  main > .section.accordion-container > div {
-    padding-inline: 64px;
-  }
-}
-
 /* stack of pill cards, 24px apart */
 .accordion.block {
   display: flex;
@@ -40,7 +22,7 @@ main > .section.accordion-container > div {
 }
 
 /* each item is a rounded card */
-.accordion .accordion-item {
+.accordion.accordion-default .accordion-item {
   box-sizing: border-box;
   border: 1px solid #fff;
   border-radius: 20px;
@@ -50,19 +32,19 @@ main > .section.accordion-container > div {
 
 /* open item: lime background, black text, no border (compensate the 1px with an
    extra 1px padding so the content doesn't shift) */
-.accordion .accordion-item[open] {
+.accordion.accordion-default .accordion-item[open] {
   border-color: transparent;
   background-color: var(--usta-lime);
   padding: 25px;
 }
 
-.accordion .accordion-item[open] .accordion-item-label,
-.accordion .accordion-item[open] .accordion-item-body p {
+.accordion.accordion-default .accordion-item[open] .accordion-item-label,
+.accordion.accordion-default .accordion-item[open] .accordion-item-body p {
   color: #000;
 }
 
 /* label row */
-.accordion .accordion-item-label {
+.accordion.accordion-default .accordion-item-label {
   position: relative;
   display: flex;
   align-items: center;
@@ -77,27 +59,13 @@ main > .section.accordion-container > div {
   color: #fff;
 }
 
-/* accordion row title scale (source .cmp-accordion__title): 24 (<=767) -> 28
-   (768-1279) -> 32 (>=1280); line-height tracks the font size (1.0). */
-@media (width >= 768px) {
-  .accordion .accordion-item-label {
-    font-size: 28px;
-  }
-}
-
-@media (width >= 1280px) {
-  .accordion .accordion-item-label {
-    font-size: 32px;
-  }
-}
-
-.accordion .accordion-item-label::-webkit-details-marker {
+.accordion.accordion-default .accordion-item-label::-webkit-details-marker {
   display: none;
 }
 
 /* +/- toggle: horizontal bar always, vertical bar only when closed */
-.accordion .accordion-item-label::before,
-.accordion .accordion-item-label::after {
+.accordion.accordion-default .accordion-item-label::before,
+.accordion.accordion-default .accordion-item-label::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -109,22 +77,22 @@ main > .section.accordion-container > div {
   transition: opacity 0.2s;
 }
 
-.accordion .accordion-item-label::after {
+.accordion.accordion-default .accordion-item-label::after {
   transform: translateY(-50%) rotate(90deg);
 }
 
-.accordion .accordion-item[open] .accordion-item-label::after {
+.accordion.accordion-default .accordion-item[open] .accordion-item-label::after {
   opacity: 0;
 }
 
 /* body copy: revealed when open. 16px mobile -> 18px desktop, lh 1.2. It spans
    the FULL card width (no toggle-column reserve) so the text flows below the
    +/- glyph — matching the source. */
-.accordion .accordion-item-body {
+.accordion.accordion-default .accordion-item-body {
   padding: 16px 0 0;
 }
 
-.accordion .accordion-item-body p {
+.accordion.accordion-default .accordion-item-body p {
   margin: 0;
   color: #fff;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
@@ -133,8 +101,628 @@ main > .section.accordion-container > div {
   letter-spacing: -0.03em; /* source: -0.48px @16 / -0.54px @18 */
 }
 
-@media (width >= 1024px) {
-  .accordion .accordion-item-body p {
+/* ==========================================================================
+   TIMELINE variant (`accordion timeline`) — badge PATHWAY PANEL
+   Reproduces ustacoaching.com/…/results/volunteer-emerging-coach.html:
+   a dark rounded-bordered PANEL with a header (badge logo + intro + lime meta
+   grid) and its own chevron, revealing WHITE course cards. Each course card has
+   an eyebrow + bold title + description and its own chevron that reveals a
+   vertical connected-dot timeline of the ordered module steps.
+   Source: .v-classification-accordion (panel) + .v-course (cards) +
+   .v-course__timeline-circle (dots).
+   ========================================================================== */
+
+/* ---- outer panel: dark, 1px white border, 20px radius ---- */
+.accordion.timeline .accordion-timeline-panel {
+  box-sizing: border-box;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  background-color: #000;
+  padding: 16px 8px 8px; /* mobile: 16 top, 8 sides/bottom (source) */
+}
+
+/* panel header wrapper: holds the head (badge + text/meta). The chevron is NOT
+   here — it lives in the `__info` row beside the meta grid (see below) so it
+   centres on the META block, matching the source, not the whole tall header. */
+.accordion.timeline .accordion-timeline-panel-label {
+  padding: 0 8px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.accordion.timeline .accordion-timeline-panel-label::-webkit-details-marker {
+  display: none;
+}
+
+/* meta grid + chevron share a row (source `.v-classification-accordion-content__info`).
+   The chevron therefore centres on the meta block. Mobile: bottom-aligned
+   (align-items: flex-end); >=1024: vertically centred (align-items: center). The
+   chevron never shrinks and the meta grid takes the rest, so the chevron stays on
+   the row (no wrap) and flush to the right at any width. */
+.accordion.timeline .accordion-timeline-panel-info {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+/* header content: badge logo stacked + CENTRED above the text below 1024 (source
+   `.v-classification-accordion-content` = column, align-items: center — this holds
+   through the tablet 768–1023 tier); switches to badge-left / text-right (row) only
+   at >=1024. */
+.accordion.timeline .accordion-timeline-panel-head {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+}
+
+.accordion.timeline .accordion-timeline-badge {
+  flex: 0 0 auto;
+}
+
+.accordion.timeline .accordion-timeline-badge img {
+  display: block;
+  width: 300px;
+  max-width: 100%;
+  height: auto;
+}
+
+.accordion.timeline .accordion-timeline-panel-body {
+  flex: 1 1 auto;
+  align-self: stretch; /* full width even when the head centres the badge on mobile */
+  min-width: 0;
+}
+
+/* intro paragraph: Graphik Regular, white. Source scale: 16/1.2 mobile ->
+   18/1.2 at >=768; no letter-spacing on this body copy. */
+.accordion.timeline .accordion-timeline-panel-intro {
+  margin: 0 0 24px;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.accordion.timeline .accordion-timeline-panel-intro a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* meta grid: stacked on mobile, 3 columns on desktop. It fills the info row so
+   its last column can absorb the leftover width. */
+.accordion.timeline .accordion-timeline-meta {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* the first two columns size to their content (short values stay one line);
+   the last column (Industry Equivalent) absorbs the remaining width and wraps
+   its long lines — matching the source grid proportions (~116/142/rest). */
+.accordion.timeline .accordion-timeline-meta-col {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* meta heading (What To Expect / Minimum Req. Package / Industry Equivalent):
+   Graphik Semibold, LIME. Source scale: 14/14 (-0.42) through 1024, stepping to
+   18/18 (-0.54) only at >=1280. */
+.accordion.timeline .accordion-timeline-meta-heading {
+  margin: 0 0 14px; /* source: one blank 14px line between heading and first value */
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: -0.42px;
+  color: var(--usta-lime);
+}
+
+.accordion.timeline .accordion-timeline-meta-heading a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* meta value lines: Graphik Semibold, white, same size as heading. Source packs
+   the value lines back-to-back at the 14px line-height (zero margin) so a long
+   list (Industry Equivalent) has the SAME line rhythm as a short one (What To
+   Expect) — do NOT add inter-line margin here. */
+.accordion.timeline .accordion-timeline-meta-value {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: -0.42px;
+  color: #fff;
+}
+
+/* collapsed course list: the panel toggle sets [hidden]; the flex rule below
+   would override the UA hidden behaviour, so force it off (class+attr specificity) */
+.accordion.timeline .accordion-timeline-courses[hidden] {
+  display: none;
+}
+
+/* ---- course cards: stacked white cards inside the collapsible region ---- */
+.accordion.timeline .accordion-timeline-courses {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px;
+}
+
+/* Course cards. On MOBILE the source collapses each card to just its
+   header (eyebrow + title) — a compact card that grows only when its chevron
+   reveals the description/timeline; there is NO fixed height reserve, so a
+   "0 modules" card stays short rather than showing a tall empty white box.
+   On DESKTOP (>=768) descriptions are always visible and the source's Vue app
+   sets an inline min-height: 232px on every `.v-course.description-enabled`
+   card so the cards line up equal-height; we reproduce that reserve there. */
+.accordion.timeline .accordion-timeline-course {
+  box-sizing: border-box;
+  border-radius: 20px;
+  background-color: #fff;
+  padding: 16px; /* mobile */
+}
+
+/* card header: content (badge + text) + chevron button, always visible */
+.accordion.timeline .accordion-timeline-course-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* content row: optional badge (left) + text column, vertically centred.
+   min-height 40px matches the source .v-course__content so a collapsed card is
+   the same height as the chevron button row. Source gap: 16px mobile -> 24px >=768. */
+.accordion.timeline .accordion-timeline-course-content {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 40px;
+  min-width: 0;
+}
+
+/* course badge image (source .v-course__badge): 80px mobile -> 148px desktop */
+.accordion.timeline .accordion-timeline-course-badge {
+  flex: 0 0 auto;
+}
+
+.accordion.timeline .accordion-timeline-course-badge img {
+  display: block;
+  width: 80px;
+  height: auto;
+}
+
+/* card text column */
+.accordion.timeline .accordion-timeline-head {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* module-count eyebrow: Graphik Semibold, 12/12 mobile -> 16/16 desktop */
+.accordion.timeline .accordion-timeline-eyebrow {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 12px;
+  letter-spacing: -0.36px;
+  color: #000;
+}
+
+/* title: Graphik Semibold, 18/18 mobile -> 28/28 desktop */
+.accordion.timeline .accordion-timeline-title {
+  margin: 8px 0 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 18px;
+  letter-spacing: -0.54px;
+  color: #000;
+}
+
+/* description: Graphik Regular (source `.v-course__description`). Scale matches
+   the panel intro: 16/1.2 mobile -> 18/1.2 at >=768. Mobile: hidden until the
+   card opens; desktop (>=768): always visible. */
+.accordion.timeline .accordion-timeline-desc {
+  margin: 12px 0 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #000;
+}
+
+.accordion.timeline .accordion-timeline-desc a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* mobile: description hidden while the card is collapsed */
+.accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
+  display: none;
+}
+
+/* ---- chevron toggle: rounded-square <button> with a caret; flips when open.
+   Source size: 40x40 on mobile -> 48x48 at >=768. Panel chevron is WHITE (on the
+   dark panel); course chevron is BLACK (on the white card). */
+.accordion.timeline .accordion-timeline-chevron {
+  position: relative;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  background-color: transparent;
+  cursor: pointer;
+
+  /* suppress the browser's default (orange "auto") focus outline. The chevron's
+     OWN colour change is the focus indicator (border/fill turn lime on
+     :focus-visible, same as hover — matching the source), so we don't draw a
+     separate offset outline ring; an offset ring would read as a doubled line
+     outside the border, which the source doesn't have. */
+  outline: 2px solid transparent;
+
+  /* the source flips the chevron INSTANTLY (its button resolves to
+     `transition: all` with a 0s duration) — so DON'T transition `transform`.
+     Only the hover colour changes ease, matching the source's colour feedback. */
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.accordion.timeline .accordion-timeline-chevron::before {
+  content: '';
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* panel chevron = white */
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron {
+  border: 2px solid #fff;
+}
+
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron::before {
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+
+/* course chevron = black */
+.accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron {
+  border: 2px solid #000;
+}
+
+.accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron::before {
+  border-right: 2px solid #000;
+  border-bottom: 2px solid #000;
+}
+
+/* ---- hover/focus (source): panel chevron border + caret turn LIME; course
+   chevron fills LIME (caret stays black, reads on lime). ---- */
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:hover,
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:focus-visible {
+  border-color: var(--usta-lime);
+}
+
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:hover::before,
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:focus-visible::before {
+  border-right-color: var(--usta-lime);
+  border-bottom-color: var(--usta-lime);
+}
+
+/* course chevron fills LIME on hover/focus (caret stays black, reads on lime) —
+   this colour change IS the keyboard-focus indicator, so no separate outline ring
+   is drawn (which would double the border). */
+.accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:hover,
+.accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:focus-visible {
+  background-color: var(--usta-lime);
+}
+
+/* both chevrons flip when their own region is open (host carries .is-open) */
+.accordion.timeline .accordion-timeline-panel.is-open .accordion-timeline-panel-info > .accordion-timeline-chevron,
+.accordion.timeline .accordion-timeline-course.is-open > .accordion-timeline-course-label > .accordion-timeline-chevron {
+  transform: rotate(180deg);
+}
+
+/* ---- revealed vertical connected-dot timeline ---- */
+
+/* source `.v-course__modules` sits 16px below the description/header */
+.accordion.timeline .accordion-timeline-steps {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+/* timeline hidden until the card is open (both breakpoints) */
+.accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-steps {
+  display: none;
+}
+
+/* step row: source `.v-course__module` = min-height 40px + margin-bottom 32px
+   (the 40px min-height is what gives the roomier vertical rhythm between steps). */
+.accordion.timeline .accordion-timeline-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 40px;
+  margin-bottom: 32px;
+}
+
+.accordion.timeline .accordion-timeline-step:last-child {
+  margin-bottom: 0;
+}
+
+/* dot: z-index 1 lifts the white circle ABOVE the connector line (which starts
+   at the dot centre) so the line is hidden behind it and doesn't show through —
+   matching the source `.v-course__timeline-circle` (z-index: 1 on the flex item). */
+.accordion.timeline .accordion-timeline-circle {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 15px;
+  height: 15px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  background-color: #fff;
+}
+
+/* connecting line between dots (source `.v-course__module::after`): 2px wide,
+   starting at the vertically-centred circle (top: 50%) and running DOWN with a
+   percentage height so it scales with the row — reaching the next dot no matter
+   how many lines the step text wraps to. Source values: top 50%, height 150%,
+   max-height 250px. We draw it on EVERY step (source does too — the last step's
+   line simply has no dot below it but is hidden under the card edge); keeping it
+   on all steps means tall wrapped rows never leave a gap in the connector. */
+.accordion.timeline .accordion-timeline-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 6.5px;
+  width: 2px;
+  height: 150%;
+  max-height: 250px;
+  background-color: #000;
+}
+
+/* step label (source `.v-course__module-text`): 14px mobile -> 16px >=768,
+   lh normal, no letter-spacing. The SOURCE uses the "Graphik Regular" family
+   (a single regular master) so its computed font-weight:600 at mobile renders
+   VISUALLY as regular — NOT bold. We use Graphik Regular at 400 so it matches
+   the source's regular appearance (our Semibold face would render actually bold). */
+.accordion.timeline .accordion-timeline-step-text {
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #000;
+}
+
+/* ---- "View All Courses" footer CTA: lime pill, centred below the cards ---- */
+.accordion.timeline .accordion-timeline-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.accordion.timeline .accordion-timeline-viewall {
+  position: relative; /* keep the CTA above any sibling stacking context */
+  z-index: 1;
+  box-sizing: border-box;
+  display: inline-block;
+  width: 280px; /* source: fixed 280px wide below 1024, then content-width */
+  max-width: 100%;
+  padding: 14px 22px;
+  border-radius: 20px;
+  background-color: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px; /* source: 14 mobile -> 16 @768 -> 18 @1024 */
+  line-height: 1;
+  letter-spacing: normal; /* source button has no tracking */
+  text-align: center;
+  text-decoration: none;
+}
+
+.accordion.timeline .accordion-timeline-viewall:hover,
+.accordion.timeline .accordion-timeline-viewall:focus-visible {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   RESPONSIVE — mobile-first min-width tiers. One block per breakpoint, ascending
+   (768 -> 1024 -> 1280). Base (mobile) styles are declared above; each tier below
+   layers on the deltas for that width and up.
+   ========================================================================== */
+
+@media (width >= 768px) {
+  /* section gutter */
+  main > .section.accordion-container > div {
+    padding-inline: 40px;
+  }
+
+  /* accordion-default row title scale (source .cmp-accordion__title): 24 -> 28 */
+  .accordion.accordion-default .accordion-item-label {
+    font-size: 28px;
+  }
+
+  /* timeline panel padding */
+  .accordion.timeline .accordion-timeline-panel {
+    padding: 32px 12px 20px;
+  }
+
+  /* right pad trimmed so the chevron sits ~17px from the panel edge (source) */
+  .accordion.timeline .accordion-timeline-panel-label {
+    padding: 0 4px 12px 12px;
+  }
+
+  /* intro steps up to 18px */
+  .accordion.timeline .accordion-timeline-panel-intro {
     font-size: 18px;
+  }
+
+  /* meta grid becomes a row */
+  .accordion.timeline .accordion-timeline-meta {
+    flex-direction: row;
+    gap: 24px; /* source column gap */
+  }
+
+  .accordion.timeline .accordion-timeline-meta-col-grow {
+    flex: 1 1 auto;
+  }
+
+  /* course cards line up equal-height with the always-visible description */
+  .accordion.timeline .accordion-timeline-course {
+    min-height: 232px;
+    padding: 24px;
+  }
+
+  .accordion.timeline .accordion-timeline-course-content {
+    gap: 24px;
+  }
+
+  .accordion.timeline .accordion-timeline-course-badge img {
+    width: 120px;
+  }
+
+  /* desktop: description always visible; steps up to 18px like the source */
+  .accordion.timeline .accordion-timeline-desc {
+    font-size: 18px;
+  }
+
+  .accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
+    display: block;
+  }
+
+  /* course eyebrow + title scale: 12/18 -> 16/28 */
+  .accordion.timeline .accordion-timeline-eyebrow {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.48px;
+  }
+
+  .accordion.timeline .accordion-timeline-title {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.84px;
+  }
+
+  /* chevron grows to 48x48 */
+  .accordion.timeline .accordion-timeline-chevron {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* cards WITHOUT a timeline (description always shown, nothing to toggle) hide
+     their chevron; cards with a timeline keep it. */
+  .accordion.timeline .accordion-timeline-course:not(.accordion-timeline-course-has-timeline)
+    > .accordion-timeline-course-label > .accordion-timeline-chevron {
+    visibility: hidden;
+  }
+
+  /* step label steps up to 16px */
+  .accordion.timeline .accordion-timeline-step-text {
+    font-size: 16px;
+  }
+
+  /* View All Courses: content-width from 768 up, 16px */
+  .accordion.timeline .accordion-timeline-viewall {
+    width: auto;
+    font-size: 16px;
+  }
+}
+
+@media (width >= 1024px) {
+  /* section gutter */
+  main > .section.accordion-container > div {
+    padding-inline: 48px;
+  }
+
+  /* accordion-default body copy steps up to 18px */
+  .accordion.accordion-default .accordion-item-body p {
+    font-size: 18px;
+  }
+
+  /* meta grid runs flush to the chevron (no gap) so the meta keeps its full width
+     and the Industry column is wide enough to hold "USTA Play Facilitator Workshop"
+     on one line — only the last item wraps. Chevron vertically centred. */
+  .accordion.timeline .accordion-timeline-panel-info {
+    align-items: center;
+    gap: 0;
+  }
+
+  /* header switches to badge-left / text-right (row). No gap between badge and
+     text (the badge PNG carries its own internal padding); a gap here steals width
+     from the meta grid and forces the Industry column to wrap early. */
+  .accordion.timeline .accordion-timeline-panel-head {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  /* View All Courses steps up to 18px */
+  .accordion.timeline .accordion-timeline-viewall {
+    font-size: 18px;
+  }
+}
+
+@media (width >= 1280px) {
+  /* section gutter */
+  main > .section.accordion-container > div {
+    padding-inline: 64px;
+  }
+
+  /* accordion-default row title scale: 28 -> 32 */
+  .accordion.accordion-default .accordion-item-label {
+    font-size: 32px;
+  }
+
+  /* source widens the panel right gap to ~25px at the largest tier */
+  .accordion.timeline .accordion-timeline-panel-label {
+    padding: 12px;
+  }
+
+  /* badge widens from 300px to 365px */
+  .accordion.timeline .accordion-timeline-badge img {
+    width: 365px;
+  }
+
+  /* meta heading + value step up to 18/18 (-0.54) */
+  .accordion.timeline .accordion-timeline-meta-heading,
+  .accordion.timeline .accordion-timeline-meta-value {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.54px;
+  }
+
+  /* blank line between heading and first value scales with the 18px line-height */
+  .accordion.timeline .accordion-timeline-meta-heading {
+    margin-bottom: 18px;
+  }
+
+  /* course eyebrow + title scale: 16/28 -> 18/32 */
+  .accordion.timeline .accordion-timeline-eyebrow {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.54px;
+  }
+
+  .accordion.timeline .accordion-timeline-title {
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.96px;
   }
 }
