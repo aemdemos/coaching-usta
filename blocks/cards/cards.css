@@ -1108,9 +1108,13 @@
 }
 
 /* the section heading ("Our Partners & Affiliations") sitting directly above the
-   logo grid is centred on the source */
+   logo grid is centred on the source, with a gap before the grid
+   (source-measured, heading bottom → logo top: ~36px @mobile, ~56px from tablet up) */
 .cards-container:has(.cards.logos) > .default-content-wrapper:has(+ .cards-wrapper) {
   text-align: center;
+  margin-bottom: 36px;
+  padding-inline: 0; /* drop the default wrapper gutter so the heading gets the
+                        same room as the source and stays on one line */
 }
 
 .cards.logos > ul {
@@ -1119,18 +1123,24 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 0; /* source: columns are FLUSH — the inter-logo gap comes from the 65%
+             square + 12px cell padding, not a grid gap */
 }
 
 .cards.logos .cards-logo-card {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 12px 8px; /* source cell padding at mobile (12px vertical, 8px
+                        horizontal); the square fills the padded inner box.
+                        Desktop switches to 12px all-round + a 65% square. */
 }
 
-/* the logo square fills its cell; the grid gap is the only space between
-   logos. A picture nested inside a link fills that link (100%). */
+/* source: on mobile/tablet the logo square fills its cell's padded inner box
+   (measured 88px in a 104px column with 8px side padding); at desktop it
+   shrinks to 65% (measured 139px in a 215px cell). The surrounding whitespace
+   IS the inter-logo gap. A picture nested inside a link fills that link
+   (100%), so this isn't applied twice. */
 .cards.logos .cards-logo-card > a,
 .cards.logos .cards-logo-card > picture {
   display: block;
@@ -1155,11 +1165,26 @@
   .cards-container:has(.cards.logos) {
     padding-inline: 40px;
   }
+
+  .cards-container:has(.cards.logos) > .default-content-wrapper:has(+ .cards-wrapper) {
+    margin-bottom: 56px;
+  }
 }
 
 @media (width >= 1024px) {
   .cards-container:has(.cards.logos) {
     padding-inline: 48px;
+  }
+
+  /* at desktop the source shrinks the logo square to 65% of its cell, with
+     12px cell padding */
+  .cards.logos .cards-logo-card {
+    padding: 12px;
+  }
+
+  .cards.logos .cards-logo-card > a,
+  .cards.logos .cards-logo-card > picture {
+    width: 65%;
   }
 }
 
