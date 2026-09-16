@@ -138,3 +138,556 @@ main > .section.accordion-container > div {
     font-size: 18px;
   }
 }
+
+/* ==========================================================================
+   PATHWAY variant — "Recommended Learning Pathway" card
+   (source .v-classification-accordion). A single bordered black card with an
+   always-visible header (logo, description, 3-column info grid) and a chevron
+   toggle that reveals a panel of white course cards.
+   ========================================================================== */
+
+/* the pathway card spans the full section width (source: the card is the full
+   content column, not a narrow box) */
+.accordion.pathway .pathway-card {
+  box-sizing: border-box;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  background-color: #000;
+  padding: 16px 16px 32px;
+}
+
+@media (width >= 1280px) {
+  .accordion.pathway .pathway-card {
+    padding: 16px 24px 32px;
+  }
+}
+
+/* ---- header (always visible) ----
+   mobile/tablet: stacked (logo on top, content below);
+   desktop (>=1024): a row — logo left, content right. */
+.accordion.pathway .pathway-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (width >= 1024px) {
+  .accordion.pathway .pathway-header {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.accordion.pathway .pathway-logo {
+  flex: 0 0 auto;
+  width: 300px;
+  max-width: 100%;
+}
+
+@media (width >= 1280px) {
+  .accordion.pathway .pathway-logo {
+    width: 365px;
+  }
+}
+
+.accordion.pathway .pathway-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.accordion.pathway .pathway-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+@media (width >= 1024px) {
+  .accordion.pathway .pathway-container {
+    flex: 1;
+    width: auto;
+  }
+}
+
+@media (width >= 1280px) {
+  .accordion.pathway .pathway-container {
+    gap: 32px;
+  }
+}
+
+.accordion.pathway .pathway-desc p {
+  margin: 0;
+  color: #fff;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+/* the inline "here" link is not styled distinctly — inherits white, no underline (source) */
+.accordion.pathway .pathway-desc a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (width >= 768px) {
+  .accordion.pathway .pathway-desc p {
+    font-size: 18px;
+  }
+}
+
+/* ---- info row: 3-column info grid + chevron toggle at the right edge ---- */
+.accordion.pathway .pathway-info-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.accordion.pathway .pathway-info {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* info columns: 14px (mobile+tablet) -> 18px (>=1024); line-height 1.0 (source) */
+.accordion.pathway .pathway-info-col p {
+  margin: 0;
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* first line of each info column is the lime label */
+.accordion.pathway .pathway-info-col p:first-child,
+.accordion.pathway .pathway-info-col p:first-child a {
+  color: var(--usta-lime);
+}
+
+.accordion.pathway .pathway-info-col a {
+  text-decoration: underline;
+}
+
+@media (width >= 1024px) {
+  .accordion.pathway .pathway-info-col p {
+    font-size: 18px;
+  }
+}
+
+/* ---- chevron toggle (right end of the info row) ---- */
+.accordion.pathway .pathway-toggle {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 12px;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3csvg%20width='18'%20height='12'%20viewBox='0%200%2018%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M8.98542%204.74346L2.62146%2011.1074L0.500141%208.9861L8.98542%200.500819L17.4707%208.9861L15.3494%2011.1074L8.98542%204.74346Z'%20fill='white'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.accordion.pathway .pathway-toggle:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+/* open: chevron flips and turns lime */
+.accordion.pathway .pathway-card[open] .pathway-toggle {
+  transform: rotate(180deg);
+  background-image: url("data:image/svg+xml,%3csvg%20width='18'%20height='12'%20viewBox='0%200%2018%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M8.98542%204.74346L2.62146%2011.1074L0.500141%208.9861L8.98542%200.500819L17.4707%208.9861L15.3494%2011.1074L8.98542%204.74346Z'%20fill='%23CFFF05'/%3e%3c/svg%3e");
+}
+
+/* ---- expandable panel ---- */
+.accordion.pathway .pathway-panel {
+  display: none;
+}
+
+.accordion.pathway .pathway-card[open] .pathway-panel {
+  display: block;
+}
+
+.accordion.pathway .pathway-panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 24px;
+}
+
+/* section intro copy: 16px -> 18px (>=1024) -> 24px (>=1280); LH 1.2, LS normal */
+.accordion.pathway .pathway-intro p {
+  margin: 0;
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  text-align: center;
+}
+
+@media (width >= 1024px) {
+  .accordion.pathway .pathway-intro p {
+    font-size: 18px;
+  }
+}
+
+@media (width >= 1280px) {
+  .accordion.pathway .pathway-intro p {
+    font-size: 24px;
+  }
+}
+
+/* ---- course cards ----
+   one column on mobile/tablet, TWO columns at >=1024 (source) */
+.accordion.pathway .pathway-courses {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 16px;
+}
+
+@media (width >= 1024px) {
+  .accordion.pathway .pathway-courses {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* min-height keeps every collapsed card uniform regardless of text length.
+   The source's Vue JS equalises card heights to the tallest in the grid; it
+   resolves to ~315px on mobile (description hidden), 250px @768-1023, 305px
+   >=1024. Reproduced statically here. align-items:start on the grid lets an
+   expanded card grow without stretching its row-mate. */
+.accordion.pathway .pathway-course {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 315px;
+  border-radius: 20px;
+  background-color: #fff;
+  padding: 16px;
+}
+
+@media (width >= 768px) {
+  .accordion.pathway .pathway-course {
+    min-height: 250px;
+    padding: 24px;
+  }
+}
+
+@media (width >= 1024px) {
+  .accordion.pathway .pathway-course {
+    min-height: 305px;
+  }
+}
+
+.accordion.pathway .pathway-course-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (width >= 768px) {
+  .accordion.pathway .pathway-course-content {
+    gap: 24px;
+  }
+}
+
+.accordion.pathway .pathway-course-badge {
+  flex: 0 0 auto;
+  width: 80px;
+}
+
+.accordion.pathway .pathway-course-badge img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (width >= 768px) {
+  .accordion.pathway .pathway-course-badge {
+    width: 120px;
+  }
+}
+
+@media (width >= 1280px) {
+  .accordion.pathway .pathway-course-badge {
+    width: 148px;
+  }
+}
+
+.accordion.pathway .pathway-course-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.accordion.pathway .pathway-course-eyebrow {
+  margin: 0;
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* name clamps to 3 lines (source -webkit-line-clamp:3); scale 18 -> 28 -> 32 */
+.accordion.pathway .pathway-course-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  margin: 0;
+  padding-top: 8px;
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* course description: 16px (mobile) -> 18px (>=768); LH 1.2, LS normal (source) */
+.accordion.pathway .pathway-course-text p:not(.pathway-course-eyebrow) {
+  margin: 0;
+  padding-top: 16px;
+  color: #000;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+/* inline "To unlock… Badge" link inherits black, no underline (source) */
+.accordion.pathway .pathway-course-text a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (width >= 768px) {
+  .accordion.pathway .pathway-course-eyebrow {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .accordion.pathway .pathway-course-name {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .accordion.pathway .pathway-course-text p:not(.pathway-course-eyebrow) {
+    font-size: 18px;
+    padding-top: 20px;
+  }
+}
+
+@media (width >= 1280px) {
+  .accordion.pathway .pathway-course-eyebrow {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .accordion.pathway .pathway-course-name {
+    font-size: 32px;
+    line-height: 1;
+  }
+}
+
+/* ---- per-card chevron toggle (right of each course) ----
+   Source behaviour: the chevron SVG points UP; the CLOSED (:not([open])) state
+   is rotated 180deg to point down, and hover fills the button lime. */
+.accordion.pathway .pathway-course-toggle {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3csvg%20width='18'%20height='12'%20viewBox='0%200%2018%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M8.98542%207.25654L15.3494%200.892578L17.4707%203.0139L8.98542%2011.4992L0.500141%203.0139L2.62146%200.892578L8.98542%207.25654Z'%20fill='black'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+/* collapsed card: chevron points down (rotated) */
+.accordion.pathway .pathway-course:not([open]) .pathway-course-toggle {
+  transform: rotate(180deg);
+}
+
+/* hover fills the toggle lime (source) */
+.accordion.pathway .pathway-course-toggle:hover {
+  background-color: var(--usta-lime);
+}
+
+.accordion.pathway .pathway-course-toggle:focus-visible {
+  outline: 2px solid var(--usta-blue);
+  outline-offset: 2px;
+}
+
+/* clamped description + "…" ellipsis. clamp to ~6 lines; ellipsis expands it.
+   the wrapper is the positioning context for the absolute "…" (source parity).
+   MOBILE-FIRST: on mobile the collapsed card shows only badge + eyebrow + name —
+   the description is hidden and only revealed when the card is opened (source).
+   Its full text (no clamp / no "…") shows once open. */
+.accordion.pathway .pathway-course-desc-wrap {
+  position: relative;
+  display: none;
+}
+
+.accordion.pathway .pathway-course[open] .pathway-course-desc-wrap {
+  display: block;
+}
+
+.accordion.pathway .pathway-course[open] .pathway-course-desc {
+  max-height: none;
+  padding-right: 0;
+}
+
+.accordion.pathway .pathway-course[open] .pathway-course-ellipsis {
+  display: none;
+}
+
+/* from tablet up the description is always visible in the collapsed card */
+@media (width >= 768px) {
+  .accordion.pathway .pathway-course-desc-wrap {
+    display: block;
+  }
+
+  /* restore the clamp + "…" for the collapsed (not-open) state at >=768, but
+     NOT once the "…" has expanded the description (.is-expanded wins) */
+  .accordion.pathway .pathway-course:not([open]) .pathway-course-desc:not(.is-expanded) {
+    max-height: calc(1.57rem * 6);
+    padding-right: 2rem;
+  }
+
+  .accordion.pathway .pathway-course:not([open]) .pathway-course-desc:not(.is-expanded) + .pathway-course-ellipsis {
+    display: block;
+  }
+}
+
+/* reserve room at the bottom-right for the "…" so text isn't cut mid-word.
+   clamp to 6 lines using the source's 1.57rem line unit (= 150.72px) */
+.accordion.pathway .pathway-course-desc {
+  overflow: hidden;
+  max-height: calc(1.57rem * 6);
+  padding-right: 2rem;
+}
+
+.accordion.pathway .pathway-course-desc.is-expanded {
+  max-height: none;
+  padding-right: 0;
+}
+
+/* "…" pinned to the bottom-right corner, on a white pad that masks the last
+   clipped line; turns lime on hover (source) */
+.accordion.pathway .pathway-course-ellipsis {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  padding-left: 4px;
+  background: #fff;
+  color: #000;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.accordion.pathway .pathway-course-ellipsis:hover {
+  color: var(--usta-lime);
+}
+
+.accordion.pathway .pathway-course-ellipsis:focus-visible {
+  outline: 2px solid var(--usta-blue);
+  outline-offset: 2px;
+}
+
+/* ---- collapsible modules timeline (revealed by the card chevron) ---- */
+.accordion.pathway .pathway-course-detail {
+  display: none;
+}
+
+.accordion.pathway .pathway-course[open] .pathway-course-detail {
+  display: block;
+}
+
+.accordion.pathway .pathway-course-modules {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* module timeline text: 14px (mobile) -> 16px (>=768); LH/LS normal (source) */
+.accordion.pathway .pathway-course-module {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  color: #000;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 14px;
+  line-height: normal;
+  letter-spacing: normal;
+}
+
+@media (width >= 768px) {
+  .accordion.pathway .pathway-course-module {
+    font-size: 16px;
+  }
+}
+
+/* the vertical connector line between circles */
+.accordion.pathway .pathway-course-module:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 6.5px;
+  width: 2px;
+  height: 100%;
+  background-color: #000;
+}
+
+.accordion.pathway .pathway-course-module-circle {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 15px;
+  height: 15px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  background-color: #fff;
+}
+
+/* ---- "View All Courses" CTA (lime pill) ---- */
+.accordion.pathway .pathway-view-all {
+  align-self: center;
+  margin-top: 8px;
+  padding: 14px 22px;
+  border-radius: 20px;
+  background-color: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-decoration: none;
+}
+
+.accordion.pathway .pathway-view-all:hover,
+.accordion.pathway .pathway-view-all:focus-visible {
+  color: #000;
+}
