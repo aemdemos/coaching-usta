@@ -378,8 +378,17 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
+/* Full-width escape hatch: opt a block wrapper out of the max-width container
+   so it can span (near) the full viewport. The block itself re-imposes any of
+   its own max-width/gutter. Defined once here — never duplicated per block. */
+main > .section > .full-width {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 @media (width >= 1024px) {
-  main > .section > div {
+  main > .section > div:not(.full-width) {
     padding: 0 32px;
   }
 }
