@@ -2043,3 +2043,60 @@ Probed live source + preview with getBoundingClientRect/getComputedStyle at the 
 5. **Horizontal gutters**: h2 now uses the section gutter (x=16 mobile / 40 tablet / 48 @1024); cards inset +8px (<768) / +12px (≥768) → card x=24/52/60. Widths now 342@390, 369@417, 432@480, 189.33@768, 233.33@900, 269.33@1024.
 6. **Inter-row flow gap**: 84→**60px** (768–1023) via card margin-bottom 36 + 24 ul row-gap; 68px @1024 (mb 44); 84px @1280 (mb 60).
 Mechanism: section `padding-inline` carries the h2 gutter; `.cards-wrapper padding-inline` adds the card inset; the h2 default-content-wrapper padding is zeroed so h2 sits flush to the section gutter. Desktop (≥1280) x/width/gaps unchanged except the intended weight-700 fix. lint/breakpoint/overflow/typography/a11y all ✓.
+
+### 2026-09-16 — cards (profile): interactive hover/tap reveal (matched to source)
+The source leadership cards are INTERACTIVE (`.v-person-card`), not the static featured card we had.
+Measured both states on the live source at 390/768/1440:
+- **Resting:** portrait image 385h (radius 20) + 16px gap + content panel 229h (black, 1px white border);
+  name white 32→40, role LIME 16, short bio white 16→18. Card total fixed 630.
+- **Open (hover desktop / tap touch):** image shrinks 385→240, panel grows 229→374 and fills LIME with
+  BLACK text, a "Bio" label (40/40 Semibold) fades in, and the bio swaps to the FULL longer text
+  (wrapper 48→96). Transitions 0.3s ease-in-out (image height + panel bg/border; wrapper height).
+Rework:
+- **cards.js decorateProfile**: each `<li>` stays a plain listitem; an inner `.cards-profile-card` div
+  carries `role=button`, `tabindex=0`, `aria-expanded`, click + Enter/Space toggle `.is-open` (touch).
+  Content parsed as name(h)/role(p)/short-bio(p)/"Bio"(h2)/full-bio(p) — the 2nd heading splits short vs full.
+- **cards.css**: fixed-height card; image + panel animate on `:hover` and `.is-open`; short/full bios and
+  "Bio" label collapse/reveal; `prefers-reduced-motion` drops the timing. Gutters match the text block
+  (card x = 24 mobile / 52 tablet / 60 @1024 via 16/40/48 section gutter + 8/12 card inset).
+- **sample content**: added the real source short + full bios for Craig & Megan (were missing the full text).
+Gotcha: `role=button` on the `<li>` stripped its listitem role (axe `aria-required-children`); fixed by
+moving the role to the inner card div so the `<ul>/<li>` list semantics stay intact.
+Verified: resting 385/229 + open 240/374 at desktop, mobile resting x=24/w=342; tap-toggle + keyboard work.
+lint/breakpoint/overflow/typography/a11y all ✓.
+
+### 2026-09-16 — cards (profile): resting name-box height (role/desc vertical position)
+The resting panel's role line + short bio sat too high vs source. Root cause: the source reserves a name
+box TALLER than one line — 53px @mobile (32px font) / 65px @≥1024 (40px font) — even for single-line names,
+which pushes the role/desc down. Added `min-height: 53px` (base) / `65px` (≥1024) on `.cards-profile-name`.
+Verified: role top 106 & desc top 134 @1440 (matches source 106/…); name box 53 @390. Gaps name→role 24,
+role→desc 8 already matched. lint/breakpoint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (profile): role/bio letter-spacing (text width + wrap parity)
+The resting role line + short bio read tighter/narrower than source and wrapped differently. Root cause: the
+interactive rework's `.cards-profile-role` and `.cards-profile-desc-short/-full` rules inherited the global
+-0.03em (-0.48px) body tracking; the source uses `letter-spacing: normal`. Set `letter-spacing: normal` on
+the role and both desc classes. Verified: role/desc ls now normal, bio wraps "…the USTA / Coaching business"
+like source, desc height 48 (2 lines). lint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (profile): role line is Graphik SEMIBOLD (not Regular)
+User's DevTools screenshot showed the source `.v-person-card__title span` = Graphik Semibold, line-height
+1.3, 16px (≤1023) → 18px (≥1024). The visible role text renders in that inner span (the wrapper div reads
+16px Regular, but the span overrides it). I had the role as Graphik Regular 16 flat — that's why it looked
+lighter/smaller than source. Fixed `.cards-profile-role` to Graphik Semibold, lh 1.3, 16→18px @1024.
+Verified migrated role = Graphik Semibold 18/23.4 @1440, 16/20.8 @390. lint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (profile): "+" affordance + seamless animation (source parity)
+Two source-parity fixes discovered by reading the source stylesheet:
+1. **"+" affordance**: source `.v-person-card__content::after` is a 36×36 white plus SVG at top:16/right:16,
+   shown ONLY below 1024 (rule `@media (max-width:767px),(768–1023){…}`) and `display:none` when open
+   (`.v-person-card--hover …::after{display:none}`). Desktop has no icon (hover-only). Added the same
+   `::after` on `.cards-profile-body`, hidden ≥1024 and on `:hover`/`.is-open`.
+2. **Animation hiccup**: my reveal animated `height:0 ↔ auto` on the Bio label + full bio — `auto` is not
+   animatable so it snapped mid-transition. The source only animates the image `height` (385→240, 0.3s) and
+   the panel `max-height`/bg (the panel is flex-fill in the fixed 630 card). Reworked to match: image height
+   is the only geometry transition; panel bg/border/text colour cross-fade 0.3s; the short↔full bio + Bio
+   label swap via `display` (instant), clipped by the panel's new `overflow:hidden` so text reveals cleanly
+   as the panel grows. Removed the height/opacity transitions that caused the stutter.
+Verified: mobile "+" 36×36 shown at rest / hidden open; desktop no "+"; image 385→240, resting bio-only.
+lint/breakpoint/overflow/typography/a11y ✓.
