@@ -1,271 +1,38 @@
 /*
  * Accordion Block.
  *
- * DEFAULT variant (block-collection accordion): each authored row is a label
- * cell + a body cell, rendered as a native <details>/<summary>. Exclusive
- * (single-open); the first item is open by default.
+ * DEFAULT variant (audience-pathway "Discover your path"): each authored row is a
+ * label cell + a body cell, rendered as a native <details>/<summary>. Exclusive
+ * (single-open) — opening one closes the others; the first item is open by default.
  * https://www.hlx.live/developer/block-collection/accordion
  *
- * PATHWAY variant (`accordion (pathway)`): the "Recommended Learning Pathway"
- * card from https://www.ustacoaching.com/en/home/results/college-coach.html —
- * a single bordered black card with an always-visible header (logo, description,
- * a 3-column info grid) and a chevron toggle that expands a panel. The panel
- * holds one or more sections; each section is an intro paragraph + a 2-column
- * grid of white course cards (each card has its own chevron), and an optional
- * "View All Courses" CTA closes the panel. See
- * drafts/block-samples/accordion-pathway.plain.html for the authoring contract.
+ * TIMELINE variant (`accordion timeline`): a badge PATHWAY PANEL matching
+ * ustacoaching.com/…/results/volunteer-emerging-coach.html. The panel is a dark
+ * rounded-bordered container with:
+ *   - a HEADER (first authored row, a single cell): the badge logo image, an intro
+ *     paragraph and a meta grid of `<h4>` heading + value `<p>`s (What To Expect /
+ *     Minimum Req. Package / Industry Equivalent — headings render lime). The header
+ *     has its own chevron that collapses the course list below it.
+ *   - COURSE ROWS (`"Title — N modules"` label + body): each a WHITE rounded card
+ *     with a module-count eyebrow, bold title and always-visible description, and its
+ *     own chevron that reveals a vertical connected-dot timeline of the ordered module
+ *     steps (an authored <ol>). Course toggles are independent.
  */
 
-let pathwayCount = 0;
-
-// a chevron toggle button (inline SVG bg is styled in CSS)
-function createChevronToggle(className, controlsId, label) {
-  const toggle = document.createElement('button');
-  toggle.className = className;
-  toggle.type = 'button';
-  toggle.setAttribute('aria-expanded', 'false');
-  if (controlsId) toggle.setAttribute('aria-controls', controlsId);
-  toggle.setAttribute('aria-label', label);
-  return toggle;
+/* Split an authored "Title — N modules" label into [title, count]. */
+function splitLabel(raw) {
+  const text = (raw || '').trim();
+  const idx = text.lastIndexOf('—');
+  if (idx === -1) return [text, ''];
+  return [text.slice(0, idx).trim(), text.slice(idx + 1).trim()];
 }
 
-// tracks course descriptions whose clamp overflows, checked after layout
-const pendingClamps = [];
-
-// build a single white course card from a badge cell + a text cell.
-// The text cell holds: an eyebrow <p> ("6 modules"), a heading, description
-// paragraph(s), and OPTIONALLY a trailing <ul> whose <li>s become the
-// collapsible modules timeline revealed by the card's chevron.
-function buildCourseCard(badgeCell, textCell, index) {
-  const course = document.createElement('div');
-  course.className = 'pathway-course';
-
-  const content = document.createElement('div');
-  content.className = 'pathway-course-content';
-
-  if (badgeCell) {
-    badgeCell.className = 'pathway-course-badge';
-    content.append(badgeCell);
-  }
-
-  // pull an authored modules list out of the text cell (the timeline)
-  let modulesList = null;
-  let desc = null;
-  let ellipsis = null;
-  if (textCell) {
-    modulesList = textCell.querySelector('ul');
-    if (modulesList) modulesList.remove();
-
-    textCell.className = 'pathway-course-text';
-    const heading = textCell.querySelector('h1,h2,h3,h4,h5,h6');
-    if (heading) heading.classList.add('pathway-course-name');
-    // a leading paragraph before the heading is the eyebrow ("6 modules")
-    const first = textCell.firstElementChild;
-    if (first && first.tagName === 'P' && heading && first.nextElementSibling === heading) {
-      first.classList.add('pathway-course-eyebrow');
-    }
-
-    // wrap the description (everything after the heading) in a clamped wrapper
-    // with a "…" ellipsis that expands it
-    if (heading) {
-      const descWrap = document.createElement('div');
-      descWrap.className = 'pathway-course-desc-wrap';
-      const descEl = document.createElement('div');
-      descEl.className = 'pathway-course-desc';
-      let node = heading.nextSibling;
-      while (node) {
-        const next = node.nextSibling;
-        descEl.append(node);
-        node = next;
-      }
-      descWrap.append(descEl);
-      const ellipsisEl = document.createElement('span');
-      ellipsisEl.className = 'pathway-course-ellipsis';
-      ellipsisEl.setAttribute('role', 'button');
-      ellipsisEl.setAttribute('tabindex', '0');
-      ellipsisEl.textContent = '…';
-      const expand = () => {
-        descEl.classList.add('is-expanded');
-        ellipsisEl.remove();
-      };
-      ellipsisEl.addEventListener('click', expand);
-      ellipsisEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); expand(); }
-      });
-      descWrap.append(ellipsisEl);
-      textCell.append(descWrap);
-      desc = descEl;
-      ellipsis = ellipsisEl;
-      // decide after layout whether the ellipsis is needed
-      pendingClamps.push({ desc: descEl, ellipsis: ellipsisEl });
-    }
-
-    content.append(textCell);
-  }
-
-  // build the collapsible detail panel (modules timeline) when authored
-  let detail = null;
-  const detailId = `pathway-course-${pathwayCount}-${index}`;
-  if (modulesList && modulesList.children.length) {
-    detail = document.createElement('div');
-    detail.className = 'pathway-course-detail';
-    detail.id = detailId;
-    modulesList.className = 'pathway-course-modules';
-    [...modulesList.children].forEach((li) => {
-      li.classList.add('pathway-course-module');
-      const circle = document.createElement('span');
-      circle.className = 'pathway-course-module-circle';
-      li.prepend(circle);
-    });
-    detail.append(modulesList);
-  }
-
-  // per-card chevron toggle — every card shows it (source parity); it reveals
-  // the modules timeline when one was authored
-  const cardToggle = createChevronToggle('pathway-course-toggle', detail ? detailId : null, 'Expand course details');
-  cardToggle.addEventListener('click', () => {
-    const open = course.hasAttribute('open');
-    course.toggleAttribute('open', !open);
-    cardToggle.setAttribute('aria-expanded', String(!open));
-    cardToggle.setAttribute('aria-label', open ? 'Expand course details' : 'Collapse course details');
-    // opening a card also reveals the full (un-clamped) description (source)
-    if (desc) desc.classList.toggle('is-expanded', !open);
-    if (ellipsis) ellipsis.style.display = open ? '' : 'none';
-  });
-  content.append(cardToggle);
-
-  course.append(content);
-  if (detail) course.append(detail);
-  return course;
-}
-
-function decoratePathway(block) {
-  pathwayCount += 1;
-  const rows = [...block.children];
-
-  // row[0] = header (logo image + description); row[1] = 3-column info grid;
-  // the rest are panel rows processed IN ORDER:
-  //   - a single-cell row whose only child is a link  -> "View All" CTA
-  //   - any other single-cell row                     -> new section intro
-  //   - a 2-cell row (badge + text)                    -> course card
-  const headerRow = rows[0];
-  const infoRow = rows[1] && rows[1].children.length >= 3 ? rows[1] : null;
-  const panelRows = rows.slice(infoRow ? 2 : 1);
-
-  const card = document.createElement('div');
-  card.className = 'accordion-item pathway-card';
-
-  // ---- always-visible header ----
-  const header = document.createElement('div');
-  header.className = 'pathway-header';
-
-  if (headerRow) {
-    const [logoCell, descCell] = [...headerRow.children];
-    if (logoCell) {
-      logoCell.className = 'pathway-logo';
-      header.append(logoCell);
-    }
-    const container = document.createElement('div');
-    container.className = 'pathway-container';
-    if (descCell) {
-      descCell.className = 'pathway-desc';
-      container.append(descCell);
-    }
-    // the info row holds the 3-column info grid + the chevron toggle (right)
-    const infoWrap = document.createElement('div');
-    infoWrap.className = 'pathway-info-row';
-    if (infoRow) {
-      infoRow.className = 'pathway-info';
-      [...infoRow.children].forEach((col) => col.classList.add('pathway-info-col'));
-      infoWrap.append(infoRow);
-    }
-    container.append(infoWrap);
-    header.append(container);
-  }
-
-  // ---- expandable panel ----
-  const panelId = `pathway-panel-${pathwayCount}`;
-  const panel = document.createElement('div');
-  panel.className = 'pathway-panel';
-  panel.id = panelId;
-
-  const panelInner = document.createElement('div');
-  panelInner.className = 'pathway-panel-inner';
-
-  let grid = null;
-  let courseIndex = 0;
-  panelRows.forEach((row) => {
-    const cells = [...row.children];
-    if (cells.length === 1) {
-      const cell = cells[0];
-      const link = cell.querySelector('a');
-      const onlyLink = link && cell.textContent.trim() === link.textContent.trim();
-      if (onlyLink) {
-        // "View All Courses" CTA — closes the panel
-        link.className = 'pathway-view-all';
-        link.setAttribute('role', 'button');
-        panelInner.append(link);
-        grid = null;
-      } else {
-        // new section: intro paragraph + a fresh course grid
-        cell.className = 'pathway-intro';
-        panelInner.append(cell);
-        grid = document.createElement('div');
-        grid.className = 'pathway-courses';
-        panelInner.append(grid);
-      }
-    } else {
-      // course card
-      if (!grid) {
-        grid = document.createElement('div');
-        grid.className = 'pathway-courses';
-        panelInner.append(grid);
-      }
-      const [badgeCell, textCell] = cells;
-      courseIndex += 1;
-      grid.append(buildCourseCard(badgeCell, textCell, courseIndex));
-    }
-  });
-  panel.append(panelInner);
-
-  // the clamps for THIS block (resolved once the panel is first visible)
-  const clamps = pendingClamps.splice(0);
-  let clampsResolved = false;
-  const resolveClamps = () => {
-    if (clampsResolved) return;
-    clampsResolved = true;
-    // hide the "…" ellipsis on descriptions that don't actually overflow
-    clamps.forEach(({ desc, ellipsis }) => {
-      if (desc.scrollHeight <= desc.clientHeight + 1) ellipsis.remove();
-    });
-  };
-
-  // ---- header chevron toggle (opens the whole panel) ----
-  const toggle = createChevronToggle('pathway-toggle', panelId, 'Show learning pathway details');
-  toggle.addEventListener('click', () => {
-    const open = card.hasAttribute('open');
-    card.toggleAttribute('open', !open);
-    toggle.setAttribute('aria-expanded', String(!open));
-    // measure clamps the first time the panel becomes visible
-    if (!open) requestAnimationFrame(resolveClamps);
-  });
-  const infoWrap = header.querySelector('.pathway-info-row') || header;
-  infoWrap.append(toggle);
-
-  card.append(header, panel);
-  block.replaceChildren(card);
-}
-
-/**
- * loads and decorates the block
- * @param {Element} block The block element
- */
-export default function decorate(block) {
-  if (block.classList.contains('pathway')) {
-    decoratePathway(block);
-    return;
-  }
-
+function decorateDefault(block) {
+  // tag the base variant with a positive class so its CSS is opt-in
+  // (`.accordion.accordion-default …`) rather than an ever-growing
+  // `:not(.timeline, …)` exclusion. New variants never carry this class, so
+  // base styles can't leak onto them.
+  block.classList.add('accordion-default');
   const rows = [...block.children];
   const items = [];
   rows.forEach((row, i) => {
@@ -298,4 +65,259 @@ export default function decorate(block) {
       }
     });
   });
+}
+
+/*
+ * Build a chevron toggle <button> that shows/hides a collapsible region.
+ * Uses an explicit button (not <details>/<summary>) so the always-visible header
+ * can contain its own links without nesting interactive controls. The button
+ * carries aria-expanded + an accessible label; the caret glyph is drawn in CSS.
+ */
+function buildToggle({
+  label, region, host, open = false,
+}) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'accordion-timeline-chevron';
+  btn.setAttribute('aria-label', label);
+  const setState = (isOpen) => {
+    btn.setAttribute('aria-expanded', String(isOpen));
+    // host carries .is-open — drives the chevron flip and (for course cards)
+    // the per-breakpoint reveal of the description + timeline via CSS
+    host.classList.toggle('is-open', isOpen);
+    // when an explicit region is passed (the panel's course list) hide it
+    // outright on every breakpoint; course cards rely on CSS instead
+    if (region) region.hidden = !isOpen;
+  };
+  setState(open);
+  btn.addEventListener('click', () => setState(btn.getAttribute('aria-expanded') !== 'true'));
+  return btn;
+}
+
+/*
+ * The header row is a single cell holding: the badge logo (a <p><img></p>), an intro
+ * paragraph, then a repeating [<h4> heading + one-or-more value <p>] meta group. Group
+ * the h4 + its following value <p>s into meta columns so they lay out side by side.
+ */
+function buildPanelHeader(cell) {
+  const head = document.createElement('div');
+  head.className = 'accordion-timeline-panel-head';
+
+  // text column (intro + meta) sits beside the badge logo
+  const body = document.createElement('div');
+  body.className = 'accordion-timeline-panel-body';
+  const meta = document.createElement('div');
+  meta.className = 'accordion-timeline-meta';
+  let column = null;
+
+  [...cell.children].forEach((node) => {
+    const img = node.tagName === 'P' && node.querySelector('img');
+    if (img) {
+      // badge logo
+      const logo = document.createElement('div');
+      logo.className = 'accordion-timeline-badge';
+      logo.append(img);
+      head.append(logo);
+      return;
+    }
+    if (node.tagName === 'H4') {
+      // start a new meta column (its heading renders lime)
+      column = document.createElement('div');
+      column.className = 'accordion-timeline-meta-col';
+      node.className = 'accordion-timeline-meta-heading';
+      column.append(node);
+      meta.append(column);
+      return;
+    }
+    if (column && node.tagName === 'P') {
+      // value line under the current heading
+      node.className = 'accordion-timeline-meta-value';
+      column.append(node);
+      return;
+    }
+    // pre-meta paragraph = the intro description
+    node.classList.add('accordion-timeline-panel-intro');
+    body.append(node);
+  });
+
+  // meta grid + chevron share a row (source `.v-classification-accordion-content__info`)
+  // so the chevron centres on the META block, not the whole badge+intro header
+  const info = document.createElement('div');
+  info.className = 'accordion-timeline-panel-info';
+  if (meta.children.length) {
+    // the last meta column absorbs the remaining width (source: What To Expect /
+    // Minimum Req. are content-sized, Industry Equivalent fills the rest and wraps)
+    meta.lastElementChild.classList.add('accordion-timeline-meta-col-grow');
+    info.append(meta);
+  }
+  body.append(info);
+  head.append(body);
+  // the chevron is appended into `info` by the caller so it sits beside the meta grid
+  return { head, info };
+}
+
+/* Build one course card from a "Title — N modules" label + body cell. */
+function buildCourseCard(labelCell, bodyCell) {
+  const [titleText, countText] = splitLabel(labelCell && labelCell.textContent);
+
+  const card = document.createElement('div');
+  card.className = 'accordion-timeline-course';
+
+  // always-visible header row
+  const label = document.createElement('div');
+  label.className = 'accordion-timeline-course-label';
+
+  // content row: optional badge image (left) + text column
+  const content = document.createElement('div');
+  content.className = 'accordion-timeline-course-content';
+
+  const head = document.createElement('div');
+  head.className = 'accordion-timeline-head';
+
+  if (countText) {
+    const eyebrow = document.createElement('p');
+    eyebrow.className = 'accordion-timeline-eyebrow';
+    eyebrow.textContent = countText;
+    head.append(eyebrow);
+  }
+
+  const title = document.createElement('p');
+  title.className = 'accordion-timeline-title';
+  title.textContent = titleText;
+  head.append(title);
+
+  // the ordered list is the collapsible timeline; a leading <p><img> is the course
+  // badge; the remaining paragraph(s) are the description. In the source
+  // (`.v-course`) the description is a FULL-WIDTH block sibling BELOW the header
+  // row (`.v-course__content` = badge + eyebrow/title + chevron) — it spans the
+  // entire card, flowing under the chevron column too, NOT confined beside the
+  // badge. So collect the description here and append it as a sibling of `label`
+  // (a direct child of the card) rather than inside the badge/text row.
+  const timeline = bodyCell ? bodyCell.querySelector('ol, ul') : null;
+  let badgeImg = null;
+  const descNodes = [];
+  if (bodyCell) {
+    [...bodyCell.children].forEach((child) => {
+      if (child === timeline) return;
+      const img = child.tagName === 'P' && child.querySelector('img');
+      if (img && !badgeImg) {
+        badgeImg = img;
+        return;
+      }
+      child.classList.add('accordion-timeline-desc');
+      descNodes.push(child);
+    });
+  }
+
+  if (badgeImg) {
+    const badge = document.createElement('div');
+    badge.className = 'accordion-timeline-course-badge';
+    badge.append(badgeImg);
+    content.append(badge);
+    card.classList.add('accordion-timeline-course-badged');
+  }
+  content.append(head);
+  label.append(content);
+  card.append(label);
+
+  // description: full-width block below the header row (source `.v-course__description`)
+  descNodes.forEach((node) => card.append(node));
+
+  if (timeline) {
+    timeline.className = 'accordion-timeline-steps';
+    [...timeline.children].forEach((li) => {
+      const stepText = document.createElement('span');
+      stepText.className = 'accordion-timeline-step-text';
+      stepText.append(...li.childNodes);
+      const circle = document.createElement('span');
+      circle.className = 'accordion-timeline-circle';
+      circle.setAttribute('aria-hidden', 'true');
+      li.className = 'accordion-timeline-step';
+      li.append(circle, stepText);
+    });
+    card.append(timeline);
+    card.classList.add('accordion-timeline-course-has-timeline');
+  }
+
+  // Source behaviour is responsive:
+  //  - mobile: the card collapses to eyebrow+title; the chevron reveals the
+  //    description (+ timeline if any). EVERY card has a chevron.
+  //  - desktop: the description is always visible; the chevron reveals only the
+  //    timeline, and cards without a timeline have no chevron.
+  // The toggle only flips `.is-open` on the card; CSS decides what shows at each
+  // breakpoint (no explicit region — so nothing is force-hidden on desktop).
+  label.append(buildToggle({
+    label: `Toggle details for ${titleText}`,
+    host: card,
+  }));
+
+  return card;
+}
+
+function decorateTimeline(block) {
+  const rows = [...block.children];
+  // the first row is the panel header (single cell); the rest are course rows
+  const [headerRow, ...courseRows] = rows;
+
+  // outer panel — dark bordered container
+  const panel = document.createElement('div');
+  panel.className = 'accordion-timeline-panel';
+
+  // always-visible header (badge + intro + meta grid) with its own toggle button
+  const header = document.createElement('div');
+  header.className = 'accordion-timeline-panel-label';
+  const { head: panelHead, info: panelInfo } = buildPanelHeader(headerRow.children[0] || headerRow);
+  header.append(panelHead);
+  panel.append(header);
+
+  // a trailing single-cell row whose only content is a link is the "View All
+  // Courses" footer button (not a course card)
+  const isFooterRow = (row) => row.children.length === 1
+    && !row.children[0].querySelector('ol, ul, img')
+    && row.children[0].querySelector('a')
+    && !row.children[0].textContent.includes('—');
+  const footerRow = courseRows.length && isFooterRow(courseRows[courseRows.length - 1])
+    ? courseRows.pop() : null;
+
+  // course cards live in the collapsible region controlled by the panel toggle
+  const list = document.createElement('div');
+  list.className = 'accordion-timeline-courses';
+  courseRows.forEach((row) => {
+    list.append(buildCourseCard(row.children[0], row.children[1]));
+  });
+
+  // footer CTA (lime pill) sits inside the collapsible region, below the cards
+  if (footerRow) {
+    const footer = document.createElement('div');
+    footer.className = 'accordion-timeline-footer';
+    const cta = footerRow.children[0].querySelector('a');
+    cta.className = 'accordion-timeline-viewall';
+    footer.append(cta);
+    list.append(footer);
+  }
+
+  panel.append(list);
+
+  // chevron sits beside the meta grid (source `__info` row) so it centres on the
+  // meta block; falls back to the header row if there was no meta grid
+  (panelInfo || header).append(buildToggle({
+    label: 'Toggle course list',
+    region: list,
+    host: panel,
+    open: false,
+  }));
+
+  block.replaceChildren(panel);
+}
+
+/**
+ * loads and decorates the block
+ * @param {Element} block The block element
+ */
+export default function decorate(block) {
+  if (block.classList.contains('timeline')) {
+    decorateTimeline(block);
+    return;
+  }
+  decorateDefault(block);
 }

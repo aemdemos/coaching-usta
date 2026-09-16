@@ -66,7 +66,11 @@ function measure(tags) {
   for (const tag of tags) {
     const el = [...document.querySelectorAll(tag)].find((e) => {
       const r = e.getBoundingClientRect();
-      return r.width > 0 && r.height > 0 && e.textContent.trim();
+      // Only measure DEFAULT CONTENT against the global scale — headings/copy
+      // inside a block (.block) are intentionally block-scoped (e.g. the pricing
+      // tier h3 = 40px, course/news/profile card headings) and are verified
+      // per-block, not against the global default-content type scale.
+      return r.width > 0 && r.height > 0 && e.textContent.trim() && !e.closest('.block');
     });
     if (!el) continue;
     const cs = getComputedStyle(el);
