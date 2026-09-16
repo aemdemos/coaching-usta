@@ -38,9 +38,13 @@
   padding: 19px 20px;
   background-color: #2d2d2d;
   color: #fff;
-  font-family: var(--body-font-family);
+
+  /* Graphik Regular only ships 400/700, so weight 900 silently caps at 700 and
+     the labels render too light. Use the Semibold face (the heaviest body face
+     shipped) to match the original's bold pill labels. */
+  font-family: "Graphik Semibold", var(--body-font-family);
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 18px;
   white-space: nowrap;
   text-align: center;
