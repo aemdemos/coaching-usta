@@ -334,7 +334,7 @@ main > .section.accordion-container > div {
 .accordion.timeline .accordion-timeline-desc {
   margin: 12px 0 0;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.2;
   letter-spacing: normal;
   color: #000;
@@ -364,12 +364,12 @@ main > .section.accordion-container > div {
   background-color: transparent;
   cursor: pointer;
 
-  /* replace the browser's default (orange "auto") focus outline with a
-     transparent base ring; a brand-coloured ring is layered back on
-     :focus-visible below so keyboard focus stays visible (accessibility) but a
-     mouse click shows no stray outline. */
+  /* suppress the browser's default (orange "auto") focus outline. The chevron's
+     OWN colour change is the focus indicator (border/fill turn lime on
+     :focus-visible, same as hover — matching the source), so we don't draw a
+     separate offset outline ring; an offset ring would read as a doubled line
+     outside the border, which the source doesn't have. */
   outline: 2px solid transparent;
-  outline-offset: 2px;
 
   /* the source flips the chevron INSTANTLY (its button resolves to
      `transition: all` with a 0s duration) — so DON'T transition `transform`.
@@ -420,17 +420,9 @@ main > .section.accordion-container > div {
   border-bottom-color: var(--usta-lime);
 }
 
-/* keyboard focus rings (replace the UA orange outline). Panel chevron sits on the
-   dark panel -> lime ring; course chevron sits on a white card and fills lime on
-   focus -> black ring reads against both the white card and the lime fill. */
-.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:focus-visible {
-  outline-color: var(--usta-lime);
-}
-
-.accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:focus-visible {
-  outline-color: #000;
-}
-
+/* course chevron fills LIME on hover/focus (caret stays black, reads on lime) —
+   this colour change IS the keyboard-focus indicator, so no separate outline ring
+   is drawn (which would double the border). */
 .accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:hover,
 .accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:focus-visible {
   background-color: var(--usta-lime);
