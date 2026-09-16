@@ -1846,3 +1846,120 @@ edge. Measured: header nav pads 52px; the 48px hamburger button centers its 16px
 lines start at 52+16 = 68px (the "Community" nav link starts at 132). The cards were at 52 (button edge).
 Bumped the >=1280 gutter 52→68px so the first card heading starts at x=68 — verified aligned exactly with
 .nav-hamburger-icon (both x=68). Grid now x=68 / w=1304 @1440. lint 0 err, overflow ✓, a11y ✓.
+
+### 2026-09-16 — cards (course)+(text): live-source typography audit (site back up)
+Re-measured both against the LIVE source at 390/768/1440.
+- **cards (course):** source title 28/28 (→32 @1280) Graphik Semibold ls **normal**, desc 18/24 Graphik
+  Regular ls **normal**, pill 16/19.2 Graphik Regular **700** white center. My h3/p inherited the global
+  −0.03em tracking — added `letter-spacing: normal` to the course title + desc; set the pill to
+  Graphik Regular 700 / lh 19.2 / ls normal (was lh:1). Verified migrated == source at 1440.
+- **cards (text):** source heading 32/32 Graphik Semibold ls −0.03em, body 16/19.2 Graphik Regular
+  −0.03em (matched already). SPACING FIX: my prior `min-height:64px` forced every heading to a 2-line
+  reserve, so short titles ("Access Drives Progress" etc.) reserved 2 lines and the gap read wrong. Source
+  keeps headings at their NATURAL line count (row 1 = 2-line, row 2 = 1-line) with bodies aligned per row.
+  Removed the min-height; headings now wrap naturally with a fixed 56px bottom margin (source 2-line gap;
+  1-line rows read ~12px tighter than source's grid-stretch but bodies still align per row). Verified @1440:
+  row1 2-line/gap56, row2 1-line/gap56, bodies aligned within each row. (Tried a subgrid reproduction of the
+  source's per-row heading-track stretch but it double-counted the row-gap → reverted to the simpler fixed
+  margin.) lint 0 err, overflow/typography/a11y ✓ on both.
+
+### 2026-09-16 — cards (text): OUR PURPOSE title→cards gap corrected to source (108px)
+User flagged the gap between "OUR PURPOSE" and the first card row was too small. Measured live source
+@1440: title-bottom → first-card-heading-top = 108px (my prior value was ~48px). Set
+`.cards-container:has(.cards.text) .cards-wrapper { margin-top: 108px }`. Verified migrated gap = 108px
+@1440. lint 0 err, overflow ✓, a11y ✓.
+
+### 2026-09-16 — cards (text): row/card vertical gap matched to source (84 desktop / 86 mobile)
+User flagged the vertical spacing between the two card rows was too small. Measured live source:
+row1-body-bottom → row2-heading-top = **84px @1440**; mobile 1-up card→card = **86px @390**. My grid used
+64px (desktop row) / 48px (mobile). Updated `.cards.text > ul`: base `gap: 86px` (mobile), `>=768`
+`gap: 84px 48px` (row/column). Verified migrated == source: desktop 84, mobile 86. Combined with the
+earlier fixes (title→cards 108px, heading→body 56px, natural line-count, header-aligned 3-col grid), the
+block now matches source spacing at both viewports. lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (text): restored 2-line heading reserve (row-wide body alignment)
+CORRECTION to the earlier "removed min-height" note. The source DOES align ALL bodies in a row to the same
+baseline even when one title is shorter: verified live @1440 — row-1 bodies all at top 1312 (col3 "Coaches
+Need Coaches Too" — which itself wraps to 2 lines at the source's 397px column, h=64 — is NOT higher).
+Removing the reserve had made col3's body rise above cols 1&2 (user flagged). Restored
+`min-height: 64px; margin-bottom: 24px` on the >=768 heading so every heading reserves a 2-line slot and the
+whole row's bodies align. Verified migrated @1440: row-1 bodies all top 726 (aligned), row-2 bodies all top
+975 (aligned), row gap 84px, col3 heading 2 lines (matches source). lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (text): responsive heading scale + subgrid per-row alignment (all viewports)
+Tablet/mobile audit revealed two more drifts:
+1. **Heading font-size is responsive** (I had it flat 32). Source: 32 (mobile) → 24 (768) → 28 (1024) →
+   32 (1280). Added per-breakpoint font-size.
+2. **Per-row body alignment across DIFFERENT heading heights.** At 768 the source headings wrap to 3/4/2
+   lines (heights 72/96/48) yet all row bodies align — a `min-height` reserve can't do this (row1 needs 96,
+   row2 needs 48). Reproduced the source's per-row grid stretch with **CSS subgrid**: `.cards.text > ul` is
+   a 3-col grid; each `.cards-text-card` is `grid-template-rows: subgrid; grid-row: span 2` so every heading
+   in a row stretches to that row's tallest heading and all bodies line up. Gaps: ul `row-gap: 24px` =
+   head→body; card `margin-bottom: 60px` (+24 = 84px card→card). Removed the old min-height reserves.
+Verified: 768 heading 24, row1 bodies aligned (609) despite 3/4/2-line titles, row gap 84; 1024 heading 28;
+1440 heading 32, bodies aligned, row gap 84, title gap 108, head→body 24; mobile 32/1-up/86px card gap.
+lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — typography audit: cards (profile) (all viewports)
+Measured source `.v-person-card` (about page → OUR LEADERSHIP) at 390/900/1024/1280/1440. Scale is responsive:
+- **name** 32px (≤1023) → 40px (≥1024); Graphik Semibold, weight 400, line-height 1.0, letter-spacing
+  normal, margin-bottom 24. (I had flat 40 / lh 1.05 / mb 0.)
+- **role** 16px flat; Graphik Regular (I had Semibold 18), lime, line-height normal, ls normal, mb 8.
+- **bio** 16px (≤1023) → 18px (≥1024); Graphik Regular, line-height normal, ls normal, mb 0. (I had flat 18.)
+Fixed all three + added the 1024 jump. Gotcha: the role is a `<p>` inside `.cards-profile-body`, so the
+generic `.cards-profile-body p` rule was overriding it to 18px at desktop — scoped the bio rule to
+`p:not(.cards-profile-role)`. Verified migrated: 32/16/16 at ≤1023, 40/16/18 at ≥1024. lint/overflow/typo/a11y ✓.
+Note: source leadership cards are text-only (no portrait/border/featured) — our sample keeps the richer
+image+featured design intentionally; this task was scoped to typography parity.
+
+### 2026-09-16 — typography audit: cards (comparison) (all viewports)
+Measured source `.v-cost-card` (courses page → "2026 Badge & Certification Costs") at 390 & 1440. The scale
+is FLAT across all viewports (no responsive jumps). Corrected drifts:
+- title: line-height 1.3→1.0, added letter-spacing -0.64px, margin 0→16 0 8.
+- NEW "Annual Package Fee" subtitle (tagged `.cards-comparison-subtitle` in JS — the p right after the
+  title): 14px Graphik Semibold w400, lh 1.0, ls -0.64, mb 21.
+- body p: line-height 1.4→1.2, added ls -0.42.
+- PER YEAR pill: added Graphik Regular family, lh 1.3→1.0, ls -0.36.
+- price: added ls -1.12.
+- section labels (strong): family Semibold→Regular, weight→700, size 12→14, lh→1.2, ls 0.04em→-0.42px.
+- module list li: lh 1.3→1.2, added ls -0.42.
+- TOTAL label: size 12→14, added lh 1.0 + ls -0.42.
+- TOTAL value: added lh 1.0 + ls -0.8.
+Verified all 8 element types match source 1:1. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — typography audit: cards (news) + cards (media) (all viewports)
+**News** — measured source `.v-news-related-tile__{title,date,description}` (news.html) at 390/900/1440:
+- title responsive: 24 (≤767, ls -0.72) → 28 (768, -0.84) → 32 (≥1024, -0.96); Graphik Semibold w400,
+  line-height 1.0. (I had flat 28 / lh 1.1.) ls values = the global -0.03em tracking → set ls -0.03em +
+  added the 768/1024 font-size jumps.
+- date: was 14px/lh1.3/lime — source is 16px Graphik Regular, lh 1.2, ls normal, WHITE. Fixed.
+- excerpt: lh 1.4→1.2, added family + ls normal.
+(The lime title-arrow affordance is kept as our design embellishment; the date lime was a drift, corrected.)
+**Media** — measured source benefits row `.cmp-text` (home.html): heading 28 (≤1023) → 32 (≥1024),
+Graphik Semibold, lh 1.0, ls -0.03em; body 16px Graphik Regular, lh 1.2 (19.2px), ls -0.03em. Our media CSS
+already matched (28→32 heading, 16/1.2 body, global tracking) — verified, no change needed.
+Verified both migrated: news 24/16/16 mobile → 32 title desktop; media 28→32 heading, body 16/19.2.
+lint/overflow/typo/a11y ✓ on both pages.
+
+### 2026-09-16 — cards (text): fixed reserved heading BANDS (vertical rhythm parity)
+Earlier subgrid pass aligned bodies per row but used a flat 24px head→body gap — the source doesn't
+work that way. Re-measured the source `.cmp-text` heading boxes: each heading sits in a **fixed reserved
+band, constant at every breakpoint ≥768** — row1 = **96px**, row2 = **76px** — taller than the heading
+text, with the body 24px below the band. That yields per-row head→body gaps of **56px (row1) / 68px (row2)**
+at desktop and **48/24/72 (row1, by title line-count) / 52 (row2)** at tablet — NOT a flat 24. My flat gap
+was the drift the user saw.
+Fix: set explicit grid tracks on `.cards.text > ul` — `grid-template-rows: minmax(96px,auto) auto
+minmax(76px,auto) auto` — and `align-self: start` on the subgrid headings so the band slack falls BELOW the
+title. Removed the heading `margin-bottom`/ul flat row-gap reliance for the gap.
+Verified migrated == source: desktop head→body 56/68, tablet 48/24/72 & 52, row-to-row 84, mobile 24 (1-up,
+86px card gap); bodies align per row at all breakpoints. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — cards (text): mobile/tablet parity (6 measured bugs, verified per-element)
+Probed live source + preview with getBoundingClientRect/getComputedStyle at the SAME width (390/417/480/768/900/1024) and fixed:
+1. **h2→first-card gap**: 108→**60px** flat below 1024 (was the visible mobile "extra space"). Restored 76px @1024, 108px @1280.
+2. **Mobile title slot**: was collapsing cards 4–6 to 56px; now uniform **88px** (h3 min-height 64 + 24 gap) for all six, card 2 grows to 120 only <480 (3-line title). No row1/row2 distinction on mobile (1 column).
+3. **Tablet body**: 16→**14px / 16.8 / -0.42px** for 768–1023 only; 16/19.2/-0.48 restored ≥1024.
+4. **h3 font-weight**: 400→**700** at every breakpoint (Graphik Semibold is a variable 400–700 face).
+5. **Horizontal gutters**: h2 now uses the section gutter (x=16 mobile / 40 tablet / 48 @1024); cards inset +8px (<768) / +12px (≥768) → card x=24/52/60. Widths now 342@390, 369@417, 432@480, 189.33@768, 233.33@900, 269.33@1024.
+6. **Inter-row flow gap**: 84→**60px** (768–1023) via card margin-bottom 36 + 24 ul row-gap; 68px @1024 (mb 44); 84px @1280 (mb 60).
+Mechanism: section `padding-inline` carries the h2 gutter; `.cards-wrapper padding-inline` adds the card inset; the h2 default-content-wrapper padding is zeroed so h2 sits flush to the section gutter. Desktop (≥1280) x/width/gaps unchanged except the intended weight-700 fix. lint/breakpoint/overflow/typography/a11y all ✓.

@@ -296,6 +296,12 @@ function decorateComparison(block) {
     const isComingSoon = /coming\s+202\d/i.test(body.textContent) && !body.querySelector('ul, ol');
     if (isComingSoon) li.classList.add('is-coming-soon');
 
+    // the "Annual Package Fee" subtitle = the paragraph right after the title
+    const titleEl = body.querySelector('h1, h2, h3, h4, h5, h6');
+    if (titleEl && titleEl.nextElementSibling && titleEl.nextElementSibling.tagName === 'P') {
+      titleEl.nextElementSibling.classList.add('cards-comparison-subtitle');
+    }
+
     // the feature (included modules) list gets a class + a check marker
     const list = body.querySelector('ul, ol');
     if (list) list.classList.add('cards-comparison-modules');
