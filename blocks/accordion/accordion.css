@@ -14,24 +14,6 @@ main > .section.accordion-container > div {
   padding-inline: 16px;
 }
 
-@media (width >= 768px) {
-  main > .section.accordion-container > div {
-    padding-inline: 40px;
-  }
-}
-
-@media (width >= 1024px) {
-  main > .section.accordion-container > div {
-    padding-inline: 48px;
-  }
-}
-
-@media (width >= 1280px) {
-  main > .section.accordion-container > div {
-    padding-inline: 64px;
-  }
-}
-
 /* stack of pill cards, 24px apart */
 .accordion.block {
   display: flex;
@@ -77,20 +59,6 @@ main > .section.accordion-container > div {
   color: #fff;
 }
 
-/* accordion row title scale (source .cmp-accordion__title): 24 (<=767) -> 28
-   (768-1279) -> 32 (>=1280); line-height tracks the font size (1.0). */
-@media (width >= 768px) {
-  .accordion.accordion-default .accordion-item-label {
-    font-size: 28px;
-  }
-}
-
-@media (width >= 1280px) {
-  .accordion.accordion-default .accordion-item-label {
-    font-size: 32px;
-  }
-}
-
 .accordion.accordion-default .accordion-item-label::-webkit-details-marker {
   display: none;
 }
@@ -133,12 +101,6 @@ main > .section.accordion-container > div {
   letter-spacing: -0.03em; /* source: -0.48px @16 / -0.54px @18 */
 }
 
-@media (width >= 1024px) {
-  .accordion.accordion-default .accordion-item-body p {
-    font-size: 18px;
-  }
-}
-
 /* ==========================================================================
    TIMELINE variant (`accordion timeline`) — badge PATHWAY PANEL
    Reproduces ustacoaching.com/…/results/volunteer-emerging-coach.html:
@@ -159,12 +121,6 @@ main > .section.accordion-container > div {
   padding: 16px 8px 8px; /* mobile: 16 top, 8 sides/bottom (source) */
 }
 
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-panel {
-    padding: 32px 12px 20px;
-  }
-}
-
 /* panel header wrapper: holds the head (badge + text/meta). The chevron is NOT
    here — it lives in the `__info` row beside the meta grid (see below) so it
    centres on the META block, matching the source, not the whole tall header. */
@@ -178,20 +134,6 @@ main > .section.accordion-container > div {
   display: none;
 }
 
-@media (width >= 768px) {
-  /* right pad trimmed so the chevron sits ~17px from the panel edge (source) */
-  .accordion.timeline .accordion-timeline-panel-label {
-    padding: 0 4px 12px 12px;
-  }
-}
-
-@media (width >= 1280px) {
-  /* source widens the right gap to ~25px at the largest tier */
-  .accordion.timeline .accordion-timeline-panel-label {
-    padding: 12px;
-  }
-}
-
 /* meta grid + chevron share a row (source `.v-classification-accordion-content__info`).
    The chevron therefore centres on the meta block. Mobile: bottom-aligned
    (align-items: flex-end); >=1024: vertically centred (align-items: center). The
@@ -201,17 +143,6 @@ main > .section.accordion-container > div {
   display: flex;
   align-items: flex-end;
   gap: 16px;
-}
-
-@media (width >= 1024px) {
-  .accordion.timeline .accordion-timeline-panel-info {
-    align-items: center;
-
-    /* source: meta grid runs flush to the chevron (no gap) so the meta keeps its
-       full width and the Industry column is wide enough to hold "USTA Play
-       Facilitator Workshop" on one line — only the last item wraps */
-    gap: 0;
-  }
 }
 
 /* header content: badge logo stacked + CENTRED above the text below 1024 (source
@@ -227,18 +158,6 @@ main > .section.accordion-container > div {
   min-width: 0;
 }
 
-@media (width >= 1024px) {
-  .accordion.timeline .accordion-timeline-panel-head {
-    flex-direction: row;
-    align-items: flex-start;
-
-    /* source has NO gap between the badge and the text block (the badge PNG
-       carries its own internal padding); a gap here steals width from the meta
-       grid and forces the Industry column to wrap early */
-    gap: 0;
-  }
-}
-
 .accordion.timeline .accordion-timeline-badge {
   flex: 0 0 auto;
 }
@@ -248,13 +167,6 @@ main > .section.accordion-container > div {
   width: 300px;
   max-width: 100%;
   height: auto;
-}
-
-/* source: badge stays 300px through 1024, widens to 365px only at >=1280 */
-@media (width >= 1280px) {
-  .accordion.timeline .accordion-timeline-badge img {
-    width: 365px;
-  }
 }
 
 .accordion.timeline .accordion-timeline-panel-body {
@@ -274,12 +186,6 @@ main > .section.accordion-container > div {
   color: #fff;
 }
 
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-panel-intro {
-    font-size: 18px;
-  }
-}
-
 .accordion.timeline .accordion-timeline-panel-intro a {
   color: inherit;
   text-decoration: underline;
@@ -295,25 +201,12 @@ main > .section.accordion-container > div {
   min-width: 0;
 }
 
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-meta {
-    flex-direction: row;
-    gap: 24px; /* source column gap */
-  }
-}
-
 /* the first two columns size to their content (short values stay one line);
    the last column (Industry Equivalent) absorbs the remaining width and wraps
    its long lines — matching the source grid proportions (~116/142/rest). */
 .accordion.timeline .accordion-timeline-meta-col {
   flex: 0 0 auto;
   min-width: 0;
-}
-
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-meta-col-grow {
-    flex: 1 1 auto;
-  }
 }
 
 /* meta heading (What To Expect / Minimum Req. Package / Industry Equivalent):
@@ -348,20 +241,6 @@ main > .section.accordion-container > div {
   color: #fff;
 }
 
-@media (width >= 1280px) {
-  .accordion.timeline .accordion-timeline-meta-heading,
-  .accordion.timeline .accordion-timeline-meta-value {
-    font-size: 18px;
-    line-height: 18px;
-    letter-spacing: -0.54px;
-  }
-
-  /* blank line between heading and first value scales with the 18px line-height */
-  .accordion.timeline .accordion-timeline-meta-heading {
-    margin-bottom: 18px;
-  }
-}
-
 /* collapsed course list: the panel toggle sets [hidden]; the flex rule below
    would override the UA hidden behaviour, so force it off (class+attr specificity) */
 .accordion.timeline .accordion-timeline-courses[hidden] {
@@ -390,13 +269,6 @@ main > .section.accordion-container > div {
   padding: 16px; /* mobile */
 }
 
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-course {
-    min-height: 232px;
-    padding: 24px;
-  }
-}
-
 /* card header: content (badge + text) + chevron button, always visible */
 .accordion.timeline .accordion-timeline-course-label {
   display: flex;
@@ -417,60 +289,6 @@ main > .section.accordion-container > div {
   min-width: 0;
 }
 
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-course-content {
-    gap: 24px;
-  }
-}
-
-/* BADGED cards lay the badge, text column and description on a 2-col grid so the
-   description can reflow around the badge per breakpoint (source .v-course):
-     - mobile: badge (col1) + eyebrow/title (col2) on row 1; description spans the
-       FULL width on row 2, BELOW the badge — not squeezed into the text column.
-     - desktop (>=768): the badge spans both rows on the left; the text column
-       (eyebrow/title) sits on row 1 and the description beside the badge on row 2,
-       aligned under the title. */
-.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-content {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 16px;
-}
-
-.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-badge {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-head {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-/* mobile: description on its own row, spanning both columns (full width) */
-.accordion.timeline .accordion-timeline-course-badged .accordion-timeline-desc {
-  grid-column: 1 / -1;
-  grid-row: 2;
-}
-
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-content {
-    column-gap: 24px;
-  }
-
-  /* badge spans both rows on the left, centred against the text+desc block */
-  .accordion.timeline .accordion-timeline-course-badged .accordion-timeline-course-badge {
-    grid-row: 1 / 3;
-    align-self: center;
-  }
-
-  /* description sits beside the badge, under the title (col 2, row 2) */
-  .accordion.timeline .accordion-timeline-course-badged .accordion-timeline-desc {
-    grid-column: 2;
-    grid-row: 2;
-  }
-}
-
 /* course badge image (source .v-course__badge): 80px mobile -> 148px desktop */
 .accordion.timeline .accordion-timeline-course-badge {
   flex: 0 0 auto;
@@ -480,12 +298,6 @@ main > .section.accordion-container > div {
   display: block;
   width: 80px;
   height: auto;
-}
-
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-course-badge img {
-    width: 120px;
-  }
 }
 
 /* card text column */
@@ -538,47 +350,6 @@ main > .section.accordion-container > div {
   display: none;
 }
 
-@media (width >= 768px) {
-  /* desktop: description always visible; steps up to 18px like the source */
-  .accordion.timeline .accordion-timeline-desc {
-    font-size: 18px;
-  }
-
-  .accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
-    display: block;
-  }
-}
-
-/* course eyebrow + title scale (source): 12/18 mobile -> 16/28 at 768/1024 ->
-   18/32 at 1280. */
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-eyebrow {
-    font-size: 16px;
-    line-height: 16px;
-    letter-spacing: -0.48px;
-  }
-
-  .accordion.timeline .accordion-timeline-title {
-    font-size: 28px;
-    line-height: 28px;
-    letter-spacing: -0.84px;
-  }
-}
-
-@media (width >= 1280px) {
-  .accordion.timeline .accordion-timeline-eyebrow {
-    font-size: 18px;
-    line-height: 18px;
-    letter-spacing: -0.54px;
-  }
-
-  .accordion.timeline .accordion-timeline-title {
-    font-size: 32px;
-    line-height: 32px;
-    letter-spacing: -0.96px;
-  }
-}
-
 /* ---- chevron toggle: rounded-square <button> with a caret; flips when open.
    Source size: 40x40 on mobile -> 48x48 at >=768. Panel chevron is WHITE (on the
    dark panel); course chevron is BLACK (on the white card). */
@@ -593,17 +364,17 @@ main > .section.accordion-container > div {
   background-color: transparent;
   cursor: pointer;
 
+  /* replace the browser's default (orange "auto") focus outline with a
+     transparent base ring; a brand-coloured ring is layered back on
+     :focus-visible below so keyboard focus stays visible (accessibility) but a
+     mouse click shows no stray outline. */
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+
   /* the source flips the chevron INSTANTLY (its button resolves to
      `transition: all` with a 0s duration) — so DON'T transition `transform`.
      Only the hover colour changes ease, matching the source's colour feedback. */
   transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-chevron {
-    width: 48px;
-    height: 48px;
-  }
 }
 
 .accordion.timeline .accordion-timeline-chevron::before {
@@ -649,6 +420,17 @@ main > .section.accordion-container > div {
   border-bottom-color: var(--usta-lime);
 }
 
+/* keyboard focus rings (replace the UA orange outline). Panel chevron sits on the
+   dark panel -> lime ring; course chevron sits on a white card and fills lime on
+   focus -> black ring reads against both the white card and the lime fill. */
+.accordion.timeline .accordion-timeline-panel-info > .accordion-timeline-chevron:focus-visible {
+  outline-color: var(--usta-lime);
+}
+
+.accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:focus-visible {
+  outline-color: #000;
+}
+
 .accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:hover,
 .accordion.timeline .accordion-timeline-course-label > .accordion-timeline-chevron:focus-visible {
   background-color: var(--usta-lime);
@@ -658,17 +440,6 @@ main > .section.accordion-container > div {
 .accordion.timeline .accordion-timeline-panel.is-open .accordion-timeline-panel-info > .accordion-timeline-chevron,
 .accordion.timeline .accordion-timeline-course.is-open > .accordion-timeline-course-label > .accordion-timeline-chevron {
   transform: rotate(180deg);
-}
-
-/* Chevron presence matches the source per breakpoint:
-   - mobile: EVERY card has a chevron (it reveals the description ± timeline)
-   - desktop: only cards WITH a timeline keep the chevron; cards without one
-     (description always shown, nothing to toggle) hide it. */
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-course:not(.accordion-timeline-course-has-timeline)
-    > .accordion-timeline-course-label > .accordion-timeline-chevron {
-    visibility: hidden;
-  }
 }
 
 /* ---- revealed vertical connected-dot timeline ---- */
@@ -747,12 +518,6 @@ main > .section.accordion-container > div {
   color: #000;
 }
 
-@media (width >= 768px) {
-  .accordion.timeline .accordion-timeline-step-text {
-    font-size: 16px;
-  }
-}
-
 /* ---- "View All Courses" footer CTA: lime pill, centred below the cards ---- */
 .accordion.timeline .accordion-timeline-footer {
   display: flex;
@@ -780,20 +545,192 @@ main > .section.accordion-container > div {
   text-decoration: none;
 }
 
+.accordion.timeline .accordion-timeline-viewall:hover,
+.accordion.timeline .accordion-timeline-viewall:focus-visible {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   RESPONSIVE — mobile-first min-width tiers. One block per breakpoint, ascending
+   (768 -> 1024 -> 1280). Base (mobile) styles are declared above; each tier below
+   layers on the deltas for that width and up.
+   ========================================================================== */
+
 @media (width >= 768px) {
+  /* section gutter */
+  main > .section.accordion-container > div {
+    padding-inline: 40px;
+  }
+
+  /* accordion-default row title scale (source .cmp-accordion__title): 24 -> 28 */
+  .accordion.accordion-default .accordion-item-label {
+    font-size: 28px;
+  }
+
+  /* timeline panel padding */
+  .accordion.timeline .accordion-timeline-panel {
+    padding: 32px 12px 20px;
+  }
+
+  /* right pad trimmed so the chevron sits ~17px from the panel edge (source) */
+  .accordion.timeline .accordion-timeline-panel-label {
+    padding: 0 4px 12px 12px;
+  }
+
+  /* intro steps up to 18px */
+  .accordion.timeline .accordion-timeline-panel-intro {
+    font-size: 18px;
+  }
+
+  /* meta grid becomes a row */
+  .accordion.timeline .accordion-timeline-meta {
+    flex-direction: row;
+    gap: 24px; /* source column gap */
+  }
+
+  .accordion.timeline .accordion-timeline-meta-col-grow {
+    flex: 1 1 auto;
+  }
+
+  /* course cards line up equal-height with the always-visible description */
+  .accordion.timeline .accordion-timeline-course {
+    min-height: 232px;
+    padding: 24px;
+  }
+
+  .accordion.timeline .accordion-timeline-course-content {
+    gap: 24px;
+  }
+
+  .accordion.timeline .accordion-timeline-course-badge img {
+    width: 120px;
+  }
+
+  /* desktop: description always visible; steps up to 18px like the source */
+  .accordion.timeline .accordion-timeline-desc {
+    font-size: 18px;
+  }
+
+  .accordion.timeline .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
+    display: block;
+  }
+
+  /* course eyebrow + title scale: 12/18 -> 16/28 */
+  .accordion.timeline .accordion-timeline-eyebrow {
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: -0.48px;
+  }
+
+  .accordion.timeline .accordion-timeline-title {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.84px;
+  }
+
+  /* chevron grows to 48x48 */
+  .accordion.timeline .accordion-timeline-chevron {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* cards WITHOUT a timeline (description always shown, nothing to toggle) hide
+     their chevron; cards with a timeline keep it. */
+  .accordion.timeline .accordion-timeline-course:not(.accordion-timeline-course-has-timeline)
+    > .accordion-timeline-course-label > .accordion-timeline-chevron {
+    visibility: hidden;
+  }
+
+  /* step label steps up to 16px */
+  .accordion.timeline .accordion-timeline-step-text {
+    font-size: 16px;
+  }
+
+  /* View All Courses: content-width from 768 up, 16px */
   .accordion.timeline .accordion-timeline-viewall {
-    width: auto; /* source: fixed 280px only below 768, content-width from 768 up */
+    width: auto;
     font-size: 16px;
   }
 }
 
 @media (width >= 1024px) {
+  /* section gutter */
+  main > .section.accordion-container > div {
+    padding-inline: 48px;
+  }
+
+  /* accordion-default body copy steps up to 18px */
+  .accordion.accordion-default .accordion-item-body p {
+    font-size: 18px;
+  }
+
+  /* meta grid runs flush to the chevron (no gap) so the meta keeps its full width
+     and the Industry column is wide enough to hold "USTA Play Facilitator Workshop"
+     on one line — only the last item wraps. Chevron vertically centred. */
+  .accordion.timeline .accordion-timeline-panel-info {
+    align-items: center;
+    gap: 0;
+  }
+
+  /* header switches to badge-left / text-right (row). No gap between badge and
+     text (the badge PNG carries its own internal padding); a gap here steals width
+     from the meta grid and forces the Industry column to wrap early. */
+  .accordion.timeline .accordion-timeline-panel-head {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  /* View All Courses steps up to 18px */
   .accordion.timeline .accordion-timeline-viewall {
     font-size: 18px;
   }
 }
 
-.accordion.timeline .accordion-timeline-viewall:hover,
-.accordion.timeline .accordion-timeline-viewall:focus-visible {
-  text-decoration: underline;
+@media (width >= 1280px) {
+  /* section gutter */
+  main > .section.accordion-container > div {
+    padding-inline: 64px;
+  }
+
+  /* accordion-default row title scale: 28 -> 32 */
+  .accordion.accordion-default .accordion-item-label {
+    font-size: 32px;
+  }
+
+  /* source widens the panel right gap to ~25px at the largest tier */
+  .accordion.timeline .accordion-timeline-panel-label {
+    padding: 12px;
+  }
+
+  /* badge widens from 300px to 365px */
+  .accordion.timeline .accordion-timeline-badge img {
+    width: 365px;
+  }
+
+  /* meta heading + value step up to 18/18 (-0.54) */
+  .accordion.timeline .accordion-timeline-meta-heading,
+  .accordion.timeline .accordion-timeline-meta-value {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.54px;
+  }
+
+  /* blank line between heading and first value scales with the 18px line-height */
+  .accordion.timeline .accordion-timeline-meta-heading {
+    margin-bottom: 18px;
+  }
+
+  /* course eyebrow + title scale: 16/28 -> 18/32 */
+  .accordion.timeline .accordion-timeline-eyebrow {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: -0.54px;
+  }
+
+  .accordion.timeline .accordion-timeline-title {
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.96px;
+  }
 }
