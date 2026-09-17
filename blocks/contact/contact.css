@@ -1,0 +1,168 @@
+/* contact — the USTA "Get in Touch" panel.
+   Source-measured from https://www.ustacoaching.com/en/home/about.html:
+   • lime panel #cfff05, 20px radius, 36px vertical margin (12px on mobile);
+   • intro title (Graphik Semibold): 24px → 40px @768 → 56px @1024, lh = font-size,
+     letter-spacing -0.03em; subtitle (Graphik Regular) 14px → 18px @768, lh 1.2;
+   • white cards: 20px radius, ~12px padding, h3 16px → 28px @768 (Graphik Semibold),
+     body 14px → 16px @768, grey 2px separator, and a 48×48 lime arrow button
+     (2px black border, 12px radius) that inverts to black-on-white on hover.
+   Two columns (intro | cards) at desktop (≥1024), stacked below.
+   Mobile-first, min-width only (768 / 1024 per tools/quality/breakpoints.json). */
+
+.contact.block {
+  background-color: var(--usta-lime);
+  color: #000;
+  border-radius: 20px;
+  margin: 12px 0;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+/* -------------------------------------------------------------------- intro */
+.contact .contact-intro {
+  padding: 12px 8px;
+}
+
+.contact .contact-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: -0.03em;
+  color: #000;
+  text-transform: none;
+}
+
+.contact .contact-subtitle {
+  margin: 12px 0 0;
+  font-family: var(--body-font-family);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: #000;
+}
+
+/* -------------------------------------------------------------------- cards */
+.contact .contact-cards {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact .contact-card {
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 20px 16px;
+  box-sizing: border-box;
+}
+
+.contact .contact-card-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #000;
+  text-transform: none;
+}
+
+.contact .contact-card-body {
+  margin: 12px 0 0;
+  font-family: var(--body-font-family);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.2;
+  color: #000;
+}
+
+.contact .contact-card-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-top: 24px;
+  padding: 0;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background-color: var(--usta-lime);
+  color: #000;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.contact .contact-card-link svg {
+  width: 23px;
+  height: 12px;
+  display: block;
+}
+
+.contact .contact-card-link:hover,
+.contact .contact-card-link:focus-visible {
+  background-color: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+.contact .contact-card-link:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------- ≥768 (tablet) */
+@media (width >= 768px) {
+  .contact.block {
+    margin: 36px 0;
+    padding: 36px 12px;
+  }
+
+  .contact .contact-intro {
+    padding: 12px;
+  }
+
+  .contact .contact-title {
+    font-size: 40px;
+    line-height: 40px;
+  }
+
+  .contact .contact-subtitle {
+    font-size: 18px;
+  }
+
+  .contact .contact-cards {
+    gap: 24px;
+  }
+
+  .contact .contact-card {
+    padding: 24px;
+  }
+
+  .contact .contact-card-title {
+    font-size: 28px;
+    line-height: 28px;
+  }
+
+  .contact .contact-card-body {
+    font-size: 16px;
+  }
+}
+
+/* --------------------------------------------------------------- ≥1024 (desktop) */
+@media (width >= 1024px) {
+  .contact.block {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    align-items: start;
+    column-gap: 24px;
+  }
+
+  .contact .contact-title {
+    font-size: 56px;
+    line-height: 56px;
+  }
+}
