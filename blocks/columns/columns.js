@@ -1,11 +1,14 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
- * columns — a two-column layout. Three variants share this block:
+ * columns — a two-column layout. Four variants share this block:
  *   • default : generic N-column layout (boilerplate).
  *   • media   : image beside text (heading + paragraph + CTA); `media-right`
  *               forces the image to the right (text-first).
  *   • quote   : headshot beside a testimonial quote + attribution.
+ *   • text    : the "Eligibility and Requirements" card — a dark rounded card
+ *               with a centered heading spanning two diamond-bulleted text
+ *               columns (e.g. MENTOR / MENTEE) and a shared CTA below.
  * The variant is authored as a class on the block (e.g. `columns (media)`), so
  * we dispatch on it here and keep each variant's own inner class names.
  *
@@ -108,6 +111,62 @@ function decorateQuote(block) {
   }
 }
 
+/*
+ * text (ELIGIBILITY AND REQUIREMENTS) — a dark rounded card with a centered
+ * heading spanning two columns (e.g. MENTOR qualifications / MENTEE
+ * eligibility), each a subtitle + a lime label + a diamond-bulleted list, plus
+ * a shared CTA below.
+ *
+ * Source authors everything as paragraphs except the card title (an <h2>), so
+ * the subtitle and lime label are <p> — this keeps the variant clear of the
+ * global h1..h6 type scale.
+ *
+ * Authoring model (rows, classified by shape not position):
+ *   heading row — a single cell holding the card heading (h2).
+ *   columns row — TWO cells, one per column. Each cell holds:
+ *                   • a subtitle paragraph (e.g. "Qualifications: Tennis Coaching")
+ *                   • a label paragraph     (the lime label, e.g. "MENTOR")
+ *                   • a list (ul/ol)        (the diamond-bulleted requirements)
+ *   CTA row     — a single cell holding the CTA link ("Register Now").
+ */
+function decorateText(block) {
+  [...block.children].forEach((row) => {
+    const cells = [...row.children];
+
+    // the two-column requirements row
+    if (cells.length >= 2) {
+      row.classList.add('columns-text-columns');
+      cells.forEach((cell) => {
+        cell.classList.add('columns-text-col');
+        const paras = cell.querySelectorAll(':scope > p');
+        const list = cell.querySelector(':scope > ul, :scope > ol');
+        // first paragraph = the subtitle; the paragraph before the list = the
+        // lime label (fall back to the last paragraph when there's no list).
+        if (paras[0]) paras[0].classList.add('columns-text-subtitle');
+        const label = list ? list.previousElementSibling : paras[paras.length - 1];
+        if (label && label.tagName === 'P' && label !== paras[0]) {
+          label.classList.add('columns-text-label');
+        }
+        if (list) list.classList.add('columns-text-list');
+      });
+      return;
+    }
+
+    // single-cell rows: either the CTA (a lone link) or the heading
+    const cell = cells[0];
+    if (!cell) return;
+    const link = cell.querySelector('a');
+    const heading = cell.querySelector('h1, h2, h3, h4, h5, h6');
+
+    if (link && !heading) {
+      row.classList.add('columns-text-cta');
+      link.classList.add('button');
+    } else {
+      row.classList.add('columns-text-head');
+    }
+  });
+}
+
 function decorateDefault(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
@@ -130,5 +189,6 @@ function decorateDefault(block) {
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
   else if (block.classList.contains('quote')) decorateQuote(block);
+  else if (block.classList.contains('text')) decorateText(block);
   else decorateDefault(block);
 }
