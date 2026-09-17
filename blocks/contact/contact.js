@@ -106,4 +106,11 @@ export default function decorate(block) {
   block.replaceChildren();
   if (intro.children.length) block.append(intro);
   if (cards.children.length) block.append(cards);
+
+  // The source panel is NOT inside the site's 1200px content column — it spans
+  // near the full viewport with header-tracking side gutters (16/40/48/64px).
+  // Add `.full-width` to the section wrapper so it escapes the global cap; the
+  // block CSS re-imposes the source geometry (see contact.css).
+  const wrapper = block.closest('.contact-wrapper') || block.parentElement;
+  if (wrapper) wrapper.classList.add('full-width');
 }

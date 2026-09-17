@@ -1,21 +1,30 @@
 /* contact — the USTA "Get in Touch" panel.
-   Source-measured from https://www.ustacoaching.com/en/home/about.html:
-   • lime panel #cfff05, 20px radius, 36px vertical margin (12px on mobile);
-   • intro title (Graphik Semibold): 24px → 40px @768 → 56px @1024, lh = font-size,
-     letter-spacing -0.03em; subtitle (Graphik Regular) 14px → 18px @768, lh 1.2;
-   • white cards: 20px radius, ~12px padding, h3 16px → 28px @768 (Graphik Semibold),
-     body 14px → 16px @768, grey 2px separator, and a 48×48 lime arrow button
-     (2px black border, 12px radius) that inverts to black-on-white on hover.
-   Two columns (intro | cards) at desktop (≥1024), stacked below.
-   Mobile-first, min-width only (768 / 1024 per tools/quality/breakpoints.json). */
+   Source-measured from https://www.ustacoaching.com/en/home/about.html at
+   390 / 834 / 1024 / 1280 / 1440 (computed styles + geometry).
+
+   WIDTH/GUTTER (source): the panel is NOT in the site's 1200px content column —
+   it spans near the full viewport with header-tracking side gutters
+   16 → 40 @768 → 48 @1024 → 64 @1280, capping at a 1408px max-width (1312@1440).
+   The wrapper gets `.full-width` (JS) to escape the global 1200px cap; the block
+   re-imposes the source geometry.
+
+   TYPOGRAPHY (source, per breakpoint — all Graphik, letter-spacing -0.03em):
+   • title    (Graphik Semibold): 24/24 → 40/40 @768 → 56/56 @1024
+   • subtitle (Graphik Regular) : 14/16.8 → 18/21.6 @768
+   • card h3  (Graphik Semibold): 16/16 → 28/28 @768
+   • card body(Graphik Regular) : 12/14.4 → 16/19.2 @768
+
+   LAYOUT: stacked (intro above cards) through 1024; two columns at 1280. */
 
 .contact.block {
+  box-sizing: border-box;
+  width: calc(100% - 2 * 16px);
+  max-width: 1408px;
+  margin-inline: auto;
   background-color: var(--usta-lime);
   color: #000;
   border-radius: 20px;
-  margin: 12px 0;
   padding: 12px 16px;
-  box-sizing: border-box;
 }
 
 /* -------------------------------------------------------------------- intro */
@@ -31,6 +40,7 @@
   line-height: 24px;
   letter-spacing: -0.03em;
   color: #000;
+  text-align: left;
   text-transform: none;
 }
 
@@ -39,26 +49,27 @@
   font-family: var(--body-font-family);
   font-weight: 400;
   font-size: 14px;
-  line-height: 1.2;
+  line-height: 16.8px;
   letter-spacing: -0.03em;
   color: #000;
+  text-align: left;
 }
 
 /* -------------------------------------------------------------------- cards */
 .contact .contact-cards {
   list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
+  margin: 0;
+  padding: 8px 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
 .contact .contact-card {
+  box-sizing: border-box;
   background-color: #fff;
   border-radius: 20px;
-  padding: 20px 16px;
-  box-sizing: border-box;
+  padding: 16px 12px;
 }
 
 .contact .contact-card-title {
@@ -66,9 +77,10 @@
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 600;
   font-size: 16px;
-  line-height: 1;
+  line-height: 16px;
   letter-spacing: -0.03em;
   color: #000;
+  text-align: left;
   text-transform: none;
 }
 
@@ -76,9 +88,11 @@
   margin: 12px 0 0;
   font-family: var(--body-font-family);
   font-weight: 400;
-  font-size: 14px;
-  line-height: 1.2;
+  font-size: 12px;
+  line-height: 14.4px;
+  letter-spacing: -0.03em;
   color: #000;
+  text-align: left;
 }
 
 .contact .contact-card-link {
@@ -117,7 +131,7 @@
 /* --------------------------------------------------------------- ≥768 (tablet) */
 @media (width >= 768px) {
   .contact.block {
-    margin: 36px 0;
+    width: calc(100% - 2 * 40px);
     padding: 36px 12px;
   }
 
@@ -132,10 +146,12 @@
 
   .contact .contact-subtitle {
     font-size: 18px;
+    line-height: 21.6px;
   }
 
   .contact .contact-cards {
     gap: 24px;
+    padding: 8px 12px;
   }
 
   .contact .contact-card {
@@ -149,20 +165,29 @@
 
   .contact .contact-card-body {
     font-size: 16px;
+    line-height: 19.2px;
   }
 }
 
 /* --------------------------------------------------------------- ≥1024 (desktop) */
 @media (width >= 1024px) {
   .contact.block {
-    display: grid;
-    grid-template-columns: 5fr 7fr;
-    align-items: start;
-    column-gap: 24px;
+    width: calc(100% - 2 * 48px);
   }
 
   .contact .contact-title {
     font-size: 56px;
     line-height: 56px;
+  }
+}
+
+/* --------------------------------------------------------------- ≥1280 (wide: 2-col) */
+@media (width >= 1280px) {
+  .contact.block {
+    width: calc(100% - 2 * 64px);
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    align-items: start;
+    column-gap: 24px;
   }
 }
