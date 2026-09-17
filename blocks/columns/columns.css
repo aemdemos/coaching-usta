@@ -396,10 +396,17 @@ main > .section.columns-container:has(.columns.feature) > div {
     flex-direction: row;
     align-items: stretch;
     gap: 24px;
+
+    /* source insets each visible box 12px from the panel content edge (image
+       starts 12px in, card ends 12px in), so the row content is 24px narrower
+       than the panel — an AEM outer-gutter artifact we reproduce here. */
+    padding-inline: 12px;
   }
 
-  /* exact 50/50 split (source: two 6-of-12 columns). Fixed 50% basis + min-width:0
-     so neither the image's intrinsic width nor the card's text skews the split. */
+  /* exact 50/50 split (source: two 6-of-12 columns). With the 24px flex gap and
+     the row's 12px outer insets, each visible box computes to the source's 668px
+     at 1600 (was 680 when flush). Fixed basis + min-width:0 so neither the
+     image's intrinsic width nor the card's text skews the split. */
   .columns.feature .columns-feature-media,
   .columns.feature .columns-feature-card {
     flex: 0 0 calc(50% - 12px);
@@ -424,6 +431,13 @@ main > .section.columns-container:has(.columns.feature) > div {
     object-position: top;
   }
 
+  /* card content inset at desktop: source insets the text ~50px top/bottom and
+     ~16px left/right inside the bordered card (was a flat 24px). This is what
+     puts the extra space above the "WOMEN'S COACHING COHORT" heading. */
+  .columns.feature .columns-feature-card {
+    padding: 50px 16px;
+  }
+
   /* heading grows to 40px at the 1024 tier (source-measured) */
   .columns.feature .columns-feature-card h1,
   .columns.feature .columns-feature-card h2,
@@ -432,15 +446,17 @@ main > .section.columns-container:has(.columns.feature) > div {
   }
 }
 
-/* wide desktop (>=1280): source panel side gutter widens to 64px; the image
-   aspect-ratio widens to 1.42 (620/437) — source-measured. */
+/* wide desktop (>=1280): the content is capped at 1536px and centered (see the
+   base rule); the source uses a FLAT 52px side gutter from 1280 up through and
+   past the 1536 cap (measured at 1280/1400/1600 = 52px, matching the source
+   body padding). The image aspect-ratio widens to 1.42 (620/437) here. */
 @media (width >= 1280px) {
   .columns.feature .columns-feature-media {
     aspect-ratio: 620 / 437;
   }
 
   main > .section.columns-container:has(.columns.feature) > div {
-    padding: 0 64px;
+    padding: 0 52px;
   }
 }
 
