@@ -24,7 +24,7 @@
   background-color: var(--usta-lime);
   color: #000;
   border-radius: 20px;
-  padding: 12px 16px;
+  padding: 12px 16px 35px;
 }
 
 /* -------------------------------------------------------------------- intro */
@@ -45,7 +45,7 @@
 }
 
 .contact .contact-subtitle {
-  margin: 12px 0 0;
+  margin: 22px 0 0;
   font-family: var(--body-font-family);
   font-weight: 400;
   font-size: 14px;
@@ -62,14 +62,14 @@
   padding: 8px 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 43px;
 }
 
 .contact .contact-card {
   box-sizing: border-box;
   background-color: #fff;
   border-radius: 20px;
-  padding: 16px 12px;
+  padding: 12px;
 }
 
 .contact .contact-card-title {
@@ -85,7 +85,7 @@
 }
 
 .contact .contact-card-body {
-  margin: 12px 0 0;
+  margin: 24px 0 0;
   font-family: var(--body-font-family);
   font-weight: 400;
   font-size: 12px;
@@ -96,6 +96,7 @@
 }
 
 .contact .contact-card-link {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -132,7 +133,7 @@
 @media (width >= 768px) {
   .contact.block {
     width: calc(100% - 2 * 40px);
-    padding: 36px 12px;
+    padding: 36px 12px 60px;
   }
 
   .contact .contact-intro {
@@ -150,12 +151,13 @@
   }
 
   .contact .contact-cards {
-    gap: 24px;
+    gap: 40px;
     padding: 8px 12px;
   }
 
+  /* Tablet card: source 16px vertical inset (h3 sits 16px from the card top). */
   .contact .contact-card {
-    padding: 24px;
+    padding: 16px;
   }
 
   .contact .contact-card-title {
@@ -164,8 +166,14 @@
   }
 
   .contact .contact-card-body {
+    margin-top: 24px;
     font-size: 16px;
     line-height: 19.2px;
+  }
+
+  /* Source keeps a generous body→arrow gap (~48px). */
+  .contact .contact-card-link {
+    margin-top: 48px;
   }
 }
 
@@ -186,8 +194,18 @@
   .contact.block {
     width: calc(100% - 2 * 64px);
     display: grid;
-    grid-template-columns: 5fr 7fr;
+
+    /* Source columns butt together (no gap) — intro 537 / cards 751 of the
+       1288px content area ≈ 41.7% / 58.3%. The visual gutter between the intro
+       text and the cards comes from each column's own inner padding, not a grid
+       gap. */
+    grid-template-columns: 537fr 751fr;
     align-items: start;
-    column-gap: 24px;
+    column-gap: 0;
+  }
+
+  /* Desktop card: source 24px vertical inset, giving the ~236px card height. */
+  .contact .contact-card {
+    padding: 24px 16px;
   }
 }
