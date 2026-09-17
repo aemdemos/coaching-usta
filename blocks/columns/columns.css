@@ -285,7 +285,7 @@ main > .section.columns-container:has(.columns.media) > div {
 /* section gutters match the site grid (16/40/48/64) and the 1536 centered box */
 main > .section.columns-container:has(.columns.feature) > div {
   box-sizing: border-box;
-  max-width: 1536px;
+  max-width: 1450px;
   margin-inline: auto;
   padding: 0 16px;
 }
@@ -295,7 +295,7 @@ main > .section.columns-container:has(.columns.feature) > div {
   box-sizing: border-box;
   background-color: #202020;
   border-radius: 32px;
-  padding: 24px;
+  padding: 35px 20px;
 }
 
 /* the row: stacked on mobile (image, then card) */
@@ -325,7 +325,7 @@ main > .section.columns-container:has(.columns.feature) > div {
   flex-direction: column;
   border: 1px solid #a0a0a0;
   border-radius: 20px;
-  padding: 24px;
+  padding: 44px 9px;
 }
 
 /* heading: USTA Sans bold, white, line-height 1 (source lh == font-size at every
@@ -352,6 +352,7 @@ main > .section.columns-container:has(.columns.feature) > div {
   line-height: 24px;
   letter-spacing: normal;
   color: #fff;
+  padding-bottom: 40px;
 }
 
 /* tablet (>=768): larger gutter; still stacked. Heading steps 28 -> 32
@@ -371,6 +372,10 @@ main > .section.columns-container:has(.columns.feature) > div {
   .columns.feature .columns-feature-card h2,
   .columns.feature .columns-feature-card h3 {
     font-size: 32px;
+  }  
+  
+  .columns.feature {
+    padding: 47px 32px;
   }
 }
 
@@ -388,18 +393,21 @@ main > .section.columns-container:has(.columns.feature) > div {
     padding: 0 48px;
   }
 
-  .columns.feature {
-    padding: 36px 24px;
-  }
-
   .columns.feature > div {
     flex-direction: row;
     align-items: stretch;
     gap: 24px;
+
+    /* source insets each visible box 12px from the panel content edge (image
+       starts 12px in, card ends 12px in), so the row content is 24px narrower
+       than the panel — an AEM outer-gutter artifact we reproduce here. */
+    padding-inline: 12px;
   }
 
-  /* exact 50/50 split (source: two 6-of-12 columns). Fixed 50% basis + min-width:0
-     so neither the image's intrinsic width nor the card's text skews the split. */
+  /* exact 50/50 split (source: two 6-of-12 columns). With the 24px flex gap and
+     the row's 12px outer insets, each visible box computes to the source's 668px
+     at 1600 (was 680 when flush). Fixed basis + min-width:0 so neither the
+     image's intrinsic width nor the card's text skews the split. */
   .columns.feature .columns-feature-media,
   .columns.feature .columns-feature-card {
     flex: 0 0 calc(50% - 12px);
@@ -424,6 +432,13 @@ main > .section.columns-container:has(.columns.feature) > div {
     object-position: top;
   }
 
+  /* card content inset at desktop: source insets the text ~50px top/bottom and
+     ~16px left/right inside the bordered card (was a flat 24px). This is what
+     puts the extra space above the "WOMEN'S COACHING COHORT" heading. */
+  .columns.feature .columns-feature-card {
+    padding: 32px 16px;
+  }
+
   /* heading grows to 40px at the 1024 tier (source-measured) */
   .columns.feature .columns-feature-card h1,
   .columns.feature .columns-feature-card h2,
@@ -432,15 +447,17 @@ main > .section.columns-container:has(.columns.feature) > div {
   }
 }
 
-/* wide desktop (>=1280): source panel side gutter widens to 64px; the image
-   aspect-ratio widens to 1.42 (620/437) — source-measured. */
+/* wide desktop (>=1280): the content is capped at 1536px and centered (see the
+   base rule); the source uses a FLAT 52px side gutter from 1280 up through and
+   past the 1536 cap (measured at 1280/1400/1600 = 52px, matching the source
+   body padding). The image aspect-ratio widens to 1.42 (620/437) here. */
 @media (width >= 1280px) {
   .columns.feature .columns-feature-media {
     aspect-ratio: 620 / 437;
   }
 
   main > .section.columns-container:has(.columns.feature) > div {
-    padding: 0 64px;
+    padding: 0 52px;
   }
 }
 
