@@ -198,30 +198,37 @@ function decorateText(block) {
 }
 
 /*
- * profile — leadership/bio cards. Each card: a portrait photo on top, then a
- * body with the person's name (heading), role/title, and a bio paragraph.
- * A card is "featured" (lime background, black text) when it carries a SECOND
- * heading (e.g. a "Bio" label) — mirrors the source's highlighted card.
+ * profile — leadership/bio cards with an INTERACTIVE reveal (source: about page
+ * "Our Leadership"). Resting: portrait photo on top, then a black bordered panel
+ * with the name, a lime role line, and a short bio. On HOVER (desktop) or CLICK
+ * (touch) the card animates over 0.3s: the image shrinks, the panel grows and
+ * fills lime with black text, a "Bio" label appears, and the bio expands to the
+ * full text. Card total height is fixed so the layout never reflows.
  * Authoring (one row per card):
  *   cell 1: portrait image
- *   cell 2: name heading, role paragraph(s), [optional "Bio" heading], bio paragraph(s)
+ *   cell 2: name (heading), role (p), short bio (p), "Bio" (heading), full bio (p)
+ *           — the 2nd heading separates the resting short bio from the open state;
+ *             paragraphs before it are the short bio, after it the full bio.
  */
 function decorateProfile(block) {
   const ul = document.createElement('ul');
 
   [...block.children].forEach((row) => {
+    // the <li> stays a plain listitem; an inner element is the interactive card
+    // (role="button" on the <li> itself would strip its listitem role).
     const li = document.createElement('li');
-    li.className = 'cards-profile-card';
-    while (row.firstElementChild) li.append(row.firstElementChild);
+    const card = document.createElement('div');
+    card.className = 'cards-profile-card';
+    while (row.firstElementChild) card.append(row.firstElementChild);
 
     // image cell
-    const imageDiv = [...li.children].find((d) => d.querySelector && d.querySelector('picture, img'));
+    const imageDiv = [...card.children].find((d) => d.querySelector && d.querySelector('picture, img'));
     if (imageDiv) imageDiv.className = 'cards-profile-image';
 
     // body = everything else, wrapped for padding + background
     const body = document.createElement('div');
     body.className = 'cards-profile-body';
-    [...li.children].forEach((child) => {
+    [...card.children].forEach((child) => {
       if (child === imageDiv) return;
       // unwrap a single content div so its parts sit directly in the body
       if (child.tagName === 'DIV') {
@@ -232,19 +239,39 @@ function decorateProfile(block) {
       }
     });
 
-    // name = first heading; role = the paragraph(s) right after it; a SECOND
-    // heading marks a featured card (lime) and labels the bio.
+    // name = first heading; role = first paragraph after it.
     const headings = [...body.querySelectorAll('h1, h2, h3, h4, h5, h6')];
-    if (headings[0]) headings[0].classList.add('cards-profile-name');
-    if (headings.length > 1) {
-      li.classList.add('is-featured');
-      headings[1].classList.add('cards-profile-bio-label');
-    }
-    // role = first paragraph after the name heading
-    const role = headings[0] ? headings[0].nextElementSibling : body.querySelector('p');
+    const name = headings[0];
+    if (name) name.classList.add('cards-profile-name');
+    const role = name ? name.nextElementSibling : body.querySelector('p');
     if (role && role.tagName === 'P') role.classList.add('cards-profile-role');
 
-    li.append(body);
+    // a SECOND heading is the "Bio" label; it splits the short bio (paragraphs
+    // before it) from the full bio (paragraphs after it).
+    const bioLabel = headings[1] || null;
+    if (bioLabel) bioLabel.classList.add('cards-profile-bio-label');
+    let seenLabel = false;
+    [...body.children].forEach((child) => {
+      if (child === bioLabel) { seenLabel = true; return; }
+      if (child.tagName !== 'P' || child === role) return;
+      child.classList.add(seenLabel ? 'cards-profile-desc-full' : 'cards-profile-desc-short');
+    });
+
+    // make the card an interactive toggle (touch: tap; desktop also has :hover)
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-expanded', 'false');
+    const toggle = () => {
+      const open = card.classList.toggle('is-open');
+      card.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+
+    card.append(body);
+    li.append(card);
     ul.append(li);
   });
 
@@ -295,6 +322,12 @@ function decorateComparison(block) {
     // coming-soon card: text mentions "Coming 202x" and there is no feature list
     const isComingSoon = /coming\s+202\d/i.test(body.textContent) && !body.querySelector('ul, ol');
     if (isComingSoon) li.classList.add('is-coming-soon');
+
+    // the "Annual Package Fee" subtitle = the paragraph right after the title
+    const titleEl = body.querySelector('h1, h2, h3, h4, h5, h6');
+    if (titleEl && titleEl.nextElementSibling && titleEl.nextElementSibling.tagName === 'P') {
+      titleEl.nextElementSibling.classList.add('cards-comparison-subtitle');
+    }
 
     // the feature (included modules) list gets a class + a check marker
     const list = body.querySelector('ul, ol');
