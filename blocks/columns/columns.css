@@ -9,35 +9,35 @@
    by the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .quote) > div {
+.columns.block:not(.media, .feature, .quote) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .quote) img {
+.columns.block:not(.media, .feature, .quote) img {
   width: 100%;
 }
 
-.columns.block:not(.media, .quote) > div > div {
+.columns.block:not(.media, .feature, .quote) > div > div {
   order: 1;
 }
 
-.columns.block:not(.media, .quote) > div > .columns-img-col {
+.columns.block:not(.media, .feature, .quote) > div > .columns-img-col {
   order: 0;
 }
 
-.columns.block:not(.media, .quote) > div > .columns-img-col img {
+.columns.block:not(.media, .feature, .quote) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .quote) > div {
+  .columns.block:not(.media, .feature, .quote) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns.block:not(.media, .quote) > div > div {
+  .columns.block:not(.media, .feature, .quote) > div > div {
     flex: 1;
     order: unset;
   }
@@ -355,10 +355,16 @@ main > .section.columns-container:has(.columns.feature) > div {
 }
 
 /* tablet (>=768): larger gutter; still stacked. Heading steps 28 -> 32
-   (source-measured: 32px/32px flat across the whole 768–1023 tier). */
+   (source-measured: 32px/32px flat across the whole 768–1023 tier). The source
+   HIDES the image on this tier (its column carries `aem-GridColumn--tablet--hide`)
+   and shows the card full-width; the image returns at >=1024. */
 @media (width >= 768px) {
   main > .section.columns-container:has(.columns.feature) > div {
     padding: 0 40px;
+  }
+
+  .columns.feature .columns-feature-media {
+    display: none;
   }
 
   .columns.feature .columns-feature-card h1,
@@ -394,9 +400,10 @@ main > .section.columns-container:has(.columns.feature) > div {
     order: unset;
   }
 
-  /* the image cover-crops to the source's landscape frame (620/437) and fills
-     the equal-height row */
+  /* the image returns at desktop (hidden on the tablet tier) and cover-crops to
+     the source's landscape frame (620/437), filling the equal-height row */
   .columns.feature .columns-feature-media {
+    display: block;
     aspect-ratio: 620 / 437;
   }
 
