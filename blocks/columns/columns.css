@@ -374,8 +374,12 @@ main > .section.columns-container:has(.columns.feature) > div {
   }
 }
 
-/* desktop (>=1024): 50/50 side-by-side, equal-height columns, 24px gap; panel
-   grows its padding to the source 36px 24px */
+/* desktop (>=1024): 50/50 side-by-side, 24px gap; panel padding 36px 24px.
+   IMPORTANT — the columns are TOP-ALIGNED, not stretched. The source keeps the
+   image at a FIXED aspect-ratio and lets the TEXT CARD grow taller than the
+   image when the copy is long (measured: at 1084 image col 426 vs card 554; at
+   1440 image col 461 vs card 498). Stretching the image to the card height would
+   zoom/distort it — so we align-items: flex-start and pin the image ratio. */
 @media (width >= 1024px) {
   main > .section.columns-container:has(.columns.feature) > div {
     padding: 0 48px;
@@ -387,7 +391,7 @@ main > .section.columns-container:has(.columns.feature) > div {
 
   .columns.feature > div {
     flex-direction: row;
-    align-items: stretch;
+    align-items: flex-start;
     gap: 24px;
   }
 
@@ -400,16 +404,18 @@ main > .section.columns-container:has(.columns.feature) > div {
     order: unset;
   }
 
-  /* the image returns at desktop (hidden on the tablet tier) and cover-crops to
-     the source's landscape frame (620/437), filling the equal-height row */
+  /* the image returns at desktop (hidden on the tablet tier) at a FIXED source
+     aspect-ratio of 1.14 (620/544) for the 1024–1279 tier; object-fit: cover
+     crops the portrait source into that frame. The card is free to grow taller. */
   .columns.feature .columns-feature-media {
     display: block;
-    aspect-ratio: 620 / 437;
+    aspect-ratio: 620 / 544;
   }
 
   .columns.feature .columns-feature-media img {
     height: 100%;
     object-fit: cover;
+    object-position: top;
   }
 
   /* heading grows to 40px at the 1024 tier (source-measured) */
@@ -420,8 +426,13 @@ main > .section.columns-container:has(.columns.feature) > div {
   }
 }
 
-/* wide desktop (>=1280): source panel side gutter widens to 64px */
+/* wide desktop (>=1280): source panel side gutter widens to 64px; the image
+   aspect-ratio widens to 1.42 (620/437) — source-measured. */
 @media (width >= 1280px) {
+  .columns.feature .columns-feature-media {
+    aspect-ratio: 620 / 437;
+  }
+
   main > .section.columns-container:has(.columns.feature) > div {
     padding: 0 64px;
   }
