@@ -375,11 +375,14 @@ main > .section.columns-container:has(.columns.feature) > div {
 }
 
 /* desktop (>=1024): 50/50 side-by-side, 24px gap; panel padding 36px 24px.
-   IMPORTANT — the columns are TOP-ALIGNED, not stretched. The source keeps the
-   image at a FIXED aspect-ratio and lets the TEXT CARD grow taller than the
-   image when the copy is long (measured: at 1084 image col 426 vs card 554; at
-   1440 image col 461 vs card 498). Stretching the image to the card height would
-   zoom/distort it — so we align-items: flex-start and pin the image ratio. */
+   The row is align-items: STRETCH so the row height = the TALLER column. The
+   image column opts OUT of the stretch (align-self: flex-start) and keeps its
+   FIXED aspect-ratio — so it never zooms/distorts — while the CARD stretches to
+   fill the full row height. This mirrors the source: when the text is short the
+   image drives the height and the card stretches down to match it (measured at
+   1728: image col ~494, card stretches to 498 with ~105px empty space below the
+   copy); when the text is long the card drives the height and the image stays at
+   its aspect (measured at 1084: card 554, image 426, top-aligned). */
 @media (width >= 1024px) {
   main > .section.columns-container:has(.columns.feature) > div {
     padding: 0 48px;
@@ -391,7 +394,7 @@ main > .section.columns-container:has(.columns.feature) > div {
 
   .columns.feature > div {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 24px;
   }
 
@@ -406,9 +409,12 @@ main > .section.columns-container:has(.columns.feature) > div {
 
   /* the image returns at desktop (hidden on the tablet tier) at a FIXED source
      aspect-ratio of 1.14 (620/544) for the 1024–1279 tier; object-fit: cover
-     crops the portrait source into that frame. The card is free to grow taller. */
+     crops the portrait source into that frame. align-self: flex-start opts the
+     image OUT of the row stretch so it keeps this ratio (never zoomed) and stays
+     top-aligned when the card is taller. */
   .columns.feature .columns-feature-media {
     display: block;
+    align-self: flex-start;
     aspect-ratio: 620 / 544;
   }
 
