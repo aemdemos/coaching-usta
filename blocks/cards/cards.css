@@ -114,13 +114,15 @@
   font-weight: 400;
   font-size: 28px; /* source: 28px through 1024, 32px at >=1280 */
   line-height: 1;
+  letter-spacing: normal; /* source: title ls normal (overrides global h3 -0.03em) */
   color: #fff;
 }
 
 .cards.course .cards-course-body p {
   margin: 24px 0 0; /* title→desc 24px */
-  font-size: 18px;
+  font-size: 18px; /* source: 18/24 at every breakpoint */
   line-height: 24px;
+  letter-spacing: normal; /* source: desc ls normal (overrides global body -0.03em) */
   color: #fff;
 }
 
@@ -135,8 +137,12 @@
   border-radius: 20px;
   background-color: var(--usta-blue-aa); /* AA-safe blue for white text (see styles.css) */
   color: #fff; /* source: white pill text */
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 700; /* source pill text is bold (<b>) */
   font-size: 16px;
-  line-height: 1;
+  line-height: 19.2px; /* source: 16/19.2 */
+  letter-spacing: normal;
+  text-align: center;
 }
 
 /* tablet+ : 2-up grid, wider gutters */
@@ -189,13 +195,18 @@
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
+
+  /* Section outer gutter = the H2's gutter (source h2 x=16 mobile / 40 tablet).
+     The cards get an extra +8px inset via the cards-wrapper to land at x=24/52. */
   padding-inline: 16px;
 }
 
+/* cards sit 8px further in than the section gutter (source card content x=24
+   mobile / 52 tablet vs h2 x=16 / 40). */
 .cards-container:has(.cards.text) > .cards-wrapper {
   max-width: none;
   margin: 0;
-  padding: 0;
+  padding-inline: 8px;
 }
 
 .cards.text > ul {
@@ -204,14 +215,14 @@
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 48px;
+  gap: 86px; /* mobile 1-up: source card→card vertical gap = 86px */
 }
 
 /* gap between a preceding section title (e.g. "OUR PURPOSE") and the text cards.
-   The default-content h2 only carries 0.25em (16px) bottom margin; the source
-   shows a larger gap above the card grid, so add it on the block's wrapper. */
+   Source-measured: title-bottom → first-card title-slot-top = FLAT 60px at every
+   width below 1024 (and the same flow at desktop). */
 .cards-container:has(.cards.text) .cards-wrapper {
-  margin-top: 48px;
+  margin-top: 60px;
 }
 
 .cards.text .cards-text-card {
@@ -219,6 +230,10 @@
   flex-direction: column;
 }
 
+/* heading: source is Graphik Semibold WEIGHT 700 (the face is variable 400–700),
+   white. On mobile the title sits in a reserved 64px min-height slot (top-aligned)
+   with a 24px gap to the body → an 88px title slot; a 3-line title (card 2 @<480)
+   grows the slot to 120px naturally. No per-row distinction on mobile (1 column). */
 .cards.text .cards-text-card h1,
 .cards.text .cards-text-card h2,
 .cards.text .cards-text-card h3,
@@ -226,12 +241,14 @@
 .cards.text .cards-text-card h5,
 .cards.text .cards-text-card h6 {
   margin: 0 0 24px;
+  min-height: 64px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-weight: 400;
+  font-weight: 700;
   font-size: 32px;
   line-height: 1;
   color: #fff;
 }
+
 
 .cards.text .cards-text-card p {
   margin: 0;
@@ -240,56 +257,150 @@
   color: #fff;
 }
 
+/* the preceding section heading (e.g. "OUR PURPOSE") uses the SAME outer gutter as
+   the cards' section box — source h2 x=16 (mobile) / 40 (tablet). Drop the default
+   center-wrapper padding so the h2 sits flush to the section gutter (no extra
+   inset — the cards, not the h2, carry the +8px). */
+main > .section.center:has(.cards.text) > .default-content-wrapper {
+  padding-inline: 0;
+}
+
 @media (width >= 768px) {
+  /* tablet: section gutter 40 (h2 x=40) + 12px card inset = card x=52 (source). */
   .cards-container:has(.cards.text) { padding-inline: 40px; }
 
+  /* card inset grows to 12px at ≥768 (source item padding is 8px<768, 12px≥768) */
+  .cards-container:has(.cards.text) > .cards-wrapper { padding-inline: 12px; }
+
+  /* Per-row heading-height equalization (matches source): the ul is a 3-col grid;
+     each card is a SUBGRID spanning a [heading, body] row pair, so every heading
+     in a row stretches to the tallest heading in THAT row and all bodies line up.
+     Source reserves a FIXED heading band per row (constant ≥768): row1 = 96px,
+     row2 = 76px. minmax() keeps the band but lets an over-long title grow it.
+     Rows: [row1 head, row1 body, row2 head, row2 body]. The 24px ul row-gap is
+     the band→body gap; the card margin-bottom (36px) + 24px = 60px flow gap from
+     row1 body text to row2 title slot — the source's measured inter-row spacing. */
   .cards.text > ul {
+    display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 64px 48px; /* row-gap column-gap */
+    grid-template-rows: minmax(96px, auto) auto minmax(76px, auto) auto;
+    gap: 24px 48px; /* row-gap (band→body) / column-gap */
   }
 
-  /* reserve a 2-line heading slot so body copy aligns across a row */
+  @supports (grid-template-rows: subgrid) {
+    .cards.text .cards-text-card {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: span 2;
+      margin-bottom: 36px; /* + 24px ul row-gap = 60px row1-body → row2-slot */
+    }
+
+    /* the heading top-aligns in its reserved band so the slack falls BELOW the
+       title — reproducing the source's large, per-row head→body gap. */
+    .cards.text .cards-text-card h1,
+    .cards.text .cards-text-card h2,
+    .cards.text .cards-text-card h3,
+    .cards.text .cards-text-card h4,
+    .cards.text .cards-text-card h5,
+    .cards.text .cards-text-card h6 {
+      align-self: start;
+    }
+  }
+
+  /* Tablet (768–1023): source heading 24px/24; the band (not margin) drives the
+     head→body gap, so clear the base min-height/margin. Body drops to 14/16.8. */
   .cards.text .cards-text-card h1,
   .cards.text .cards-text-card h2,
   .cards.text .cards-text-card h3,
   .cards.text .cards-text-card h4,
   .cards.text .cards-text-card h5,
   .cards.text .cards-text-card h6 {
-    min-height: 64px; /* 2 lines at 32px */
-    margin-bottom: 56px;
+    min-height: 0;
+    font-size: 24px;
+    margin-bottom: 0;
+  }
+
+  /* tablet body: source is 14px / 16.8px line-height, letter-spacing -0.42px */
+  .cards.text .cards-text-card p {
+    font-size: 14px;
+    line-height: 1.2; /* 16.8px */
+    letter-spacing: -0.42px;
   }
 }
 
 @media (width >= 1024px) {
+  /* small desktop (1024–1279): source h2 x=48, card x=60 (48 gutter + 12 inset),
+     h2→first-card 76px, inter-row flow gap 68px. */
   .cards-container:has(.cards.text) { padding-inline: 48px; }
+  .cards-container:has(.cards.text) .cards-wrapper { margin-top: 76px; }
+
+  @supports (grid-template-rows: subgrid) {
+    .cards.text .cards-text-card { margin-bottom: 44px; } /* +24 ul row-gap = 68 */
+  }
+
+  /* small desktop (1024–1279): source heading 28px/28 */
+  .cards.text .cards-text-card h1,
+  .cards.text .cards-text-card h2,
+  .cards.text .cards-text-card h3,
+  .cards.text .cards-text-card h4,
+  .cards.text .cards-text-card h5,
+  .cards.text .cards-text-card h6 {
+    font-size: 28px;
+  }
+
+  /* ≥1024 body returns to 16px / 19.2px (only the 768–1023 band is 14px) */
+  .cards.text .cards-text-card p {
+    font-size: 16px;
+    line-height: 1.2; /* 19.2px */
+    letter-spacing: -0.48px;
+  }
 }
 
 /* wide desktop (>=1280): align the card text with the header's hamburger GLYPH,
    not the button edge. The header nav pads 52px, and the 48px hamburger button
-   centers its 16px glyph — so the visible lines start at 52+16 = 68px. Match
-   that so the first card heading lines up vertically with the hamburger. */
+   centers its 16px glyph — so the visible lines start at 52+16 = 68px. Source
+   h2→first-card 108px, inter-row flow gap 84px. */
 @media (width >= 1280px) {
-  .cards-container:has(.cards.text) { padding-inline: 68px; }
+  .cards-container:has(.cards.text) { padding-inline: 64px; }
+  .cards-container:has(.cards.text) .cards-wrapper { margin-top: 108px; }
+
+  @supports (grid-template-rows: subgrid) {
+    .cards.text .cards-text-card { margin-bottom: 60px; } /* +24 ul row-gap = 84 */
+  }
+
+  /* wide desktop (>=1280): source heading back to 32px/32 */
+  .cards.text .cards-text-card h1,
+  .cards.text .cards-text-card h2,
+  .cards.text .cards-text-card h3,
+  .cards.text .cards-text-card h4,
+  .cards.text .cards-text-card h5,
+  .cards.text .cards-text-card h6 {
+    font-size: 32px;
+  }
 }
 
 /* ---------------------------------------------------------------- profile --
-   Leadership/bio cards on the about page. Source: 2-up grid; each card = a
-   rounded portrait photo on top and a body below with the person's name (large
-   Graphik Semibold), a bold role/title, and a bio paragraph. A FEATURED card is
-   filled lime (#cfff05) with black text (and a "Bio" label heading); a normal
-   card is transparent with a 1px white border and a lime role line. Section
-   gutters 16/40/48/64 in the 1536-capped centered container. */
+   Leadership/bio cards on the about page — an INTERACTIVE reveal. Source: 2-up
+   grid; each card = a rounded portrait photo on top and a black bordered panel
+   below with the name (Graphik Semibold), a lime role line, and a SHORT bio.
+   On hover (desktop) / tap (touch) the card animates over 0.3s ease-in-out: the
+   image shrinks (385→240), the panel grows (229→374) and fills LIME with black
+   text, a "Bio" label appears, and the bio swaps to the FULL text. Card total
+   height is fixed (630) so nothing reflows. Section gutters 16/40/48/64. */
 .cards-container:has(.cards.profile) {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
+
+  /* source card content sits at x=24 (mobile) — 16px section gutter + 8px card
+     inset (same grid math as the text block). */
   padding-inline: 16px;
 }
 
 .cards-container:has(.cards.profile) > .cards-wrapper {
   max-width: none;
   margin: 0;
-  padding: 0;
+  padding-inline: 8px;
 }
 
 .cards.profile > ul {
@@ -302,94 +413,224 @@
   align-items: start;
 }
 
+.cards.profile > ul > li {
+  list-style: none;
+}
+
+/* the card is the interactive control: a fixed-height stack of image + panel */
 .cards.profile .cards-profile-card {
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
-  overflow: hidden;
+  gap: 16px; /* source: 16px between image and panel */
+  height: 630px; /* fixed total so the reveal never reflows the grid */
+  cursor: pointer;
 }
 
+.cards.profile .cards-profile-card:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 4px;
+}
+
+/* portrait image — resting 385, shrinks to 240 on open. object-fit cover keeps
+   the crop steady while the box animates. */
 .cards.profile .cards-profile-image {
   line-height: 0;
+  height: 385px;
+  overflow: hidden;
+  border-radius: 20px;
+  transition: height 0.3s ease-in-out;
 }
 
 .cards.profile .cards-profile-image img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  aspect-ratio: 2 / 1; /* source portrait crop */
   object-fit: cover;
-  border-radius: 20px;
+  object-position: 50% 0%;
 }
 
+/* the content panel — resting: black with a 1px white border; fills the
+   remaining card height (flex) and animates its background/border on open. The
+   only geometry that animates is the image height (below) — the panel's height
+   follows via flex in the fixed-height card, so the reveal is a single smooth
+   0.3s motion (matches source). overflow:hidden clips the swapped-in taller text
+   as the panel grows, so nothing spills mid-animation. */
 .cards.profile .cards-profile-body {
+  position: relative;
+  flex: 1; /* takes the height the image gives up (229 -> 374) */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 32px 24px;
+  overflow: hidden;
+  padding: 16px;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  background-color: #000;
+  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
-/* name */
+/* the "+" affordance (source: mobile + tablet only, hidden ≥1024 and when open).
+   36×36 white plus SVG pinned top-right of the panel. */
+.cards.profile .cards-profile-body::after {
+  content: "";
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  background: url("data:image/svg+xml,%3csvg width='48' height='48' viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M33.9922 23.7788L13.5646 23.7788' stroke='white' stroke-width='3.5' stroke-linecap='square'/%3e%3cpath d='M23.7812 33.9927L23.7812 13.5651' stroke='white' stroke-width='3.5' stroke-linecap='square'/%3e%3c/svg%3e") no-repeat center / contain;
+}
+
+/* the + is a touch affordance — only below 1024 (desktop reveals on hover) */
+@media (width >= 1024px) {
+  .cards.profile .cards-profile-body::after { display: none; }
+}
+
+/* name — source: 32px (<=1023) -> 40px (>=1024), Graphik Semibold, weight 400,
+   line-height 1.0, mb 24; turns black on open. The source reserves a taller name
+   box than one line (53px @mobile / 65px @>=1024) so the role/desc sit lower —
+   reproduce that with min-height. */
 .cards.profile .cards-profile-name {
-  margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-weight: 400;
-  font-size: 40px;
-  line-height: 1.05;
-  color: #fff;
-}
-
-/* role / title */
-.cards.profile .cards-profile-role {
-  margin: 24px 0 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 1.3;
-  color: var(--usta-lime); /* normal card: lime role line */
-}
-
-.cards.profile .cards-profile-body p {
-  margin: 16px 0 0;
-  font-size: 18px;
-  line-height: 1.35;
-  color: #fff;
-}
-
-/* the "Bio" label (2nd heading) on a featured card */
-.cards.profile .cards-profile-bio-label {
-  margin: 24px 0 0;
+  margin: 0 0 24px;
+  min-height: 53px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 1;
+  color: #fff;
+  transition: color 0.3s ease-in-out;
 }
 
-/* normal (non-featured) card: transparent tile, white border */
-.cards.profile .cards-profile-card:not(.is-featured) {
-  border: 1px solid #fff;
+/* role / title — source: Graphik SEMIBOLD (weight 400), 16px (<=1023) -> 18px
+   (>=1024), line-height 1.3, lime resting, mb 8; black on open. letter-spacing
+   normal (NOT the global -0.03em body tracking). */
+.cards.profile .cards-profile-role {
+  margin: 0 0 8px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: normal;
+  color: var(--usta-lime);
+  transition: color 0.3s ease-in-out;
 }
 
-/* featured card: filled lime, black text throughout */
-.cards.profile .cards-profile-card.is-featured {
+/* "Bio" label (2nd heading) — hidden at rest, revealed on open. Source: 40/40
+   Graphik Semibold (32 <=1023), mb 16, black. Toggled via display (not an
+   animated height) so it doesn't stutter mid-reveal — the panel geometry is the
+   only thing that animates. */
+.cards.profile .cards-profile-bio-label {
+  display: none;
+  margin: 24px 0 16px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  color: #000;
+}
+
+/* bio paragraphs — source: 16px (<=1023) -> 18px (>=1024) Graphik Regular. The
+   short bio shows at rest; the full bio shows on open. Colour fades with the panel. */
+.cards.profile .cards-profile-desc-short,
+.cards.profile .cards-profile-desc-full {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: normal;
+  letter-spacing: normal; /* source: normal, not the global -0.03em body tracking */
+  color: #fff;
+  transition: color 0.3s ease-in-out;
+}
+
+/* the full bio is hidden at rest (display swap, no height animation) */
+.cards.profile .cards-profile-desc-full {
+  display: none;
+}
+
+/* ---- OPEN state: hover (desktop) or .is-open (tap toggle) ----
+   Only the image height animates (0.3s); the panel grows via flex to fill the
+   fixed card, and its bg/border/text colour cross-fade over the same 0.3s. The
+   text swap (short↔full bio, Bio label) is an instant display change, clipped by
+   the panel's overflow:hidden so it reveals cleanly as the panel expands. */
+.cards.profile .cards-profile-card:hover .cards-profile-image,
+.cards.profile .cards-profile-card.is-open .cards-profile-image {
+  height: 240px;
+}
+
+.cards.profile .cards-profile-card:hover .cards-profile-body,
+.cards.profile .cards-profile-card.is-open .cards-profile-body {
+  border-color: transparent;
   background-color: var(--usta-lime);
 }
 
-.cards.profile .cards-profile-card.is-featured .cards-profile-name,
-.cards.profile .cards-profile-card.is-featured .cards-profile-role,
-.cards.profile .cards-profile-card.is-featured .cards-profile-bio-label,
-.cards.profile .cards-profile-card.is-featured .cards-profile-body p {
+/* the + affordance disappears once open (matches source) */
+.cards.profile .cards-profile-card:hover .cards-profile-body::after,
+.cards.profile .cards-profile-card.is-open .cards-profile-body::after {
+  display: none;
+}
+
+.cards.profile .cards-profile-card:hover .cards-profile-name,
+.cards.profile .cards-profile-card.is-open .cards-profile-name,
+.cards.profile .cards-profile-card:hover .cards-profile-role,
+.cards.profile .cards-profile-card.is-open .cards-profile-role,
+.cards.profile .cards-profile-card:hover .cards-profile-desc-short,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-short,
+.cards.profile .cards-profile-card:hover .cards-profile-desc-full,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-full {
   color: #000;
+}
+
+/* on open: reveal the "Bio" label + full bio, hide the short bio (display swap) */
+.cards.profile .cards-profile-card:hover .cards-profile-bio-label,
+.cards.profile .cards-profile-card.is-open .cards-profile-bio-label {
+  display: block;
+}
+
+.cards.profile .cards-profile-card:hover .cards-profile-desc-short,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-short {
+  display: none;
+}
+
+.cards.profile .cards-profile-card:hover .cards-profile-desc-full,
+.cards.profile .cards-profile-card.is-open .cards-profile-desc-full {
+  display: block;
+}
+
+/* respect reduced-motion: keep the state change, drop the timed animation */
+@media (prefers-reduced-motion: reduce) {
+  .cards.profile .cards-profile-image,
+  .cards.profile .cards-profile-body,
+  .cards.profile .cards-profile-name,
+  .cards.profile .cards-profile-role {
+    transition: none;
+  }
 }
 
 /* tablet+ : 2-up grid */
 @media (width >= 768px) {
   .cards-container:has(.cards.profile) { padding-inline: 40px; }
 
+  /* card inset 8 -> 12px at ≥768 (source item padding), so card x = 40 + 12 = 52 */
+  .cards-container:has(.cards.profile) > .cards-wrapper { padding-inline: 12px; }
+
   .cards.profile > ul { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (width >= 1024px) {
   .cards-container:has(.cards.profile) { padding-inline: 48px; }
+
+  /* source: name/"Bio" 32 -> 40, bio 16 -> 18 at the desktop breakpoint */
+  .cards.profile .cards-profile-name,
+  .cards.profile .cards-profile-bio-label { font-size: 40px; }
+
+  /* source reserves a 65px name box at >=1024 (vs 53 mobile) */
+  .cards.profile .cards-profile-name { min-height: 65px; }
+
+  /* source role span grows 16 -> 18 at >=1024 */
+  .cards.profile .cards-profile-role { font-size: 18px; }
+
+  .cards.profile .cards-profile-desc-short,
+  .cards.profile .cards-profile-desc-full { font-size: 18px; }
 }
 
 @media (width >= 1280px) {
@@ -457,29 +698,48 @@
   padding: 24px;
 }
 
-/* title (Development Coach Badge / Coaching Professional Certification) */
+/* title (Development Coach Badge / Coaching Professional Certification)
+   source: 16px Graphik Semibold, weight 400, line-height 16px (1.0),
+   letter-spacing -0.64px, margin 16 0 8 */
 .cards.comparison .cards-comparison-body h1,
 .cards.comparison .cards-comparison-body h2,
 .cards.comparison .cards-comparison-body h3,
 .cards.comparison .cards-comparison-body h4,
 .cards.comparison .cards-comparison-body h5,
 .cards.comparison .cards-comparison-body h6 {
-  margin: 0;
+  margin: 16px 0 8px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 16px;
-  line-height: 1.3;
+  line-height: 1;
+  letter-spacing: -0.64px;
   color: #fff;
 }
 
+/* body copy (workshop cost lines) — source: 14px Graphik Regular, line-height
+   16.8px (1.2), letter-spacing -0.42px */
 .cards.comparison .cards-comparison-body p {
   margin: 4px 0 0;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.2;
+  letter-spacing: -0.42px;
   color: #fff;
 }
 
-/* blue "PER YEAR" pill (scoped under the body to outrank the generic p rule) */
+/* "Annual Package Fee" subtitle — source: 14px Graphik Semibold, weight 400,
+   line-height 14px (1.0), letter-spacing -0.64px, margin-bottom 21 */
+.cards.comparison .cards-comparison-body p.cards-comparison-subtitle {
+  margin: 0 0 21px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.64px;
+}
+
+/* blue "PER YEAR" pill (scoped under the body to outrank the generic p rule)
+   source: 12px Graphik Regular, line-height 12px (1.0), letter-spacing -0.36px,
+   uppercase, pad 3px 9px, radius 20 */
 .cards.comparison .cards-comparison-body p.cards-comparison-peryear {
   align-self: flex-start;
   width: fit-content;
@@ -488,24 +748,32 @@
   border-radius: 20px;
   background-color: var(--usta-blue-aa); /* AA contrast for white 12px text */
   color: #fff;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 12px;
-  line-height: 1.3;
+  line-height: 1;
+  letter-spacing: -0.36px;
 }
 
-/* price (scoped under .cards-comparison-body to outrank the generic p rule) */
+/* price (scoped under .cards-comparison-body to outrank the generic p rule)
+   source: 28px Graphik Semibold, line-height 28px (1.0), letter-spacing -1.12px */
 .cards.comparison .cards-comparison-body p.cards-comparison-price {
   margin: 0 0 8px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 1;
+  letter-spacing: -1.12px;
   color: #fff;
 }
 
-/* section labels (INCLUDED ONLINE MODULES / WORKSHOP COSTS) — small strong caps */
+/* section labels (INCLUDED ONLINE MODULES / WORKSHOP COSTS) — source:
+   14px Graphik Regular, weight 700, line-height 16.8px (1.2), letter-spacing
+   -0.42px, uppercase */
 .cards.comparison .cards-comparison-body p strong {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.04em;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: -0.42px;
   text-transform: uppercase;
 }
 
@@ -519,11 +787,14 @@
   gap: 8px;
 }
 
+/* included-modules items — source: 14px Graphik Regular, line-height 16.8px
+   (1.2), letter-spacing -0.42px */
 .cards.comparison .cards-comparison-modules li {
   position: relative;
   padding-left: 28px;
   font-size: 14px;
-  line-height: 1.3;
+  line-height: 1.2;
+  letter-spacing: -0.42px;
   color: #fff;
 }
 
@@ -551,16 +822,23 @@
   color: #fff;
 }
 
+/* TOTAL label — source: 14px Graphik Regular, line-height 14px (1.0),
+   letter-spacing -0.42px, uppercase */
 .cards.comparison .cards-comparison-total p:first-child {
-  font-size: 12px;
-  letter-spacing: 0.04em;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.42px;
   text-transform: uppercase;
 }
 
+/* TOTAL value — source: 18px Graphik Semibold, line-height 18px (1.0),
+   letter-spacing -0.8px */
 .cards.comparison .cards-comparison-total p:last-child {
   margin-top: 2px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.8px;
 }
 
 /* coming-soon: dimmed, centered label, no footer */
@@ -642,13 +920,16 @@
   padding-top: 24px;
 }
 
-/* title (usually a link) with a lime arrow affordance */
+/* title (usually a link) with a lime arrow affordance — source:
+   24px (<=767) -> 28px (768) -> 32px (>=1024), Graphik Semibold weight 400,
+   line-height 1.0, letter-spacing -0.03em (the global tracking) */
 .cards.news .cards-news-title {
   margin: 0;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
-  font-size: 28px;
-  line-height: 1.1;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.03em;
   color: #fff;
 }
 
@@ -662,17 +943,25 @@
   color: var(--usta-lime);
 }
 
+/* publish date — source: 16px Graphik Regular, line-height 19.2px (1.2),
+   letter-spacing normal, white */
 .cards.news .cards-news-date {
   margin: 12px 0 0;
-  font-size: 14px;
-  line-height: 1.3;
-  color: var(--usta-lime);
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
 }
 
+/* excerpt — source: 16px Graphik Regular, line-height 19.2px (1.2),
+   letter-spacing normal, white */
 .cards.news .cards-news-excerpt {
   margin: 12px 0 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.2;
+  letter-spacing: normal;
   color: #fff;
 }
 
@@ -683,10 +972,16 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 40px;
   }
+
+  /* title 24 -> 28 at the tablet breakpoint */
+  .cards.news .cards-news-title { font-size: 28px; }
 }
 
 @media (width >= 1024px) {
   .cards-container:has(.cards.news) { padding-inline: 48px; }
+
+  /* title 28 -> 32 at the desktop breakpoint */
+  .cards.news .cards-news-title { font-size: 32px; }
 }
 
 @media (width >= 1280px) {
