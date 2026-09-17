@@ -2100,3 +2100,94 @@ Two source-parity fixes discovered by reading the source stylesheet:
    as the panel grows. Removed the height/opacity transitions that caused the stutter.
 Verified: mobile "+" 36×36 shown at rest / hidden open; desktop no "+"; image 385→240, resting bio-only.
 lint/breakpoint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — columns (profile) variant — board-member cards (about.html)
+Added a **profile** variant to the columns block for the OUR LEADERSHIP board members
+(https://www.ustacoaching.com/en/home/about.html). A square headshot photo beside a bordered rounded
+card: name + lime role subtitle + bio + outlined pill tags.
+- **JS** `decorateProfile()` (dispatched on `.columns.profile`): photo cell = picture-only; card cell =
+  text. Name = first heading; role lines authored in *italic* (project em→lime convention) tagged
+  `.columns-profile-role`; trailing `<ul>` → `.columns-profile-tags` with `<span>` pills.
+- **CSS:** container gutters 16/40/48/64, max-width 1536. Mobile stacks (photo 1:1 above card); ≥768
+  side-by-side, photo `flex:0 0 25%` + `align-self:stretch` (equal-height, aspect auto), card fills rest,
+  24px gap. Card 1px solid #fff, radius 20, padding 20→24. Name Graphik Semibold 32→40 (≥768) ls -0.03em
+  #fff; role Graphik Semibold 16→18 (≥1280) lime; bio Graphik Regular 16→18 #fff; tags 12→14 (≥768),
+  1px solid var(--usta-blue), radius 24, padding 12×16, 12px gap. Source-measured @1440: photo 304/302,
+  card 960, gaps name→role→bio→tags all 24. **Had to add `.profile` to the default-columns `:not()`
+  guard** (`.columns.block:not(.media,.quote,.profile)`) — the default `flex:1` on `> div > div` was
+  overriding the photo's 25% basis. Role color needed `p.columns-profile-role` (element-qualified) to win
+  over `.columns-profile-card p`.
+- Downloaded + optimized headshots → content/blocks/columns/media/{amanda-moore,andrea-perez}.jpg (750^, q80).
+- Sample: content/drafts/block-samples/columns-profile (2 cards).
+Verified: @1440 photo 328/310 (25.5%, equal-height), gaps 24, name 40 lime-role; @390 stacked, 1:1 photo,
+name 32, tag 12, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-16 — columns (article) variant — news article body rows
+Added an **article** variant to columns for long-form news article bodies (measured @
+how-dana-matthewson…). Body copy beside a photo: text ≈ 75% (9/12) + image ≈ 25% (3/12) side-by-side
+≥1024; stacks on mobile (image below text). Image side default RIGHT; **`.article.media-left`** puts
+image LEFT (text-right).
+- JS `decorateArticle()`: picture-only cell → `.columns-article-media` (+ createOptimizedPicture);
+  text cell → `.columns-article-content`.
+- CSS: body p Graphik Regular 18/24 white ls normal, 24px gap; section h2 Graphik Semibold **700**,
+  28 (mobile) → 40 (≥768) line-height 1 white; images SHARP corners (radius 0, source parity).
+  Added `.article` to the default-columns `:not()` guard. Gutters 16/40/48/64.
+- Images → content/blocks/columns/media/mathewson-{smiling,group}.jpg (≤800, q80).
+- Sample: content/drafts/block-samples/columns-article (row1 default / row2 media-left).
+Verified @1440: content 75% + image right (row1) / image left (row2), body 18/24, h2 40/700, img radius 0;
+@390 stacked (img below), body 18, h2 28, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-17 — columns (list) variant — news search-results tiles
+Added a **list** variant to columns for the news search-results article tiles (Vue `v-news-article-tile`
+on the source; static in EDS). Square thumbnail beside a bordered rounded content card: title link +
+excerpt + lime "Read Article" CTA pinned bottom-right.
+- JS `decorateList()`: picture-only cell → `.columns-list-thumb`; text cell → `.columns-list-content`
+  (title = first heading/link → `.columns-list-title`; first non-CTA `<p>` → `.columns-list-excerpt`;
+  last/"Read"-link → `.columns-list-cta` in `.columns-list-cta-wrapper`).
+- CSS: stacks below 1024 (thumb 1:1 on top); side-by-side ≥1024 (`thumb flex:0 0 231px; align-self:
+  stretch; aspect-ratio:auto` → equal card height). Content 1px solid #fff, radius 20, padding 15×19.
+  Title Graphik Semibold 40/44 white (flat all vp); excerpt Graphik Regular 16/19.2 white; CTA lime pill
+  black Graphik Semibold 16, radius 12, padding 16×24, **uppercase**, ls -0.03em, bottom-right
+  (`cta-wrapper margin-top:auto; justify-content:flex-end`). Tile gap 26. Added `.list` to default guard.
+- Thumbnails → content/blocks/columns/media/news-{blind-tennis,gordon-reid,craig-tiley}.jpg (500² q80).
+- Sample: content/drafts/block-samples/columns-list (3 tiles).
+Verified @1440: side-by-side, thumb 231 equal-height, title 40/44, CTA lime uppercase bottom-right (20,16),
+gap 26; @390 stacked, thumb 1:1, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-17 — columns (embed) variant — learning-hub LinkedIn post embed
+Added an **embed** variant to columns for the LinkedIn-post-beside-text section (measured @
+online-learning-hub-is-live). Embed LEFT ≈40% (≈504px iframe) + text RIGHT ≈60% side-by-side ≥1024;
+stacks on mobile (embed on top).
+- JS `decorateEmbed()`: converts a LinkedIn post LINK → official embed `<iframe>` via
+  `linkedInEmbedSrc()` (matches urn:li:ugcPost/activity/share or activity-id; passes through an existing
+  `/embed/` URL or a pre-built iframe). Src built ONLY from a matched LinkedIn URN (no arbitrary injection
+  — Security Rule). Cell with the embed → `.columns-embed-media`; text cell → `.columns-embed-content`.
+- CSS: iframe max-width 504, height 875 (source fixed), white bg, radius 8. Text: intro/bullets Graphik
+  Regular 18/24 white; section heading Graphik Semibold 32/32 white (source is bold text — authored as
+  h2). Gap 48 desktop / 40 mobile. Embed `flex:0 0 40%` (cap 515) + content `flex:1 1 auto`. Added
+  `.embed` to default guard.
+- Sample: content/drafts/block-samples/columns-embed (LinkedIn post URL + text). The real LinkedIn embed
+  loads and renders in preview.
+Verified @1440: embed 41% (iframe 504×875) + text, gap 48, intro/bullets 18/24, h2 32/32, no overflow;
+@390 stacked, iframe fits (358), no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+Note: the embed depends on LinkedIn's iframe service (live third-party). If the post is later removed the
+frame degrades to LinkedIn's own fallback; the block otherwise needs no maintenance.
+
+### 2026-09-17 — columns (profile): tablet/mobile parity fix (photo column ratio)
+User flagged the left/right section widths drifted vs source on tablet. Root cause: my build used a flat
+`photo flex:0 0 25%` at all side-by-side widths, but the source AEM grid WIDENS the photo as the viewport
+narrows (grid classes: `default--3` / `desktop-small--4` / `tablet--5` = 3/4/5-of-12). Fixed the photo
+`flex-basis` per breakpoint: **41.667% (5/12) @768–1023 → 33.333% (4/12) @1024–1279 → 25% (3/12) @≥1280**;
+card takes the rest with `min-width:0`. Stacking below 768 (photo full-width 1:1 on top, 24px gap, card
+below) already matched. Re-verified vs source: @768 photo 41.7% / card 377 / equal-height / gap 24; @1024
+photo 33.3%; @1280 photo 25%; @430 stacked 1:1, no overflow. Desktop unchanged. lint/breakpoint/overflow/
+a11y ✓. (Minor: source insets the photo 12px inside its grid column; kept the photo filling its column —
+visually within a few px and equal-height + 24px gap match.)
+
+### 2026-09-17 — columns (profile): mobile photo aspect/position fix
+User's DevTools capture showed the source mobile (`@media max-width:767`) photo `img` rule:
+`aspect-ratio: 1.302; object-fit: cover; object-position: top` (a LANDSCAPE crop anchored to the top).
+My build had the mobile photo at `aspect-ratio: 1/1` (square, center) — the drift. Fixed the stacked
+(mobile) photo to `aspect-ratio: 1.302` + `object-position: top`; side-by-side (≥768) still stretches to
+card height (`aspect-ratio:auto`). Verified @430: photo 398×306 (1.302), object-position top — matches
+source framing (head/upper body from the top). lint/breakpoint/overflow/a11y ✓.
