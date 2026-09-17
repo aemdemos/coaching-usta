@@ -653,13 +653,23 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   padding: 0;
 }
 
+/* the block itself is the source's rounded grey container (#2c2c2c, radius 20)
+   that wraps the 4-card grid + the equivalency strip + the notes. */
+.cards.comparison {
+  box-sizing: border-box;
+  border: 1px solid #a0a0a0; /* source: grey panel has a 1px #a0a0a0 outline */
+  border-radius: 20px;
+  background-color: #2c2c2c;
+  padding: 12px;
+}
+
 .cards.comparison > ul {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 24px; /* source column gap */
   align-items: stretch;
 }
 
@@ -672,25 +682,51 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   border-radius: 16px;
   background-color: #1d1d1d;
   color: #fff;
+
+  /* source: the 24px inset lives on the SHELL; children align to the 24px edge
+     and the TOTAL bar bleeds back out with negative side margins. */
+  padding: 24px;
 }
 
+/* logo box — source: full content width × 150 fixed, image fills it, mb 16 */
 .cards.comparison .cards-comparison-logo {
-  display: flex;
-  justify-content: center;
-  padding: 24px 24px 0;
+  height: 150px;
+  margin-bottom: 16px;
 }
 
 .cards.comparison .cards-comparison-logo img {
-  width: auto;
-  max-width: 60%;
-  height: auto;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* fill the 150-tall box, keep aspect, no letterbox gaps */
 }
 
+/* the body reproduces the source shell's box stack: [title][subtitle][price-row]
+   [desc][total]. Spacing comes from each block's own bottom margin (title 8,
+   subtitle 21, price-row 22) + the 6px gap inside .cards-comparison-desc — NOT a
+   flat container gap. */
 .cards.comparison .cards-comparison-body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 24px;
+}
+
+/* price row — source: flex holding the PER YEAR pill (top) + the price value,
+   margin-bottom 22 to the description. */
+.cards.comparison .cards-comparison-price-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0 0 22px;
+}
+
+/* description — source flex column with a uniform 6px gap between the module
+   label, the modules list, the workshop-cost label and every cost line, plus
+   margin-bottom 30 to the total bar. This 6px gap is the main breathing room. */
+.cards.comparison .cards-comparison-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 30px;
 }
 
 /* title (Development Coach Badge / Coaching Professional Certification)
@@ -711,15 +747,28 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   color: #fff;
 }
 
+/* clamp <sup> footnote markers so they don't enlarge the title/label line box
+   (source title height stays 16px). The source uses small Unicode superscript
+   glyphs (¹²³⁴⁵⁶⁷) that render ~0.6em, so scale our <sup> to match — otherwise
+   the browser default (~0.83em) makes footnotes like the total's "7" too big. */
+.cards.comparison .cards-comparison-body sup {
+  font-size: 0.6em;
+  line-height: 0;
+}
+
 /* body copy (workshop cost lines) — source: 14px Graphik Regular, line-height
-   16.8px (1.2), letter-spacing -0.42px */
+   16.8px (1.2), letter-spacing -0.42px, NO margins (vertical rhythm comes from
+   line-height + empty spacer <p>s between workshop-cost groups). */
 .cards.comparison .cards-comparison-body p {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 14px;
   line-height: 1.2;
   letter-spacing: -0.42px;
   color: #fff;
 }
+
+/* empty spacer paragraphs (the &nbsp; lines between workshop-cost groups)
+   render at the line height, giving the source's ~23px group separation. */
 
 /* "Annual Package Fee" subtitle — source: 14px Graphik Semibold, weight 400,
    line-height 14px (1.0), letter-spacing -0.64px, margin-bottom 21 */
@@ -738,10 +787,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.comparison .cards-comparison-body p.cards-comparison-peryear {
   align-self: flex-start;
   width: fit-content;
-  margin: 16px 0 8px;
+  margin: 0 0 16px; /* pill sits above the price inside the price-row */
   padding: 3px 9px;
   border-radius: 20px;
-  background-color: var(--usta-blue-aa); /* AA contrast for white 12px text */
+  background-color: var(--usta-blue); /* source #0373F3 */
   color: #fff;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 12px;
@@ -750,9 +799,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 /* price (scoped under .cards-comparison-body to outrank the generic p rule)
-   source: 28px Graphik Semibold, line-height 28px (1.0), letter-spacing -1.12px */
+   source: 28px Graphik Semibold, line-height 28px (1.0), letter-spacing -1.12px,
+   no margins */
 .cards.comparison .cards-comparison-body p.cards-comparison-price {
-  margin: 0 0 8px;
+  margin: 0;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 1;
@@ -762,8 +812,11 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
 /* section labels (INCLUDED ONLINE MODULES / WORKSHOP COSTS) — source:
    14px Graphik Regular, weight 700, line-height 16.8px (1.2), letter-spacing
-   -0.42px, uppercase */
+   -0.42px, uppercase. NO margin/padding — the .cards-comparison-desc 6px flex
+   gap provides the uniform section rhythm. */
 .cards.comparison .cards-comparison-body p strong {
+  display: inline-block;
+  margin: 8px 0; /* source: label <b> has 8px top+bottom → 32.8px label box */
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-weight: 700;
   font-size: 14px;
@@ -772,21 +825,22 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   text-transform: uppercase;
 }
 
-/* included-modules list with a blue check */
+/* included-modules list — source: display block, NO row gap (each li's own 24px
+   height provides the rhythm). */
 .cards.comparison .cards-comparison-modules {
   list-style: none;
-  margin: 8px 0 0;
+  margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
-/* included-modules items — source: 14px Graphik Regular, line-height 16.8px
-   (1.2), letter-spacing -0.42px */
+/* included-modules items — source: flex, align-items center, column-gap 16px,
+   24px tall, a 16×16 blue check ::before, so the text ink lands at x=32. */
 .cards.comparison .cards-comparison-modules li {
-  position: relative;
-  padding-left: 28px;
+  display: flex;
+  align-items: center;
+  column-gap: 16px;
+  min-height: 24px;
+  padding: 0;
   font-size: 14px;
   line-height: 1.2;
   letter-spacing: -0.42px;
@@ -795,24 +849,34 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
 .cards.comparison .cards-comparison-modules li::before {
   content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 20px;
-  height: 20px;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
   background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none'%3e%3cpath d='M20.3637 7.74311L20.697 7.38985L20.3536 7.04645L18.9536 5.64645L18.59 5.28288L18.2367 5.65646L9.87802 14.4955L5.74116 10.6345L5.38802 10.3049L5.04645 10.6464L3.64645 12.0464L3.29289 12.4L3.64645 12.7535L9.52145 18.6285L9.88785 18.9949L10.2413 18.6165L20.3637 7.74311Z' fill='%230373F3' stroke='%230373F3'/%3e%3c/svg%3e") no-repeat center / contain;
 }
 
-/* highlighted blue TOTAL footer bar — flush to the card's bottom edge, pinned */
+/* highlighted blue TOTAL footer bar — source: 319.5×70 (min-height 70), NO
+   padding, bleeds over the shell's 24px SIDE padding to span full width, but
+   sits ABOVE the shell's 24px bottom padding (source leaves ~24px below the bar
+   inside the shell). Pinned to the bottom via auto top margin; label + value
+   centered as shrink-to-fit lines. */
 .cards.comparison .cards-comparison-total {
-  margin: 24px -24px -24px; /* cancel the body's 24px padding so it's edge-to-edge */
-  margin-top: auto; /* pin to the bottom */
-  padding: 14px 24px;
-  background-color: var(--usta-blue-aa); /* AA contrast for white text */
+  box-sizing: border-box; /* keep the bar exactly 70px tall so its top aligns with the coming-soon band */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px;
+  gap: 5px; /* source: 5px between the TOTAL label and value */
+  margin: auto -24px 0; /* auto top pins near bottom; bleed sides; keep 24px below */
+  padding: 0;
+  border: 1px solid #fff; /* source: the blue bar carries a 1px white outline */
+  background-color: var(--usta-blue); /* source #0373F3 */
   text-align: center;
 }
 
 .cards.comparison .cards-comparison-total p {
+  width: fit-content; /* shrink-to-fit + centered (source) */
   margin: 0;
   color: #fff;
 }
@@ -829,34 +893,160 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* TOTAL value — source: 18px Graphik Semibold, line-height 18px (1.0),
    letter-spacing -0.8px */
 .cards.comparison .cards-comparison-total p:last-child {
-  margin-top: 2px;
+  margin: 0; /* gap handled by the flex gap:5px on the bar */
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 18px;
   line-height: 1;
   letter-spacing: -0.8px;
 }
 
-/* coming-soon: dimmed, centered label, no footer */
-.cards.comparison .cards-comparison-card.is-coming-soon {
-  opacity: 0.6;
+/* coming-soon card — source: a "COMING 202x" title, skeleton loader bars, a lime
+   flame graphic, and a faint "COMING 202x" line pinned at the bottom. The source
+   does NOT dim the logo (the specialist/master wordmarks are natively grey art);
+   keep the logo at full opacity so the lime accents show. */
+
+/* the title is the "COMING 202x" heading — 16px, sits where the price would */
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body h1,
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body h2,
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body h3,
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body h4,
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body h5,
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body h6 {
+  /* keep the 16px top margin from the active title so "COMING 202x" lands on the
+     SAME line as "Development Coach Badge" / "Coaching Professional Certification"
+     (source: both titles at y=207 rel. card). */
+  margin: 16px 0 8px;
+  font-size: 16px;
+  letter-spacing: -0.42px;
 }
 
-.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body {
-  justify-content: flex-start;
+/* skeleton loader bars — the source draws 5 grey pill bars (74/248/248/248/74)
+   BELOW the "COMING" heading and ABOVE the flame. Attach them as the flame
+   element's ::before so the flex order is heading → skeleton → flame (matching
+   source), rather than a body::before which would sit above the heading. */
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-flame::before {
+  content: "";
+  display: block;
+  height: 120px; /* source: 5 bars × 16 + 4 × 10 gaps (26px pitch) */
+  margin-top: 60px; /* source: 60px gap from the "COMING" heading to the skeleton */
+  margin-bottom: 180px; /* source: 180px gap from skeleton down to the flame graphic */
+  background-image:
+    linear-gradient(#484848 16px, transparent 0),
+    linear-gradient(#484848 16px, transparent 0),
+    linear-gradient(#484848 16px, transparent 0),
+    linear-gradient(#484848 16px, transparent 0),
+    linear-gradient(#484848 16px, transparent 0);
+  background-repeat: no-repeat;
+
+  /* source: bars 1 & 5 are 74px (bar 1 left, bar 5 RIGHT-aligned), bars 2-4 full width */
+  background-size: 74px 16px, 100% 16px, 100% 16px, 100% 16px, 74px 16px;
+  background-position: left 0, left 26px, left 52px, left 78px, right 104px;
+  border-radius: 30px;
 }
 
-/* tablet: 2-up */
+/* the flame graphic — source: CENTERED horizontally, sits in the mid-lower area
+   (the bottom band is what pins to the card bottom). Source dims the whole
+   coming-soon flame to ~0.2 opacity, so the lime reads as a muted olive. */
+.cards.comparison .cards-comparison-flame {
+  margin: 0 auto; /* centre the 161px flame in the card (source x≈77 each side) */
+  line-height: 0;
+  text-align: center;
+}
+
+.cards.comparison .cards-comparison-flame img {
+  width: 161px;
+  height: auto;
+  opacity: 0.2; /* source: flame dimmed to 0.2 → muted olive on the dark card */
+}
+
+/* the bottom "COMING 202x" band — source renders this as a full-width band that
+   MIRRORS the active cards' TOTAL bar: same 70px height, same row (pinned to the
+   bottom, bleeding over the card's 24px side padding + sitting 24px above the
+   card bottom). Source spec (DevTools): the band is the SAME element as the blue
+   TOTAL bar — full `1px solid #fff` border + black fill — but the coming-soon
+   variant applies `opacity: 0.2` to the WHOLE band, so the border AND the white
+   "COMING 202x" text are dimmed together (which is why the border reads as faint).
+   Realise it as a flex band; auto top margin pins it to that shared row. */
+.cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body p:last-child {
+  box-sizing: border-box; /* 70px incl. the border so the band top aligns with the blue TOTAL bars */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px;
+  margin: auto -24px 0; /* auto top pins to the TOTAL-bar row; bleed sides; 24px below */
+  border: 1px solid #fff; /* source: full 1px white border (dimmed by the 0.2 opacity below) */
+  background-color: #000; /* source: black band */
+  opacity: 0.2; /* source: whole band dimmed to 20% → faint border + faint text */
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.42px;
+  color: #fff; /* source: white text, dimmed to ~0.2 by the band opacity above */
+  text-transform: uppercase;
+}
+
+/* ---- "Already certified…" strip — the panel's bottom section ----
+   source: full panel width, 74px tall, bg rgb(84,84,84), bottom corners rounded
+   20px, 24px padding, flush against the panel's bottom edge. The panel has 12px
+   padding, so bleed the strip out by -12px on the sides + bottom to reach the
+   panel edges, and cancel the 12px gap above with a 12px top margin. */
+.cards.comparison .cards-comparison-equivalency {
+  box-sizing: border-box; /* source strip is exactly 74px tall — pad inside, not added */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 74px;
+  margin: 12px -12px -12px;
+  padding: 24px;
+  border-radius: 0 0 20px 20px;
+  background-color: #545454;
+  text-align: center;
+}
+
+.cards.comparison .cards-comparison-equivalency p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.cards.comparison .cards-comparison-equivalency a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* the "Notes: 1. …" paragraph sits OUTSIDE and below the grey panel. */
+.cards-container:has(.cards.comparison) .cards-comparison-notes {
+  padding: 16px 0 0;
+}
+
+.cards-container:has(.cards.comparison) .cards-comparison-notes p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+  color: #fff;
+}
+
+/* tablet: 2×2. Source lays the pair on a 12-col grid where each card column
+   carries a 12px inner gutter on every edge, so the card content is 307px (not
+   the full half-panel). Reproduce that gutter with 12px ul padding-inline so the
+   cards wrap identically to source (→ active cards ~911px, not a wider ~875px). */
 @media (width >= 768px) {
   .cards-container:has(.cards.comparison) { padding-inline: 40px; }
 
-  .cards.comparison > ul { grid-template-columns: repeat(2, 1fr); }
+  .cards.comparison > ul {
+    grid-template-columns: repeat(2, 1fr);
+    padding-inline: 12px;
+  }
 }
 
-/* desktop: 4-up */
+/* desktop: 4-up (columns fill the panel — drop the tablet gutter) */
 @media (width >= 1024px) {
   .cards-container:has(.cards.comparison) { padding-inline: 48px; }
 
-  .cards.comparison > ul { grid-template-columns: repeat(4, 1fr); }
+  .cards.comparison > ul {
+    grid-template-columns: repeat(4, 1fr);
+    padding-inline: 0;
+  }
 }
 
 @media (width >= 1280px) {

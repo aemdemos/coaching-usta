@@ -1,0 +1,211 @@
+/* contact — the USTA "Get in Touch" panel.
+   Source-measured from https://www.ustacoaching.com/en/home/about.html at
+   390 / 834 / 1024 / 1280 / 1440 (computed styles + geometry).
+
+   WIDTH/GUTTER (source): the panel is NOT in the site's 1200px content column —
+   it spans near the full viewport with header-tracking side gutters
+   16 → 40 @768 → 48 @1024 → 64 @1280, capping at a 1408px max-width (1312@1440).
+   The wrapper gets `.full-width` (JS) to escape the global 1200px cap; the block
+   re-imposes the source geometry.
+
+   TYPOGRAPHY (source, per breakpoint — all Graphik, letter-spacing -0.03em):
+   • title    (Graphik Semibold): 24/24 → 40/40 @768 → 56/56 @1024
+   • subtitle (Graphik Regular) : 14/16.8 → 18/21.6 @768
+   • card h3  (Graphik Semibold): 16/16 → 28/28 @768
+   • card body(Graphik Regular) : 12/14.4 → 16/19.2 @768
+
+   LAYOUT: stacked (intro above cards) through 1024; two columns at 1280. */
+
+.contact.block {
+  box-sizing: border-box;
+  width: calc(100% - 2 * 16px);
+  max-width: 1408px;
+  margin-inline: auto;
+  background-color: var(--usta-lime);
+  color: #000;
+  border-radius: 20px;
+  padding: 12px 16px 35px;
+}
+
+/* -------------------------------------------------------------------- intro */
+.contact .contact-intro {
+  padding: 12px 8px;
+}
+
+.contact .contact-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: -0.03em;
+  color: #000;
+  text-align: left;
+  text-transform: none;
+}
+
+.contact .contact-subtitle {
+  margin: 22px 0 0;
+  font-family: var(--body-font-family);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  letter-spacing: -0.03em;
+  color: #000;
+  text-align: left;
+}
+
+/* -------------------------------------------------------------------- cards */
+.contact .contact-cards {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 43px;
+}
+
+.contact .contact-card {
+  box-sizing: border-box;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 12px;
+}
+
+.contact .contact-card-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  letter-spacing: -0.03em;
+  color: #000;
+  text-align: left;
+  text-transform: none;
+}
+
+.contact .contact-card-body {
+  margin: 24px 0 0;
+  font-family: var(--body-font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14.4px;
+  letter-spacing: -0.03em;
+  color: #000;
+  text-align: left;
+}
+
+.contact .contact-card-link {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-top: 24px;
+  padding: 0;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background-color: var(--usta-lime);
+  color: #000;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.contact .contact-card-link svg {
+  width: 23px;
+  height: 12px;
+  display: block;
+}
+
+.contact .contact-card-link:hover,
+.contact .contact-card-link:focus-visible {
+  background-color: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+.contact .contact-card-link:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------- ≥768 (tablet) */
+@media (width >= 768px) {
+  .contact.block {
+    width: calc(100% - 2 * 40px);
+    padding: 36px 12px 60px;
+  }
+
+  .contact .contact-intro {
+    padding: 12px;
+  }
+
+  .contact .contact-title {
+    font-size: 40px;
+    line-height: 40px;
+  }
+
+  .contact .contact-subtitle {
+    font-size: 18px;
+    line-height: 21.6px;
+  }
+
+  .contact .contact-cards {
+    gap: 40px;
+    padding: 8px 12px;
+  }
+
+  /* Tablet card: source 16px vertical inset (h3 sits 16px from the card top). */
+  .contact .contact-card {
+    padding: 16px;
+  }
+
+  .contact .contact-card-title {
+    font-size: 28px;
+    line-height: 28px;
+  }
+
+  .contact .contact-card-body {
+    margin-top: 24px;
+    font-size: 16px;
+    line-height: 19.2px;
+  }
+
+  /* Source keeps a generous body→arrow gap (~48px). */
+  .contact .contact-card-link {
+    margin-top: 48px;
+  }
+}
+
+/* --------------------------------------------------------------- ≥1024 (desktop) */
+@media (width >= 1024px) {
+  .contact.block {
+    width: calc(100% - 2 * 48px);
+  }
+
+  .contact .contact-title {
+    font-size: 56px;
+    line-height: 56px;
+  }
+}
+
+/* --------------------------------------------------------------- ≥1280 (wide: 2-col) */
+@media (width >= 1280px) {
+  .contact.block {
+    width: calc(100% - 2 * 64px);
+    display: grid;
+
+    /* Source columns butt together (no gap) — intro 537 / cards 751 of the
+       1288px content area ≈ 41.7% / 58.3%. The visual gutter between the intro
+       text and the cards comes from each column's own inner padding, not a grid
+       gap. */
+    grid-template-columns: 537fr 751fr;
+    align-items: start;
+    column-gap: 0;
+  }
+
+  /* Desktop card: source 24px vertical inset, giving the ~236px card height. */
+  .contact .contact-card {
+    padding: 24px 16px;
+  }
+}
