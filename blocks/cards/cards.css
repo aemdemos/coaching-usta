@@ -7,13 +7,12 @@
    • logos    (partner logo tiles — white rounded squares in a 4-up grid)
    Each variant is authored as `cards (variant)` and its CSS is scoped by that
    variant class, so styles never leak across variants. The DEFAULT variant is
-   tagged with a positive `cards-default` class in JS and its CSS is scoped to
-   that class (`.cards.cards-default …`) rather than a growing
-   `:not(.media, .pricing, …)` exclusion, so new variants never inherit base
-   styles. */
+   scoped with a `:not(.media, .pricing, …)` exclusion listing every named
+   variant (including unstyled ones like `icon`/`steps`), so those variants
+   never inherit the bordered base styles. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block.cards-default > ul {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .icon, .steps) > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -22,7 +21,7 @@
   gap: 24px;
 }
 
-.cards.block.cards-default > ul > li {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .icon, .steps) > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -35,7 +34,7 @@
   line-height: 0;
 }
 
-.cards.block.cards-default > ul > li img {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .icon, .steps) > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
