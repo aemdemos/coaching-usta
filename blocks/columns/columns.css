@@ -1,8 +1,9 @@
 /* stylelint-disable no-descending-specificity */
 
-/* columns — three variants share this block:
+/* columns — four variants share this block:
    • default (boilerplate N-column layout)
    • media   (image beside a white promo card; `media-right` flips sides)
+   • feature (image beside a bordered text card in a dark rounded panel)
    • quote   (headshot beside a testimonial quote + attribution)
    Each variant is authored as `columns (variant)`; selectors below are scoped
    by the variant class so they never leak across variants. */
@@ -268,6 +269,156 @@ main > .section.columns-container:has(.columns.media) > div {
 /* (the former `cta` variant — the blue "Explore workshops & events" banner —
    is now its own reusable `banner` block with blue/black colour variants; see
    blocks/banner.) */
+
+/* ---------------------------------------------------------------- feature -- */
+
+/* WOMEN'S COACHING COHORT promo. Source layout: a two-column row inside a DARK
+   ROUNDED PANEL (#202020, radius 32px) — an IMAGE on the left and a bordered
+   CARD (heading + paragraph, white text) on the right. Mobile-first: the whole
+   panel stacks (image over card); side-by-side 50/50 at >=1024 with a 24px gap.
+   Measured (desktop 1440): panel bg #202020, radius 32px, padding 36px 24px;
+   image 620x437 radius 20px object-fit cover; card 1px #a0a0a0 border, radius
+   20px, transparent; heading USTA Sans 700 white (28 -> 32 -> 40 across
+   mobile/768/1024), line-height 1; paragraph white 18/24 letter-spacing normal;
+   heading -> paragraph gap a flat 66px at every viewport. */
+
+/* section gutters match the site grid (16/40/48/64) and the 1536 centered box */
+main > .section.columns-container:has(.columns.feature) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* the dark rounded panel wraps the whole row */
+.columns.feature {
+  box-sizing: border-box;
+  background-color: #202020;
+  border-radius: 32px;
+  padding: 24px;
+}
+
+/* the row: stacked on mobile (image, then card) */
+.columns.feature > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- media column (rounded image) ---- */
+.columns.feature .columns-feature-media {
+  order: 0;
+}
+
+.columns.feature .columns-feature-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+/* ---- content column = the bordered card ---- */
+.columns.feature .columns-feature-card {
+  order: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #a0a0a0;
+  border-radius: 20px;
+  padding: 24px;
+}
+
+/* heading: USTA Sans bold, white, line-height 1 (source lh == font-size at every
+   tier). 28 mobile -> 32 tablet -> 40 @1024. The source authors it as three
+   stacked lines (Women's / Coaching / Cohort); we reproduce that with <br>.
+   Source gap heading -> paragraph is a flat 66px at every viewport. */
+.columns.feature .columns-feature-card h1,
+.columns.feature .columns-feature-card h2,
+.columns.feature .columns-feature-card h3 {
+  margin: 0 0 66px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* body copy — source: Graphik Regular 18px/24px, white, letter-spacing normal
+   (override the global body -0.48px tracking to match the source exactly). */
+.columns.feature .columns-feature-card p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* tablet (>=768): larger gutter; still stacked. Heading steps 28 -> 32
+   (source-measured: 32px/32px flat across the whole 768–1023 tier). */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.feature) > div {
+    padding: 0 40px;
+  }
+
+  .columns.feature .columns-feature-card h1,
+  .columns.feature .columns-feature-card h2,
+  .columns.feature .columns-feature-card h3 {
+    font-size: 32px;
+  }
+}
+
+/* desktop (>=1024): 50/50 side-by-side, equal-height columns, 24px gap; panel
+   grows its padding to the source 36px 24px */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.feature) > div {
+    padding: 0 48px;
+  }
+
+  .columns.feature {
+    padding: 36px 24px;
+  }
+
+  .columns.feature > div {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  /* exact 50/50 split (source: two 6-of-12 columns). Fixed 50% basis + min-width:0
+     so neither the image's intrinsic width nor the card's text skews the split. */
+  .columns.feature .columns-feature-media,
+  .columns.feature .columns-feature-card {
+    flex: 0 0 calc(50% - 12px);
+    min-width: 0;
+    order: unset;
+  }
+
+  /* the image cover-crops to the source's landscape frame (620/437) and fills
+     the equal-height row */
+  .columns.feature .columns-feature-media {
+    aspect-ratio: 620 / 437;
+  }
+
+  .columns.feature .columns-feature-media img {
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* heading grows to 40px at the 1024 tier (source-measured) */
+  .columns.feature .columns-feature-card h1,
+  .columns.feature .columns-feature-card h2,
+  .columns.feature .columns-feature-card h3 {
+    font-size: 40px;
+  }
+}
+
+/* wide desktop (>=1280): source panel side gutter widens to 64px */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.feature) > div {
+    padding: 0 64px;
+  }
+}
 
 /* ------------------------------------------------------------------ quote -- */
 

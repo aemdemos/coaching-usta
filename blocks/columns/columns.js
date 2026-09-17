@@ -5,6 +5,8 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
  *   • default : generic N-column layout (boilerplate).
  *   • media   : image beside text (heading + paragraph + CTA); `media-right`
  *               forces the image to the right (text-first).
+ *   • feature : image beside a bordered text card (heading + paragraph), both
+ *               inside a dark rounded panel (the Women's Coaching Cohort promo).
  *   • quote   : headshot beside a testimonial quote + attribution.
  * The variant is authored as a class on the block (e.g. `columns (media)`), so
  * we dispatch on it here and keep each variant's own inner class names.
@@ -108,6 +110,35 @@ function decorateQuote(block) {
   }
 }
 
+/*
+ * feature (Women's Coaching Cohort) — a two-column row inside a dark rounded
+ * panel: an IMAGE on the left and a bordered CARD (heading + paragraph) on the
+ * right. Image left / text right on desktop; stacked (image over card) on
+ * mobile.
+ *
+ * Authoring model (two cells in one row):
+ *   - cell 1: the image picture
+ *   - cell 2: the heading + paragraph(s)
+ */
+function decorateFeature(block) {
+  const row = block.firstElementChild;
+  if (!row) return;
+
+  [...row.children].forEach((cell) => {
+    const pic = cell.querySelector('picture');
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p:not(.button-container)');
+    if (pic && !hasText) {
+      cell.classList.add('columns-feature-media');
+    } else {
+      cell.classList.add('columns-feature-card');
+    }
+  });
+
+  block.querySelectorAll('.columns-feature-media img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '900' }]));
+  });
+}
+
 function decorateDefault(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
@@ -129,6 +160,7 @@ function decorateDefault(block) {
 
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
+  else if (block.classList.contains('feature')) decorateFeature(block);
   else if (block.classList.contains('quote')) decorateQuote(block);
   else decorateDefault(block);
 }
