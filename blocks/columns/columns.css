@@ -606,22 +606,29 @@ main > .section.columns-container:has(.columns.profile) > div {
    puts the image on the LEFT. Images have SHARP corners (radius 0) in source.
    Body p: Graphik Regular 18/24 white, ls normal. Section h2: Graphik Semibold
    700, 28 (mobile) → 40 (≥768), white. */
-main > .section.columns-container:has(.columns.article) > div {
+main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
   padding: 0 16px;
 }
 
-/* mobile-first: stack (text, then image below) */
+/* mobile-first: stack (text, then image below). Each cell carries 12px padding
+   at ALL breakpoints — the source's `.aem-GridColumn` inset. When side-by-side
+   the two 12px cell paddings meet to form the 24px inter-column gutter (source
+   model: 9/3 cells, no flex gap). The row spans the full container-inner width
+   (gutters 16/40/48/64, same as the cards blocks) so the article aligns with the
+   header and every other block on the page. */
 .columns.article > div {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0;
 }
 
 .columns.article .columns-article-media {
   order: 1;
+  box-sizing: border-box;
+  padding: 12px;
 }
 
 .columns.article .columns-article-media img {
@@ -632,6 +639,8 @@ main > .section.columns-container:has(.columns.article) > div {
 
 .columns.article .columns-article-content {
   order: 0;
+  box-sizing: border-box;
+  padding: 12px;
 }
 
 /* body copy */
@@ -649,7 +658,8 @@ main > .section.columns-container:has(.columns.article) > div {
   margin-bottom: 0;
 }
 
-/* section heading (Graphik Semibold 700; 28 mobile → 40 ≥768) */
+/* section heading (Graphik Semibold 700, line-height 1.0, ls normal, #fff;
+   font-size 28 mobile → 32 ≥768 → 40 ≥1280 — source-measured at each breakpoint) */
 .columns.article .columns-article-content h1,
 .columns.article .columns-article-content h2,
 .columns.article .columns-article-content h3 {
@@ -662,45 +672,59 @@ main > .section.columns-container:has(.columns.article) > div {
   color: #fff;
 }
 
-/* tablet (>=768): larger gutter + section h2 grows to 40 */
+/* tablet (>=768): larger gutter; STILL STACKED (source stacks the article at
+   768–1279 — grid classes tablet--12 / desktop-small--12). Section h2 → 32. */
 @media (width >= 768px) {
-  main > .section.columns-container:has(.columns.article) > div { padding: 0 40px; }
+  main > .section.columns-container:has(.columns.article):not(.bordered) > div { padding: 0 40px; }
 
   .columns.article .columns-article-content h1,
   .columns.article .columns-article-content h2,
-  .columns.article .columns-article-content h3 { font-size: 40px; }
+  .columns.article .columns-article-content h3 { font-size: 32px; }
 }
 
-/* desktop (>=1024): side-by-side, text 75% / image 25%, 24px gap, top-aligned */
+/* small desktop (>=1024): larger gutter; STILL STACKED (source default--3/9 only
+   applies ≥1280; at 1024–1279 the AEM desktop-small--12 keeps it full-width). */
 @media (width >= 1024px) {
-  main > .section.columns-container:has(.columns.article) > div { padding: 0 48px; }
+  main > .section.columns-container:has(.columns.article):not(.bordered) > div { padding: 0 48px; }
+}
+
+/* wide desktop (>=1280): NOW side-by-side, matching the source's 12-col grid
+   EXACTLY — two cells at a clean 75% (9/12) / 25% (3/12) of the row, NO flex gap,
+   each cell carrying 12px padding all around. The 24px visual gutter between the
+   columns is those two 12px paddings meeting (source: text cell 971px = 9/12 with
+   12px pad → text 947; image cell 324px = 3/12 with 12px pad → image 300). Using
+   a real gap + `calc(% - 12px)` drifts ~6px, so we reproduce the source model
+   verbatim instead. Section h2 → 40. Source only splits the article at ≥1280. */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.article):not(.bordered) > div { padding: 0 64px; }
 
   .columns.article > div {
     flex-direction: row;
     align-items: flex-start;
-    gap: 24px;
+    gap: 0;
   }
 
   .columns.article .columns-article-content {
-    flex: 0 0 calc(75% - 12px);
+    flex: 0 0 75%;
     min-width: 0;
+    padding: 12px;
     order: 0;
   }
 
   .columns.article .columns-article-media {
-    flex: 0 0 calc(25% - 12px);
+    flex: 0 0 25%;
     min-width: 0;
+    padding: 12px;
     order: 1;
   }
 
   /* media-left option: image on the LEFT, text on the RIGHT */
   .columns.article.media-left .columns-article-content { order: 1; }
   .columns.article.media-left .columns-article-media { order: 0; }
-}
 
-/* wide desktop (>=1280): 64px gutter */
-@media (width >= 1280px) {
-  main > .section.columns-container:has(.columns.article) > div { padding: 0 64px; }
+  .columns.article .columns-article-content h1,
+  .columns.article .columns-article-content h2,
+  .columns.article .columns-article-content h3 { font-size: 40px; }
 }
 
 /* =================================================================== list ==

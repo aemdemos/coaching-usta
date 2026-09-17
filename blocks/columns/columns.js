@@ -179,8 +179,9 @@ function decorateProfile(block) {
  * article (news article body) — a two-column row from a long-form article: a
  * block of body copy (paragraphs + optional section heading) beside a photo.
  * The photo is 25% wide (text 75%) side-by-side on desktop and stacks below the
- * text on mobile. Image side is controlled by the `media-left` option class
- * (image on the LEFT / text-right); default is image on the RIGHT (text-left).
+ * text on mobile. Image side is controlled by an option class: `media-left`
+ * (image on the LEFT / text-right) vs `media-right` (image on the RIGHT /
+ * text-left). Image-on-the-right is also the default when no option is set.
  *
  * Authoring model (two cells in one row):
  *   - one cell: the body copy (h2 section heading + paragraphs)
