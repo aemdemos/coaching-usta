@@ -12,7 +12,7 @@
    never inherit the bordered base styles. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .icon, .steps) > ul {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .icon, .steps) > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -21,7 +21,7 @@
   gap: 24px;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .icon, .steps) > ul > li {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .icon, .steps) > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -34,7 +34,7 @@
   line-height: 0;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .icon, .steps) > ul > li img {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .icon, .steps) > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
