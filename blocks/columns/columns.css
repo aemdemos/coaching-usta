@@ -437,3 +437,177 @@ main > .section.columns-container:has(.columns.quote) > div {
     font-size: 24px;
   }
 }
+
+/* ------------------------------------------------------------------- text -- */
+
+/* ELIGIBILITY AND REQUIREMENTS — a dark rounded card (#202020, 32px radius) with
+   a centered USTA Sans heading, two side-by-side columns of diamond-bulleted
+   requirements, and a shared lime CTA below. Mobile-first: the columns stack;
+   they go 50/50 at >=768.
+
+   Measured from the source across 390/768/1024/1280:
+     card padding 24/16 (mobile) -> 36/24 (>=768); radius 32 flat.
+     h2 (USTA Sans, centered white)  28 -> 32 (768) -> 40 (1024+); line-height 1.
+     subtitle (USTA Sans white)      24 flat; line-height 32.
+     label (USTA Sans lime #cfff05)  28 -> 32 (1024+); line-height 1.
+     bullet copy (Graphik Regular)   18/24 flat; white; bold lead-in label.
+     uniform 24px vertical rhythm; heading<->columns / columns<->CTA ~54px.
+     diamond marker 17px, ~10px to text. CTA = global lime .button. */
+
+.columns.text {
+  box-sizing: border-box;
+  background-color: #202020;
+  border-radius: 32px;
+  padding: 24px 16px;
+}
+
+/* card heading (centered, USTA Sans) */
+.columns.text .columns-text-head {
+  margin: 0 0 30px;
+  text-align: center;
+}
+
+.columns.text .columns-text-head h1,
+.columns.text .columns-text-head h2,
+.columns.text .columns-text-head h3 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+  color: #fff;
+}
+
+/* the two columns: stacked on mobile */
+.columns.text .columns-text-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.columns.text .columns-text-col > * {
+  margin: 0 0 24px;
+}
+
+.columns.text .columns-text-col > *:last-child {
+  margin-bottom: 0;
+}
+
+/* subtitle (e.g. "Qualifications: Tennis Coaching") — USTA Sans white */
+.columns.text .columns-text-subtitle {
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+/* the lime label (e.g. "MENTOR") — USTA Sans, accent */
+.columns.text .columns-text-label {
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--usta-lime);
+  text-transform: uppercase;
+}
+
+/* diamond-bulleted requirements list */
+.columns.text .columns-text-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.columns.text .columns-text-list li {
+  position: relative;
+  margin: 0 0 24px;
+  padding-left: 27px;
+  font-family: var(--body-font-family);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  color: #fff;
+}
+
+.columns.text .columns-text-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* white diamond marker (17px), aligned to the first text line */
+.columns.text .columns-text-list li::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 17px;
+  height: 17px;
+  background-color: #fff;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+/* the bold lead-in ("Age:", "USTA Coaching Account:") stays in the body face */
+.columns.text .columns-text-list li strong,
+.columns.text .columns-text-list li b {
+  font-weight: 700;
+}
+
+/* shared CTA */
+.columns.text .columns-text-cta {
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* tablet+ (>=768): larger padding, 50/50 columns */
+@media (width >= 768px) {
+  .columns.text {
+    padding: 36px 24px;
+  }
+
+  .columns.text .columns-text-head {
+    margin-bottom: 54px;
+  }
+
+  .columns.text .columns-text-head h1,
+  .columns.text .columns-text-head h2,
+  .columns.text .columns-text-head h3 {
+    font-size: 32px;
+  }
+
+  .columns.text .columns-text-columns {
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .columns.text .columns-text-col {
+    flex: 0 0 50%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .columns.text .columns-text-col:first-child {
+    padding-right: 12px;
+  }
+
+  .columns.text .columns-text-col:last-child {
+    padding-left: 12px;
+  }
+
+  .columns.text .columns-text-cta {
+    margin-top: 54px;
+  }
+}
+
+/* desktop (>=1024): heading grows to 40px, label to 32px */
+@media (width >= 1024px) {
+  .columns.text .columns-text-head h1,
+  .columns.text .columns-text-head h2,
+  .columns.text .columns-text-head h3 {
+    font-size: 40px;
+  }
+
+  .columns.text .columns-text-label {
+    font-size: 32px;
+  }
+}
