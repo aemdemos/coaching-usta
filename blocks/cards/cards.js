@@ -296,8 +296,25 @@ function decorateProfile(block) {
  */
 function decorateComparison(block) {
   const ul = document.createElement('ul');
+  const rows = [...block.children];
 
-  [...block.children].forEach((row) => {
+  // The last two rows are the container-level footer: an "Equivalency Chart"
+  // strip (has a link) and a "Notes:" paragraph. Pull them out of the card grid
+  // and render them below the grid, inside the shared container.
+  let notesRow = null;
+  let equivRow = null;
+  const isSingleCellText = (row) => row.children.length === 1
+    && !row.querySelector('picture, img, ul, ol, h1, h2, h3, h4, h5, h6');
+  const last = rows[rows.length - 1];
+  const penultimate = rows[rows.length - 2];
+  if (last && isSingleCellText(last) && /^notes:/i.test(last.textContent.trim())) {
+    notesRow = rows.pop();
+  }
+  if (penultimate && isSingleCellText(penultimate) && penultimate.querySelector('a')) {
+    [equivRow] = rows.splice(rows.indexOf(penultimate), 1);
+  }
+
+  rows.forEach((row) => {
     const li = document.createElement('li');
     li.className = 'cards-comparison-card';
     while (row.firstElementChild) li.append(row.firstElementChild);
@@ -321,7 +338,15 @@ function decorateComparison(block) {
 
     // coming-soon card: text mentions "Coming 202x" and there is no feature list
     const isComingSoon = /coming\s+202\d/i.test(body.textContent) && !body.querySelector('ul, ol');
-    if (isComingSoon) li.classList.add('is-coming-soon');
+    if (isComingSoon) {
+      li.classList.add('is-coming-soon');
+      // the flame graphic is the body image; tag it so CSS can place it
+      const flame = body.querySelector('picture, img');
+      if (flame) {
+        const p = flame.closest('p') || flame;
+        p.classList.add('cards-comparison-flame');
+      }
+    }
 
     // the "Annual Package Fee" subtitle = the paragraph right after the title
     const titleEl = body.querySelector('h1, h2, h3, h4, h5, h6');
@@ -347,8 +372,9 @@ function decorateComparison(block) {
     // line right after it. Wrap them into a highlighted footer bar.
     const totalLabel = [...body.querySelectorAll('p, strong')]
       .find((el) => /^total/i.test(el.textContent.trim()));
+    let footer = null;
     if (totalLabel) {
-      const footer = document.createElement('div');
+      footer = document.createElement('div');
       footer.className = 'cards-comparison-total';
       const totalValue = totalLabel.nextElementSibling;
       body.append(footer);
@@ -356,15 +382,67 @@ function decorateComparison(block) {
       if (totalValue && /\$/.test(totalValue.textContent)) footer.append(totalValue);
     }
 
+    // Rebuild the source's box structure: [title][subtitle][price-row][desc][total].
+    // price-row wraps the PER YEAR pill + price; desc wraps the module label, the
+    // modules list and the workshop-cost lines in a 6px-gap flex column. The
+    // per-block bottom margins + the desc gap give the source's airy rhythm.
+    if (perYear && priceEl) {
+      const priceRow = document.createElement('div');
+      priceRow.className = 'cards-comparison-price-row';
+      perYear.replaceWith(priceRow);
+      priceRow.append(perYear, priceEl);
+
+      // everything between the price-row and the total footer is the description
+      const desc = document.createElement('div');
+      desc.className = 'cards-comparison-desc';
+      let node = priceRow.nextElementSibling;
+      while (node && node !== footer) {
+        const next = node.nextElementSibling;
+        desc.append(node);
+        node = next;
+      }
+      if (footer) body.insertBefore(desc, footer);
+      else body.append(desc);
+    }
+
     li.append(body);
     ul.append(li);
   });
 
-  ul.querySelectorAll('picture > img').forEach((img) => {
+  // the equivalency strip is the panel's bottom section (stays inside the block).
+  const parts = [ul];
+  if (equivRow) {
+    const equiv = document.createElement('div');
+    equiv.className = 'cards-comparison-equivalency';
+    while (equivRow.firstElementChild) {
+      const cell = equivRow.firstElementChild;
+      while (cell.firstChild) equiv.append(cell.firstChild);
+      cell.remove();
+    }
+    parts.push(equiv);
+  }
+
+  block.replaceChildren(...parts);
+
+  // the "Notes:" paragraph sits OUTSIDE the grey panel — insert it after the
+  // block, in the section wrapper.
+  if (notesRow) {
+    const notes = document.createElement('div');
+    notes.className = 'cards-comparison-notes';
+    while (notesRow.firstElementChild) {
+      const cell = notesRow.firstElementChild;
+      while (cell.firstChild) notes.append(cell.firstChild);
+      cell.remove();
+    }
+    if (block.parentElement) block.after(notes);
+    else block.append(notes);
+  }
+
+  block.querySelectorAll('picture > img').forEach((img) => {
+    // SVG logos/flame stay as-is; only raster images get optimized <picture>.
+    if (/\.svg(\?|$)/i.test(img.src)) return;
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '400' }]));
   });
-
-  block.replaceChildren(ul);
 }
 
 /*

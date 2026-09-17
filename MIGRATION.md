@@ -2100,3 +2100,192 @@ Two source-parity fixes discovered by reading the source stylesheet:
    as the panel grows. Removed the height/opacity transitions that caused the stutter.
 Verified: mobile "+" 36×36 shown at rest / hidden open; desktop no "+"; image 385→240, resting bio-only.
 lint/breakpoint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (comparison): full source-parity rebuild (container + logos + coming-soon + footer)
+Screenshot diff showed the block was missing the source's outer container, per-tier branded logos, the
+coming-soon treatment, and the equivalency/notes footer. Rebuilt to match source (measured on courses.html):
+- **Outer container**: the `.cards.comparison` block is now the source's rounded grey box — `#2c2c2c`,
+  radius 20, padding 12 — wrapping the 4-card grid + equivalency strip + notes.
+- **Grid**: 4-up ≥1024 / 2-up ≥768 / 1-up mobile; card `#1d1d1d`, radius 16, 1px `#707070`, **24px gap**.
+- **Branded logos**: sourced the 4 real SVG wordmarks (development/professional/specialist/master) from
+  the live DAM + the lime flame SVG → `content/media-da/.../cards-comparison/`; sample uses one per card.
+  Logo box 150px tall, centered. (SVG logos skip createOptimizedPicture — kept as inline SVG.)
+- **Coming-soon cards**: dimmed logo (opacity .35), "COMING 202x" 16px title, 5 skeleton loader bars drawn
+  via a `::before` repeating linear-gradient (`#484848`, h16, radius 30, 74/full/full/full/74), the lime
+  flame (161px), and a faint bottom "COMING 202x" line.
+- **Footer**: decorateComparison now splits the last two authored rows out of the grid — an Equivalency strip
+  (has a link, centered 18px, underlined white link) and a Notes paragraph (18px) — rendered inside the box.
+- a11y: the source's heavily-dimmed bottom "COMING" line fails AA on #1d1d1d; used #949494 (~4.6:1) instead.
+Verified: container #2c2c2c/r20, cards #1d1d1d/r16/24-gap, 4 distinct logos, skeleton+flame, footer;
+mobile 1-up. lint/breakpoint/svg/overflow/typography/a11y all ✓.
+
+### 2026-09-16 — cards (comparison): coming-soon logo not dimmed (lower-part parity)
+The user's screenshot showed the coming-soon flames/logos looking olive/faint. Root cause: I'd added
+`opacity: 0.35` to the coming-soon logo, but the source does NOT dim it (source logo opacity 1, filter
+none — the Specialist/Master wordmarks are natively grey art with lime accents). Removed the fabricated
+opacity so the logos + lime flames render at full strength like the source. (The earlier olive-flame
+"migrated" screenshot was a stale capture; canvas-sampling the live flame confirmed #CFFF05.)
+Verified: coming-soon logos full-opacity grey/lime wordmarks, flames bright lime. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — cards (comparison): body vertical rhythm (workshop-cost grouping)
+The card body read cluttered vs source. Root cause: the Professional card combined each workshop cost onto
+ONE em-dash line ("Development Coach — Registration Fee …") that wrapped tightly, and body `p` carried a
+`margin: 4px 0 0`. The source instead lists each cost as TWO lines (name + fee) with an EMPTY spacer `<p>`
+between the 4 groups, and body paragraphs have NO margin (rhythm = line-height pitch + spacers).
+Fixed: sample now uses name/fee/‌&nbsp;-spacer structure per source; body `p` margin 0; label paragraphs
+(`p:has(strong)`) get 22px top room. Verified migrated grouping ≈ source (Development 530/547, spacer 568,
+Developing 585…). lint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (comparison): box-geometry + section spacing to source (probed @1512)
+Applied a measured box-geometry pass (source vs migrated at vw1512):
+- Shell now carries the 24px inset padding (was on logo/body children); logo box 271.5×150 with the image
+  FILLING it (object-fit contain), consistent across all 4 cards; content aligns to x=25.
+- Pill margin 16 0 8 → **0 0 16** (removed the 16 top drift); price margin → **0**; modules list top margin → 0.
+- `<sup>` footnote markers clamped (`line-height:0`) so the title line box stays 16px.
+- TOTAL bar: min-height **70**, no padding, label+value centered shrink-to-fit, bleeds over the shell's 24px
+  padding to span full width, pinned to bottom via auto top margin. All 4 cards equal height (727.8), bar flush.
+- Grid pitch 346 / shell 322 at vw1512 (source 345.5 / 321.5).
+- **Section spacing (the "cluttered" fix)**: source reserves a ~32.8px-tall label box for INCLUDED ONLINE
+  MODULES / WORKSHOP COSTS with ~6px to the next line. Replaced the old `p:has(strong){margin-top:22}` hack
+  with `margin:0; padding:8px 0` → airy, grouped rhythm matching source (pill→price 16, price→label 22,
+  label box 32.8, workshop-cost groups separated by empty-<p> spacers ~17).
+- Blue: PER YEAR pill + TOTAL bar set to the SOURCE **#0373F3** (var --usta-blue) per explicit request.
+
+DEVIATION (documented): #0373F3 with white text = 4.42:1, just under WCAG AA 4.5:1, so `npm run test:a11y`
+reports a color-contrast finding on the pill + total bar. Kept per user instruction for exact source colour
+parity (the AA-safe #006EEB alternative was declined). lint/overflow/typography ✓; a11y has this one known,
+intentional contrast finding.
+
+### 2026-09-16 — cards (comparison): total-bar bottom inset + coming-soon label pin
+Two positioning drifts flagged by the red-box overlay (probed @1512):
+- **TOTAL bar**: source leaves ~24px BELOW the bar inside the shell (bar bottom → shell bottom = 25px), not
+  flush to the rounded corner. Changed the bar's bottom margin from `-24px` to `0` so it sits inside the
+  shell's 24px bottom padding (bleeds sides only). Now matches source (below-gap 25).
+- **Coming-soon bottom "COMING 202x" label**: was mid-card (auto-margin was on the flame). Moved `margin-top:
+  auto` to the label so IT pins to the bottom; the flame now sits below the skeleton bars (source layout).
+All 4 cards remain equal height; total bars align. (The earlier red-box "overlap" of the total bar with the
+last cost line was a stale screenshot — current build stacks them flush with no overlap.)
+lint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-16 — cards (comparison): description 6px gap + box structure + strip (probed @1512)
+Root-cause fix for the clutter: the source `.v-cost-card__description` is a flex column with a uniform **6px
+gap** between EVERY child; my body was a flat flex column with 0 gap. Restructured decorateComparison to
+rebuild the source's box stack:
+- `.cards-comparison-price-row` wraps the PER YEAR pill + price (margin-bottom 22).
+- `.cards-comparison-desc` wraps the module label + modules list + workshop-cost lines in a **flex column,
+  gap 6px** (margin-bottom 30). Removed the old empty-`<p>` spacers + the `p:has(strong)` padding hack.
+- Per-block margins restored: title 16/0/8, subtitle 0/0/21, price-row 0/0/22, desc 0/0/30.
+- Verified child y-offsets @1512: logo 25 / title 207 / subtitle 231 / price-row 266 / desc 350 / total
+  bottom-pinned — matches source (25/207/231/266/352). desc gap 6px ✓.
+Module list: li now `display:flex; align-items:center; column-gap:16px; min-height:24px`, ::before 16×16 blue
+check → text ink at x=32 (was list-item/28px/20px check, row-gap 8). UL row gap removed (li height = rhythm).
+TOTAL bar: added `gap:5px` between label + value (shrink-to-fit, centered).
+"Already certified" strip: now the panel's bottom section — full panel width (1384), bg **rgb(84,84,84)**,
+`border-radius:0 0 20px 20px`, min-height 74, 24px pad, flush to panel edges (bled -12 over panel padding).
+The "Notes:" paragraph now renders OUTSIDE/below the grey panel (moved to a block sibling in JS).
+lint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-16 — cards (comparison): restored group spacers + label box height + typography audit
+Root cause of remaining clutter: the source description IS `display:flex; gap:6px`, BUT it has empty `<p>`
+spacers (16.8px) between the 3 workshop-cost groups AND its section-label `<b>` is `display:inline-block;
+margin:8px 0` (making the label box 32.8px). I'd removed both earlier. Fixes:
+- Restored the empty `<p>&nbsp;</p>` spacers between workshop groups in the sample.
+- `.cards-comparison-body p strong` → `display:inline-block; margin:8px 0` (label box 32.8px).
+Verified migrated description == source: 14 rows, all 6px gaps, labels 32.8px, 16.8px cost lines + spacers.
+TYPOGRAPHY AUDIT (source measured @1512 AND @768 — flat, no responsive scaling; matches migrated):
+  title 16/16 Semibold(400) -0.64 white | subtitle 14/14 Semibold(400) -0.64 | pill 12/12 Regular -0.36
+  uppercase | price 28/28 Semibold -1.12 | modLabel 14/16.8 Regular w700 -0.42 | modLi 14/16.8 Regular -0.42
+  | costLine 14/16.8 Regular -0.42 | totalLabel 14/14 Regular -0.42 uppercase | totalValue 18/18 Semibold
+  -0.8. All confirmed identical desktop/tablet/mobile — no per-breakpoint font changes in source.
+lint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-16 — cards (comparison): tablet card-height parity (2×2 grid width fix)
+Compared full card heights at tablet (768) and mobile (390) vs source, measured with getBoundingClientRect.
+- SOURCE @768: 2×2 grid, active row (Development/Professional) = 911px, coming-soon row = 551px; each card
+  content 307px wide, x=65/396. Heights equalize WITHIN a row, not across all four.
+- SOURCE @390: 1-up stack, cards take natural height (Dev 648.2 / Pro 877.4 / coming 551 each), width 324.
+- MIGRATED before: @768 cards were 320px wide (grid `1fr` filled the half-panel) → active row only 875px
+  (−36 vs source) because the extra 13px width reduced text wrapping. Mobile already within 2px.
+Root cause: the source pair sits on a 12-col grid where each card column carries a 12px inner gutter on every
+edge, so card content is 307 (not the full half-panel). Fix: added `padding-inline:12px` to `.cards.comparison
+> ul` at ≥768 (reset to 0 at ≥1024 where 4 columns fill the panel). Now @768: cards 308px wide, x=64/396,
+active row 925 (≈911, +14 intrinsic rhythm ~1.5%), coming-soon 554.8 (≈551). Row-equalization + 1-up-natural
+behavior matches source at both viewports.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): bottom-region parity (borders, coming-soon order, flame dim)
+Side-by-side of the desktop bottom region surfaced 4 real deltas vs source (measured @1512):
+- BLUE TOTAL BAR: source `.v-cost-card__total` has a full `1px solid #fff` outline; mine had none. Added.
+- PANEL: source grey panel has `1px solid #a0a0a0`; mine had none. Added `border:1px solid #a0a0a0`.
+- COMING-SOON BAND: source bottom "COMING 202x" band is a full-width BLACK band (h70) with a full `1px
+  solid #fff` border, sitting on the SAME row as the active blue TOTAL bars (auto-top-margin pin, bleed
+  -24 sides, 24px above card bottom). Mine had border-top only → changed to full border. This is what makes
+  "COMING 202x" align horizontally with the blue bars.
+- COMING-SOON ORDER: source order is logo → "COMING 202x" heading → skeleton bars → flame. My skeleton was a
+  `body::before`, forcing it ABOVE the heading. Moved it to `.cards-comparison-flame::before` (mb40) so the
+  flex order is heading → skeleton → flame, matching source.
+- FLAME: source dims the coming-soon flame to opacity 0.2 (reads as muted olive on the dark card); mine was
+  bright lime. Set `.cards-comparison-flame img { opacity:0.2 }`.
+- EQUIVALENCY STRIP: was rendering 122px tall (content-box: min-height74 + 48 padding). Added
+  `box-sizing:border-box` → exactly 74px like source.
+Verified @1512: total border 1px white ✓, band border 1px white ✓, band top/bottom aligned to blue bar row
+(±1) ✓, flame opacity 0.2 ✓, order heading→flame→band ✓, equiv strip 74 ✓, panel border #a0a0a0 ✓.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): coming-soon pixel parity (flame centering, skeleton, band border)
+Pixel-overlay of the coming-soon cards vs source (measured @1512, rel. to card box) exposed:
+- FLAME: source centers the 161px flame (x≈77 each side, y≈583); mine was LEFT-aligned (x25, y399). Fixed:
+  `.cards-comparison-flame { margin:0 auto; text-align:center }` (img is inline, so text-align centers it).
+  Now x≈80/y≈591 (±8 of source).
+- SKELETON BARS: source pitch is 26px (5×16 + 4×10 = 120 total, not my 28/128), and bar 5 (74px) is
+  RIGHT-aligned while bar 1 (74px) is left. Fixed background-position to `left 0 / left 26 / left 52 /
+  left 78 / right 104` and height 120. Also set the source gaps: 60px heading→skeleton, 180px skeleton→flame.
+- COMING BAND "extra border": I'd set a full `1px solid #fff` box; source only shows the TOP divider line
+  on the black band (the side/bottom borders read as an extra box). Reverted to `border-top:1px solid #fff`.
+Verified @1512: flame centered ±8, skeleton pitch 26 + bar5 right-aligned, band top-divider only.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): pixel-exact COMING band ↔ blue TOTAL bar alignment
+User: "COMING 2026 should be on the same horizontal line as the prior 2 cards' blue bars; no border."
+Root cause of the 1px drift: box-model mismatch. Blue TOTAL bar had border 1px all sides → rendered 72px
+(70 + top+bottom border); COMING band had a top divider → 71px. With bottoms pinned equally, the blue bar's
+top sat 1px higher. Fix: `box-sizing:border-box` on BOTH the blue total bar and the coming band so borders
+sit inside a fixed 70px box. COMING band keeps only `border-top:1px solid #fff` (the source's thin divider —
+no side/bottom box border). Verified @1512: blue bar + both COMING bands share top=1227.7, bottom=1297.7,
+height=70 (0px offset). Flame stays centered + olive-dimmed; skeleton bar5 right-aligned (prior pass).
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): "Coming 202x" heading aligned with active card titles
+User clarified: the "Coming 2026/2027" HEADINGS must sit on the same horizontal line as "Development Coach
+Badge" / "Coaching Professional Certification". Measured source: both title types at y=207 rel. card (same
+line — the coming-soon logo is the same 150px height). My coming-soon heading override had `margin:0 0 24px`
+(no top margin) → it sat at y=191, 16px too high. Fixed to `margin:16px 0 8px` (matching the active title).
+Verified @1512: all four titles now at y=207 rel. card, absolute y=654.4 identical across all four cards.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): footnote sup size + typography audit across viewports
+User: the "7" footnote atop $1,085 is smaller in source; also full typography parity check at all viewports.
+- SUP SIZE: source footnotes are small Unicode superscript glyphs (¹²³⁴⁵⁶⁷) at ~0.6em; my HTML <sup>
+  inherited the UA default (~0.83em → 15px on the 18px total value), making the "7" too big. Fixed:
+  `.cards-comparison-body sup { font-size:0.6em }` → 10.8px on the total value, matching source. Applies to
+  all footnote markers in the block (title ¹², subtitle ³, cost lines ⁵⁶, total ⁷).
+- COMING BAND BG: verified source band bg = rgb(0,0,0) (pure black) = mine; the greyness in the user's
+  screenshot is JPEG compression on near-black, not a real difference. No change needed.
+- TYPOGRAPHY AUDIT (source measured @1512, @768, @390 — all FLAT, no responsive scaling):
+  title 16/16 Semibold(400) -0.64 white | subtitle 14/14 Semibold -0.64 | perYear 12/12 Regular -0.36 |
+  price 28/28 Semibold -1.12 | moduleLabel 14/16.8 Regular w700 -0.42 | moduleLi 14/16.8 Regular -0.42 |
+  costLine 14/16.8 Regular -0.42 | totalLabel 14/14 Regular -0.42 | totalValue 18/18 Semibold -0.8.
+  Confirmed migrated matches at all three viewports (title/price/moduleLi/totalValue identical @390 & @1512).
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): COMING band matched to source DevTools (full border + 0.2 opacity)
+User shared source DevTools for `.v-cost-card__coming-soon .v-cost-card__total`: it's the SAME element as
+the blue TOTAL bar (`border:1px solid #fff; background:#000; margin:auto -24px 0; min-height:70`) with the
+coming-soon variant adding **`opacity:20%`** on the WHOLE band — dimming border AND white text together
+(that's why the border looked faint, not absent). My build had only a top divider at full opacity + AA-grey
+text. Fixed to match exactly: `border:1px solid #fff; background:#000; color:#fff; opacity:0.2` on the band.
+Verified @1512: border 1px white, opacity 0.2, white text, black bg, top aligned to blue bar row (0px).
+NOTE — new intentional a11y deviation: the 0.2-opacity white-on-black "Coming 202x" text fails AA contrast,
+but this is EXACT source parity (the source dims it identically). Kept per the 100%-parity requirement,
+alongside the existing #0373F3 blue-bar contrast deviation.
+lint/breakpoint/overflow/typography ✓; a11y = 2 known intentional contrast findings (blue bar + dimmed coming band).
