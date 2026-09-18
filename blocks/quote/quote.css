@@ -1,0 +1,46 @@
+/* ---------------------------------------------------------------- quote -- *
+ * Highlighted pull-quote callout (source: article body callout).
+ * The quote is large Graphik Semibold in brand lime; the attribution is
+ * smaller white Graphik Regular below it. Sits on the page's dark background.
+ *
+ * Source truth (live site, computed): quote 28px / line-height 1 (32px @1280),
+ * lime #cfff05; attribution 18px / line-height 24px, white; 24px gap between
+ * quote and attribution. Background transparent.
+ * ------------------------------------------------------------------------- */
+
+.quote {
+  margin: 0;
+
+  /* Source lays the pull-quote on its 12-col grid: offset 1 col + span 10 cols
+     (aem-GridColumn--offset--1 margin-left 8.333% + --default--10 width 83.333%),
+     i.e. a symmetric one-column (1/12) inset each side at every viewport. */
+  padding-inline: calc(100% / 12);
+}
+
+.quote .quote-text {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.quote .quote-attribution {
+  margin-top: 24px;
+}
+
+.quote .quote-attribution p {
+  margin: 0;
+  color: #fff;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+/* wide desktop (>=1280): quote grows to 32px */
+@media (width >= 1280px) {
+  .quote .quote-text {
+    font-size: 32px;
+  }
+}
