@@ -198,30 +198,37 @@ function decorateText(block) {
 }
 
 /*
- * profile — leadership/bio cards. Each card: a portrait photo on top, then a
- * body with the person's name (heading), role/title, and a bio paragraph.
- * A card is "featured" (lime background, black text) when it carries a SECOND
- * heading (e.g. a "Bio" label) — mirrors the source's highlighted card.
+ * profile — leadership/bio cards with an INTERACTIVE reveal (source: about page
+ * "Our Leadership"). Resting: portrait photo on top, then a black bordered panel
+ * with the name, a lime role line, and a short bio. On HOVER (desktop) or CLICK
+ * (touch) the card animates over 0.3s: the image shrinks, the panel grows and
+ * fills lime with black text, a "Bio" label appears, and the bio expands to the
+ * full text. Card total height is fixed so the layout never reflows.
  * Authoring (one row per card):
  *   cell 1: portrait image
- *   cell 2: name heading, role paragraph(s), [optional "Bio" heading], bio paragraph(s)
+ *   cell 2: name (heading), role (p), short bio (p), "Bio" (heading), full bio (p)
+ *           — the 2nd heading separates the resting short bio from the open state;
+ *             paragraphs before it are the short bio, after it the full bio.
  */
 function decorateProfile(block) {
   const ul = document.createElement('ul');
 
   [...block.children].forEach((row) => {
+    // the <li> stays a plain listitem; an inner element is the interactive card
+    // (role="button" on the <li> itself would strip its listitem role).
     const li = document.createElement('li');
-    li.className = 'cards-profile-card';
-    while (row.firstElementChild) li.append(row.firstElementChild);
+    const card = document.createElement('div');
+    card.className = 'cards-profile-card';
+    while (row.firstElementChild) card.append(row.firstElementChild);
 
     // image cell
-    const imageDiv = [...li.children].find((d) => d.querySelector && d.querySelector('picture, img'));
+    const imageDiv = [...card.children].find((d) => d.querySelector && d.querySelector('picture, img'));
     if (imageDiv) imageDiv.className = 'cards-profile-image';
 
     // body = everything else, wrapped for padding + background
     const body = document.createElement('div');
     body.className = 'cards-profile-body';
-    [...li.children].forEach((child) => {
+    [...card.children].forEach((child) => {
       if (child === imageDiv) return;
       // unwrap a single content div so its parts sit directly in the body
       if (child.tagName === 'DIV') {
@@ -232,19 +239,39 @@ function decorateProfile(block) {
       }
     });
 
-    // name = first heading; role = the paragraph(s) right after it; a SECOND
-    // heading marks a featured card (lime) and labels the bio.
+    // name = first heading; role = first paragraph after it.
     const headings = [...body.querySelectorAll('h1, h2, h3, h4, h5, h6')];
-    if (headings[0]) headings[0].classList.add('cards-profile-name');
-    if (headings.length > 1) {
-      li.classList.add('is-featured');
-      headings[1].classList.add('cards-profile-bio-label');
-    }
-    // role = first paragraph after the name heading
-    const role = headings[0] ? headings[0].nextElementSibling : body.querySelector('p');
+    const name = headings[0];
+    if (name) name.classList.add('cards-profile-name');
+    const role = name ? name.nextElementSibling : body.querySelector('p');
     if (role && role.tagName === 'P') role.classList.add('cards-profile-role');
 
-    li.append(body);
+    // a SECOND heading is the "Bio" label; it splits the short bio (paragraphs
+    // before it) from the full bio (paragraphs after it).
+    const bioLabel = headings[1] || null;
+    if (bioLabel) bioLabel.classList.add('cards-profile-bio-label');
+    let seenLabel = false;
+    [...body.children].forEach((child) => {
+      if (child === bioLabel) { seenLabel = true; return; }
+      if (child.tagName !== 'P' || child === role) return;
+      child.classList.add(seenLabel ? 'cards-profile-desc-full' : 'cards-profile-desc-short');
+    });
+
+    // make the card an interactive toggle (touch: tap; desktop also has :hover)
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-expanded', 'false');
+    const toggle = () => {
+      const open = card.classList.toggle('is-open');
+      card.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+
+    card.append(body);
+    li.append(card);
     ul.append(li);
   });
 
@@ -269,8 +296,25 @@ function decorateProfile(block) {
  */
 function decorateComparison(block) {
   const ul = document.createElement('ul');
+  const rows = [...block.children];
 
-  [...block.children].forEach((row) => {
+  // The last two rows are the container-level footer: an "Equivalency Chart"
+  // strip (has a link) and a "Notes:" paragraph. Pull them out of the card grid
+  // and render them below the grid, inside the shared container.
+  let notesRow = null;
+  let equivRow = null;
+  const isSingleCellText = (row) => row.children.length === 1
+    && !row.querySelector('picture, img, ul, ol, h1, h2, h3, h4, h5, h6');
+  const last = rows[rows.length - 1];
+  const penultimate = rows[rows.length - 2];
+  if (last && isSingleCellText(last) && /^notes:/i.test(last.textContent.trim())) {
+    notesRow = rows.pop();
+  }
+  if (penultimate && isSingleCellText(penultimate) && penultimate.querySelector('a')) {
+    [equivRow] = rows.splice(rows.indexOf(penultimate), 1);
+  }
+
+  rows.forEach((row) => {
     const li = document.createElement('li');
     li.className = 'cards-comparison-card';
     while (row.firstElementChild) li.append(row.firstElementChild);
@@ -294,7 +338,21 @@ function decorateComparison(block) {
 
     // coming-soon card: text mentions "Coming 202x" and there is no feature list
     const isComingSoon = /coming\s+202\d/i.test(body.textContent) && !body.querySelector('ul, ol');
-    if (isComingSoon) li.classList.add('is-coming-soon');
+    if (isComingSoon) {
+      li.classList.add('is-coming-soon');
+      // the flame graphic is the body image; tag it so CSS can place it
+      const flame = body.querySelector('picture, img');
+      if (flame) {
+        const p = flame.closest('p') || flame;
+        p.classList.add('cards-comparison-flame');
+      }
+    }
+
+    // the "Annual Package Fee" subtitle = the paragraph right after the title
+    const titleEl = body.querySelector('h1, h2, h3, h4, h5, h6');
+    if (titleEl && titleEl.nextElementSibling && titleEl.nextElementSibling.tagName === 'P') {
+      titleEl.nextElementSibling.classList.add('cards-comparison-subtitle');
+    }
 
     // the feature (included modules) list gets a class + a check marker
     const list = body.querySelector('ul, ol');
@@ -314,8 +372,9 @@ function decorateComparison(block) {
     // line right after it. Wrap them into a highlighted footer bar.
     const totalLabel = [...body.querySelectorAll('p, strong')]
       .find((el) => /^total/i.test(el.textContent.trim()));
+    let footer = null;
     if (totalLabel) {
-      const footer = document.createElement('div');
+      footer = document.createElement('div');
       footer.className = 'cards-comparison-total';
       const totalValue = totalLabel.nextElementSibling;
       body.append(footer);
@@ -323,15 +382,67 @@ function decorateComparison(block) {
       if (totalValue && /\$/.test(totalValue.textContent)) footer.append(totalValue);
     }
 
+    // Rebuild the source's box structure: [title][subtitle][price-row][desc][total].
+    // price-row wraps the PER YEAR pill + price; desc wraps the module label, the
+    // modules list and the workshop-cost lines in a 6px-gap flex column. The
+    // per-block bottom margins + the desc gap give the source's airy rhythm.
+    if (perYear && priceEl) {
+      const priceRow = document.createElement('div');
+      priceRow.className = 'cards-comparison-price-row';
+      perYear.replaceWith(priceRow);
+      priceRow.append(perYear, priceEl);
+
+      // everything between the price-row and the total footer is the description
+      const desc = document.createElement('div');
+      desc.className = 'cards-comparison-desc';
+      let node = priceRow.nextElementSibling;
+      while (node && node !== footer) {
+        const next = node.nextElementSibling;
+        desc.append(node);
+        node = next;
+      }
+      if (footer) body.insertBefore(desc, footer);
+      else body.append(desc);
+    }
+
     li.append(body);
     ul.append(li);
   });
 
-  ul.querySelectorAll('picture > img').forEach((img) => {
+  // the equivalency strip is the panel's bottom section (stays inside the block).
+  const parts = [ul];
+  if (equivRow) {
+    const equiv = document.createElement('div');
+    equiv.className = 'cards-comparison-equivalency';
+    while (equivRow.firstElementChild) {
+      const cell = equivRow.firstElementChild;
+      while (cell.firstChild) equiv.append(cell.firstChild);
+      cell.remove();
+    }
+    parts.push(equiv);
+  }
+
+  block.replaceChildren(...parts);
+
+  // the "Notes:" paragraph sits OUTSIDE the grey panel — insert it after the
+  // block, in the section wrapper.
+  if (notesRow) {
+    const notes = document.createElement('div');
+    notes.className = 'cards-comparison-notes';
+    while (notesRow.firstElementChild) {
+      const cell = notesRow.firstElementChild;
+      while (cell.firstChild) notes.append(cell.firstChild);
+      cell.remove();
+    }
+    if (block.parentElement) block.after(notes);
+    else block.append(notes);
+  }
+
+  block.querySelectorAll('picture > img').forEach((img) => {
+    // SVG logos/flame stay as-is; only raster images get optimized <picture>.
+    if (/\.svg(\?|$)/i.test(img.src)) return;
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '400' }]));
   });
-
-  block.replaceChildren(ul);
 }
 
 /*

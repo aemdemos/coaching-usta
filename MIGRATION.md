@@ -1707,6 +1707,86 @@ logo 142×84 x124, logo→CTA 26, CTA 280×52 x55, CTA→bottom 9 — all within
 unaffected (≥1024 overrides padding→48/gap→64; logo display:none ≥768; ≥1280 padding-block:0). lint 0 err,
 breakpoint/overflow(360–1920)/typography/a11y ALL pass.
 
+### 2026-09-16 — hero (content) variant — Coaching Network (coach-mentorship page)
+Added a third **content** variant to the hero block for the "USTA Coaching Network" section on
+https://www.ustacoaching.com/en/home/coach-mentorship.html. Full-bleed rounded background photo + dark
+overlay with **LEFT-aligned** copy (vs default/video which are centered): big USTA Sans display H1, an
+uppercase H2 subheading, body paragraphs, then a lime primary CTA beside a white underlined secondary
+text link (two CTAs in one authored paragraph → flex row, 32px gap).
+- **JS:** `decorateContent()` — dispatched on `block.classList.contains('content')`. Bg from row 1
+  (picture/img or image link), copy from row 2; first non-image link → `.hero-cta` (lime pill), second →
+  `.hero-cta-secondary` (underlined). Reuses the shared `isImageHref`/`applyBgImage` helpers.
+- **CSS:** `.hero.content` — 20px radius, overlay `rgb(0 0 0 / 55%)`, gutters 16/40/48/64. H1 tracks the
+  recorded type scale 32→40→56→80 (USTA Sans 700 uppercase); H2 20→28→32→40; body 16 Graphik Regular.
+  Registration dates use an authored `<br>` (survives EDS) → two lines like source.
+- Authoring contract: `hero (content)` block; row1 = bg image, row2 = h1 + h2 + p's + 2 links.
+- Sample: content/drafts/block-samples/hero-content.plain.html (Style: dark).
+
+⚠️ **BUILT WHILE SOURCE WAS IN MAINTENANCE** — ustacoaching.com served a "Maintenance Page" for every
+URL, so the live DOM could NOT be measured. Structure, content, type scale, colors, gutters, CTAs and
+left-aligned layout are from the provided desktop screenshot + the recorded design tokens
+(typography.json / breakpoints.json). **STILL TO RE-VERIFY against the live source once it's back:**
+exact per-viewport H1/H2/body font-size + line-height, vertical rhythm (H1→H2→body→CTA gaps), panel
+min-height per breakpoint, overlay opacity/tint (guessed 55% black — the sibling default hero layers
+blue+black; the content hero may too), CTA exact padding/radius/size, and the secondary-link treatment.
+Also **download the background photo** (referenced at /blocks/hero/media/coaching-network.jpg — not yet
+fetched because the source/DAM is unreachable) and publish it to DA.
+Verified NOW (structure/tokens only): lint 0 err; breakpoint ✓; overflow ✓ (360–1920); a11y ✓.
+
+### 2026-09-16 — hero (content): pixel-parity pass vs LIVE source (site back up) + bg image
+Site returned from maintenance; re-measured the live DOM at 390/768/1024/1280/1440 and fixed all drifts.
+**Content had changed live** since the maintenance-era build — updated the sample to match: registration
+copy is now "Registration for the 2026 Session is Now Closed. / Next Registration Window: Opening in
+January 2027" and a SINGLE lime button "2027 Programs Coming Soon" (the earlier Apply/Find dual-CTA is
+gone). Downloaded the source background photo
+(dam/…/coach-mentorship/coaching-mentorship-handshake.jpg) → optimized to 2000×1333 / 350KB →
+content/blocks/hero/media/coaching-network.jpg.
+
+**Root-cause bug fixed:** the default-hero rules used `.hero:not(.video)`, which ALSO matched
+`.hero.content` (content isn't video) — so the content variant inherited the default's
+`justify-content:center`, `min-height`, and `.hero-content{gap:26/64/96}`. That gap stacked on top of
+the content margins (the ~96px-too-large gaps + centered layout). Fixed by scoping every default rule to
+`.hero:not(.video):not(.content)` (and the container `…:not(:has(.hero.content))`). Stylelint wanted the
+combined `:not(.video, .content)` form — applied via lint:fix.
+
+**Source model (live-measured, now matched):**
+| | 390 | 768 | 1024 | 1280 | 1440 |
+|---|---|---|---|---|---|
+| container gutter | 8 | 28 | 36 | 52 | 52 |
+| content inset (from vp) | 32 | 60 | 80 | 99 | 112 |
+| panelTop→H1 | 27 | 9 | 85 | 97 | 97 |
+| H1 | 32/32 | 40/40 | 56/56 | 80/80 | 80/80 |
+| H2 sub | 28/36.4 | 28/36.4 | 28/36.4 | 32/41.6 | 32/41.6 |
+| body/reg/must | 18/24 (Graphik Regular) | → | → | → | → |
+| CTA | lime, radius 12, pad 14×24, 18px, ls 1px | | | | |
+Gaps (desktop): H1→H2 18, H2→desc 18, desc→reg 24, reg→must 42, must→CTA 36. Mobile differs: H1→H2 36,
+reg→must 66. Overlay **rgb(0 0 0 / 74%)** (was 55% in the maintenance-era guess). 1px solid white border,
+20px radius. Content is **top-anchored** (not centered) — reproduced with per-breakpoint top padding
+(27/9/85/97). Left inset via panel padding-inline (24/32/44 then clamp(47,8.125vw−57,60) across
+1280→1440, since the Breakpoint Rule bars a 1440 media query). H1/H2 text authored in caps (tt:none).
+
+**⚠️ Typography checker:** reports 7 h2 "drifts" — EXPECTED false positives. This hero's H2 subheading is
+a per-component size (28→28→28→32, `data-custom-font-size` in source) that intentionally differs from the
+global h2 scale (28→40→56→64), same as the discussion-boards case. Live-verified the source h2 is exactly
+28/28/28/32. Not a real drift.
+Verified: lint 0 err; breakpoint ✓; overflow ✓ (360–1920); a11y ✓; svg ✓. Visual parity confirmed vs
+source at 1440 + mobile. Content inset @1440 = 113 (source 112). All gaps match.
+
+### 2026-09-16 — hero (content): fixed overall width/inset drift at wide viewports
+User flagged the panel was too WIDE (and the content inset off) vs source when compared at a wide
+screen (~1728). Measured source at 1536/1728: the hero content container is the SAME as the header —
+**max-width 1536, centered, side gutters 8/28/36/52** (body `max-width:1536; margin:auto; padding:0
+52`). So the panel caps at ~1432px wide and the OUTER gutter grows past 1536 (148 each side @1728). My
+earlier build used `max-width:1440`, so above 1440 the panel ran too wide and the gutter stayed at 52.
+Fix: container `max-width:1440 → 1536`.
+Also: the content's LEFT inset is a **constant 8.3% of the panel width** in source (a percentage margin:
+31/374 @390, 98/1176 @1280, 119/1432 @1536 — all 8.3%), NOT fixed px. My fixed-px `padding-inline`
+(24/32/44/clamp) drifted at wide viewports. Fix: panel `padding-inline: 8.3%` at all breakpoints (only
+top/bottom padding varies per tier: 27/9/85/97 top). This also removed the non-standard clamp and keeps
+the Breakpoint Rule clean (only 768/1024/1280 media queries).
+Re-verified vs source: @1728 gutter 148 / panel 1432 / inset-from-panel 120 / H1 2-line / H2 32px 2-line
+— EXACT. @1280 gutter 52 / panel 1176 / inset 99. @390 gutter 8 / panel 374 / inset 32. No overflow.
+Verified: lint 0 err; breakpoint ✓; overflow ✓ (360–1920); a11y ✓.
 ### 2026-09-16 — cards: five new content variants (course/text/profile/comparison/news)
 Instrumented five new `cards` variants (dispatched by class in blocks/cards/cards.js; scoped CSS in
 cards.css). Each has a block-sample page under content/drafts/block-samples/ and its media under
@@ -1846,3 +1926,633 @@ edge. Measured: header nav pads 52px; the 48px hamburger button centers its 16px
 lines start at 52+16 = 68px (the "Community" nav link starts at 132). The cards were at 52 (button edge).
 Bumped the >=1280 gutter 52→68px so the first card heading starts at x=68 — verified aligned exactly with
 .nav-hamburger-icon (both x=68). Grid now x=68 / w=1304 @1440. lint 0 err, overflow ✓, a11y ✓.
+
+### 2026-09-16 — cards (course)+(text): live-source typography audit (site back up)
+Re-measured both against the LIVE source at 390/768/1440.
+- **cards (course):** source title 28/28 (→32 @1280) Graphik Semibold ls **normal**, desc 18/24 Graphik
+  Regular ls **normal**, pill 16/19.2 Graphik Regular **700** white center. My h3/p inherited the global
+  −0.03em tracking — added `letter-spacing: normal` to the course title + desc; set the pill to
+  Graphik Regular 700 / lh 19.2 / ls normal (was lh:1). Verified migrated == source at 1440.
+- **cards (text):** source heading 32/32 Graphik Semibold ls −0.03em, body 16/19.2 Graphik Regular
+  −0.03em (matched already). SPACING FIX: my prior `min-height:64px` forced every heading to a 2-line
+  reserve, so short titles ("Access Drives Progress" etc.) reserved 2 lines and the gap read wrong. Source
+  keeps headings at their NATURAL line count (row 1 = 2-line, row 2 = 1-line) with bodies aligned per row.
+  Removed the min-height; headings now wrap naturally with a fixed 56px bottom margin (source 2-line gap;
+  1-line rows read ~12px tighter than source's grid-stretch but bodies still align per row). Verified @1440:
+  row1 2-line/gap56, row2 1-line/gap56, bodies aligned within each row. (Tried a subgrid reproduction of the
+  source's per-row heading-track stretch but it double-counted the row-gap → reverted to the simpler fixed
+  margin.) lint 0 err, overflow/typography/a11y ✓ on both.
+
+### 2026-09-16 — cards (text): OUR PURPOSE title→cards gap corrected to source (108px)
+User flagged the gap between "OUR PURPOSE" and the first card row was too small. Measured live source
+@1440: title-bottom → first-card-heading-top = 108px (my prior value was ~48px). Set
+`.cards-container:has(.cards.text) .cards-wrapper { margin-top: 108px }`. Verified migrated gap = 108px
+@1440. lint 0 err, overflow ✓, a11y ✓.
+
+### 2026-09-16 — cards (text): row/card vertical gap matched to source (84 desktop / 86 mobile)
+User flagged the vertical spacing between the two card rows was too small. Measured live source:
+row1-body-bottom → row2-heading-top = **84px @1440**; mobile 1-up card→card = **86px @390**. My grid used
+64px (desktop row) / 48px (mobile). Updated `.cards.text > ul`: base `gap: 86px` (mobile), `>=768`
+`gap: 84px 48px` (row/column). Verified migrated == source: desktop 84, mobile 86. Combined with the
+earlier fixes (title→cards 108px, heading→body 56px, natural line-count, header-aligned 3-col grid), the
+block now matches source spacing at both viewports. lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (text): restored 2-line heading reserve (row-wide body alignment)
+CORRECTION to the earlier "removed min-height" note. The source DOES align ALL bodies in a row to the same
+baseline even when one title is shorter: verified live @1440 — row-1 bodies all at top 1312 (col3 "Coaches
+Need Coaches Too" — which itself wraps to 2 lines at the source's 397px column, h=64 — is NOT higher).
+Removing the reserve had made col3's body rise above cols 1&2 (user flagged). Restored
+`min-height: 64px; margin-bottom: 24px` on the >=768 heading so every heading reserves a 2-line slot and the
+whole row's bodies align. Verified migrated @1440: row-1 bodies all top 726 (aligned), row-2 bodies all top
+975 (aligned), row gap 84px, col3 heading 2 lines (matches source). lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (text): responsive heading scale + subgrid per-row alignment (all viewports)
+Tablet/mobile audit revealed two more drifts:
+1. **Heading font-size is responsive** (I had it flat 32). Source: 32 (mobile) → 24 (768) → 28 (1024) →
+   32 (1280). Added per-breakpoint font-size.
+2. **Per-row body alignment across DIFFERENT heading heights.** At 768 the source headings wrap to 3/4/2
+   lines (heights 72/96/48) yet all row bodies align — a `min-height` reserve can't do this (row1 needs 96,
+   row2 needs 48). Reproduced the source's per-row grid stretch with **CSS subgrid**: `.cards.text > ul` is
+   a 3-col grid; each `.cards-text-card` is `grid-template-rows: subgrid; grid-row: span 2` so every heading
+   in a row stretches to that row's tallest heading and all bodies line up. Gaps: ul `row-gap: 24px` =
+   head→body; card `margin-bottom: 60px` (+24 = 84px card→card). Removed the old min-height reserves.
+Verified: 768 heading 24, row1 bodies aligned (609) despite 3/4/2-line titles, row gap 84; 1024 heading 28;
+1440 heading 32, bodies aligned, row gap 84, title gap 108, head→body 24; mobile 32/1-up/86px card gap.
+lint 0 err, overflow/typography/a11y ✓.
+
+### 2026-09-16 — typography audit: cards (profile) (all viewports)
+Measured source `.v-person-card` (about page → OUR LEADERSHIP) at 390/900/1024/1280/1440. Scale is responsive:
+- **name** 32px (≤1023) → 40px (≥1024); Graphik Semibold, weight 400, line-height 1.0, letter-spacing
+  normal, margin-bottom 24. (I had flat 40 / lh 1.05 / mb 0.)
+- **role** 16px flat; Graphik Regular (I had Semibold 18), lime, line-height normal, ls normal, mb 8.
+- **bio** 16px (≤1023) → 18px (≥1024); Graphik Regular, line-height normal, ls normal, mb 0. (I had flat 18.)
+Fixed all three + added the 1024 jump. Gotcha: the role is a `<p>` inside `.cards-profile-body`, so the
+generic `.cards-profile-body p` rule was overriding it to 18px at desktop — scoped the bio rule to
+`p:not(.cards-profile-role)`. Verified migrated: 32/16/16 at ≤1023, 40/16/18 at ≥1024. lint/overflow/typo/a11y ✓.
+Note: source leadership cards are text-only (no portrait/border/featured) — our sample keeps the richer
+image+featured design intentionally; this task was scoped to typography parity.
+
+### 2026-09-16 — typography audit: cards (comparison) (all viewports)
+Measured source `.v-cost-card` (courses page → "2026 Badge & Certification Costs") at 390 & 1440. The scale
+is FLAT across all viewports (no responsive jumps). Corrected drifts:
+- title: line-height 1.3→1.0, added letter-spacing -0.64px, margin 0→16 0 8.
+- NEW "Annual Package Fee" subtitle (tagged `.cards-comparison-subtitle` in JS — the p right after the
+  title): 14px Graphik Semibold w400, lh 1.0, ls -0.64, mb 21.
+- body p: line-height 1.4→1.2, added ls -0.42.
+- PER YEAR pill: added Graphik Regular family, lh 1.3→1.0, ls -0.36.
+- price: added ls -1.12.
+- section labels (strong): family Semibold→Regular, weight→700, size 12→14, lh→1.2, ls 0.04em→-0.42px.
+- module list li: lh 1.3→1.2, added ls -0.42.
+- TOTAL label: size 12→14, added lh 1.0 + ls -0.42.
+- TOTAL value: added lh 1.0 + ls -0.8.
+Verified all 8 element types match source 1:1. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — typography audit: cards (news) + cards (media) (all viewports)
+**News** — measured source `.v-news-related-tile__{title,date,description}` (news.html) at 390/900/1440:
+- title responsive: 24 (≤767, ls -0.72) → 28 (768, -0.84) → 32 (≥1024, -0.96); Graphik Semibold w400,
+  line-height 1.0. (I had flat 28 / lh 1.1.) ls values = the global -0.03em tracking → set ls -0.03em +
+  added the 768/1024 font-size jumps.
+- date: was 14px/lh1.3/lime — source is 16px Graphik Regular, lh 1.2, ls normal, WHITE. Fixed.
+- excerpt: lh 1.4→1.2, added family + ls normal.
+(The lime title-arrow affordance is kept as our design embellishment; the date lime was a drift, corrected.)
+**Media** — measured source benefits row `.cmp-text` (home.html): heading 28 (≤1023) → 32 (≥1024),
+Graphik Semibold, lh 1.0, ls -0.03em; body 16px Graphik Regular, lh 1.2 (19.2px), ls -0.03em. Our media CSS
+already matched (28→32 heading, 16/1.2 body, global tracking) — verified, no change needed.
+Verified both migrated: news 24/16/16 mobile → 32 title desktop; media 28→32 heading, body 16/19.2.
+lint/overflow/typo/a11y ✓ on both pages.
+
+### 2026-09-16 — cards (text): fixed reserved heading BANDS (vertical rhythm parity)
+Earlier subgrid pass aligned bodies per row but used a flat 24px head→body gap — the source doesn't
+work that way. Re-measured the source `.cmp-text` heading boxes: each heading sits in a **fixed reserved
+band, constant at every breakpoint ≥768** — row1 = **96px**, row2 = **76px** — taller than the heading
+text, with the body 24px below the band. That yields per-row head→body gaps of **56px (row1) / 68px (row2)**
+at desktop and **48/24/72 (row1, by title line-count) / 52 (row2)** at tablet — NOT a flat 24. My flat gap
+was the drift the user saw.
+Fix: set explicit grid tracks on `.cards.text > ul` — `grid-template-rows: minmax(96px,auto) auto
+minmax(76px,auto) auto` — and `align-self: start` on the subgrid headings so the band slack falls BELOW the
+title. Removed the heading `margin-bottom`/ul flat row-gap reliance for the gap.
+Verified migrated == source: desktop head→body 56/68, tablet 48/24/72 & 52, row-to-row 84, mobile 24 (1-up,
+86px card gap); bodies align per row at all breakpoints. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — cards (text): mobile/tablet parity (6 measured bugs, verified per-element)
+Probed live source + preview with getBoundingClientRect/getComputedStyle at the SAME width (390/417/480/768/900/1024) and fixed:
+1. **h2→first-card gap**: 108→**60px** flat below 1024 (was the visible mobile "extra space"). Restored 76px @1024, 108px @1280.
+2. **Mobile title slot**: was collapsing cards 4–6 to 56px; now uniform **88px** (h3 min-height 64 + 24 gap) for all six, card 2 grows to 120 only <480 (3-line title). No row1/row2 distinction on mobile (1 column).
+3. **Tablet body**: 16→**14px / 16.8 / -0.42px** for 768–1023 only; 16/19.2/-0.48 restored ≥1024.
+4. **h3 font-weight**: 400→**700** at every breakpoint (Graphik Semibold is a variable 400–700 face).
+5. **Horizontal gutters**: h2 now uses the section gutter (x=16 mobile / 40 tablet / 48 @1024); cards inset +8px (<768) / +12px (≥768) → card x=24/52/60. Widths now 342@390, 369@417, 432@480, 189.33@768, 233.33@900, 269.33@1024.
+6. **Inter-row flow gap**: 84→**60px** (768–1023) via card margin-bottom 36 + 24 ul row-gap; 68px @1024 (mb 44); 84px @1280 (mb 60).
+Mechanism: section `padding-inline` carries the h2 gutter; `.cards-wrapper padding-inline` adds the card inset; the h2 default-content-wrapper padding is zeroed so h2 sits flush to the section gutter. Desktop (≥1280) x/width/gaps unchanged except the intended weight-700 fix. lint/breakpoint/overflow/typography/a11y all ✓.
+
+### 2026-09-16 — cards (profile): interactive hover/tap reveal (matched to source)
+The source leadership cards are INTERACTIVE (`.v-person-card`), not the static featured card we had.
+Measured both states on the live source at 390/768/1440:
+- **Resting:** portrait image 385h (radius 20) + 16px gap + content panel 229h (black, 1px white border);
+  name white 32→40, role LIME 16, short bio white 16→18. Card total fixed 630.
+- **Open (hover desktop / tap touch):** image shrinks 385→240, panel grows 229→374 and fills LIME with
+  BLACK text, a "Bio" label (40/40 Semibold) fades in, and the bio swaps to the FULL longer text
+  (wrapper 48→96). Transitions 0.3s ease-in-out (image height + panel bg/border; wrapper height).
+Rework:
+- **cards.js decorateProfile**: each `<li>` stays a plain listitem; an inner `.cards-profile-card` div
+  carries `role=button`, `tabindex=0`, `aria-expanded`, click + Enter/Space toggle `.is-open` (touch).
+  Content parsed as name(h)/role(p)/short-bio(p)/"Bio"(h2)/full-bio(p) — the 2nd heading splits short vs full.
+- **cards.css**: fixed-height card; image + panel animate on `:hover` and `.is-open`; short/full bios and
+  "Bio" label collapse/reveal; `prefers-reduced-motion` drops the timing. Gutters match the text block
+  (card x = 24 mobile / 52 tablet / 60 @1024 via 16/40/48 section gutter + 8/12 card inset).
+- **sample content**: added the real source short + full bios for Craig & Megan (were missing the full text).
+Gotcha: `role=button` on the `<li>` stripped its listitem role (axe `aria-required-children`); fixed by
+moving the role to the inner card div so the `<ul>/<li>` list semantics stay intact.
+Verified: resting 385/229 + open 240/374 at desktop, mobile resting x=24/w=342; tap-toggle + keyboard work.
+lint/breakpoint/overflow/typography/a11y all ✓.
+
+### 2026-09-16 — cards (profile): resting name-box height (role/desc vertical position)
+The resting panel's role line + short bio sat too high vs source. Root cause: the source reserves a name
+box TALLER than one line — 53px @mobile (32px font) / 65px @≥1024 (40px font) — even for single-line names,
+which pushes the role/desc down. Added `min-height: 53px` (base) / `65px` (≥1024) on `.cards-profile-name`.
+Verified: role top 106 & desc top 134 @1440 (matches source 106/…); name box 53 @390. Gaps name→role 24,
+role→desc 8 already matched. lint/breakpoint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (profile): role/bio letter-spacing (text width + wrap parity)
+The resting role line + short bio read tighter/narrower than source and wrapped differently. Root cause: the
+interactive rework's `.cards-profile-role` and `.cards-profile-desc-short/-full` rules inherited the global
+-0.03em (-0.48px) body tracking; the source uses `letter-spacing: normal`. Set `letter-spacing: normal` on
+the role and both desc classes. Verified: role/desc ls now normal, bio wraps "…the USTA / Coaching business"
+like source, desc height 48 (2 lines). lint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (profile): role line is Graphik SEMIBOLD (not Regular)
+User's DevTools screenshot showed the source `.v-person-card__title span` = Graphik Semibold, line-height
+1.3, 16px (≤1023) → 18px (≥1024). The visible role text renders in that inner span (the wrapper div reads
+16px Regular, but the span overrides it). I had the role as Graphik Regular 16 flat — that's why it looked
+lighter/smaller than source. Fixed `.cards-profile-role` to Graphik Semibold, lh 1.3, 16→18px @1024.
+Verified migrated role = Graphik Semibold 18/23.4 @1440, 16/20.8 @390. lint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (profile): "+" affordance + seamless animation (source parity)
+Two source-parity fixes discovered by reading the source stylesheet:
+1. **"+" affordance**: source `.v-person-card__content::after` is a 36×36 white plus SVG at top:16/right:16,
+   shown ONLY below 1024 (rule `@media (max-width:767px),(768–1023){…}`) and `display:none` when open
+   (`.v-person-card--hover …::after{display:none}`). Desktop has no icon (hover-only). Added the same
+   `::after` on `.cards-profile-body`, hidden ≥1024 and on `:hover`/`.is-open`.
+2. **Animation hiccup**: my reveal animated `height:0 ↔ auto` on the Bio label + full bio — `auto` is not
+   animatable so it snapped mid-transition. The source only animates the image `height` (385→240, 0.3s) and
+   the panel `max-height`/bg (the panel is flex-fill in the fixed 630 card). Reworked to match: image height
+   is the only geometry transition; panel bg/border/text colour cross-fade 0.3s; the short↔full bio + Bio
+   label swap via `display` (instant), clipped by the panel's new `overflow:hidden` so text reveals cleanly
+   as the panel grows. Removed the height/opacity transitions that caused the stutter.
+Verified: mobile "+" 36×36 shown at rest / hidden open; desktop no "+"; image 385→240, resting bio-only.
+lint/breakpoint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — columns (profile) variant — board-member cards (about.html)
+Added a **profile** variant to the columns block for the OUR LEADERSHIP board members
+(https://www.ustacoaching.com/en/home/about.html). A square headshot photo beside a bordered rounded
+card: name + lime role subtitle + bio + outlined pill tags.
+- **JS** `decorateProfile()` (dispatched on `.columns.profile`): photo cell = picture-only; card cell =
+  text. Name = first heading; role lines authored in *italic* (project em→lime convention) tagged
+  `.columns-profile-role`; trailing `<ul>` → `.columns-profile-tags` with `<span>` pills.
+- **CSS:** container gutters 16/40/48/64, max-width 1536. Mobile stacks (photo 1:1 above card); ≥768
+  side-by-side, photo `flex:0 0 25%` + `align-self:stretch` (equal-height, aspect auto), card fills rest,
+  24px gap. Card 1px solid #fff, radius 20, padding 20→24. Name Graphik Semibold 32→40 (≥768) ls -0.03em
+  #fff; role Graphik Semibold 16→18 (≥1280) lime; bio Graphik Regular 16→18 #fff; tags 12→14 (≥768),
+  1px solid var(--usta-blue), radius 24, padding 12×16, 12px gap. Source-measured @1440: photo 304/302,
+  card 960, gaps name→role→bio→tags all 24. **Had to add `.profile` to the default-columns `:not()`
+  guard** (`.columns.block:not(.media,.quote,.profile)`) — the default `flex:1` on `> div > div` was
+  overriding the photo's 25% basis. Role color needed `p.columns-profile-role` (element-qualified) to win
+  over `.columns-profile-card p`.
+- Downloaded + optimized headshots → content/blocks/columns/media/{amanda-moore,andrea-perez}.jpg (750^, q80).
+- Sample: content/drafts/block-samples/columns-profile (2 cards).
+Verified: @1440 photo 328/310 (25.5%, equal-height), gaps 24, name 40 lime-role; @390 stacked, 1:1 photo,
+name 32, tag 12, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-16 — columns (article) variant — news article body rows
+Added an **article** variant to columns for long-form news article bodies (measured @
+how-dana-matthewson…). Body copy beside a photo: text ≈ 75% (9/12) + image ≈ 25% (3/12) side-by-side
+≥1024; stacks on mobile (image below text). Image side default RIGHT; **`.article.media-left`** puts
+image LEFT (text-right).
+- JS `decorateArticle()`: picture-only cell → `.columns-article-media` (+ createOptimizedPicture);
+  text cell → `.columns-article-content`.
+- CSS: body p Graphik Regular 18/24 white ls normal, 24px gap; section h2 Graphik Semibold **700**,
+  28 (mobile) → 40 (≥768) line-height 1 white; images SHARP corners (radius 0, source parity).
+  Added `.article` to the default-columns `:not()` guard. Gutters 16/40/48/64.
+- Images → content/blocks/columns/media/mathewson-{smiling,group}.jpg (≤800, q80).
+- Sample: content/drafts/block-samples/columns-article (row1 default / row2 media-left).
+Verified @1440: content 75% + image right (row1) / image left (row2), body 18/24, h2 40/700, img radius 0;
+@390 stacked (img below), body 18, h2 28, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-17 — columns (list) variant — news search-results tiles
+Added a **list** variant to columns for the news search-results article tiles (Vue `v-news-article-tile`
+on the source; static in EDS). Square thumbnail beside a bordered rounded content card: title link +
+excerpt + lime "Read Article" CTA pinned bottom-right.
+- JS `decorateList()`: picture-only cell → `.columns-list-thumb`; text cell → `.columns-list-content`
+  (title = first heading/link → `.columns-list-title`; first non-CTA `<p>` → `.columns-list-excerpt`;
+  last/"Read"-link → `.columns-list-cta` in `.columns-list-cta-wrapper`).
+- CSS: stacks below 1024 (thumb 1:1 on top); side-by-side ≥1024 (`thumb flex:0 0 231px; align-self:
+  stretch; aspect-ratio:auto` → equal card height). Content 1px solid #fff, radius 20, padding 15×19.
+  Title Graphik Semibold 40/44 white (flat all vp); excerpt Graphik Regular 16/19.2 white; CTA lime pill
+  black Graphik Semibold 16, radius 12, padding 16×24, **uppercase**, ls -0.03em, bottom-right
+  (`cta-wrapper margin-top:auto; justify-content:flex-end`). Tile gap 26. Added `.list` to default guard.
+- Thumbnails → content/blocks/columns/media/news-{blind-tennis,gordon-reid,craig-tiley}.jpg (500² q80).
+- Sample: content/drafts/block-samples/columns-list (3 tiles).
+Verified @1440: side-by-side, thumb 231 equal-height, title 40/44, CTA lime uppercase bottom-right (20,16),
+gap 26; @390 stacked, thumb 1:1, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-17 — columns (embed) variant — learning-hub LinkedIn post embed
+Added an **embed** variant to columns for the LinkedIn-post-beside-text section (measured @
+online-learning-hub-is-live). Embed LEFT ≈40% (≈504px iframe) + text RIGHT ≈60% side-by-side ≥1024;
+stacks on mobile (embed on top).
+- JS `decorateEmbed()`: converts a LinkedIn post LINK → official embed `<iframe>` via
+  `linkedInEmbedSrc()` (matches urn:li:ugcPost/activity/share or activity-id; passes through an existing
+  `/embed/` URL or a pre-built iframe). Src built ONLY from a matched LinkedIn URN (no arbitrary injection
+  — Security Rule). Cell with the embed → `.columns-embed-media`; text cell → `.columns-embed-content`.
+- CSS: iframe max-width 504, height 875 (source fixed), white bg, radius 8. Text: intro/bullets Graphik
+  Regular 18/24 white; section heading Graphik Semibold 32/32 white (source is bold text — authored as
+  h2). Gap 48 desktop / 40 mobile. Embed `flex:0 0 40%` (cap 515) + content `flex:1 1 auto`. Added
+  `.embed` to default guard.
+- Sample: content/drafts/block-samples/columns-embed (LinkedIn post URL + text). The real LinkedIn embed
+  loads and renders in preview.
+Verified @1440: embed 41% (iframe 504×875) + text, gap 48, intro/bullets 18/24, h2 32/32, no overflow;
+@390 stacked, iframe fits (358), no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+Note: the embed depends on LinkedIn's iframe service (live third-party). If the post is later removed the
+frame degrades to LinkedIn's own fallback; the block otherwise needs no maintenance.
+
+### 2026-09-17 — columns (profile): tablet/mobile parity fix (photo column ratio)
+User flagged the left/right section widths drifted vs source on tablet. Root cause: my build used a flat
+`photo flex:0 0 25%` at all side-by-side widths, but the source AEM grid WIDENS the photo as the viewport
+narrows (grid classes: `default--3` / `desktop-small--4` / `tablet--5` = 3/4/5-of-12). Fixed the photo
+`flex-basis` per breakpoint: **41.667% (5/12) @768–1023 → 33.333% (4/12) @1024–1279 → 25% (3/12) @≥1280**;
+card takes the rest with `min-width:0`. Stacking below 768 (photo full-width 1:1 on top, 24px gap, card
+below) already matched. Re-verified vs source: @768 photo 41.7% / card 377 / equal-height / gap 24; @1024
+photo 33.3%; @1280 photo 25%; @430 stacked 1:1, no overflow. Desktop unchanged. lint/breakpoint/overflow/
+a11y ✓. (Minor: source insets the photo 12px inside its grid column; kept the photo filling its column —
+visually within a few px and equal-height + 24px gap match.)
+
+### 2026-09-17 — columns (profile): mobile photo aspect/position fix
+User's DevTools capture showed the source mobile (`@media max-width:767`) photo `img` rule:
+`aspect-ratio: 1.302; object-fit: cover; object-position: top` (a LANDSCAPE crop anchored to the top).
+My build had the mobile photo at `aspect-ratio: 1/1` (square, center) — the drift. Fixed the stacked
+(mobile) photo to `aspect-ratio: 1.302` + `object-position: top`; side-by-side (≥768) still stretches to
+card height (`aspect-ratio:auto`). Verified @430: photo 398×306 (1.302), object-position top — matches
+source framing (head/upper body from the top). lint/breakpoint/overflow/a11y ✓.
+### 2026-09-16 — cards (comparison): full source-parity rebuild (container + logos + coming-soon + footer)
+Screenshot diff showed the block was missing the source's outer container, per-tier branded logos, the
+coming-soon treatment, and the equivalency/notes footer. Rebuilt to match source (measured on courses.html):
+- **Outer container**: the `.cards.comparison` block is now the source's rounded grey box — `#2c2c2c`,
+  radius 20, padding 12 — wrapping the 4-card grid + equivalency strip + notes.
+- **Grid**: 4-up ≥1024 / 2-up ≥768 / 1-up mobile; card `#1d1d1d`, radius 16, 1px `#707070`, **24px gap**.
+- **Branded logos**: sourced the 4 real SVG wordmarks (development/professional/specialist/master) from
+  the live DAM + the lime flame SVG → `content/media-da/.../cards-comparison/`; sample uses one per card.
+  Logo box 150px tall, centered. (SVG logos skip createOptimizedPicture — kept as inline SVG.)
+- **Coming-soon cards**: dimmed logo (opacity .35), "COMING 202x" 16px title, 5 skeleton loader bars drawn
+  via a `::before` repeating linear-gradient (`#484848`, h16, radius 30, 74/full/full/full/74), the lime
+  flame (161px), and a faint bottom "COMING 202x" line.
+- **Footer**: decorateComparison now splits the last two authored rows out of the grid — an Equivalency strip
+  (has a link, centered 18px, underlined white link) and a Notes paragraph (18px) — rendered inside the box.
+- a11y: the source's heavily-dimmed bottom "COMING" line fails AA on #1d1d1d; used #949494 (~4.6:1) instead.
+Verified: container #2c2c2c/r20, cards #1d1d1d/r16/24-gap, 4 distinct logos, skeleton+flame, footer;
+mobile 1-up. lint/breakpoint/svg/overflow/typography/a11y all ✓.
+
+### 2026-09-16 — cards (comparison): coming-soon logo not dimmed (lower-part parity)
+The user's screenshot showed the coming-soon flames/logos looking olive/faint. Root cause: I'd added
+`opacity: 0.35` to the coming-soon logo, but the source does NOT dim it (source logo opacity 1, filter
+none — the Specialist/Master wordmarks are natively grey art with lime accents). Removed the fabricated
+opacity so the logos + lime flames render at full strength like the source. (The earlier olive-flame
+"migrated" screenshot was a stale capture; canvas-sampling the live flame confirmed #CFFF05.)
+Verified: coming-soon logos full-opacity grey/lime wordmarks, flames bright lime. lint/overflow/typo/a11y ✓.
+
+### 2026-09-16 — cards (comparison): body vertical rhythm (workshop-cost grouping)
+The card body read cluttered vs source. Root cause: the Professional card combined each workshop cost onto
+ONE em-dash line ("Development Coach — Registration Fee …") that wrapped tightly, and body `p` carried a
+`margin: 4px 0 0`. The source instead lists each cost as TWO lines (name + fee) with an EMPTY spacer `<p>`
+between the 4 groups, and body paragraphs have NO margin (rhythm = line-height pitch + spacers).
+Fixed: sample now uses name/fee/‌&nbsp;-spacer structure per source; body `p` margin 0; label paragraphs
+(`p:has(strong)`) get 22px top room. Verified migrated grouping ≈ source (Development 530/547, spacer 568,
+Developing 585…). lint/overflow/typography/a11y ✓.
+
+### 2026-09-16 — cards (comparison): box-geometry + section spacing to source (probed @1512)
+Applied a measured box-geometry pass (source vs migrated at vw1512):
+- Shell now carries the 24px inset padding (was on logo/body children); logo box 271.5×150 with the image
+  FILLING it (object-fit contain), consistent across all 4 cards; content aligns to x=25.
+- Pill margin 16 0 8 → **0 0 16** (removed the 16 top drift); price margin → **0**; modules list top margin → 0.
+- `<sup>` footnote markers clamped (`line-height:0`) so the title line box stays 16px.
+- TOTAL bar: min-height **70**, no padding, label+value centered shrink-to-fit, bleeds over the shell's 24px
+  padding to span full width, pinned to bottom via auto top margin. All 4 cards equal height (727.8), bar flush.
+- Grid pitch 346 / shell 322 at vw1512 (source 345.5 / 321.5).
+- **Section spacing (the "cluttered" fix)**: source reserves a ~32.8px-tall label box for INCLUDED ONLINE
+  MODULES / WORKSHOP COSTS with ~6px to the next line. Replaced the old `p:has(strong){margin-top:22}` hack
+  with `margin:0; padding:8px 0` → airy, grouped rhythm matching source (pill→price 16, price→label 22,
+  label box 32.8, workshop-cost groups separated by empty-<p> spacers ~17).
+- Blue: PER YEAR pill + TOTAL bar set to the SOURCE **#0373F3** (var --usta-blue) per explicit request.
+
+DEVIATION (documented): #0373F3 with white text = 4.42:1, just under WCAG AA 4.5:1, so `npm run test:a11y`
+reports a color-contrast finding on the pill + total bar. Kept per user instruction for exact source colour
+parity (the AA-safe #006EEB alternative was declined). lint/overflow/typography ✓; a11y has this one known,
+intentional contrast finding.
+
+### 2026-09-16 — cards (comparison): total-bar bottom inset + coming-soon label pin
+Two positioning drifts flagged by the red-box overlay (probed @1512):
+- **TOTAL bar**: source leaves ~24px BELOW the bar inside the shell (bar bottom → shell bottom = 25px), not
+  flush to the rounded corner. Changed the bar's bottom margin from `-24px` to `0` so it sits inside the
+  shell's 24px bottom padding (bleeds sides only). Now matches source (below-gap 25).
+- **Coming-soon bottom "COMING 202x" label**: was mid-card (auto-margin was on the flame). Moved `margin-top:
+  auto` to the label so IT pins to the bottom; the flame now sits below the skeleton bars (source layout).
+All 4 cards remain equal height; total bars align. (The earlier red-box "overlap" of the total bar with the
+last cost line was a stale screenshot — current build stacks them flush with no overlap.)
+lint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-16 — cards (comparison): description 6px gap + box structure + strip (probed @1512)
+Root-cause fix for the clutter: the source `.v-cost-card__description` is a flex column with a uniform **6px
+gap** between EVERY child; my body was a flat flex column with 0 gap. Restructured decorateComparison to
+rebuild the source's box stack:
+- `.cards-comparison-price-row` wraps the PER YEAR pill + price (margin-bottom 22).
+- `.cards-comparison-desc` wraps the module label + modules list + workshop-cost lines in a **flex column,
+  gap 6px** (margin-bottom 30). Removed the old empty-`<p>` spacers + the `p:has(strong)` padding hack.
+- Per-block margins restored: title 16/0/8, subtitle 0/0/21, price-row 0/0/22, desc 0/0/30.
+- Verified child y-offsets @1512: logo 25 / title 207 / subtitle 231 / price-row 266 / desc 350 / total
+  bottom-pinned — matches source (25/207/231/266/352). desc gap 6px ✓.
+Module list: li now `display:flex; align-items:center; column-gap:16px; min-height:24px`, ::before 16×16 blue
+check → text ink at x=32 (was list-item/28px/20px check, row-gap 8). UL row gap removed (li height = rhythm).
+TOTAL bar: added `gap:5px` between label + value (shrink-to-fit, centered).
+"Already certified" strip: now the panel's bottom section — full panel width (1384), bg **rgb(84,84,84)**,
+`border-radius:0 0 20px 20px`, min-height 74, 24px pad, flush to panel edges (bled -12 over panel padding).
+The "Notes:" paragraph now renders OUTSIDE/below the grey panel (moved to a block sibling in JS).
+lint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-16 — cards (comparison): restored group spacers + label box height + typography audit
+Root cause of remaining clutter: the source description IS `display:flex; gap:6px`, BUT it has empty `<p>`
+spacers (16.8px) between the 3 workshop-cost groups AND its section-label `<b>` is `display:inline-block;
+margin:8px 0` (making the label box 32.8px). I'd removed both earlier. Fixes:
+- Restored the empty `<p>&nbsp;</p>` spacers between workshop groups in the sample.
+- `.cards-comparison-body p strong` → `display:inline-block; margin:8px 0` (label box 32.8px).
+Verified migrated description == source: 14 rows, all 6px gaps, labels 32.8px, 16.8px cost lines + spacers.
+TYPOGRAPHY AUDIT (source measured @1512 AND @768 — flat, no responsive scaling; matches migrated):
+  title 16/16 Semibold(400) -0.64 white | subtitle 14/14 Semibold(400) -0.64 | pill 12/12 Regular -0.36
+  uppercase | price 28/28 Semibold -1.12 | modLabel 14/16.8 Regular w700 -0.42 | modLi 14/16.8 Regular -0.42
+  | costLine 14/16.8 Regular -0.42 | totalLabel 14/14 Regular -0.42 uppercase | totalValue 18/18 Semibold
+  -0.8. All confirmed identical desktop/tablet/mobile — no per-breakpoint font changes in source.
+lint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-16 — cards (comparison): tablet card-height parity (2×2 grid width fix)
+Compared full card heights at tablet (768) and mobile (390) vs source, measured with getBoundingClientRect.
+- SOURCE @768: 2×2 grid, active row (Development/Professional) = 911px, coming-soon row = 551px; each card
+  content 307px wide, x=65/396. Heights equalize WITHIN a row, not across all four.
+- SOURCE @390: 1-up stack, cards take natural height (Dev 648.2 / Pro 877.4 / coming 551 each), width 324.
+- MIGRATED before: @768 cards were 320px wide (grid `1fr` filled the half-panel) → active row only 875px
+  (−36 vs source) because the extra 13px width reduced text wrapping. Mobile already within 2px.
+Root cause: the source pair sits on a 12-col grid where each card column carries a 12px inner gutter on every
+edge, so card content is 307 (not the full half-panel). Fix: added `padding-inline:12px` to `.cards.comparison
+> ul` at ≥768 (reset to 0 at ≥1024 where 4 columns fill the panel). Now @768: cards 308px wide, x=64/396,
+active row 925 (≈911, +14 intrinsic rhythm ~1.5%), coming-soon 554.8 (≈551). Row-equalization + 1-up-natural
+behavior matches source at both viewports.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): bottom-region parity (borders, coming-soon order, flame dim)
+Side-by-side of the desktop bottom region surfaced 4 real deltas vs source (measured @1512):
+- BLUE TOTAL BAR: source `.v-cost-card__total` has a full `1px solid #fff` outline; mine had none. Added.
+- PANEL: source grey panel has `1px solid #a0a0a0`; mine had none. Added `border:1px solid #a0a0a0`.
+- COMING-SOON BAND: source bottom "COMING 202x" band is a full-width BLACK band (h70) with a full `1px
+  solid #fff` border, sitting on the SAME row as the active blue TOTAL bars (auto-top-margin pin, bleed
+  -24 sides, 24px above card bottom). Mine had border-top only → changed to full border. This is what makes
+  "COMING 202x" align horizontally with the blue bars.
+- COMING-SOON ORDER: source order is logo → "COMING 202x" heading → skeleton bars → flame. My skeleton was a
+  `body::before`, forcing it ABOVE the heading. Moved it to `.cards-comparison-flame::before` (mb40) so the
+  flex order is heading → skeleton → flame, matching source.
+- FLAME: source dims the coming-soon flame to opacity 0.2 (reads as muted olive on the dark card); mine was
+  bright lime. Set `.cards-comparison-flame img { opacity:0.2 }`.
+- EQUIVALENCY STRIP: was rendering 122px tall (content-box: min-height74 + 48 padding). Added
+  `box-sizing:border-box` → exactly 74px like source.
+Verified @1512: total border 1px white ✓, band border 1px white ✓, band top/bottom aligned to blue bar row
+(±1) ✓, flame opacity 0.2 ✓, order heading→flame→band ✓, equiv strip 74 ✓, panel border #a0a0a0 ✓.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): coming-soon pixel parity (flame centering, skeleton, band border)
+Pixel-overlay of the coming-soon cards vs source (measured @1512, rel. to card box) exposed:
+- FLAME: source centers the 161px flame (x≈77 each side, y≈583); mine was LEFT-aligned (x25, y399). Fixed:
+  `.cards-comparison-flame { margin:0 auto; text-align:center }` (img is inline, so text-align centers it).
+  Now x≈80/y≈591 (±8 of source).
+- SKELETON BARS: source pitch is 26px (5×16 + 4×10 = 120 total, not my 28/128), and bar 5 (74px) is
+  RIGHT-aligned while bar 1 (74px) is left. Fixed background-position to `left 0 / left 26 / left 52 /
+  left 78 / right 104` and height 120. Also set the source gaps: 60px heading→skeleton, 180px skeleton→flame.
+- COMING BAND "extra border": I'd set a full `1px solid #fff` box; source only shows the TOP divider line
+  on the black band (the side/bottom borders read as an extra box). Reverted to `border-top:1px solid #fff`.
+Verified @1512: flame centered ±8, skeleton pitch 26 + bar5 right-aligned, band top-divider only.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): pixel-exact COMING band ↔ blue TOTAL bar alignment
+User: "COMING 2026 should be on the same horizontal line as the prior 2 cards' blue bars; no border."
+Root cause of the 1px drift: box-model mismatch. Blue TOTAL bar had border 1px all sides → rendered 72px
+(70 + top+bottom border); COMING band had a top divider → 71px. With bottoms pinned equally, the blue bar's
+top sat 1px higher. Fix: `box-sizing:border-box` on BOTH the blue total bar and the coming band so borders
+sit inside a fixed 70px box. COMING band keeps only `border-top:1px solid #fff` (the source's thin divider —
+no side/bottom box border). Verified @1512: blue bar + both COMING bands share top=1227.7, bottom=1297.7,
+height=70 (0px offset). Flame stays centered + olive-dimmed; skeleton bar5 right-aligned (prior pass).
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): "Coming 202x" heading aligned with active card titles
+User clarified: the "Coming 2026/2027" HEADINGS must sit on the same horizontal line as "Development Coach
+Badge" / "Coaching Professional Certification". Measured source: both title types at y=207 rel. card (same
+line — the coming-soon logo is the same 150px height). My coming-soon heading override had `margin:0 0 24px`
+(no top margin) → it sat at y=191, 16px too high. Fixed to `margin:16px 0 8px` (matching the active title).
+Verified @1512: all four titles now at y=207 rel. card, absolute y=654.4 identical across all four cards.
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): footnote sup size + typography audit across viewports
+User: the "7" footnote atop $1,085 is smaller in source; also full typography parity check at all viewports.
+- SUP SIZE: source footnotes are small Unicode superscript glyphs (¹²³⁴⁵⁶⁷) at ~0.6em; my HTML <sup>
+  inherited the UA default (~0.83em → 15px on the 18px total value), making the "7" too big. Fixed:
+  `.cards-comparison-body sup { font-size:0.6em }` → 10.8px on the total value, matching source. Applies to
+  all footnote markers in the block (title ¹², subtitle ³, cost lines ⁵⁶, total ⁷).
+- COMING BAND BG: verified source band bg = rgb(0,0,0) (pure black) = mine; the greyness in the user's
+  screenshot is JPEG compression on near-black, not a real difference. No change needed.
+- TYPOGRAPHY AUDIT (source measured @1512, @768, @390 — all FLAT, no responsive scaling):
+  title 16/16 Semibold(400) -0.64 white | subtitle 14/14 Semibold -0.64 | perYear 12/12 Regular -0.36 |
+  price 28/28 Semibold -1.12 | moduleLabel 14/16.8 Regular w700 -0.42 | moduleLi 14/16.8 Regular -0.42 |
+  costLine 14/16.8 Regular -0.42 | totalLabel 14/14 Regular -0.42 | totalValue 18/18 Semibold -0.8.
+  Confirmed migrated matches at all three viewports (title/price/moduleLi/totalValue identical @390 & @1512).
+lint/breakpoint/overflow/typography ✓; a11y = the one known intentional #0373F3 contrast finding (kept per request).
+
+### 2026-09-17 — cards (comparison): COMING band matched to source DevTools (full border + 0.2 opacity)
+User shared source DevTools for `.v-cost-card__coming-soon .v-cost-card__total`: it's the SAME element as
+the blue TOTAL bar (`border:1px solid #fff; background:#000; margin:auto -24px 0; min-height:70`) with the
+coming-soon variant adding **`opacity:20%`** on the WHOLE band — dimming border AND white text together
+(that's why the border looked faint, not absent). My build had only a top divider at full opacity + AA-grey
+text. Fixed to match exactly: `border:1px solid #fff; background:#000; color:#fff; opacity:0.2` on the band.
+Verified @1512: border 1px white, opacity 0.2, white text, black bg, top aligned to blue bar row (0px).
+NOTE — new intentional a11y deviation: the 0.2-opacity white-on-black "Coming 202x" text fails AA contrast,
+but this is EXACT source parity (the source dims it identically). Kept per the 100%-parity requirement,
+alongside the existing #0373F3 blue-bar contrast deviation.
+lint/breakpoint/overflow/typography ✓; a11y = 2 known intentional contrast findings (blue bar + dimmed coming band).
+
+### 2026-09-17 — columns (article): tablet fix (stack until 1280) + new `bordered` section style
+Two changes to the news-article body row.
+
+1. LAYOUT BREAKPOINT FIX ("tablet seems like Mobile View"). The source lays the article body on the AEM
+   12-col grid with classes `tablet--12` / `desktop-small--12` / `default--9`(text) + `default--3`(image).
+   Decoded: it is STACKED (image below text, both full-width) at every width BELOW 1280, and only splits
+   into two columns (text ≈75% / image ≈25%) at `default` = ≥1280. My earlier build split at ≥1024, which is
+   exactly why 834px "looked like mobile was expected but desktop showed" — the tablet range was wrong.
+   Fixed: moved the `flex-direction: row` + 75/25 flex-basis + `media-left` order swaps out of the
+   `@media (width >= 1024px)` block and into `@media (width >= 1280px)`. Stays `flex-direction: column`
+   through 1279. Verified side-by-side transition at exactly 1280 (source & migrated both).
+   - Section h2 scale corrected to match source: **28 (<768) → 32 (768–1279) → 40 (≥1280)**. Earlier build
+     jumped straight to 40 at ≥768; measured source h2 = 32 @834, 40 @1280/1440. Now set 32 in the 768 query
+     and 40 in the 1280 query. Body p stays 18/24 Graphik Regular white at all widths (source-confirmed).
+
+2. NEW GENERIC `bordered` SECTION STYLE (styles/styles.css). User: the article block sits inside a section
+   with a white border all around → wanted a reusable section style that borders ANY block within it.
+   Source treatment measured on `.cmp-container`: **1px solid #fff, border-radius 20px, ~8px padding,
+   transparent fill** — identical at mobile (358w) and desktop (1312w @1440). Implemented as
+   `main > .section.bordered > div:has(> .block:not(.spacer))` so ONLY real block wrappers get the outline —
+   auto-inserted spacer-wrappers and plain default-content-wrappers are excluded (no empty boxes). Each
+   block keeps the section's centered column + gutters, so the outline lands on the shared grid.
+   Author enables it via section-metadata Style (e.g. `dark, bordered`). Block-agnostic — works for any block.
+   GOTCHA: the `:has()` selector bumps specificity, tripping stylelint `no-descending-specificity` when placed
+   before the lower-specificity `.narrow`/`.center` section rules. Fixed by moving the `bordered` rule to the
+   END of the section-styles block so specificity ascends.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (360/768/1024/1280/1920) · typography ✓ (390/768/1024/1280) · a11y ✓
+
+### 2026-09-17 — columns (article): single-frame `bordered` fix + `media-right` variant + both rows one section
+User feedback (with source DevTools): the source has ONE `.cmp-container` (measured 1169–1312w × full
+article height) with a SINGLE white frame around the WHOLE article body — not a box per block. My earlier
+`bordered` drew a separate outline around each block wrapper, which read as cluttered double-frames. Three fixes:
+
+1. SINGLE FRAME ON THE SECTION (styles/styles.css). Rewrote `.bordered` so the frame lives on the SECTION
+   element itself (`main > .section.bordered`), not on each `> div` block wrapper. An EDS section has many
+   sibling wrappers (blocks + spacers); bordering the section once wraps them all in one frame. Measured
+   source geometry replicated exactly: 1px solid #fff, border-radius 20px, padding 8px, transparent fill,
+   inset from the viewport by the SAME per-breakpoint page gutter (16/40/48/64), capped at 1536. Verified:
+   frame width 358@390 (inset 16) and 1312@1440 (inset 64) — matches source at both. Inner block wrappers
+   flattened (`max-width:none; margin-inline:0; padding-inline:0`) so content sits flush in the one frame.
+   - GOTCHA (specificity): a bordered section that holds spacers ALSO carries `spacer-container`, whose rule
+     `main > .section.spacer-container { margin:0; padding:0 }` (blocks/spacer/spacer.css) is EQUAL specificity
+     and loads AFTER styles.css, so it won on margin/padding (width had no competitor, so only width applied →
+     frame was full-bleed with no padding). Fixed by doubling the class `main > .section.bordered.bordered`
+     for the box-model props — lifts specificity just enough, no !important. Documented inline.
+   - Also guarded the article container's own gutter rules with `:not(.bordered)` so they don't re-add a
+     second inner gutter when the section is bordered.
+
+2. `media-right` VARIANT. Named the image-on-right layout explicitly as `media-right` (previously only the
+   implicit default). No new CSS needed — the base article rules already place media on the right; `media-left`
+   flips it. Updated the JS doc comment. Authoring: `columns article media-right` vs `columns article media-left`.
+
+3. BOTH ROWS IN ONE SECTION. Restructured the sample so the intro (h1 + description) is its own un-bordered
+   section, and BOTH article rows (media-right then media-left) live together in ONE `dark bordered` section —
+   mirroring the source, where the entire multi-row article body shares a single frame. New sample page
+   `columns-article-media-right.plain.html` demonstrates the media-right variant on its own.
+Verified @390/768/1440: one border, correct inset+padding+radius, media sides correct, no overflow.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages, 360–1920) · typography ✓ · a11y ✓ (both pages)
+
+### 2026-09-17 — columns (article) bordered: match source's 20px inner padding (content→border gap)
+User: the content was too close to the white frame — parity off. Measured source with DevTools + live DOM:
+the content sits 21px inside the border on ALL sides = 1px border + 8px `.cmp-container` padding + 12px
+`.aem-GridColumn` padding (the `padding: 12px 12px` visible in the user's DevTools). My build only had the
+8px frame padding (~9px inset). Fixed: added `padding: 12px` on the bordered section's block wrappers
+(`main > .section.bordered > div:has(> .block:not(.spacer))`), so total inset = 8 (frame) + 12 (wrapper) =
+20px + 1px border = 21px, matching source. Spacers/loose content stay flush. Verified content→border gap =
+21px at 1440 (text-left + image-right) and mobile @390; frame outer edge stays 64px @1440 / 16px @390,
+width 1312/358 — aligned with the header hamburger + right nav (the requested vertical alignment / parity).
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article) bordered: align frame to the HEADER column (hamburger↔Sign In) for parity
+User: pixel-overlay showed the bordered frame narrower than the header — its edges didn't sit under the
+hamburger (left) / Sign In (right). Root cause: the frame used the generic content gutter 16/40/48/64, but
+the HEADER uses 16/40/36/52 (blocks/header/header.css — hamburger x = 16@390, 40@768, 36@1024, 52@1440).
+So the frame was inset 12px more than the header at ≥1024. Fixed the frame width to match the header gutter
+exactly: width = 100% − 2×gutter → 32 (mobile 16) / 80 (768→40) / 72 (1024→36) / 104 (1280→52). Verified the
+frame's left/right edges now coincide with the header hamburger + rightmost nav item at ALL breakpoints:
+390 L16/R374=nav374 · 768 L40/R728=728 · 1024 L36/R988=988 · 1440 L52/R1388=1388. Content still sits 20px
+(8 frame + 12 wrapper) inside the border. This deliberately aligns to the header column rather than the
+source's own 64px article gutter — per the user's explicit "align vertically to header hamburger / 100% parity"
+requirement (the source itself leaves a 12px header-vs-frame gap; we tighten to the header for exact parity).
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article) bordered: EXACT source grid (revert header-align mistake + fix 9/3 split)
+Pixel-overlay from user showed real drift. Two corrections:
+
+1. REVERTED the prior "align frame to header (36/52)" change — that was a MISREAD. Measured the source
+   `.cmp-container` frame directly at each breakpoint: it sits at **16 / 40 / 48 / 64** (390/768/1024/1440),
+   NOT at the header's 36/52. So the frame gutter goes back to 16/40/48/64 (widths 100%−32/−80/−96/−128).
+   The source frame is intentionally ~12px inside the header at ≥1024 — that IS the source, so we match it.
+   Verified frame now 64/1312 @1440, 16/358 @390 — identical to source.
+
+2. EXACT 9/3 GRID (the text-wrap drift). Measured the source row: frame-inner row = 1294px, display:block
+   float grid, text cell = 971px (= clean 9/12 of 1294) with 12px padding → text 947; image cell = 324px
+   (= 3/12) with 12px padding → image 300. The 24px column gutter is the two 12px cell paddings meeting —
+   NOT a flex gap. My build used `flex-basis: calc(75%−12px)` + `gap:24px` + wrapper padding, which drifted
+   ~6px and changed the text wrap. Fixed to reproduce the source model verbatim:
+   - `.columns.article > div`: `gap: 0` (no flex gap).
+   - cells: `flex: 0 0 75%` / `0 0 25%`, `box-sizing: border-box`, `padding: 12px` (12px lives on the CELL at
+     all breakpoints = source `.aem-GridColumn`). border-box keeps the 12px INSIDE the 75/25 so cells land on
+     the exact grid lines.
+   - the row spans the FULL frame-inner width (no wrapper padding) so 9/3 hits the source grid lines. The
+     bordered wrapper-padding rule now excludes `.article` (`:not(.spacer, .article)`) to avoid double inset;
+     article's 20px content inset = 8px frame + 12px cell.
+   Verified @1440 pixel-exact vs source: text cell 971, image cell 324, text 85→1032 (947), image 1056→1355
+   (300), frame 64/1312 — ALL match. media-left mirrors (image cell 3/12 left, text 9/12 right). Mobile stacks,
+   content 21px inside border. Text now wraps line-for-line like the source.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article): REMOVED bordered section; width now matches the shared site grid
+User: drop the white-border section entirely; the article's width should simply match the other blocks
+(cards profile, cards comparison) which align vertically with the header. Done:
+- Deleted the entire `.section.bordered` style block from styles.css (the whole bordered experiment is gone).
+- Removed `bordered` from both article sample pages (columns-article + columns-article-media-right); each is
+  now a plain `dark` section with normal spacers.
+- Removed the `:not(.bordered)` guards on the article container rules — the article now always uses its
+  standard container: max-width 1536, gutters 16/40/48/64 (same as the cards blocks), so it aligns with the
+  header and every other block on the page.
+- Kept the exact 9/3 grid model (cells `flex: 0 0 75%`/`25%`, `box-sizing: border-box`, `padding: 12px`,
+  `gap: 0`) so the two 12px cell paddings still form the 24px inter-column gutter and the text wraps like the
+  source. The 12px cell padding remains as the source `.aem-GridColumn` inset.
+Verified @1440: article content spans 76→1364, matching cards-comparison grid (77→1363) and aligned with the
+header nav; no border; media-left mirrors; mobile stacks.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article): re-added `bordered` section (parent frame at block width, pushes content in)
+Now that the article's own width is correct (16/40/48/64 gutters, aligned to the header/cards), re-added the
+`bordered` section as a reusable PARENT frame per the source:
+- Frame lives on the SECTION (`main > .section.bordered.bordered`), one white outline (1px #fff, 20px radius,
+  8px padding) at the SAME outer width as any block — gutters 16/40/48/64, capped 1536. So the frame edge sits
+  exactly where the un-bordered article/cards edge sits, aligned with the header.
+- The frame is the PARENT and owns the outer gutter; the block inside drops its own gutter via the article
+  container's `:not(.bordered)` guards (re-added). The block keeps its 12px cell padding. Result: 8px frame +
+  12px cell pushes content to x=85 — matching the source `.cmp-container`(8px) + `.aem-GridColumn`(12px) nesting.
+- Doubled `.bordered.bordered` to beat the later, equal-specificity `spacer-container` reset (no !important).
+- Applied `dark, bordered` to the columns-article sample (both rows share the one frame).
+Verified @1440 pixel-exact vs source: frame 64/1312, 1 border, 8px pad, 20px radius, text 85→1032, image right
+1355. Mobile @390: frame 16/358, content 21px inside border, stacked. media-right sample stays un-bordered as
+the plain-width reference.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — bordered section: fix frame over-wide at viewports ≥1536 (max-width bug)
+The `bordered` frame exceeded the page/content width on wide screens. Cause: the frame capped `max-width`
+at a bare 1536, but an ordinary block container is `max-width:1536; padding:0 gutter` (border-box) → its
+CONTENT box caps at 1536 − 2×gutter. So at ≥1536 the frame was 2×gutter (128px @≥1280) wider than the block
+content, overrunning the layout. Fix: cap the frame's max-width at `1536 − 2×gutter` per breakpoint
+(1536−32 / −80 / −96 / −128), matching the block content box exactly. Verified frame == un-bordered article
+row at 1920 (both 256/256, 1408px) and still source-exact at 1440 (64/1312, text 85→1032, image right 1355)
+and mobile (16/358, content 21px inside border). Overflow sweep clean at 1920.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages, incl. 1920) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article) typography parity audit + section-samples folder
+1) TYPOGRAPHY PARITY (columns.article) — audited every text element against the source at 390/768/1440.
+   Source-measured (each viewport):
+   - Body p: "Graphik Regular", 18px / line-height 24px, weight 400, letter-spacing normal, #fff, left —
+     FLAT (no responsive change). Paragraph gap 24px (source uses empty spacer <p>; ours = margin-bottom 24px).
+   - Section h2: "Graphik Semibold", weight 700, line-height 1.0 (= font-size), ls normal, #fff, left;
+     font-size 28 @<768 → 32 @768–1279 → 40 @≥1280.
+   Migrated build measured identical at all three viewports (body 18/24/400 flat; h2 28→32→40, lh=1). No
+   drift. Only fixed a stale code comment ("28→40 ≥768" → "28→32≥768→40≥1280"). check:typography ✓.
+2) SECTION SAMPLE — created content/drafts/section-samples/ (new folder, sibling of block-samples) with
+   section-bordered.plain.html: intro section + one `dark, bordered` section wrapping both article rows
+   (demonstrates the frame as a parent) + trailing plain section. Preview at
+   /content/drafts/section-samples/section-bordered. Frame verified 64/1312, 1px #fff, 20px radius, 8px pad.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ · typography ✓ (article + section sample) · a11y ✓
+
+### 2026-09-17 — bordered section: symmetric padding (removed leading/trailing inner spacers)
+User: top/bottom padding looked larger than the sides inside the bordered frame. Cause: the sample authored
+a 40px `spacer` block as the first and last child INSIDE the bordered section, adding 40px on top/bottom on
+top of the frame's own 8px — so vertical inset (49px block / 61px content) ≫ horizontal inset (21px). Fix:
+removed the leading + trailing inner spacers (kept the middle one between the two rows) in both
+section-samples/section-bordered and block-samples/columns-article. Now the frame's own 8px padding is the
+only inset: content sits 21px from the border on ALL sides (8 frame + 12 cell + 1 border), block sits 9px
+top/bottom — symmetric. Guidance: inside a `bordered` section, don't add leading/trailing spacers; the frame
+provides the padding.
+lint ✓ · breakpoint ✓ · overflow ✓ (section + article) · typography ✓ · a11y ✓
