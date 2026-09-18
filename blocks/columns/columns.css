@@ -1,43 +1,47 @@
 /* stylelint-disable no-descending-specificity */
 
-/* columns — four variants share this block:
+/* columns — variants share this block:
    • default (boilerplate N-column layout)
    • media   (image beside a white promo card; `media-right` flips sides)
    • quote   (headshot beside a testimonial quote + attribution)
    • events  (repeating list of bordered event cards + optional "View More" CTA)
+   • profile (headshot beside a bordered card: name + role + bio + pill tags)
+   • article (news-article body copy beside a photo; `media-left` flips sides)
+   • list    (news search-result tile: thumbnail + card with "Read Article" CTA)
+   • embed   (LinkedIn post embed beside a text column)
    Each variant is authored as `columns (variant)`; selectors below are scoped
    by the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .quote, .events) > div {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .quote, .events) img {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed) img {
   width: 100%;
 }
 
-.columns.block:not(.media, .quote, .events) > div > div {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed) > div > div {
   order: 1;
 }
 
-.columns.block:not(.media, .quote, .events) > div > .columns-img-col {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed) > div > .columns-img-col {
   order: 0;
 }
 
-.columns.block:not(.media, .quote, .events) > div > .columns-img-col img {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .quote, .events) > div {
+  .columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns.block:not(.media, .quote, .events) > div > div {
+  .columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed) > div > div {
     flex: 1;
     order: unset;
   }
@@ -470,6 +474,27 @@ main > .section.columns-container:has(.columns.events) > div {
   gap: 24px;
 }
 
+/* ================================================================ profile ==
+   OUR LEADERSHIP board members (about.html): a square headshot photo beside a
+   bordered rounded card (name + lime role subtitle + bio + outlined pill tags).
+   Source-measured @ about.html across 390/768/1024/1280/1440.
+   Container matches the header/section gutters (16/40/48/64). Mobile stacks
+   (photo above card); side-by-side from 768 (photo ≈ 1/3, card ≈ 2/3, equal
+   height). Type scale: name 32→40; role/bio 16→18; tag 12→14. */
+main > .section.columns-container:has(.columns.profile) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* mobile-first: stack photo then card */
+.columns.profile > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .columns.events .columns-events-card {
   margin: 0;
   padding: 0;
@@ -704,4 +729,523 @@ main > .section.columns-container:has(.columns.events) > div {
     line-height: 19.2px;
     letter-spacing: -0.48px;
   }
+}
+
+/* ---- headshot photo (top on mobile, left column ≥768) ----
+   Mobile: a ~square framed headshot (source ≈ 1:1). ≥768 it becomes the left
+   column and stretches to the card's height (equal-height row). */
+.columns.profile .columns-profile-photo {
+  flex: 0 0 auto;
+  aspect-ratio: 1.302; /* source mobile: landscape 1.302:1 crop (DevTools rule) */
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.columns.profile .columns-profile-photo picture,
+.columns.profile .columns-profile-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top; /* source anchors the mobile crop to the top */
+  border-radius: 20px;
+}
+
+/* ---- card (bordered, rounded) ---- */
+.columns.profile .columns-profile-card {
+  box-sizing: border-box;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.columns.profile .columns-profile-name {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* bio + any non-role paragraph: white body copy, 24px gap above */
+.columns.profile .columns-profile-card p {
+  margin: 24px 0 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* lime role subtitle (authored *italic*); Graphik Semibold. Placed AFTER the
+   generic card-p rule so it wins the colour/family (equal element-less
+   specificity would otherwise lose to `…-card p`). */
+.columns.profile p.columns-profile-role {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  color: var(--usta-lime);
+}
+
+.columns.profile p.columns-profile-role em,
+.columns.profile p.columns-profile-role i {
+  font-style: normal; /* the accent is the colour, not a slant */
+  color: var(--usta-lime);
+}
+
+/* consecutive role lines (multi-line role) hug together: 0 gap between them */
+.columns.profile p.columns-profile-role + p.columns-profile-role {
+  margin-top: 0;
+}
+
+/* ---- outlined pill tags ---- */
+.columns.profile .columns-profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.columns.profile .columns-profile-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid var(--usta-blue);
+  border-radius: 24px;
+  font-family: var(--body-font-family);
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* tablet+ : side-by-side, equal-height. The source photo column WIDENS as the
+   viewport narrows — it's a fixed 12-col grid: 5/12 (tablet 768–1023) → 4/12
+   (small desktop 1024–1279) → 3/12 (≥1280). The card takes the rest. Reproduce
+   those exact ratios (not a flat 25%) so tablet parity matches the source. */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.profile) > div { padding: 0 40px; }
+
+  .columns.profile > div {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .columns.profile .columns-profile-photo {
+    flex: 0 0 41.667%; /* source tablet 5/12 */
+    align-self: stretch;
+    aspect-ratio: auto; /* stretch to the card's height instead of forcing 1:1 */
+  }
+
+  .columns.profile .columns-profile-card {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 24px;
+  }
+
+  .columns.profile .columns-profile-name { font-size: 40px; }
+
+  .columns.profile .columns-profile-role,
+  .columns.profile .columns-profile-card p { font-size: 16px; }
+
+  .columns.profile .columns-profile-tag { font-size: 14px; }
+}
+
+/* small desktop (>=1024): 48px gutter; photo → 4/12 */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.profile) > div { padding: 0 48px; }
+
+  .columns.profile .columns-profile-photo { flex-basis: 33.333%; }
+}
+
+/* wide desktop (>=1280): 64px gutter; photo → 3/12; role/bio grow to 18 */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.profile) > div { padding: 0 64px; }
+
+  .columns.profile .columns-profile-photo { flex-basis: 25%; }
+
+  .columns.profile .columns-profile-role,
+  .columns.profile .columns-profile-card p { font-size: 18px; }
+}
+
+/* ================================================================ article ==
+   News-article body row (news/*.html): a block of body copy (paragraphs + an
+   optional section h2) beside a photo. Source-measured across 390/768/1024/1280.
+   Text ≈ 75% (9/12) + image ≈ 25% (3/12) side-by-side; mobile stacks (image
+   below text). Image side: default RIGHT (text-left); `.article.media-left`
+   puts the image on the LEFT. Images have SHARP corners (radius 0) in source.
+   Body p: Graphik Regular 18/24 white, ls normal. Section h2: Graphik Semibold
+   700, 28 (mobile) → 40 (≥768), white. */
+main > .section.columns-container:has(.columns.article):not(.bordered) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* mobile-first: stack (text, then image below). Each cell carries 12px padding
+   at ALL breakpoints — the source's `.aem-GridColumn` inset. When side-by-side
+   the two 12px cell paddings meet to form the 24px inter-column gutter (source
+   model: 9/3 cells, no flex gap). The row spans the full container-inner width
+   (gutters 16/40/48/64, same as the cards blocks) so the article aligns with the
+   header and every other block on the page. */
+.columns.article > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.columns.article .columns-article-media {
+  order: 1;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.columns.article .columns-article-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.columns.article .columns-article-content {
+  order: 0;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+/* body copy */
+.columns.article .columns-article-content p {
+  margin: 0 0 24px;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.columns.article .columns-article-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* section heading (Graphik Semibold 700, line-height 1.0, ls normal, #fff;
+   font-size 28 mobile → 32 ≥768 → 40 ≥1280 — source-measured at each breakpoint) */
+.columns.article .columns-article-content h1,
+.columns.article .columns-article-content h2,
+.columns.article .columns-article-content h3 {
+  margin: 0 0 24px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* tablet (>=768): larger gutter; STILL STACKED (source stacks the article at
+   768–1279 — grid classes tablet--12 / desktop-small--12). Section h2 → 32. */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.article):not(.bordered) > div { padding: 0 40px; }
+
+  .columns.article .columns-article-content h1,
+  .columns.article .columns-article-content h2,
+  .columns.article .columns-article-content h3 { font-size: 32px; }
+}
+
+/* small desktop (>=1024): larger gutter; STILL STACKED (source default--3/9 only
+   applies ≥1280; at 1024–1279 the AEM desktop-small--12 keeps it full-width). */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.article):not(.bordered) > div { padding: 0 48px; }
+}
+
+/* wide desktop (>=1280): NOW side-by-side, matching the source's 12-col grid
+   EXACTLY — two cells at a clean 75% (9/12) / 25% (3/12) of the row, NO flex gap,
+   each cell carrying 12px padding all around. The 24px visual gutter between the
+   columns is those two 12px paddings meeting (source: text cell 971px = 9/12 with
+   12px pad → text 947; image cell 324px = 3/12 with 12px pad → image 300). Using
+   a real gap + `calc(% - 12px)` drifts ~6px, so we reproduce the source model
+   verbatim instead. Section h2 → 40. Source only splits the article at ≥1280. */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.article):not(.bordered) > div { padding: 0 64px; }
+
+  .columns.article > div {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .columns.article .columns-article-content {
+    flex: 0 0 75%;
+    min-width: 0;
+    padding: 12px;
+    order: 0;
+  }
+
+  .columns.article .columns-article-media {
+    flex: 0 0 25%;
+    min-width: 0;
+    padding: 12px;
+    order: 1;
+  }
+
+  /* media-left option: image on the LEFT, text on the RIGHT */
+  .columns.article.media-left .columns-article-content { order: 1; }
+  .columns.article.media-left .columns-article-media { order: 0; }
+
+  .columns.article .columns-article-content h1,
+  .columns.article .columns-article-content h2,
+  .columns.article .columns-article-content h3 { font-size: 40px; }
+}
+
+/* =================================================================== list ==
+   News search-results tile (news/search-results.html): a square thumbnail beside
+   a bordered rounded content card (title link + excerpt + lime "Read Article"
+   CTA pinned bottom-right). Source-measured across 390/768/1024/1280/1440.
+   Stacks below 1024 (thumbnail 1:1 on top); side-by-side ≥1024 (thumbnail fixed
+   width, stretches to card height). Title Graphik Semibold 40/44 white (flat);
+   excerpt Graphik Regular 16/19.2 white; CTA lime, black, Graphik Semibold 16,
+   radius 12, padding 16×24, uppercase, ls -0.03em. Tile gap 26px. */
+main > .section.columns-container:has(.columns.list) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* mobile-first: stack (thumbnail 1:1, then content card) */
+.columns.list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* ---- thumbnail ---- */
+.columns.list .columns-list-thumb {
+  flex: 0 0 auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.columns.list .columns-list-thumb picture,
+.columns.list .columns-list-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* ---- content card (bordered) ---- */
+.columns.list .columns-list-content {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 15px 19px;
+}
+
+/* title (link) */
+.columns.list .columns-list-title,
+.columns.list .columns-list-title:any-link {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+  text-decoration: none;
+}
+
+.columns.list .columns-list-title:hover {
+  text-decoration: none;
+}
+
+/* excerpt */
+.columns.list .columns-list-excerpt {
+  margin: 20px 0 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* CTA "Read Article" — lime pill, pinned bottom-right (48px min gap above) */
+.columns.list .columns-list-cta-wrapper {
+  margin: 48px 0 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.columns.list .columns-list-cta:any-link {
+  display: inline-block;
+  padding: 16px 24px;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.columns.list .columns-list-cta:hover {
+  background: #fff;
+  text-decoration: none;
+  color: #000;
+}
+
+/* tablet (>=768): larger gutter (still stacked) */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.list) > div { padding: 0 40px; }
+}
+
+/* desktop (>=1024): side-by-side, thumbnail fixed width stretched to card height */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.list) > div { padding: 0 48px; }
+
+  .columns.list > div {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .columns.list .columns-list-thumb {
+    flex: 0 0 231px;
+    align-self: stretch;
+    aspect-ratio: auto; /* stretch to card height instead of forcing 1:1 */
+  }
+
+  .columns.list .columns-list-content {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* the CTA row grows to fill so the button sits at the card bottom-right */
+  .columns.list .columns-list-cta-wrapper {
+    margin-top: auto;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.list) > div { padding: 0 64px; }
+}
+
+/* ================================================================== embed ==
+   Learning-hub LinkedIn post embed (news/…online-learning-hub…) beside a text
+   column (intro + bullet list + bold section heading + body paragraphs).
+   Source-measured across 390/768/1024/1280/1440. Embed LEFT ≈40% (≈515px),
+   text RIGHT ≈60%, side-by-side ≥1024; stacks on mobile (embed on top). LinkedIn
+   iframe is ~504px wide and tall (fixed). Body/intro/bullets Graphik Regular
+   18/24 white; section heading Graphik Semibold-look 32/32 white. */
+main > .section.columns-container:has(.columns.embed) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* mobile-first: stack (embed on top, then text) */
+.columns.embed > div {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ---- embed column ---- */
+.columns.embed .columns-embed-media {
+  flex: 0 0 auto;
+}
+
+.columns.embed .columns-embed-media iframe {
+  display: block;
+  width: 100%;
+  max-width: 504px;
+  height: 875px;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* ---- text column ---- */
+.columns.embed .columns-embed-content p {
+  margin: 0 0 24px;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.columns.embed .columns-embed-content ul,
+.columns.embed .columns-embed-content ol {
+  margin: 0 0 24px;
+  padding-left: 24px;
+}
+
+.columns.embed .columns-embed-content li {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.columns.embed .columns-embed-content li p {
+  margin: 0;
+}
+
+/* bold section heading ("The Coach's Edge…") — authored as an h2/h3 or bold */
+.columns.embed .columns-embed-content h1,
+.columns.embed .columns-embed-content h2,
+.columns.embed .columns-embed-content h3 {
+  margin: 40px 0 24px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* tablet (>=768): larger gutter (still stacked) */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.embed) > div { padding: 0 40px; }
+}
+
+/* desktop (>=1024): side-by-side, embed ~40% (capped 515) + text ~60% */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.embed) > div { padding: 0 48px; }
+
+  .columns.embed > div {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 48px;
+  }
+
+  .columns.embed .columns-embed-media {
+    flex: 0 0 40%;
+    max-width: 515px;
+  }
+
+  .columns.embed .columns-embed-content {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.embed) > div { padding: 0 64px; }
 }
