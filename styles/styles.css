@@ -539,3 +539,68 @@ main > .section > div > p > picture img {
   margin: 0 auto;
   border-radius: 12px;
 }
+
+/* ---- Bordered section (section-metadata style: bordered) ----
+   Generic, block-agnostic section style: draws ONE thin white outline (rounded
+   corners) around the WHOLE section — mirroring the source's single
+   `.cmp-container` frame on the news-article body (1px solid #fff, 20px radius,
+   8px inner padding, transparent fill). Author sets section Style to `bordered`.
+
+   The frame sits at the SAME outer width as every other block/section — the
+   shared site gutters 16/40/48/64 (capped at 1536) — so its edges line up with
+   the header and the un-bordered blocks. It is the PARENT: it owns the outer
+   gutter, and any block placed inside keeps only its own inner padding. So a
+   bordered section holding the columns.article block reproduces the source
+   exactly: frame at 64/1312 @1440, then 8px frame padding + the block's 12px
+   cell padding push the content to ~84px (source ≈ 85). Because the frame owns
+   the gutter, the article container drops its own gutter via `:not(.bordered)`.
+
+   The frame lives on the SECTION element (not the block wrappers) so several
+   blocks share one outline instead of each getting a box. Inner wrappers are
+   flattened (full width, no second gutter). NOTE the doubled `.bordered.bordered`
+   — a bordered section that holds spacers also carries `spacer-container`, whose
+   rule (blocks/spacer/spacer.css) zeroes section margin/padding at equal
+   specificity and loads later; doubling the class wins without `!important`. */
+main > .section.bordered.bordered {
+  box-sizing: border-box;
+  width: calc(100% - 32px);
+
+  /* Match the OTHER blocks' CONTENT box, not the raw 1536 container. An ordinary
+     block container is `max-width: 1536; padding: 0 gutter` (border-box), so its
+     content box caps at 1536 − 2×gutter. The frame must cap at that same value —
+     capping at a bare 1536 makes the frame 2×gutter wider than the block content
+     at viewports ≥1536 (the bug). */
+  max-width: calc(1536px - 32px);
+  margin-inline: auto;
+  padding: 8px;
+  border: 1px solid #fff;
+  border-radius: 20px;
+}
+
+/* inner wrappers span the full frame width (no second centered gutter) */
+main > .section.bordered > div {
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+@media (width >= 768px) {
+  main > .section.bordered.bordered {
+    width: calc(100% - 80px);          /* 2 × 40px gutter */
+    max-width: calc(1536px - 80px);
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.bordered.bordered {
+    width: calc(100% - 96px);          /* 2 × 48px gutter */
+    max-width: calc(1536px - 96px);
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.bordered.bordered {
+    width: calc(100% - 128px);         /* 2 × 64px gutter */
+    max-width: calc(1536px - 128px);
+  }
+}
