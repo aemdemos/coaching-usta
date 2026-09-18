@@ -473,6 +473,16 @@ main > .section.columns-container:has(.columns.feature) > div {
   main > .section.columns-container:has(.columns.feature) > div {
     padding: 0 52px;
   }
+
+  /* At this capped tier (content maxes at 1536) the source row is a flat ~498px
+     tall — taller than the 470px image — because the source grid cell reserves
+     that height; the image top-aligns and the card fills the rest. Give the row
+     that min-height so the panel matches the source's ~570px (498 + 2×36 pad)
+     instead of collapsing to the image height. Scoped to >=1280 only, so the
+     reflow-driven 1024–1279 tier is untouched. */
+  .columns.feature > div {
+    min-height: 498px;
+  }
 }
 
 /* ------------------------------------------------------------------ quote -- */
