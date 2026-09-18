@@ -287,10 +287,13 @@ main > .section.columns-container:has(.columns.media) > div {
    mobile/768/1024), line-height 1; paragraph white 18/24 letter-spacing normal;
    heading -> paragraph gap a flat 66px at every viewport. */
 
-/* section gutters match the site grid (16/40/48/64) and the 1536 centered box */
+/* section gutters match the site grid (16/40/48/64) and the 1536 centered box.
+   The source caps the panel content at a hard 1432px (measured flat at
+   1541/1728 — gutters grow, panel stays 1432). With the 52px side padding at
+   >=1280 that means an outer max-width of 1432 + 104 = 1536. */
 main > .section.columns-container:has(.columns.feature) > div {
   box-sizing: border-box;
-  max-width: 1450px;
+  max-width: 1536px;
   margin-inline: auto;
   padding: 0 16px;
 }
@@ -396,6 +399,12 @@ main > .section.columns-container:has(.columns.feature) > div {
 @media (width >= 1024px) {
   main > .section.columns-container:has(.columns.feature) > div {
     padding: 0 48px;
+  }
+
+  /* desktop panel padding matches the source (36px vertical / 24px horizontal);
+     the tablet rule bumped it to 47/32, so reset it here. */
+  .columns.feature {
+    padding: 36px 24px;
   }
 
   .columns.feature > div {
