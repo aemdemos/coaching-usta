@@ -1038,17 +1038,30 @@ main > .section.columns-container:has(.columns.list) > div {
   border-radius: 20px;
 }
 
-/* ---- content card (bordered) ---- */
+/* ---- content card (bordered) ----
+   Source model (.v-news-article-tile__content): flex COLUMN with a 20px gap
+   between children (title → desc → footer), 1px #fff border, 20px radius,
+   14px 18px padding. The gap gives 20px title→desc; desc adds 5px margin-bottom
+   so desc→footer = 20 + 5 = 25px. The CTA is NOT pinned to the card bottom — it
+   sits directly under the description at that 25px gap. */
 .columns.list .columns-list-content {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  gap: 20px;
   border: 1px solid #fff;
   border-radius: 20px;
-  padding: 15px 19px;
+  padding: 14px 18px;
 }
 
-/* title (link) */
+/* title (link) — the link may sit inside a <p> wrapper; flatten the wrapper's
+   default paragraph margins and give it the title's line-box so the flex-column
+   gap (20px) is the only space above the excerpt (matches source). */
+.columns.list .columns-list-title-wrapper {
+  margin: 0;
+  line-height: 44px;
+}
+
 .columns.list .columns-list-title,
 .columns.list .columns-list-title:any-link {
   margin: 0;
@@ -1065,26 +1078,39 @@ main > .section.columns-container:has(.columns.list) > div {
   text-decoration: none;
 }
 
-/* excerpt */
+/* excerpt — Graphik Regular 16/19.2 white; 5px bottom margin so the gap to the
+   CTA below is 25px (20px flex gap + 5px) as measured on the source. The source
+   truncates the excerpt to TWO lines (line-clamp) at every viewport, so on
+   mobile a long excerpt ends "…" instead of pushing the card taller. */
 .columns.list .columns-list-excerpt {
-  margin: 20px 0 0;
+  margin: 0 0 5px;
   font-family: var(--body-font-family);
   font-size: 16px;
-  line-height: 1.2;
+  line-height: 19.2px;
   font-weight: 400;
   letter-spacing: normal;
   color: #fff;
+
+  /* clamp to 2 lines (matches source .v-news-article-tile__description) */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* CTA "Read Article" — lime pill, pinned bottom-right (48px min gap above) */
+/* CTA "Read Article" — lime pill. MOBILE (<768): full-width block (source
+   stretches the CTA to the card's inner width below its mobile breakpoint).
+   ≥768 it becomes an inline pill right-aligned in the footer row (see below).
+   No top-margin/auto: the card's 20px column gap + desc's 5px = 25px above. */
 .columns.list .columns-list-cta-wrapper {
-  margin: 48px 0 0;
+  margin: 0;
   display: flex;
-  justify-content: flex-end;
 }
 
 .columns.list .columns-list-cta:any-link {
-  display: inline-block;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   padding: 16px 24px;
   border-radius: 12px;
   background: var(--usta-lime);
@@ -1093,8 +1119,9 @@ main > .section.columns-container:has(.columns.list) > div {
   font-size: 16px;
   line-height: 1;
   font-weight: 400;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.48px;
   text-transform: uppercase;
+  text-align: center;
   text-decoration: none;
 }
 
@@ -1104,9 +1131,20 @@ main > .section.columns-container:has(.columns.list) > div {
   color: #000;
 }
 
-/* tablet (>=768): larger gutter (still stacked) */
+/* tablet (>=768): larger gutter (still stacked). CTA shrinks to an inline pill,
+   right-aligned in the card (source footer: flex, space-between → single CTA on
+   the right). */
 @media (width >= 768px) {
   main > .section.columns-container:has(.columns.list) > div { padding: 0 40px; }
+
+  .columns.list .columns-list-cta-wrapper {
+    justify-content: flex-end;
+  }
+
+  .columns.list .columns-list-cta:any-link {
+    display: inline-block;
+    width: auto;
+  }
 }
 
 /* desktop (>=1024): side-by-side, thumbnail fixed width stretched to card height */
@@ -1127,11 +1165,6 @@ main > .section.columns-container:has(.columns.list) > div {
   .columns.list .columns-list-content {
     flex: 1 1 auto;
     min-width: 0;
-  }
-
-  /* the CTA row grows to fill so the button sits at the card bottom-right */
-  .columns.list .columns-list-cta-wrapper {
-    margin-top: auto;
   }
 }
 
