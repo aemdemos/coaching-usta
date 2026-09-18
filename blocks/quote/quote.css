@@ -1,0 +1,42 @@
+/* ---------------------------------------------------------------- quote -- *
+ * Highlighted pull-quote callout (source: article body callout).
+ * The quote is large Graphik Semibold in brand lime; the attribution is
+ * smaller white Graphik Regular below it. Sits on the page's dark background.
+ *
+ * Source truth (live site, computed): quote 28px / line-height 1 (32px @1280),
+ * lime #cfff05; attribution 18px / line-height 24px, white; 24px gap between
+ * quote and attribution. Background transparent.
+ * ------------------------------------------------------------------------- */
+
+.quote {
+  margin: 0;
+}
+
+.quote .quote-text {
+  margin: 0;
+  color: var(--usta-lime);
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.quote .quote-attribution {
+  margin-top: 24px;
+}
+
+.quote .quote-attribution p {
+  margin: 0;
+  color: #fff;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+/* wide desktop (>=1280): quote grows to 32px */
+@media (width >= 1280px) {
+  .quote .quote-text {
+    font-size: 32px;
+  }
+}
