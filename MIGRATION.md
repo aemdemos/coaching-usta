@@ -2556,3 +2556,45 @@ only inset: content sits 21px from the border on ALL sides (8 frame + 12 cell + 
 top/bottom — symmetric. Guidance: inside a `bordered` section, don't add leading/trailing spacers; the frame
 provides the padding.
 lint ✓ · breakpoint ✓ · overflow ✓ (section + article) · typography ✓ · a11y ✓
+
+### 2026-09-18 — columns (list): source-exact spacing + typography parity (news search-results tile)
+Re-audited against the source `.v-news-article-tile` (news/search-results). The tile is: image-left (bg
+image, 20px radius, fixed width 231 @1440, 1:1 when stacked) + 26px gap + a bordered content CARD
+(.v-news-article-tile__content: 1px #fff, 20px radius, padding 14px 18px). The card is a flex COLUMN with
+`gap: 20px`; the description has `margin-bottom: 5px`; the CTA footer does NOT grow — so the CTA sits under
+the description at 20+5 = 25px, NOT pinned to the card bottom.
+
+Drifts fixed (my build → source):
+- content padding 15×19 → **14×18**.
+- content became `display:flex; flex-direction:column; gap:20px` (was no gap; relied on margins).
+- excerpt margin 20px 0 0 → **0 0 5px** (line-height already 19.2 = 16×1.2 ✓).
+- CTA wrapper: removed `margin:48px 0 0` AND the ≥1024 `margin-top:auto` bottom-pin → CTA now 25px below
+  the excerpt (the user's "more space between Read More and text above" — was 0 when content was short).
+- CTA letter-spacing -0.03em → **-0.48px** (explicit; identical value, clearer).
+- TITLE GAP BUG: the title link sits in a bare `<p>` that carried default paragraph margins (12.8px top /
+  4px bottom) + 16/19.2 line-box → title→excerpt measured 32px vs source 20px. Fixed in JS: tag the title's
+  wrapping `<p>` as `.columns-list-title-wrapper`; CSS zeroes its margin and sets line-height 44 so the flex
+  gap (20px) is the only space. Now title→excerpt = 20px exactly.
+
+TYPOGRAPHY PARITY (measured source @390/768/1024/1280/1440 — ALL FLAT, no responsive font change):
+- Title: Graphik Semibold, 40px / 44px, weight 400, ls normal, #fff, left.
+- Excerpt: Graphik Regular, 16px / 19.2px, weight 400, ls normal, #fff, left.
+- CTA: Graphik Semibold, 16px, ls -0.48px, uppercase, #000 on lime (#cfff05), pad 16×24, radius 12.
+Migrated build verified identical at 390 (stacked, thumb 1:1) and 1440 (side-by-side). Layout: stacks below
+1024, side-by-side ≥1024 (thumb stretches to card height) — matches source.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
+
+### 2026-09-18 — columns (list): mobile parity — full-width CTA + 2-line excerpt clamp
+Mobile-view comparison vs source `.v-news-article-tile` revealed two drifts:
+1. CTA WIDTH: source stretches "Read Article" to the card's full inner width BELOW its mobile breakpoint
+   (measured: full @390/600, inline 160px @768/1024/1440). My build had an inline right-aligned pill at all
+   widths. Fixed mobile-first: CTA is now `display:block; width:100%; text-align:center` by default, and the
+   ≥768 media query reverts it to `display:inline-block; width:auto` right-aligned (wrapper justify-end).
+   Verified full-width @390 (320px = inner 322), inline right @1024 (156px, 18px from card edge).
+2. EXCERPT CLAMP: source `.v-news-article-tile__description` uses `-webkit-line-clamp: 2; overflow:hidden`
+   at every viewport, so a long excerpt ends "…" on mobile instead of pushing the card taller (source shows
+   "…He saw…"). My build showed the full text. Added the 2-line clamp (display:-webkit-box, line-clamp 2,
+   box-orient vertical, overflow hidden). Verified desc = 2 lines @390.
+Both apply at the shared 768 breakpoint; typography (title 40/44, excerpt 16/19.2, CTA 16/-0.48px uppercase)
+unchanged and still source-exact.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
