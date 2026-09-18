@@ -11,9 +11,10 @@
 .quote {
   margin: 0;
 
-  /* Source insets the pull-quote symmetrically by ~8.5% of the content column
-     at every viewport (28px @390, 57px @780, 108px @1440). */
-  padding-inline: 8.5%;
+  /* Source lays the pull-quote on its 12-col grid: offset 1 col + span 10 cols
+     (aem-GridColumn--offset--1 margin-left 8.333% + --default--10 width 83.333%),
+     i.e. a symmetric one-column (1/12) inset each side at every viewport. */
+  padding-inline: calc(100% / 12);
 }
 
 .quote .quote-text {
