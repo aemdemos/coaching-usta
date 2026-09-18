@@ -2101,6 +2101,96 @@ Two source-parity fixes discovered by reading the source stylesheet:
 Verified: mobile "+" 36×36 shown at rest / hidden open; desktop no "+"; image 385→240, resting bio-only.
 lint/breakpoint/overflow/typography/a11y ✓.
 
+### 2026-09-16 — columns (profile) variant — board-member cards (about.html)
+Added a **profile** variant to the columns block for the OUR LEADERSHIP board members
+(https://www.ustacoaching.com/en/home/about.html). A square headshot photo beside a bordered rounded
+card: name + lime role subtitle + bio + outlined pill tags.
+- **JS** `decorateProfile()` (dispatched on `.columns.profile`): photo cell = picture-only; card cell =
+  text. Name = first heading; role lines authored in *italic* (project em→lime convention) tagged
+  `.columns-profile-role`; trailing `<ul>` → `.columns-profile-tags` with `<span>` pills.
+- **CSS:** container gutters 16/40/48/64, max-width 1536. Mobile stacks (photo 1:1 above card); ≥768
+  side-by-side, photo `flex:0 0 25%` + `align-self:stretch` (equal-height, aspect auto), card fills rest,
+  24px gap. Card 1px solid #fff, radius 20, padding 20→24. Name Graphik Semibold 32→40 (≥768) ls -0.03em
+  #fff; role Graphik Semibold 16→18 (≥1280) lime; bio Graphik Regular 16→18 #fff; tags 12→14 (≥768),
+  1px solid var(--usta-blue), radius 24, padding 12×16, 12px gap. Source-measured @1440: photo 304/302,
+  card 960, gaps name→role→bio→tags all 24. **Had to add `.profile` to the default-columns `:not()`
+  guard** (`.columns.block:not(.media,.quote,.profile)`) — the default `flex:1` on `> div > div` was
+  overriding the photo's 25% basis. Role color needed `p.columns-profile-role` (element-qualified) to win
+  over `.columns-profile-card p`.
+- Downloaded + optimized headshots → content/blocks/columns/media/{amanda-moore,andrea-perez}.jpg (750^, q80).
+- Sample: content/drafts/block-samples/columns-profile (2 cards).
+Verified: @1440 photo 328/310 (25.5%, equal-height), gaps 24, name 40 lime-role; @390 stacked, 1:1 photo,
+name 32, tag 12, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-16 — columns (article) variant — news article body rows
+Added an **article** variant to columns for long-form news article bodies (measured @
+how-dana-matthewson…). Body copy beside a photo: text ≈ 75% (9/12) + image ≈ 25% (3/12) side-by-side
+≥1024; stacks on mobile (image below text). Image side default RIGHT; **`.article.media-left`** puts
+image LEFT (text-right).
+- JS `decorateArticle()`: picture-only cell → `.columns-article-media` (+ createOptimizedPicture);
+  text cell → `.columns-article-content`.
+- CSS: body p Graphik Regular 18/24 white ls normal, 24px gap; section h2 Graphik Semibold **700**,
+  28 (mobile) → 40 (≥768) line-height 1 white; images SHARP corners (radius 0, source parity).
+  Added `.article` to the default-columns `:not()` guard. Gutters 16/40/48/64.
+- Images → content/blocks/columns/media/mathewson-{smiling,group}.jpg (≤800, q80).
+- Sample: content/drafts/block-samples/columns-article (row1 default / row2 media-left).
+Verified @1440: content 75% + image right (row1) / image left (row2), body 18/24, h2 40/700, img radius 0;
+@390 stacked (img below), body 18, h2 28, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-17 — columns (list) variant — news search-results tiles
+Added a **list** variant to columns for the news search-results article tiles (Vue `v-news-article-tile`
+on the source; static in EDS). Square thumbnail beside a bordered rounded content card: title link +
+excerpt + lime "Read Article" CTA pinned bottom-right.
+- JS `decorateList()`: picture-only cell → `.columns-list-thumb`; text cell → `.columns-list-content`
+  (title = first heading/link → `.columns-list-title`; first non-CTA `<p>` → `.columns-list-excerpt`;
+  last/"Read"-link → `.columns-list-cta` in `.columns-list-cta-wrapper`).
+- CSS: stacks below 1024 (thumb 1:1 on top); side-by-side ≥1024 (`thumb flex:0 0 231px; align-self:
+  stretch; aspect-ratio:auto` → equal card height). Content 1px solid #fff, radius 20, padding 15×19.
+  Title Graphik Semibold 40/44 white (flat all vp); excerpt Graphik Regular 16/19.2 white; CTA lime pill
+  black Graphik Semibold 16, radius 12, padding 16×24, **uppercase**, ls -0.03em, bottom-right
+  (`cta-wrapper margin-top:auto; justify-content:flex-end`). Tile gap 26. Added `.list` to default guard.
+- Thumbnails → content/blocks/columns/media/news-{blind-tennis,gordon-reid,craig-tiley}.jpg (500² q80).
+- Sample: content/drafts/block-samples/columns-list (3 tiles).
+Verified @1440: side-by-side, thumb 231 equal-height, title 40/44, CTA lime uppercase bottom-right (20,16),
+gap 26; @390 stacked, thumb 1:1, no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+
+### 2026-09-17 — columns (embed) variant — learning-hub LinkedIn post embed
+Added an **embed** variant to columns for the LinkedIn-post-beside-text section (measured @
+online-learning-hub-is-live). Embed LEFT ≈40% (≈504px iframe) + text RIGHT ≈60% side-by-side ≥1024;
+stacks on mobile (embed on top).
+- JS `decorateEmbed()`: converts a LinkedIn post LINK → official embed `<iframe>` via
+  `linkedInEmbedSrc()` (matches urn:li:ugcPost/activity/share or activity-id; passes through an existing
+  `/embed/` URL or a pre-built iframe). Src built ONLY from a matched LinkedIn URN (no arbitrary injection
+  — Security Rule). Cell with the embed → `.columns-embed-media`; text cell → `.columns-embed-content`.
+- CSS: iframe max-width 504, height 875 (source fixed), white bg, radius 8. Text: intro/bullets Graphik
+  Regular 18/24 white; section heading Graphik Semibold 32/32 white (source is bold text — authored as
+  h2). Gap 48 desktop / 40 mobile. Embed `flex:0 0 40%` (cap 515) + content `flex:1 1 auto`. Added
+  `.embed` to default guard.
+- Sample: content/drafts/block-samples/columns-embed (LinkedIn post URL + text). The real LinkedIn embed
+  loads and renders in preview.
+Verified @1440: embed 41% (iframe 504×875) + text, gap 48, intro/bullets 18/24, h2 32/32, no overflow;
+@390 stacked, iframe fits (358), no overflow. lint 0 err; breakpoint/overflow/a11y ✓.
+Note: the embed depends on LinkedIn's iframe service (live third-party). If the post is later removed the
+frame degrades to LinkedIn's own fallback; the block otherwise needs no maintenance.
+
+### 2026-09-17 — columns (profile): tablet/mobile parity fix (photo column ratio)
+User flagged the left/right section widths drifted vs source on tablet. Root cause: my build used a flat
+`photo flex:0 0 25%` at all side-by-side widths, but the source AEM grid WIDENS the photo as the viewport
+narrows (grid classes: `default--3` / `desktop-small--4` / `tablet--5` = 3/4/5-of-12). Fixed the photo
+`flex-basis` per breakpoint: **41.667% (5/12) @768–1023 → 33.333% (4/12) @1024–1279 → 25% (3/12) @≥1280**;
+card takes the rest with `min-width:0`. Stacking below 768 (photo full-width 1:1 on top, 24px gap, card
+below) already matched. Re-verified vs source: @768 photo 41.7% / card 377 / equal-height / gap 24; @1024
+photo 33.3%; @1280 photo 25%; @430 stacked 1:1, no overflow. Desktop unchanged. lint/breakpoint/overflow/
+a11y ✓. (Minor: source insets the photo 12px inside its grid column; kept the photo filling its column —
+visually within a few px and equal-height + 24px gap match.)
+
+### 2026-09-17 — columns (profile): mobile photo aspect/position fix
+User's DevTools capture showed the source mobile (`@media max-width:767`) photo `img` rule:
+`aspect-ratio: 1.302; object-fit: cover; object-position: top` (a LANDSCAPE crop anchored to the top).
+My build had the mobile photo at `aspect-ratio: 1/1` (square, center) — the drift. Fixed the stacked
+(mobile) photo to `aspect-ratio: 1.302` + `object-position: top`; side-by-side (≥768) still stretches to
+card height (`aspect-ratio:auto`). Verified @430: photo 398×306 (1.302), object-position top — matches
+source framing (head/upper body from the top). lint/breakpoint/overflow/a11y ✓.
 ### 2026-09-16 — cards (comparison): full source-parity rebuild (container + logos + coming-soon + footer)
 Screenshot diff showed the block was missing the source's outer container, per-tier branded logos, the
 coming-soon treatment, and the equivalency/notes footer. Rebuilt to match source (measured on courses.html):
@@ -2289,3 +2379,180 @@ NOTE — new intentional a11y deviation: the 0.2-opacity white-on-black "Coming 
 but this is EXACT source parity (the source dims it identically). Kept per the 100%-parity requirement,
 alongside the existing #0373F3 blue-bar contrast deviation.
 lint/breakpoint/overflow/typography ✓; a11y = 2 known intentional contrast findings (blue bar + dimmed coming band).
+
+### 2026-09-17 — columns (article): tablet fix (stack until 1280) + new `bordered` section style
+Two changes to the news-article body row.
+
+1. LAYOUT BREAKPOINT FIX ("tablet seems like Mobile View"). The source lays the article body on the AEM
+   12-col grid with classes `tablet--12` / `desktop-small--12` / `default--9`(text) + `default--3`(image).
+   Decoded: it is STACKED (image below text, both full-width) at every width BELOW 1280, and only splits
+   into two columns (text ≈75% / image ≈25%) at `default` = ≥1280. My earlier build split at ≥1024, which is
+   exactly why 834px "looked like mobile was expected but desktop showed" — the tablet range was wrong.
+   Fixed: moved the `flex-direction: row` + 75/25 flex-basis + `media-left` order swaps out of the
+   `@media (width >= 1024px)` block and into `@media (width >= 1280px)`. Stays `flex-direction: column`
+   through 1279. Verified side-by-side transition at exactly 1280 (source & migrated both).
+   - Section h2 scale corrected to match source: **28 (<768) → 32 (768–1279) → 40 (≥1280)**. Earlier build
+     jumped straight to 40 at ≥768; measured source h2 = 32 @834, 40 @1280/1440. Now set 32 in the 768 query
+     and 40 in the 1280 query. Body p stays 18/24 Graphik Regular white at all widths (source-confirmed).
+
+2. NEW GENERIC `bordered` SECTION STYLE (styles/styles.css). User: the article block sits inside a section
+   with a white border all around → wanted a reusable section style that borders ANY block within it.
+   Source treatment measured on `.cmp-container`: **1px solid #fff, border-radius 20px, ~8px padding,
+   transparent fill** — identical at mobile (358w) and desktop (1312w @1440). Implemented as
+   `main > .section.bordered > div:has(> .block:not(.spacer))` so ONLY real block wrappers get the outline —
+   auto-inserted spacer-wrappers and plain default-content-wrappers are excluded (no empty boxes). Each
+   block keeps the section's centered column + gutters, so the outline lands on the shared grid.
+   Author enables it via section-metadata Style (e.g. `dark, bordered`). Block-agnostic — works for any block.
+   GOTCHA: the `:has()` selector bumps specificity, tripping stylelint `no-descending-specificity` when placed
+   before the lower-specificity `.narrow`/`.center` section rules. Fixed by moving the `bordered` rule to the
+   END of the section-styles block so specificity ascends.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (360/768/1024/1280/1920) · typography ✓ (390/768/1024/1280) · a11y ✓
+
+### 2026-09-17 — columns (article): single-frame `bordered` fix + `media-right` variant + both rows one section
+User feedback (with source DevTools): the source has ONE `.cmp-container` (measured 1169–1312w × full
+article height) with a SINGLE white frame around the WHOLE article body — not a box per block. My earlier
+`bordered` drew a separate outline around each block wrapper, which read as cluttered double-frames. Three fixes:
+
+1. SINGLE FRAME ON THE SECTION (styles/styles.css). Rewrote `.bordered` so the frame lives on the SECTION
+   element itself (`main > .section.bordered`), not on each `> div` block wrapper. An EDS section has many
+   sibling wrappers (blocks + spacers); bordering the section once wraps them all in one frame. Measured
+   source geometry replicated exactly: 1px solid #fff, border-radius 20px, padding 8px, transparent fill,
+   inset from the viewport by the SAME per-breakpoint page gutter (16/40/48/64), capped at 1536. Verified:
+   frame width 358@390 (inset 16) and 1312@1440 (inset 64) — matches source at both. Inner block wrappers
+   flattened (`max-width:none; margin-inline:0; padding-inline:0`) so content sits flush in the one frame.
+   - GOTCHA (specificity): a bordered section that holds spacers ALSO carries `spacer-container`, whose rule
+     `main > .section.spacer-container { margin:0; padding:0 }` (blocks/spacer/spacer.css) is EQUAL specificity
+     and loads AFTER styles.css, so it won on margin/padding (width had no competitor, so only width applied →
+     frame was full-bleed with no padding). Fixed by doubling the class `main > .section.bordered.bordered`
+     for the box-model props — lifts specificity just enough, no !important. Documented inline.
+   - Also guarded the article container's own gutter rules with `:not(.bordered)` so they don't re-add a
+     second inner gutter when the section is bordered.
+
+2. `media-right` VARIANT. Named the image-on-right layout explicitly as `media-right` (previously only the
+   implicit default). No new CSS needed — the base article rules already place media on the right; `media-left`
+   flips it. Updated the JS doc comment. Authoring: `columns article media-right` vs `columns article media-left`.
+
+3. BOTH ROWS IN ONE SECTION. Restructured the sample so the intro (h1 + description) is its own un-bordered
+   section, and BOTH article rows (media-right then media-left) live together in ONE `dark bordered` section —
+   mirroring the source, where the entire multi-row article body shares a single frame. New sample page
+   `columns-article-media-right.plain.html` demonstrates the media-right variant on its own.
+Verified @390/768/1440: one border, correct inset+padding+radius, media sides correct, no overflow.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages, 360–1920) · typography ✓ · a11y ✓ (both pages)
+
+### 2026-09-17 — columns (article) bordered: match source's 20px inner padding (content→border gap)
+User: the content was too close to the white frame — parity off. Measured source with DevTools + live DOM:
+the content sits 21px inside the border on ALL sides = 1px border + 8px `.cmp-container` padding + 12px
+`.aem-GridColumn` padding (the `padding: 12px 12px` visible in the user's DevTools). My build only had the
+8px frame padding (~9px inset). Fixed: added `padding: 12px` on the bordered section's block wrappers
+(`main > .section.bordered > div:has(> .block:not(.spacer))`), so total inset = 8 (frame) + 12 (wrapper) =
+20px + 1px border = 21px, matching source. Spacers/loose content stay flush. Verified content→border gap =
+21px at 1440 (text-left + image-right) and mobile @390; frame outer edge stays 64px @1440 / 16px @390,
+width 1312/358 — aligned with the header hamburger + right nav (the requested vertical alignment / parity).
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article) bordered: align frame to the HEADER column (hamburger↔Sign In) for parity
+User: pixel-overlay showed the bordered frame narrower than the header — its edges didn't sit under the
+hamburger (left) / Sign In (right). Root cause: the frame used the generic content gutter 16/40/48/64, but
+the HEADER uses 16/40/36/52 (blocks/header/header.css — hamburger x = 16@390, 40@768, 36@1024, 52@1440).
+So the frame was inset 12px more than the header at ≥1024. Fixed the frame width to match the header gutter
+exactly: width = 100% − 2×gutter → 32 (mobile 16) / 80 (768→40) / 72 (1024→36) / 104 (1280→52). Verified the
+frame's left/right edges now coincide with the header hamburger + rightmost nav item at ALL breakpoints:
+390 L16/R374=nav374 · 768 L40/R728=728 · 1024 L36/R988=988 · 1440 L52/R1388=1388. Content still sits 20px
+(8 frame + 12 wrapper) inside the border. This deliberately aligns to the header column rather than the
+source's own 64px article gutter — per the user's explicit "align vertically to header hamburger / 100% parity"
+requirement (the source itself leaves a 12px header-vs-frame gap; we tighten to the header for exact parity).
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article) bordered: EXACT source grid (revert header-align mistake + fix 9/3 split)
+Pixel-overlay from user showed real drift. Two corrections:
+
+1. REVERTED the prior "align frame to header (36/52)" change — that was a MISREAD. Measured the source
+   `.cmp-container` frame directly at each breakpoint: it sits at **16 / 40 / 48 / 64** (390/768/1024/1440),
+   NOT at the header's 36/52. So the frame gutter goes back to 16/40/48/64 (widths 100%−32/−80/−96/−128).
+   The source frame is intentionally ~12px inside the header at ≥1024 — that IS the source, so we match it.
+   Verified frame now 64/1312 @1440, 16/358 @390 — identical to source.
+
+2. EXACT 9/3 GRID (the text-wrap drift). Measured the source row: frame-inner row = 1294px, display:block
+   float grid, text cell = 971px (= clean 9/12 of 1294) with 12px padding → text 947; image cell = 324px
+   (= 3/12) with 12px padding → image 300. The 24px column gutter is the two 12px cell paddings meeting —
+   NOT a flex gap. My build used `flex-basis: calc(75%−12px)` + `gap:24px` + wrapper padding, which drifted
+   ~6px and changed the text wrap. Fixed to reproduce the source model verbatim:
+   - `.columns.article > div`: `gap: 0` (no flex gap).
+   - cells: `flex: 0 0 75%` / `0 0 25%`, `box-sizing: border-box`, `padding: 12px` (12px lives on the CELL at
+     all breakpoints = source `.aem-GridColumn`). border-box keeps the 12px INSIDE the 75/25 so cells land on
+     the exact grid lines.
+   - the row spans the FULL frame-inner width (no wrapper padding) so 9/3 hits the source grid lines. The
+     bordered wrapper-padding rule now excludes `.article` (`:not(.spacer, .article)`) to avoid double inset;
+     article's 20px content inset = 8px frame + 12px cell.
+   Verified @1440 pixel-exact vs source: text cell 971, image cell 324, text 85→1032 (947), image 1056→1355
+   (300), frame 64/1312 — ALL match. media-left mirrors (image cell 3/12 left, text 9/12 right). Mobile stacks,
+   content 21px inside border. Text now wraps line-for-line like the source.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article): REMOVED bordered section; width now matches the shared site grid
+User: drop the white-border section entirely; the article's width should simply match the other blocks
+(cards profile, cards comparison) which align vertically with the header. Done:
+- Deleted the entire `.section.bordered` style block from styles.css (the whole bordered experiment is gone).
+- Removed `bordered` from both article sample pages (columns-article + columns-article-media-right); each is
+  now a plain `dark` section with normal spacers.
+- Removed the `:not(.bordered)` guards on the article container rules — the article now always uses its
+  standard container: max-width 1536, gutters 16/40/48/64 (same as the cards blocks), so it aligns with the
+  header and every other block on the page.
+- Kept the exact 9/3 grid model (cells `flex: 0 0 75%`/`25%`, `box-sizing: border-box`, `padding: 12px`,
+  `gap: 0`) so the two 12px cell paddings still form the 24px inter-column gutter and the text wraps like the
+  source. The 12px cell padding remains as the source `.aem-GridColumn` inset.
+Verified @1440: article content spans 76→1364, matching cards-comparison grid (77→1363) and aligned with the
+header nav; no border; media-left mirrors; mobile stacks.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article): re-added `bordered` section (parent frame at block width, pushes content in)
+Now that the article's own width is correct (16/40/48/64 gutters, aligned to the header/cards), re-added the
+`bordered` section as a reusable PARENT frame per the source:
+- Frame lives on the SECTION (`main > .section.bordered.bordered`), one white outline (1px #fff, 20px radius,
+  8px padding) at the SAME outer width as any block — gutters 16/40/48/64, capped 1536. So the frame edge sits
+  exactly where the un-bordered article/cards edge sits, aligned with the header.
+- The frame is the PARENT and owns the outer gutter; the block inside drops its own gutter via the article
+  container's `:not(.bordered)` guards (re-added). The block keeps its 12px cell padding. Result: 8px frame +
+  12px cell pushes content to x=85 — matching the source `.cmp-container`(8px) + `.aem-GridColumn`(12px) nesting.
+- Doubled `.bordered.bordered` to beat the later, equal-specificity `spacer-container` reset (no !important).
+- Applied `dark, bordered` to the columns-article sample (both rows share the one frame).
+Verified @1440 pixel-exact vs source: frame 64/1312, 1 border, 8px pad, 20px radius, text 85→1032, image right
+1355. Mobile @390: frame 16/358, content 21px inside border, stacked. media-right sample stays un-bordered as
+the plain-width reference.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages) · typography ✓ · a11y ✓
+
+### 2026-09-17 — bordered section: fix frame over-wide at viewports ≥1536 (max-width bug)
+The `bordered` frame exceeded the page/content width on wide screens. Cause: the frame capped `max-width`
+at a bare 1536, but an ordinary block container is `max-width:1536; padding:0 gutter` (border-box) → its
+CONTENT box caps at 1536 − 2×gutter. So at ≥1536 the frame was 2×gutter (128px @≥1280) wider than the block
+content, overrunning the layout. Fix: cap the frame's max-width at `1536 − 2×gutter` per breakpoint
+(1536−32 / −80 / −96 / −128), matching the block content box exactly. Verified frame == un-bordered article
+row at 1920 (both 256/256, 1408px) and still source-exact at 1440 (64/1312, text 85→1032, image right 1355)
+and mobile (16/358, content 21px inside border). Overflow sweep clean at 1920.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (both pages, incl. 1920) · typography ✓ · a11y ✓
+
+### 2026-09-17 — columns (article) typography parity audit + section-samples folder
+1) TYPOGRAPHY PARITY (columns.article) — audited every text element against the source at 390/768/1440.
+   Source-measured (each viewport):
+   - Body p: "Graphik Regular", 18px / line-height 24px, weight 400, letter-spacing normal, #fff, left —
+     FLAT (no responsive change). Paragraph gap 24px (source uses empty spacer <p>; ours = margin-bottom 24px).
+   - Section h2: "Graphik Semibold", weight 700, line-height 1.0 (= font-size), ls normal, #fff, left;
+     font-size 28 @<768 → 32 @768–1279 → 40 @≥1280.
+   Migrated build measured identical at all three viewports (body 18/24/400 flat; h2 28→32→40, lh=1). No
+   drift. Only fixed a stale code comment ("28→40 ≥768" → "28→32≥768→40≥1280"). check:typography ✓.
+2) SECTION SAMPLE — created content/drafts/section-samples/ (new folder, sibling of block-samples) with
+   section-bordered.plain.html: intro section + one `dark, bordered` section wrapping both article rows
+   (demonstrates the frame as a parent) + trailing plain section. Preview at
+   /content/drafts/section-samples/section-bordered. Frame verified 64/1312, 1px #fff, 20px radius, 8px pad.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ · typography ✓ (article + section sample) · a11y ✓
+
+### 2026-09-17 — bordered section: symmetric padding (removed leading/trailing inner spacers)
+User: top/bottom padding looked larger than the sides inside the bordered frame. Cause: the sample authored
+a 40px `spacer` block as the first and last child INSIDE the bordered section, adding 40px on top/bottom on
+top of the frame's own 8px — so vertical inset (49px block / 61px content) ≫ horizontal inset (21px). Fix:
+removed the leading + trailing inner spacers (kept the middle one between the two rows) in both
+section-samples/section-bordered and block-samples/columns-article. Now the frame's own 8px padding is the
+only inset: content sits 21px from the border on ALL sides (8 frame + 12 cell + 1 border), block sits 9px
+top/bottom — symmetric. Guidance: inside a `bordered` section, don't add leading/trailing spacers; the frame
+provides the padding.
+lint ✓ · breakpoint ✓ · overflow ✓ (section + article) · typography ✓ · a11y ✓

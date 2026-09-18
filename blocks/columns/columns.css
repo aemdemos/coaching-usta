@@ -5,6 +5,7 @@
    • media   (image beside a white promo card; `media-right` flips sides)
    • feature (image beside a bordered text card in a dark rounded panel)
    • quote   (headshot beside a testimonial quote + attribution)
+   • events  (repeating list of bordered event cards + optional "View More" CTA)
    • profile (headshot beside a bordered card: name + role + bio + pill tags)
    • article (news-article body copy beside a photo; `media-left` flips sides)
    • list    (news search-result tile: thumbnail + card with "Read Article" CTA)
@@ -13,35 +14,35 @@
    by the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .feature, .quote, .profile, .article, .list, .embed) > div {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .feature, .quote, .profile, .article, .list, .embed) img {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) img {
   width: 100%;
 }
 
-.columns.block:not(.media, .feature, .quote, .profile, .article, .list, .embed) > div > div {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > div {
   order: 1;
 }
 
-.columns.block:not(.media, .feature, .quote, .profile, .article, .list, .embed) > div > .columns-img-col {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > .columns-img-col {
   order: 0;
 }
 
-.columns.block:not(.media, .feature, .quote, .profile, .article, .list, .embed) > div > .columns-img-col img {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .feature, .quote, .profile, .article, .list, .embed) > div {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns.block:not(.media, .feature, .quote, .profile, .article, .list, .embed) > div > div {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > div {
     flex: 1;
     order: unset;
   }
@@ -632,6 +633,37 @@ main > .section.columns-container:has(.columns.quote) > div {
   .columns.quote .columns-quote-attribution p {
     font-size: 24px;
   }
+}
+
+/* ----------------------------------------------------------------- events -- */
+
+/* IN-PERSON WORKSHOPS — a repeating list of bordered event cards (black bg, 2px
+   blue border, 20px radius): a bold display date beside a delivery/location line
+   and the title, with outlined pill chips on the right; an optional "View More"
+   lime pill below the list. Mobile-first; the card is a column on mobile, the
+   left group becomes a row at 768, and the whole card a single row at 1024 with
+   the chips column pinned to a fixed min-width so the title takes the wide
+   measure and chips wrap. Source scale steps date/title/location/chips at 1280. */
+
+/* section gutters match the SOURCE events list exactly (measured from the live
+   card edge): 24 / 52 / 60 / 76 at 390 / 768 / 1024 / 1280+, capped at 1536.
+   These are the site's 16/40/48/64 section gutters PLUS the 12px inner grid
+   padding the source adds — reproducing that exact content width is what makes
+   the card titles wrap to the same number of lines as the source. */
+main > .section.columns-container:has(.columns.events) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 24px;
+}
+
+.columns.events .columns-events-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 /* ================================================================ profile ==

@@ -1,15 +1,42 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
- * cards — a row of repeating cards. Three variants share this block:
+ * cards — a row of repeating cards. Variants share this block:
  *   • default  : bordered image + body tile (boilerplate).
  *   • media    : editorial cards — photo, heading, paragraph (transparent).
  *   • pricing  : membership tiers — label, tier name, price, feature list, CTA.
+ *   • logos    : partner/affiliation logo tiles — white rounded squares in a
+ *                4-up grid (ustacoaching.com/…/about "Partners & Affiliations").
  * The variant is authored as a class on the block (e.g. `cards (media)`), so we
  * dispatch on it here and keep each variant's own inner class names.
  *
  * @param {Element} block the cards block element
  */
+function decorateLogos(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-logo-card';
+    // the cell holds the logo image, usually wrapped in <p>/<div> and optionally
+    // a link. Pull out the picture/img and its wrapping <a> (which carries the
+    // partner URL) directly; ignore the wrappers and any stray label text.
+    const cell = row.children[0] || row;
+    const img = cell.querySelector('img');
+    if (!img) return;
+    const picture = img.closest('picture') || img;
+    const link = img.closest('a');
+    li.append(link || picture);
+    ul.append(li);
+  });
+
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '256' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
 function decorateMedia(block) {
   const ul = document.createElement('ul');
 
@@ -520,6 +547,7 @@ function decorateDefault(block) {
 
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
+  else if (block.classList.contains('logos')) decorateLogos(block);
   else if (block.classList.contains('pricing')) decoratePricing(block);
   else if (block.classList.contains('course')) decorateCourse(block);
   else if (block.classList.contains('text')) decorateText(block);
