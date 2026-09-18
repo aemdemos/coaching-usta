@@ -142,6 +142,9 @@ function decorateFeature(block) {
   block.querySelectorAll('.columns-feature-media img').forEach((img) => {
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '900' }]));
   });
+}
+
+/*
  * events (IN-PERSON WORKSHOPS) — a repeating list of event cards. Each block
  * row is ONE event authored as THREE cells:
  *   1. Date     — e.g. "09.19-09.20"
