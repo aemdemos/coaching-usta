@@ -2556,3 +2556,19 @@ only inset: content sits 21px from the border on ALL sides (8 frame + 12 cell + 
 top/bottom — symmetric. Guidance: inside a `bordered` section, don't add leading/trailing spacers; the frame
 provides the padding.
 lint ✓ · breakpoint ✓ · overflow ✓ (section + article) · typography ✓ · a11y ✓
+
+### 2026-09-19 — columns (list): re-applied mobile parity fixes (had reverted) + verified desktop/mobile
+The list-tile fixes from 2026-09-18 had reverted in columns.css/.js (content padding back to 15×19, no flex
+gap, CTA pinned bottom, no excerpt clamp, no title-wrapper flatten). Re-applied and re-verified against the
+source `.v-news-article-tile` at desktop (1440) and mobile (393):
+- content card: flex column `gap:20px`, padding 14×18 (was 15×19, no gap).
+- excerpt: margin 0 0 5px + `-webkit-line-clamp:2; overflow:hidden` → 2-line truncation ("…") at all vp.
+- CTA: MOBILE (<768) full-width block, centered; ≥768 inline-block right-aligned (footer justify-end). No
+  bottom-pin. Gaps: title→excerpt 20px, excerpt→CTA 25px.
+- title-wrapper: JS tags the title link's <p> as `.columns-list-title-wrapper`; CSS zeroes its margins +
+  line-height 44 so title→excerpt is exactly the 20px flex gap (not 32px).
+Verified — mobile: thumb 1:1 square (361 = full width), pad 14×18, gap 20, title→desc 20, desc→CTA 25, CTA
+full-width (323), excerpt clamp 2. Desktop: thumb 231 side-by-side, CTA inline 156 right-aligned 19px in,
+same 20/25 gaps. Typography flat & source-exact (title 40/44 Graphik Semibold, excerpt 16/19.2 Graphik
+Regular, CTA 16/-0.48px uppercase).
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓

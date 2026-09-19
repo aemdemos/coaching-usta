@@ -376,9 +376,14 @@ function decorateList(block) {
   if (!content) return;
   content.classList.add('columns-list-content');
 
-  // Title: the first heading, else the first link.
+  // Title: the first heading, else the first link. If the title is a link
+  // wrapped in a <p>, tag that wrapper so we can flatten its default paragraph
+  // margins (the card is a flex column that owns the row gaps).
   const title = content.querySelector('h1, h2, h3, h4, h5, h6') || content.querySelector('a');
-  if (title) title.classList.add('columns-list-title');
+  if (title) {
+    title.classList.add('columns-list-title');
+    if (title.tagName === 'A') title.closest('p')?.classList.add('columns-list-title-wrapper');
+  }
 
   // Excerpt: the first paragraph that isn't just the CTA link.
   const excerpt = [...content.querySelectorAll('p')].find((p) => p.textContent.trim() && !p.querySelector('a'));
