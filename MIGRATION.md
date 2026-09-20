@@ -2812,3 +2812,15 @@ Two more source-parity fixes:
 Verified @390 CTA full-width centered (insets 26/26) + "Can't make it live?" on its own line (19px gap);
 @1440 CTA 280px top-right + body para gap 22px (== source).
 lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (news): live content/images + grid-width (gutter) parity
+Two updates for a clean side-by-side vs news.html:
+- **Content/images**: swapped the sample to the 4 live grid cards (Coaches Open / Butch Staples / Parks &
+  Recreation / Tina Lee) with their exact titles, dates, excerpts, and the real source image URLs
+  (content/dam/coaching/public-pages/news/…). Each renders at 310×292 (aspect 1.06, radius 20).
+- **Grid width DRIFT**: the news grid uses its OWN wider gutters than the site default 16/40/48/64. Measured
+  news.html: **24 (mobile) → 52 (≥768) → 60 (≥1024) → 76 (≥1280)**, 1536-capped (grid caps at 1384 @1920).
+  My build used 16/40/48/64 (grid 1312 vs source 1288 @1440). Updated `.cards-container:has(.cards.news)`
+  padding-inline to 24/52/60/76.
+Verified grid width == source at every breakpoint: @390 24/342, @768 52/664, @1024 60/904, @1440 76/1288.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓

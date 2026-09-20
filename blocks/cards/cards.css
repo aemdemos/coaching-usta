@@ -1059,13 +1059,14 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* ------------------------------------------------------------------- news --
    News/article cards: a 2-up grid of article cards, each = a top image (rounded)
    + a bold title (a link), a publish date, and an excerpt. The title link shows
-   a lime arrow affordance. Section gutters 16/40/48/64 in the 1536-capped
-   centered container. */
+   a lime arrow affordance. The news grid uses its OWN wider gutters (measured on
+   news.html): 24 → 52 (>=768) → 60 (>=1024) → 76 (>=1280), 1536-capped centered
+   container (so the grid caps at 1384). */
 .cards-container:has(.cards.news) {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
-  padding-inline: 16px;
+  padding-inline: 24px;
 }
 
 .cards-container:has(.cards.news) > .cards-wrapper {
@@ -1165,7 +1166,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 @media (width >= 768px) {
-  .cards-container:has(.cards.news) { padding-inline: 40px; }
+  .cards-container:has(.cards.news) { padding-inline: 52px; }
 
   /* 2-up from tablet, gap stays 24px (source) */
   .cards.news > ul {
@@ -1177,11 +1178,11 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 @media (width >= 1024px) {
-  .cards-container:has(.cards.news) { padding-inline: 48px; }
+  .cards-container:has(.cards.news) { padding-inline: 60px; }
 }
 
 @media (width >= 1280px) {
-  .cards-container:has(.cards.news) { padding-inline: 64px; }
+  .cards-container:has(.cards.news) { padding-inline: 76px; }
 
   /* 4-up + title 28 -> 32 at the wide desktop breakpoint (source) */
   .cards.news > ul {
