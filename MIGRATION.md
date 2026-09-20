@@ -2572,3 +2572,66 @@ full-width (323), excerpt clamp 2. Desktop: thumb 231 side-by-side, CTA inline 1
 same 20/25 gaps. Typography flat & source-exact (title 40/44 Graphik Semibold, excerpt 16/19.2 Graphik
 Regular, CTA 16/-0.48px uppercase).
 lint ✓ (0 err) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
+
+### 2026-09-19 — columns (embed): tablet grid fix + typography parity
+Audited the online-learning-hub embed block against the source across 390/768/1024/1280.
+1) TABLET GRID (positioning drift): source embed column is `tablet--5` (5/12), `desktop-small--6` (6/12),
+   `default--5` (5/12) — side-by-side from ≥768, NOT stacked. My build stacked until 1024. Fixed: side-by-side
+   from ≥768 with embed flex-basis 41.667% (768) → 50% (1024) → 41.667% (≥1280), each minus half the 48px gap.
+   Verified: embed 263px/38% @768, 47% @1024, 40% @1280; embed left, no overflow.
+2) TYPOGRAPHY PARITY — measured every text element (source, all VPs):
+   - intro / body / bullet items: "Graphik Regular" 18/24, weight 400, ls normal, #fff — FLAT all viewports.
+   - section heading ("The Coach's Edge"): "Graphik Regular" (NOT Semibold), weight 400, line-height 1.0,
+     ls normal, #fff; font-size RESPONSIVE 28 (<1024) → 32 (≥1024).
+   - bullet <ul>: list-style disc, padding-left 40px, 18px top/bottom margin.
+   My build had drifts: heading was Graphik SEMIBOLD + flat 32; ul padding-left 24px, margin 0/24. Fixed:
+   heading → var(--body-font-family) (Graphik Regular), 28 base + 32 in the ≥1024 query; ul → disc,
+   padding-left 40px, margin 18px 0. Verified identical @390 (28), @768 (28), @1280 (32); intro/li 18/24 flat.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (360–1920; LinkedIn iframe load is flaky, passes on retry) ·
+typography ✓ · a11y ✓
+
+### 2026-09-19 — columns (embed): fix trailing white space under the LinkedIn iframe (875 → 720)
+Mobile showed ~155px of blank white below the LinkedIn post. Cause: the iframe had a fixed `height: 875px`,
+taller than the actual embed content — the iframe's white background filled the excess. Measured the source
+LinkedIn iframe: it is `height="720"` (CSS 720px) at EVERY viewport (mobile + desktop). Fixed the embed
+iframe height 875 → 720px. Verified @390: iframe 720 = media wrapper 720, extraSpace 0 (gap gone); embed
+ends flush at the post's Like/Comment/Share footer.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (flaky iframe load, passes on retry) · a11y ✓
+
+### 2026-09-19 — columns (embed): cap iframe at source's fixed 430×720 (fix desktop cutoff)
+The prior height fix (720) exposed a second issue: my iframe still had `max-width: 504px`, so on desktop it
+rendered wider than the source, the portrait video grew taller than 720, and the post footer got cut off.
+Measured the source LinkedIn iframe: it is a FIXED 430 × 720 (width="430" height="720") at EVERY viewport —
+it does NOT scale to fill the column. Fixed: `max-width: 430px` (was 504). Now at desktop the iframe is
+430×720 with the full post + footer fitting exactly (extraSpace 0, no cutoff); mobile width:100% shrinks it
+below 430 (358 @390) staying 720 tall (no gap). Verified no horizontal overflow at 360/768/1280/1920
+(scrollW === clientW at each). NOTE: `npm run check:overflow` reports a load ERR on this page because the
+external LinkedIn iframe times out in headless — verified manually there is no overflow.
+lint ✓ (0 err) · breakpoint ✓ · a11y ✓ · overflow verified manually (tool load-timeout on the LI iframe)
+
+### 2026-09-19 — columns (embed): iframe aspect-ratio so it shows full height (no crop, no gap, no scroll)
+Fixed height couldn't satisfy both viewports: the LinkedIn embed's content height scales with the iframe
+WIDTH (portrait video grows taller as the frame widens). 720px fit mobile (358w) but cropped the post footer
+on desktop (430w needs ~865h); 875px showed desktop but left a gap on mobile. Replaced fixed height with
+`aspect-ratio: 430 / 865; height: auto` (max-width 430). Now the iframe height tracks its width so the FULL
+post (video + reactions + Like/Comment/Share footer) shows at every viewport with no scroll and no trailing
+white space. Verified: mobile 358×720 extraSpace 0; desktop 430×865 extraSpace 0, footer visible.
+lint ✓ (0 err) · breakpoint ✓ · a11y ✓ · no horizontal overflow (verified manually; LI iframe times out the
+overflow tool).
+
+TODO (next): instrument any not-yet-built variants — Columns (promo), Columns (text), Cards (news),
+Cards (quote) — from the source URLs + screenshots in the reference/ compressed HTML report, all viewports.
+
+### 2026-09-20 — columns (embed): JS-size iframe to LinkedIn content height (no scroll, no gap, full post)
+Fixed height/aspect-ratio couldn't match: measured the LinkedIn embed's own content height directly (loaded
+the embed URL same-origin) at multiple widths — 263w→674h, 358w→748h, 430w→804h. It grows LINEARLY with
+width (fixed header/footer + width-scaling video): height ≈ 0.778·w + 470. Any single fixed height/ratio
+either clipped the footer (internal scroll) or left a white gap. Fix: decorateEmbed() now sets the iframe
+height from its rendered width via that formula and keeps it in sync with a ResizeObserver; CSS keeps
+max-width 430 + a pre-JS aspect-ratio(430/804) fallback. Verified full post (video + reactions + Like/
+Comment/Share footer) shows with extraSpace 0 and no internal scroll: mobile 358×749, desktop 430×805. No
+horizontal overflow @1440 (scrollW===clientW).
+lint ✓ (0 err) · breakpoint ✓ · a11y ✓
+
+TODO (next): instrument not-yet-built variants — Columns (promo), Columns (text), Cards (news), Cards
+(quote) — from the source URLs + screenshots in the reference/ compressed HTML report, all viewports.

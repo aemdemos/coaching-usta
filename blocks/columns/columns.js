@@ -446,6 +446,23 @@ function decorateEmbed(block) {
       frame.setAttribute('frameborder', '0');
       frame.setAttribute('allowfullscreen', '');
       cell.append(frame);
+
+      // The LinkedIn embed's content height grows LINEARLY with its width
+      // (a fixed-height header/footer + a width-scaling video). Measured on the
+      // source embed: 263w→674h, 358w→748h, 430w→804h ⇒ height ≈ 0.778·w + 470.
+      // A fixed CSS height/aspect-ratio can't match that at every width (it
+      // either clips the footer or leaves a gap), so size it from the rendered
+      // width and keep it in sync. Matches the source's grown iframe exactly.
+      const sizeFrame = () => {
+        const w = frame.clientWidth;
+        if (w) frame.style.height = `${Math.round(0.778 * w + 470)}px`;
+      };
+      sizeFrame();
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(sizeFrame).observe(frame);
+      } else {
+        window.addEventListener('resize', sizeFrame);
+      }
     } else {
       cell.classList.add('columns-embed-content');
     }

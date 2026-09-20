@@ -1197,8 +1197,13 @@ main > .section.columns-container:has(.columns.embed) > div {
 .columns.embed .columns-embed-media iframe {
   display: block;
   width: 100%;
-  max-width: 504px;
-  height: 875px;
+
+  /* Source embed is capped at 430px wide (width="430"). The HEIGHT is set by JS
+     from the rendered width (height ≈ 0.778·w + 470) so the full post shows with
+     no scroll and no trailing gap at every width — see decorateEmbed. The
+     aspect-ratio here is only a pre-JS fallback (~430/804) to avoid layout jump. */
+  max-width: 430px;
+  aspect-ratio: 430 / 804;
   border: none;
   border-radius: 8px;
   background: #fff;
@@ -1215,10 +1220,13 @@ main > .section.columns-container:has(.columns.embed) > div {
   color: #fff;
 }
 
+/* bullet list — source: list-style disc, padding-left 40px, 18px top/bottom
+   margin; list items are the same 18/24 Graphik Regular as body copy. */
 .columns.embed .columns-embed-content ul,
 .columns.embed .columns-embed-content ol {
-  margin: 0 0 24px;
-  padding-left: 24px;
+  margin: 18px 0;
+  padding-left: 40px;
+  list-style: disc;
 }
 
 .columns.embed .columns-embed-content li {
@@ -1234,27 +1242,27 @@ main > .section.columns-container:has(.columns.embed) > div {
   margin: 0;
 }
 
-/* bold section heading ("The Coach's Edge…") — authored as an h2/h3 or bold */
+/* section heading ("The Coach's Edge…") — source uses Graphik REGULAR (not
+   Semibold), weight 400, line-height 1.0, ls normal, #fff. Font-size is
+   RESPONSIVE: 28 below 1024, 32 at ≥1024 (see the desktop media query). */
 .columns.embed .columns-embed-content h1,
 .columns.embed .columns-embed-content h2,
 .columns.embed .columns-embed-content h3 {
   margin: 40px 0 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-size: 32px;
+  font-family: var(--body-font-family);
+  font-size: 28px;
   line-height: 1;
   font-weight: 400;
   letter-spacing: normal;
   color: #fff;
 }
 
-/* tablet (>=768): larger gutter (still stacked) */
+/* tablet (>=768): side-by-side. The source lays this on a 12-col grid: the embed
+   column is `tablet--5` (5/12 ≈ 41.7%) at 768–1023, `desktop-small--6` (6/12 =
+   50%) at 1024–1279, and `default--5` (5/12) at ≥1280 — so it is NOT stacked at
+   tablet (that was the drift). Text takes the remaining columns. 48px gap. */
 @media (width >= 768px) {
   main > .section.columns-container:has(.columns.embed) > div { padding: 0 40px; }
-}
-
-/* desktop (>=1024): side-by-side, embed ~40% (capped 515) + text ~60% */
-@media (width >= 1024px) {
-  main > .section.columns-container:has(.columns.embed) > div { padding: 0 48px; }
 
   .columns.embed > div {
     flex-direction: row;
@@ -1263,7 +1271,7 @@ main > .section.columns-container:has(.columns.embed) > div {
   }
 
   .columns.embed .columns-embed-media {
-    flex: 0 0 40%;
+    flex: 0 0 calc(41.667% - 24px); /* 5/12 minus half the 48px gap */
     max-width: 515px;
   }
 
@@ -1273,7 +1281,27 @@ main > .section.columns-container:has(.columns.embed) > div {
   }
 }
 
-/* wide desktop (>=1280): 64px gutter */
+/* small desktop (>=1024): embed grows to 6/12 (50%); section heading → 32
+   (source steps the "Coach's Edge" heading 28 → 32 at this breakpoint). */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.embed) > div { padding: 0 48px; }
+
+  .columns.embed .columns-embed-media {
+    flex: 0 0 calc(50% - 24px); /* 6/12 minus half the 48px gap */
+  }
+
+  .columns.embed .columns-embed-content h1,
+  .columns.embed .columns-embed-content h2,
+  .columns.embed .columns-embed-content h3 {
+    font-size: 32px;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter; embed back to 5/12 (≈41.7%) */
 @media (width >= 1280px) {
   main > .section.columns-container:has(.columns.embed) > div { padding: 0 64px; }
+
+  .columns.embed .columns-embed-media {
+    flex: 0 0 calc(41.667% - 24px); /* 5/12 minus half the 48px gap */
+  }
 }
