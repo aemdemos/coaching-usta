@@ -2824,3 +2824,33 @@ Two updates for a clean side-by-side vs news.html:
   padding-inline to 24/52/60/76.
 Verified grid width == source at every breakpoint: @390 24/342, @768 52/664, @1024 60/904, @1440 76/1288.
 lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): quote is ITALIC (corrected)
+Side-by-side vs the source screenshot showed the quote text should be italic. Re-inspected the live source:
+the quote paragraph's own `font-style` is `normal`, BUT the quote text is wrapped in an `<i>` element
+(`<p><i>"…"</i></p>`), so it renders italic. An earlier pass had read the `<p>` style and wrongly set the
+build to non-italic. Restored `font-style: italic` on `.cards-quote-text p` and updated the sample copy.
+Re-verified all other card metrics still match source @1440: card 421 / 24pad / 20r / 1px #a0a0a0 / #2a2a2a;
+quote italic 16/24 #fff; quote→divider 16; divider 1px #808080; divider→name 16; name #fff, role #bedbff.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): live content + inner 12px text inset (wrap parity)
+Swapped the sample to the exact live quotes (Miyako Coffey / Marc Atkinson / Marti Love). With identical
+content the quote wrapped WIDER than the source (my text used the full 371px content box; source wrapped to
+6 lines). DevTools showed the source nests the text in an inner `.text.aem-GridColumn` wrapper with **12px
+side padding**, so the quote + attribution sit inset 12px inside the card content box (text column = 347px,
+left inset 37), while the **divider spans the full 371px content box**. Reproduced: added
+`padding-inline: 12px` to `.cards-quote-text` + `.cards-quote-attribution` (divider unchanged, full-width).
+Verified @1440: quote left 37 / width 347 / **6 lines** (== source), divider 25/371/25, name left 37; @390
+no overflow (card 358, quote 284, divider 308). Quote italic retained.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): bottom padding parity (extra space below attribution)
+Pixel compare showed the source cards have MORE space below the attribution than the build. Measured @1100
+(card 319w): source tallest card (Marc, 12-line quote) role→card-bottom = **57px** (not the plain 24px pad) —
+its AEM grid row stretches ~32px past the content. Build had role→bottom = 25px (pad only). Set the card
+`padding: 24px 24px 56px` (extra ~32px at the bottom). Now the tallest card's role→bottom = 57px == source;
+internal rhythm unchanged (quote→divider 16, divider→name 16, 12-line wrap, 12px text inset). Residual card-
+height delta vs the live page is only because the source's full-page grid row is stretched by a taller
+sibling elsewhere — not reproducible (or meaningful) in the isolated block sample.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
