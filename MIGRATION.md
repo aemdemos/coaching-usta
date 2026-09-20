@@ -2698,3 +2698,104 @@ Measured every component in the source Eligibility card at 440px and diffed agai
   Set `.columns-text-item::before { top: 5px }`.
 Confirmed matching source @440: item gaps 24px, text indent 27px (17px diamond + 10px gap), item font 18/24,
 label 24/32, title 28, CTA 280×56 centered. lint ✓ · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): diamond marker moved to icons/ as SVG
+Relocated the item marker out of a per-block PNG into the shared icons/ folder as a scalable vector:
+created `icons/diamond.svg` (17×17 white diamond), pointed `.columns-text-item::before` at
+`url("/icons/diamond.svg")`, and deleted `blocks/columns/media/white-diamond.png` (+ the now-empty media/
+dir). SVG is crisp at any DPR and the icons/ folder is the project convention for UI glyphs.
+Verified icon loads (200) and renders at top 5px / 17×17. lint ✓ · check:svg ✓ (under budget) · a11y ✓
+
+### 2026-09-20 — cards (news): parity pass vs source (news.html) + NEW sample page
+decorateNews existed and .cards.news CSS existed but there was NO sample page and several drifts vs the
+source news-card grid (measured news.html @390/768/1024/1280/1440). Fixes:
+- **Grid**: source is 1-up → 2-up (≥768) → **4-up (≥1280)**, gap **24px at every breakpoint**. Build had
+  2-up max and bumped gap to 40 at ≥768. Corrected columns + gap.
+- **Card**: flex column, **16px gap** (image → arrow → content). Was padding-top 24 with no gap.
+- **Image**: source aspect **320/301 (~1.06, near-square)**, radius 20, cover. Build had 16/9.
+- **Arrow affordance**: source shows a **lime 52×48 pill (radius 12) with a black right-arrow SVG** between
+  image and text (inset 16px), NOT an inline "→" after the title. Added `icons/arrow-right.svg` (23×12 glyph),
+  a `.cards-news-cta-wrapper` (padding 0 16px) + `.cards-news-arrow` (52×48 lime pill), and decorateNews now
+  emits it (an `<a>` to the article when the title links, else a span; aria-hidden, tabindex -1). Removed the
+  inline arrow `::after`.
+- **Content**: padding 0 16px 16px, flex column **gap 24px**; date pulled up `-8px` (net 16px below title,
+  matching source). Title 24 → 28 (≥768) → **32 (≥1280, was ≥1024)**.
+Sample: block-samples/cards-news.plain.html (4 cards). Verified @1440 4-up/title32, @768 2-up/title28, @390
+1-up/title24; arrow 52×48 lime + SVG, image aspect 1.06 radius 20, gap 24 all breakpoints.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · check:svg ✓ · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): NEW variant ("What Others Are Saying") + sample page
+Built the `cards.quote` variant from the summit page's testimonial grid (measured
+usta-coaches-inclusion-summit.html @390/768/1440). NOTE the live page's testimonial text has since changed
+(now "WHAT PAST ATTENDEES SAY", plain/transparent), but the block container + the report's design intent are
+the dark rounded quote cards — followed the report ("italic testimonial quote + divider + attribution").
+Design system captured:
+- Grid: **1-up mobile (16px gap) → 3-up ≥768 (24px gap)**; equal-width, equal-height cards (align-items stretch).
+- Card: bg **#2a2a2a**, radius **20px**, **1px solid #a0a0a0** border, **24px** padding, flex column.
+- Quote: Graphik Regular **italic 16/24** white.
+- Divider: full-width `<hr>` 1px solid **#808080**, **16px** above & below.
+- Attribution: name white 16/24 directly above role/org **#bedbff** 16/24 (0 gap).
+JS decorateQuote (cards.js): one row per card; the last two <p> = name + role, the rest = quote; injects an
+`<hr>` divider between quote and attribution. Added `.quote` to the three default-variant `:not()` guards and
+the dispatch branch. Sample: block-samples/cards-quote.plain.html (3 cards: Hassan Humayun / Celia Quintero /
+Gonzo Garcia, from the report).
+Verified @1440 & @768 3-up gap24 card421 #2a2a2a/20r/1px#a0a0a0/24pad, quote italic 16/24, divider #808080
+16/16, name #fff role #bedbff; @390 1-up gap16.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (promo): NEW variant (featured event/promo rows) + sample page
+Built the `columns.promo` variant from coaching-workshops "IN-PERSON EVENTS" + webinar promo rows
+(measured @390/768/1440). Design system captured:
+- Panel: **transparent, 1px solid #fff, 20px radius**; content inset **25px** (mobile/tablet) → **49px top/bottom
+  25px sides** (≥1024). Panels stacked with 24px between.
+- Header: title (left) + lime CTA (right), **flex space-between on one row**; wraps/stacks below on narrow
+  widths (source kept them on one row but the 280px CTA overflowed the panel — wrapping is the overflow-safe
+  equivalent; verified no horizontal overflow at any breakpoint).
+- Title: Graphik Semibold white **28 → 32 (≥1024)**, line-height 1.
+- CTA: the shared lime pill — 280×56, radius 12, 2px black border, letter-spacing 1px, title-case (Graphik
+  Semibold 18/20) — same contract as columns-text/columns-media CTAs.
+- Details: Graphik Regular **18/21.6** white, **48px** below the header.
+JS decoratePromo (columns.js): one row per panel; first heading/p = title, the link = CTA (both moved into a
+`.columns-promo-header`), remaining paragraphs = `.columns-promo-details`. Added `.promo` to the 7 default-
+variant `:not()` guards + the dispatch branch. Sample: block-samples/columns-promo.plain.html (2 panels: STMS
+World Congress + Coaches Open).
+Verified @1440 panel 1px#fff/20r/49-25 pad, title 32 + CTA 280×56 same row, details 48px below 18/21.6;
+@768 title 28 CTA wraps; @390 stacked, title 28.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — typography parity audit (cards news/quote, columns promo) — 2 drifts fixed
+Full per-element typography diff vs source at 390/768/1024/1280/1440 for all three new blocks (font-family,
+size, weight, line-height, letter-spacing, color, transform, style, align). Findings:
+- **cards (news)** — already exact. Title Graphik Semibold, size scales 24→28(≥768)→32(≥1280) with matching
+  letter-spacing -0.03em (measured -0.72/-0.84/-0.96px); date + excerpt Graphik Regular flat 16/19.2. ✓
+- **cards (quote)** — DRIFT: build made the quote **italic**; the LIVE source is `font-style: normal` (flat
+  16/24 Graphik Regular at every viewport). Removed `font-style: italic` from `.cards-quote-text p` (and the
+  sample copy). Name #fff, role #bedbff, all 16/24. Now exact. (The report's "italic" note predates the live
+  page; matched the live computed style.)
+- **columns (promo)** — 2 DRIFTS: (1) title 28→32 bump was at ≥1024 but the source bumps at **≥1280**;
+  (2) details were flat 18/21.6 but the source is **16/19.2 below 1280, 18/21.6 at ≥1280**. Also moved the
+  panel's roomier 49px top/bottom inset to ≥1280 (source stays 25px inset through 1024). CTA is flat 18/20
+  ls 1px title-case at all widths (unchanged). Now exact at every breakpoint.
+Re-verified computed values on the build @390/768/1280/1440 == source for every text element.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920, all 3) · typography ✓ (all 3) · a11y ✓ (all 3)
+
+### 2026-09-20 — columns (promo): swapped sample to live webinar content + fixed header wrap
+Replaced the sample content with the two live ONLINE WEBINARS panels ("Fueling the Ace…" + "Elevate Your
+Coaching…") for a true side-by-side vs source. Their longer titles exposed a layout drift: with
+`justify-content: space-between` and a non-flexing title, the long one-line title pushed the CTA onto its own
+row instead of wrapping. Source keeps title + CTA on the SAME top row with the **title wrapping to 2 lines**
+beside the fixed 280px CTA. Fix: header is `flex-direction: column` (stacked) on mobile → `row` from ≥768 with
+`.columns-promo-title { flex: 1 1 auto; min-width: 0 }` (wraps) and CTA `flex: 0 0 auto` (fixed); both
+top-aligned (align-items flex-start). Verified @1440 title=2 lines, CTA pinned top-right (inset 26 ≈ source 25),
+title top 50 == CTA top 50, title→details 48px; @390 CTA stacks below title, no overflow.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (promo): meta/body spacer parity (Date → description gap)
+Side-by-side vs source revealed the last drift: the source separates the meta lines (Presenters/Moderator/
+Date) from the body description with a **~43px gap** (two empty 21.6px paragraphs in the CMS). My build ran
+the description immediately under the Date line (0 gap). Fix: decoratePromo now splits the detail paragraphs
+into `.columns-promo-meta` (lines matching `^(Presenters|Moderator|Date|Location|Time):`) and
+`.columns-promo-body` (the rest), dropping the empty authored paragraphs; CSS adds
+`.columns-promo-body { margin-top: 43px }`. Meta lines stay tight (line-height rhythm, 0 inter-line margin),
+exactly like the source. Verified @1440 Date-bottom → body-top = 43px (== source).
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓

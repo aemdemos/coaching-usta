@@ -543,6 +543,81 @@ function decorateText(block) {
   }
 }
 
+/*
+ * promo — featured event/promo rows (source: coaching-workshops "IN-PERSON
+ * EVENTS" + webinar rows). Each row is an outlined rounded panel with a header
+ * (bold title on the left, a lime "Register Now" pill on the right — they share
+ * the top line on desktop/tablet and stack on mobile), then detail paragraphs
+ * (Presenters / Location / Date) below.
+ * Authoring (one row per promo panel): a single cell containing
+ *   - the title (first paragraph or heading),
+ *   - the CTA (a link),
+ *   - the detail paragraphs (everything else).
+ */
+function decoratePromo(block) {
+  [...block.children].forEach((row) => {
+    row.classList.add('columns-promo-panel');
+    const cell = row.children.length === 1 ? row.firstElementChild : row;
+    cell.classList.add('columns-promo-content');
+
+    const title = cell.querySelector('h1, h2, h3, h4, h5, h6, :scope > p');
+    if (title) title.classList.add('columns-promo-title');
+
+    const cta = cell.querySelector('a');
+
+    // header row = title + CTA on one line (space-between)
+    const header = document.createElement('div');
+    header.className = 'columns-promo-header';
+    if (title) header.append(title);
+    if (cta) {
+      cta.classList.add('columns-promo-cta');
+      // unwrap a paragraph that only wraps the CTA
+      const p = cta.closest('p');
+      if (p && p.textContent.trim() === cta.textContent.trim()) p.remove();
+      header.append(cta);
+    }
+    cell.prepend(header);
+
+    // remaining paragraphs = details; flatten any wrapping div and drop empties
+    const details = document.createElement('div');
+    details.className = 'columns-promo-details';
+    [...cell.children].forEach((child) => {
+      if (child === header) return;
+      if (child.tagName === 'DIV') {
+        while (child.firstChild) details.append(child.firstChild);
+        child.remove();
+      } else {
+        details.append(child);
+      }
+    });
+    const detailParas = [...details.querySelectorAll('p')].filter((p) => p.textContent.trim());
+
+    // meta lines (Presenters / Moderator / Date / Location …) group together at the
+    // top; the remaining paragraphs are the body copy — a gap separates the two,
+    // matching the source's spacer between the date and the description.
+    const metaRe = /^(presenters?|moderator|date|location|time)\s*:/i;
+    const meta = document.createElement('div');
+    meta.className = 'columns-promo-meta';
+    const body = document.createElement('div');
+    body.className = 'columns-promo-body';
+    let inBody = false;
+    detailParas.forEach((p) => {
+      if (!inBody && metaRe.test(p.textContent.trim())) {
+        p.classList.add('columns-promo-detail');
+        meta.append(p);
+      } else {
+        inBody = true;
+        p.classList.add('columns-promo-detail');
+        body.append(p);
+      }
+    });
+    details.replaceChildren();
+    if (meta.children.length) details.append(meta);
+    if (body.children.length) details.append(body);
+    if (details.children.length) cell.append(details);
+  });
+}
+
 function decorateDefault(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
@@ -571,5 +646,6 @@ export default function decorate(block) {
   else if (block.classList.contains('list')) decorateList(block);
   else if (block.classList.contains('embed')) decorateEmbed(block);
   else if (block.classList.contains('text')) decorateText(block);
+  else if (block.classList.contains('promo')) decoratePromo(block);
   else decorateDefault(block);
 }

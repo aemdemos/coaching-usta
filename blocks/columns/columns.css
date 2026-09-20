@@ -13,35 +13,35 @@
    by the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text) > div {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text) img {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text, .promo) img {
   width: 100%;
 }
 
-.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text) > div > div {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > div {
   order: 1;
 }
 
-.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text) > div > .columns-img-col {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > .columns-img-col {
   order: 0;
 }
 
-.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text) > div > .columns-img-col img {
+.columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text) > div {
+  .columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text) > div > div {
+  .columns.block:not(.media, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > div {
     flex: 1;
     order: unset;
   }
@@ -1496,4 +1496,139 @@ main > .section.columns-container:has(.columns.text) > div {
 /* wide desktop (>=1280): 64px gutter */
 @media (width >= 1280px) {
   main > .section.columns-container:has(.columns.text) > div { padding: 0 64px; }
+}
+
+/* ================================================================== promo ==
+   Featured event/promo rows (coaching-workshops "IN-PERSON EVENTS" + webinar
+   rows): an outlined rounded panel with a header (bold title left + lime
+   "Register Now" pill right, sharing the top line — stacks on mobile) and
+   detail paragraphs (Presenters / Location / Date) below. Source-measured
+   390/768/1440. Panel: transparent, 1px solid #fff, 20px radius, content inset
+   ~25px. Title Graphik Semibold white 28 → 32 (≥1024). Details Graphik Regular
+   18/21.6 white. CTA = the shared lime 280×56 pill. Gutters 16/40/48/64 on the
+   1536-capped centered container. */
+main > .section.columns-container:has(.columns.promo) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* each row = an outlined rounded panel; stacked with 24px between panels */
+.columns.promo > div {
+  display: block;
+}
+
+.columns.promo .columns-promo-panel {
+  box-sizing: border-box;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 25px;
+}
+
+.columns.promo .columns-promo-panel + .columns-promo-panel {
+  margin-top: 24px;
+}
+
+/* header: title (left) + CTA (right). Mobile-first the title sits above the CTA
+   (stacked); from tablet up they share the top row — the title flexes to fill the
+   space beside the fixed-width CTA so its text wraps (matching the source) rather
+   than pushing the CTA down. Both top-aligned. */
+.columns.promo .columns-promo-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* title — Graphik Semibold white, 28 → 32 (≥1280) */
+.columns.promo .columns-promo-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* CTA — the shared lime pill (280×56, radius 12, 2px black border, uppercase
+   transform reset by content so it reads title-case, 1px tracking) */
+.columns.promo .columns-promo-cta:any-link {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 280px;
+  height: 56px;
+  padding: 14px 24px;
+  overflow: hidden;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+/* details — Graphik Regular white, 16/19.2 → 18/21.6 (≥1280); 48px below header.
+   Meta lines (Presenters/Moderator/Date) are tight; a gap separates them from the
+   body copy, reproducing the source's spacer between the date and description. */
+.columns.promo .columns-promo-details {
+  margin-top: 48px;
+}
+
+.columns.promo .columns-promo-body {
+  margin-top: 43px;
+}
+
+.columns.promo .columns-promo-detail {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.promo) > div { padding: 0 40px; }
+
+  /* title + CTA share the top row from tablet up; title flexes (wraps) beside the
+     fixed-width CTA, both top-aligned (source) */
+  .columns.promo .columns-promo-header {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .columns.promo .columns-promo-title {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .columns.promo .columns-promo-cta:any-link {
+    flex: 0 0 auto;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.promo) > div { padding: 0 48px; }
+}
+
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.promo) > div { padding: 0 64px; }
+
+  /* wide desktop: roomier top/bottom inset (source ~49px) + title 28 -> 32 +
+     details 16/19.2 -> 18/21.6 */
+  .columns.promo .columns-promo-panel { padding: 49px 25px; }
+
+  .columns.promo .columns-promo-title { font-size: 32px; }
+
+  .columns.promo .columns-promo-detail { font-size: 18px; }
 }
