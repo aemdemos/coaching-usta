@@ -295,28 +295,34 @@ main > .section.accordion-container > div {
   margin: 12px 0 0;
 }
 
-/* Clamp the description to a WHOLE NUMBER of lines with -webkit-line-clamp (not a
-   px max-height, which cut mid-line and let a partial line peek below the fold). Only
-   cards JS measured as overflowing (data-clamp-overflow="true") are clamped — a short
-   description has no flag, shows in full, and gets no "…". Gating the clamp on the SAME
-   flag as the "…" guarantees a card is never cut without a "…". */
+/* Clamp the description to a fixed max-height with plain overflow clipping — EXACTLY
+   like the source (`.v-course__description.clamp` = max-height: 150.72px; overflow:
+   hidden). Do NOT use -webkit-line-clamp: it renders its OWN native "…" mid-line
+   (which, on top of our corner "…" button, put dots in the wrong place) and its
+   line-box counting is unreliable across the two description paragraphs. The
+   overflow:hidden simply clips; the absolute "…" box (below) masks the cut corner.
+   Only cards JS measured as overflowing (data-clamp-overflow="true") are clamped — a
+   short description has no flag, shows in full, and gets no "…". Gating the clamp on
+   the SAME flag as the "…" guarantees a card is never cut without a "…". */
 .accordion.pathway .accordion-timeline-desc-wrapper[data-clamp-overflow="true"] .accordion-timeline-desc-clamp {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 6; /* ~6 lines; matches the source clamp density */
+  max-height: 150.72px; /* source clamp height; keep in sync with PATHWAY_CLAMP_MAX_PX */
   overflow: hidden;
 }
 
 /* expanded: drop the clamp, reveal full copy */
 .accordion.pathway .accordion-timeline-course.is-desc-expanded .accordion-timeline-desc-clamp {
-  display: block;
-  -webkit-line-clamp: none;
+  max-height: none;
   overflow: visible;
 }
 
-/* the clamped desc paragraphs sit flush inside the wrapper (margin handled above) */
+/* the clamped desc paragraphs sit flush inside the wrapper (margin handled above).
+   Between consecutive paragraphs use a FULL blank line (~1.2em = one line-height) to
+   reproduce the source, which authors an empty `<p>&nbsp;</p>` spacer between the
+   description and the "To unlock…" note. That extra blank line pushes the note down so
+   only a sliver of it peeks through the fixed-height clamp (matching the source) — a
+   flat 12px gap let ~2 lines of the note show through. */
 .accordion.pathway .accordion-timeline-desc-wrapper .accordion-timeline-desc {
-  margin: 0 0 12px;
+  margin: 0 0 1.2em;
 }
 
 .accordion.pathway .accordion-timeline-desc-wrapper .accordion-timeline-desc:last-child {
@@ -801,6 +807,16 @@ main > .section.accordion-container > div {
      the grid keeps the neighbour at its own height, so no empty stretch). */
   .accordion.pathway .accordion-timeline-course {
     min-height: 347px;
+  }
+
+  /* course badge steps 120px -> 148px at >=1024 (source `.v-course__badge`). This
+     is load-bearing for the PATHWAY clamp: with the 148px badge the description
+     column narrows to the source's ~251px, so the first paragraph wraps to enough
+     lines to FILL the 150.72px clamp on its own and the "To unlock…" paragraph stays
+     hidden below the fold — exactly like the source. A narrower (120px) badge widens
+     the column, lets a second paragraph peek in, and grows the card taller. */
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-course-badge img {
+    width: 148px;
   }
 }
 

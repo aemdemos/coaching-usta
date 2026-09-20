@@ -95,18 +95,21 @@ function buildToggle({
   return btn;
 }
 
-/* The CSS clamps to this many lines (must match `-webkit-line-clamp` in the CSS). */
-const PATHWAY_CLAMP_LINES = 6;
+/* The CSS clamps the description to this fixed max-height in px (must match the
+   `max-height` on `.accordion-timeline-desc-clamp` in the CSS). Mirrors the source
+   `.v-course__description.clamp` height (150.72px) — plain overflow clipping, NOT a
+   line count, so the native line-clamp "…" never fights our corner "…" button. */
+const PATHWAY_CLAMP_MAX_PX = 150.72;
 
 /*
- * Mark each pathway course card as clamped-with-ellipsis ONLY when its description
- * is TALLER THAN the clamp's line count; otherwise the copy is short, shows in full,
- * and gets NO "…". BOTH the line-clamp and the "…" are gated on the resulting
+ * Mark each pathway course card as clamped-with-ellipsis ONLY when its description is
+ * TALLER THAN the clamp's max-height; otherwise the copy is short, shows in full, and
+ * gets NO "…". BOTH the clamp and the "…" are gated on the resulting
  * `data-clamp-overflow` flag (see CSS), so a card is never cut without also getting a
  * "…". Measured against the description's NATURAL height (the flag is cleared first so
- * the CSS clamp is lifted during measurement) vs `PATHWAY_CLAMP_LINES` line-heights.
- * RE-RUN on font-load + resize because line counts shift when the web font swaps in or
- * the column width changes — the timing bug that previously left cards cut with no "…".
+ * the CSS clamp is lifted during measurement) vs `PATHWAY_CLAMP_MAX_PX`.
+ * RE-RUN on font-load + resize because heights shift when the web font swaps in or the
+ * column width changes — the timing bug that previously left cards cut with no "…".
  * The panel starts collapsed (courses `hidden` → heights read 0), so the first run
  * happens after it's revealed.
  */
@@ -119,10 +122,9 @@ function measureClampOverflow(root) {
     // lift the clamp so scrollHeight reports the full natural height, then compare
     delete wrapper.dataset.clampOverflow;
     if (clamp.scrollHeight <= 1) return; // still hidden/unrendered — try again later
-    const cs = window.getComputedStyle(clamp);
-    const lh = cs.lineHeight === 'normal' ? parseFloat(cs.fontSize) * 1.2 : parseFloat(cs.lineHeight);
-    // overflow when the copy needs MORE than the clamped line count (half-line slack)
-    wrapper.dataset.clampOverflow = String(clamp.scrollHeight > lh * (PATHWAY_CLAMP_LINES + 0.5));
+    // overflow when the natural copy is taller than the clamp cap (few px of slack so a
+    // description that fits within a line's rounding isn't needlessly clamped)
+    wrapper.dataset.clampOverflow = String(clamp.scrollHeight > PATHWAY_CLAMP_MAX_PX + 4);
   });
 }
 
