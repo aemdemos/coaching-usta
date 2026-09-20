@@ -62,6 +62,14 @@ To create a new skill: read `writing-skills/SKILL.md` first, then copy the forma
 
 ---
 
+## Forms
+
+| Skill | Load when… |
+|-------|-----------|
+| [forms-enablement](forms-enablement/SKILL.md) | Standing up Adobe EDS spreadsheet/Adaptive Forms (DA doc-based and/or Universal Editor); authoring a form as a DA/Excel spreadsheet; converting a form screenshot/design into a copy-paste DA sheet; adding a new form's scoped CSS. **Note:** migrates this repo's simple custom `form` block to the aem-boilerplate-forms block — step 1 replaces `blocks/form/`, so it asks the user to confirm before overwriting |
+
+---
+
 ## Debugging
 
 | Skill | Load when… |
