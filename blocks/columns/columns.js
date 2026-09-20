@@ -469,6 +469,80 @@ function decorateEmbed(block) {
   });
 }
 
+/*
+ * text (ELIGIBILITY AND REQUIREMENTS) — two text columns of requirement lists
+ * inside a dark rounded card, with an optional centered lime CTA below.
+ * (coach-mentorship.html "Eligibility and Requirements").
+ *
+ * Authoring model:
+ *   - an optional first row: a single cell with only a heading → the card's
+ *     centered heading (hoisted to span both columns).
+ *   - the columns row: one cell per column, each = a small label (first <p>), a
+ *     big lime title (second <p>), then a bullet list (<ul><li>…) of items.
+ *   - a trailing row whose sole content is a link → the centered CTA button.
+ * Each requirement item gets a white-diamond marker.
+ */
+function decorateText(block) {
+  const rows = [...block.children];
+
+  // a trailing row that is only a link → the centered CTA
+  let ctaLink = null;
+  const last = rows[rows.length - 1];
+  if (last) {
+    const cells = [...last.children];
+    const onlyLink = cells.length === 1 && cells[0].querySelector('a')
+      && cells[0].textContent.trim() === cells[0].querySelector('a').textContent.trim();
+    if (onlyLink) {
+      ctaLink = cells[0].querySelector('a');
+      last.remove();
+      rows.pop();
+    }
+  }
+
+  // an optional first row that is a single cell with only a heading → the
+  // card's centered heading (hoisted out of the row so it spans full width).
+  let colsRow = rows[0];
+  if (colsRow && colsRow.children.length === 1) {
+    const heading = colsRow.querySelector('h1, h2, h3, h4, h5, h6');
+    const onlyHeading = heading && !colsRow.querySelector('p, ul, ol, a');
+    if (onlyHeading) {
+      heading.classList.add('columns-text-heading');
+      block.prepend(heading);
+      colsRow.remove();
+      rows.shift();
+      [colsRow] = rows;
+    }
+  }
+
+  // the columns row holds one cell per column
+  if (colsRow) {
+    [...colsRow.children].forEach((cell) => {
+      cell.classList.add('columns-text-col');
+      // first paragraph = small label, second = big lime title
+      const paras = [...cell.querySelectorAll(':scope > p')].filter((p) => p.textContent.trim());
+      if (paras[0]) paras[0].classList.add('columns-text-label');
+      if (paras[1]) paras[1].classList.add('columns-text-title');
+      // requirement items: <li> in the list, else any remaining <p>
+      const list = cell.querySelector('ul, ol');
+      if (list) {
+        list.classList.add('columns-text-list');
+        [...list.children].forEach((li) => li.classList.add('columns-text-item'));
+      } else {
+        paras.slice(2).forEach((p) => p.classList.add('columns-text-item'));
+      }
+    });
+  }
+
+  // CTA: a lone lime pill, centered below the columns
+  if (ctaLink) {
+    const wrap = document.createElement('div');
+    wrap.className = 'columns-text-cta-wrapper';
+    ctaLink.classList.add('columns-text-cta');
+    wrap.append(ctaLink);
+    block.append(wrap);
+  }
+}
+
 function decorateDefault(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
@@ -496,5 +570,6 @@ export default function decorate(block) {
   else if (block.classList.contains('article')) decorateArticle(block);
   else if (block.classList.contains('list')) decorateList(block);
   else if (block.classList.contains('embed')) decorateEmbed(block);
+  else if (block.classList.contains('text')) decorateText(block);
   else decorateDefault(block);
 }

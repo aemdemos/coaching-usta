@@ -2635,3 +2635,66 @@ lint ✓ (0 err) · breakpoint ✓ · a11y ✓
 
 TODO (next): instrument not-yet-built variants — Columns (promo), Columns (text), Cards (news), Cards
 (quote) — from the source URLs + screenshots in the reference/ compressed HTML report, all viewports.
+
+### 2026-09-20 — columns (text): NEW variant (Eligibility & Requirements, coach-mentorship.html)
+Built the `columns.text` variant — a dark rounded card with a centered heading + two requirement columns
+(label + big lime title + diamond-bulleted items) and a centered lime CTA. Source-measured 390/768/1024/1440.
+Design system captured:
+- Card: bg #202020, radius 32px, padding 36px 24px (desktop/tablet) → 24px 16px (mobile). Uses the standard
+  columns container gutters 16/40/48/64.
+- Heading (USTA Sans 700, centered): 28 (<768) → 32 (768) → 40 (≥1024), lh 1.0.
+- Column label (USTA Sans 700, white, uppercase): 24/32 flat.
+- Big title MENTOR/MENTEE (USTA Sans 700, lime #cfff05): 28 (<1024) → 32 (≥1024).
+- Items: `<ul><li><strong>Age:</strong> …</li>` — Graphik Regular 18/24 white, 24px apart, each with a 17px
+  green-diamond marker (::before, media/green-diamond.png downloaded from source), text indented 27px.
+- CTA "Register Now": Graphik Semibold 18/20, #000 on lime, radius 12, padding 14×24, centered.
+- Layout: two columns side-by-side ≥768 (24px gap); stacks below 768.
+JS decorateText: hoists a heading-only first row to a centered card heading; tags label/title (first two <p>)
++ list items (<li>); a trailing link-only row becomes the centered CTA. Added `.text` to the default-variant
+`:not()` guards and the dispatch. Sample: block-samples/columns-text.plain.html (rewrote to the standard
+wrapper structure so the page <title> resolves — a11y needs it).
+Verified vs source @1440: card #202020/32r/36×24 pad, col gap 24, heading 40 centered, label 24/32, title 32
+lime, item 18/24 + diamond, CTA lime pill. @768 2-col heading 32/title 28; @390 stacked, pad 24×16, heading 28.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): pixel-parity drift fix (label→title gap)
+Pixel-comparing source vs migrated screenshots for the Eligibility & Requirements card surfaced one drift:
+the small column label → big lime title gap was 8px in the build vs **24px** in the source. Fixed by setting
+`.columns.text .columns-text-label { margin: 0 0 24px; }` (was `0 0 8px`). Re-measured all other metrics and
+they already matched source (heading→label 66px desktop/tablet / 24px mobile; title→first item 24px; item gap
+24px; diamond 17px + 27px indent; column gap 24px). Verified label→title = 24px at 390/768/1440.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): CTA size + diamond color parity
+Two source-mismatches found comparing screenshots:
+- **CTA "Register Now"** was shrink-to-fit; source is a fixed **280×56** flex-centered pill, **uppercase** with
+  **letter-spacing 1px**. Fixed `.columns-text-cta` to width 280 / height 56, flex center, text-transform
+  uppercase, letter-spacing 1px (padding 14×24, radius 12, lime bg, Graphik Semibold 18/20 unchanged).
+- **Diamond marker** was the lime `green-diamond.png`; the source actually uses a **white** diamond
+  (`/content/dam/.../white-diamond.png`). Downloaded it to media/white-diamond.png (17×17 RGBA) and switched
+  the `.columns-text-item::before` background to it. Removed the now-unused green-diamond.png.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): CTA re-measured from source DevTools (corrected)
+Prior fix over-corrected. Re-extracted the source `.button-core` computed styles exactly:
+- Text is **title case "Register Now"** — the outer `<a>` sets `text-transform: uppercase` but the inner
+  `.button-core__text-content` span resets it to `none`, so the visible label is title case. Removed the
+  wrongly-applied `text-transform: uppercase`.
+- Width is **breakpoint-dependent, not a flat 280px**: mobile (<768) = fixed `width: 280px`; **≥768 = `width:
+  max-content` with `min-width: 120px`** (shrinks to content, ~155–206px). Added the ≥768 rule.
+- Added the source's `border: 2px solid #000` and `overflow: hidden`. Height 56, radius 12, padding 14×24,
+  letter-spacing 1px, Graphik Semibold 18/20, weight 400, lime bg / black text — all confirmed.
+Verified @390 (280px fixed) / @768 & @1440 (content-width, min 120) — matches source.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): pixel-parity sweep vs source @440 (CTA centering + marker)
+Measured every component in the source Eligibility card at 440px and diffed against the build. Two drifts:
+- **CTA not centered** — the wrapper was `display:flex; justify-content:center` but the block's row rule made
+  it `flex-direction: column`, so justify centered on the *cross* axis and the pill stayed left-aligned at the
+  card's left padding (left=32 vs source left=80/card-center). Added `flex-direction: column; align-items:
+  center` to `.columns-text-cta-wrapper` → CTA now centers on the card (left=80, center=220 = card center),
+  matching source.
+- **Diamond marker vertical position** — source sits at `top: 5px` within the item row; build had `top: 3px`.
+  Set `.columns-text-item::before { top: 5px }`.
+Confirmed matching source @440: item gaps 24px, text indent 27px (17px diamond + 10px gap), item font 18/24,
+label 24/32, title 28, CTA 280×56 centered. lint ✓ · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
