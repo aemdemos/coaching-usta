@@ -2799,3 +2799,16 @@ into `.columns-promo-meta` (lines matching `^(Presenters|Moderator|Date|Location
 `.columns-promo-body { margin-top: 43px }`. Meta lines stay tight (line-height rhythm, 0 inter-line margin),
 exactly like the source. Verified @1440 Date-bottom → body-top = 43px (== source).
 lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (promo): body paragraph spacing + full-width mobile CTA
+Two more source-parity fixes:
+- **Body sub-paragraphs** (e.g. a trailing "Can't make it live? Register today…") now sit on their own line
+  with a blank-line gap. Source separates body paragraphs by ~1 line-height (measured 22px @1440). Added
+  `.columns-promo-body .columns-promo-detail + .columns-promo-detail { margin-top: 1.2em }`. The decorator
+  already keeps all non-meta paragraphs in `.columns-promo-body`, so this spaces them like the source.
+- **Mobile CTA** was a fixed 280px left-aligned pill; the source stretches it **full-width** in the stacked
+  panel (edge-to-edge to the 25px insets, so it reads centered). Made `.columns-promo-cta` `width: 100%`
+  mobile-first, restored `width: 280px` at ≥768 (still pinned top-right beside the wrapping title).
+Verified @390 CTA full-width centered (insets 26/26) + "Can't make it live?" on its own line (19px gap);
+@1440 CTA 280px top-right + body para gap 22px (== source).
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
