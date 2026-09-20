@@ -116,6 +116,35 @@ function decorateQuote(block) {
 }
 
 /*
+ * feature (Women's Coaching Cohort) — a two-column row inside a dark rounded
+ * panel: an IMAGE on the left and a bordered CARD (heading + paragraph) on the
+ * right. Image left / text right on desktop; stacked (image over card) on
+ * mobile.
+ *
+ * Authoring model (two cells in one row):
+ *   - cell 1: the image picture
+ *   - cell 2: the heading + paragraph(s)
+ */
+function decorateFeature(block) {
+  const row = block.firstElementChild;
+  if (!row) return;
+
+  [...row.children].forEach((cell) => {
+    const pic = cell.querySelector('picture');
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p:not(.button-container)');
+    if (pic && !hasText) {
+      cell.classList.add('columns-feature-media');
+    } else {
+      cell.classList.add('columns-feature-card');
+    }
+  });
+
+  block.querySelectorAll('.columns-feature-media img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '900' }]));
+  });
+}
+
+/*
  * events (IN-PERSON WORKSHOPS) — a repeating list of event cards. Each block
  * row is ONE event authored as THREE cells:
  *   1. Date     — e.g. "09.19-09.20"
@@ -639,6 +668,7 @@ function decorateDefault(block) {
 
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
+  else if (block.classList.contains('feature')) decorateFeature(block);
   else if (block.classList.contains('quote')) decorateQuote(block);
   else if (block.classList.contains('events')) decorateEvents(block);
   else if (block.classList.contains('profile')) decorateProfile(block);
