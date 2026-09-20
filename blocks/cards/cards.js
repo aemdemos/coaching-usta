@@ -519,12 +519,71 @@ function decorateNews(block) {
       if (!p.classList.contains('cards-news-date')) p.classList.add('cards-news-excerpt');
     });
 
+    // the article link (from the title) becomes the card's whole-tile link target;
+    // reproduce the source's lime arrow affordance sitting between image and body.
+    const titleLink = heading && heading.querySelector('a');
+    const cta = document.createElement('div');
+    cta.className = 'cards-news-cta-wrapper';
+    const arrow = document.createElement(titleLink ? 'a' : 'span');
+    arrow.className = 'cards-news-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.tabIndex = -1;
+    if (titleLink) arrow.href = titleLink.href;
+    cta.append(arrow);
+
+    if (imageDiv) li.append(cta);
     li.append(body);
     ul.append(li);
   });
 
   ul.querySelectorAll('picture > img').forEach((img) => {
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
+/*
+ * quote — a grid of testimonial cards (source: "What Others Are Saying" on the
+ * coaching-community summit page). Each card is a dark rounded panel holding an
+ * italic quote, a full-width divider, then the attribution name + role/org.
+ * 3-up from tablet up, 1-up on mobile.
+ * Authoring (one row per card): a single cell with
+ *   - the quote (first paragraph),
+ *   - the attribution name (2nd-to-last paragraph),
+ *   - the role/org (last paragraph).
+ */
+function decorateQuote(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-quote-card';
+    // pull the paragraphs out of the (single) authored cell
+    const cell = row.firstElementChild && row.children.length === 1 ? row.firstElementChild : row;
+    const paras = [...cell.querySelectorAll('p')];
+
+    // last two paragraphs = attribution (name + role); the rest = the quote
+    const role = paras.pop();
+    const name = paras.pop();
+    const quoteParas = paras;
+
+    const quote = document.createElement('div');
+    quote.className = 'cards-quote-text';
+    quoteParas.forEach((p) => quote.append(p));
+    li.append(quote);
+
+    const hr = document.createElement('hr');
+    hr.className = 'cards-quote-divider';
+    li.append(hr);
+
+    const attribution = document.createElement('div');
+    attribution.className = 'cards-quote-attribution';
+    if (name) { name.classList.add('cards-quote-name'); attribution.append(name); }
+    if (role) { role.classList.add('cards-quote-role'); attribution.append(role); }
+    li.append(attribution);
+
+    ul.append(li);
   });
 
   block.replaceChildren(ul);
@@ -554,5 +613,6 @@ export default function decorate(block) {
   else if (block.classList.contains('profile')) decorateProfile(block);
   else if (block.classList.contains('comparison')) decorateComparison(block);
   else if (block.classList.contains('news')) decorateNews(block);
+  else if (block.classList.contains('quote')) decorateQuote(block);
   else decorateDefault(block);
 }

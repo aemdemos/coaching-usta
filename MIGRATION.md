@@ -2556,3 +2556,301 @@ only inset: content sits 21px from the border on ALL sides (8 frame + 12 cell + 
 top/bottom — symmetric. Guidance: inside a `bordered` section, don't add leading/trailing spacers; the frame
 provides the padding.
 lint ✓ · breakpoint ✓ · overflow ✓ (section + article) · typography ✓ · a11y ✓
+
+### 2026-09-19 — columns (list): re-applied mobile parity fixes (had reverted) + verified desktop/mobile
+The list-tile fixes from 2026-09-18 had reverted in columns.css/.js (content padding back to 15×19, no flex
+gap, CTA pinned bottom, no excerpt clamp, no title-wrapper flatten). Re-applied and re-verified against the
+source `.v-news-article-tile` at desktop (1440) and mobile (393):
+- content card: flex column `gap:20px`, padding 14×18 (was 15×19, no gap).
+- excerpt: margin 0 0 5px + `-webkit-line-clamp:2; overflow:hidden` → 2-line truncation ("…") at all vp.
+- CTA: MOBILE (<768) full-width block, centered; ≥768 inline-block right-aligned (footer justify-end). No
+  bottom-pin. Gaps: title→excerpt 20px, excerpt→CTA 25px.
+- title-wrapper: JS tags the title link's <p> as `.columns-list-title-wrapper`; CSS zeroes its margins +
+  line-height 44 so title→excerpt is exactly the 20px flex gap (not 32px).
+Verified — mobile: thumb 1:1 square (361 = full width), pad 14×18, gap 20, title→desc 20, desc→CTA 25, CTA
+full-width (323), excerpt clamp 2. Desktop: thumb 231 side-by-side, CTA inline 156 right-aligned 19px in,
+same 20/25 gaps. Typography flat & source-exact (title 40/44 Graphik Semibold, excerpt 16/19.2 Graphik
+Regular, CTA 16/-0.48px uppercase).
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
+
+### 2026-09-19 — columns (embed): tablet grid fix + typography parity
+Audited the online-learning-hub embed block against the source across 390/768/1024/1280.
+1) TABLET GRID (positioning drift): source embed column is `tablet--5` (5/12), `desktop-small--6` (6/12),
+   `default--5` (5/12) — side-by-side from ≥768, NOT stacked. My build stacked until 1024. Fixed: side-by-side
+   from ≥768 with embed flex-basis 41.667% (768) → 50% (1024) → 41.667% (≥1280), each minus half the 48px gap.
+   Verified: embed 263px/38% @768, 47% @1024, 40% @1280; embed left, no overflow.
+2) TYPOGRAPHY PARITY — measured every text element (source, all VPs):
+   - intro / body / bullet items: "Graphik Regular" 18/24, weight 400, ls normal, #fff — FLAT all viewports.
+   - section heading ("The Coach's Edge"): "Graphik Regular" (NOT Semibold), weight 400, line-height 1.0,
+     ls normal, #fff; font-size RESPONSIVE 28 (<1024) → 32 (≥1024).
+   - bullet <ul>: list-style disc, padding-left 40px, 18px top/bottom margin.
+   My build had drifts: heading was Graphik SEMIBOLD + flat 32; ul padding-left 24px, margin 0/24. Fixed:
+   heading → var(--body-font-family) (Graphik Regular), 28 base + 32 in the ≥1024 query; ul → disc,
+   padding-left 40px, margin 18px 0. Verified identical @390 (28), @768 (28), @1280 (32); intro/li 18/24 flat.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (360–1920; LinkedIn iframe load is flaky, passes on retry) ·
+typography ✓ · a11y ✓
+
+### 2026-09-19 — columns (embed): fix trailing white space under the LinkedIn iframe (875 → 720)
+Mobile showed ~155px of blank white below the LinkedIn post. Cause: the iframe had a fixed `height: 875px`,
+taller than the actual embed content — the iframe's white background filled the excess. Measured the source
+LinkedIn iframe: it is `height="720"` (CSS 720px) at EVERY viewport (mobile + desktop). Fixed the embed
+iframe height 875 → 720px. Verified @390: iframe 720 = media wrapper 720, extraSpace 0 (gap gone); embed
+ends flush at the post's Like/Comment/Share footer.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (flaky iframe load, passes on retry) · a11y ✓
+
+### 2026-09-19 — columns (embed): cap iframe at source's fixed 430×720 (fix desktop cutoff)
+The prior height fix (720) exposed a second issue: my iframe still had `max-width: 504px`, so on desktop it
+rendered wider than the source, the portrait video grew taller than 720, and the post footer got cut off.
+Measured the source LinkedIn iframe: it is a FIXED 430 × 720 (width="430" height="720") at EVERY viewport —
+it does NOT scale to fill the column. Fixed: `max-width: 430px` (was 504). Now at desktop the iframe is
+430×720 with the full post + footer fitting exactly (extraSpace 0, no cutoff); mobile width:100% shrinks it
+below 430 (358 @390) staying 720 tall (no gap). Verified no horizontal overflow at 360/768/1280/1920
+(scrollW === clientW at each). NOTE: `npm run check:overflow` reports a load ERR on this page because the
+external LinkedIn iframe times out in headless — verified manually there is no overflow.
+lint ✓ (0 err) · breakpoint ✓ · a11y ✓ · overflow verified manually (tool load-timeout on the LI iframe)
+
+### 2026-09-19 — columns (embed): iframe aspect-ratio so it shows full height (no crop, no gap, no scroll)
+Fixed height couldn't satisfy both viewports: the LinkedIn embed's content height scales with the iframe
+WIDTH (portrait video grows taller as the frame widens). 720px fit mobile (358w) but cropped the post footer
+on desktop (430w needs ~865h); 875px showed desktop but left a gap on mobile. Replaced fixed height with
+`aspect-ratio: 430 / 865; height: auto` (max-width 430). Now the iframe height tracks its width so the FULL
+post (video + reactions + Like/Comment/Share footer) shows at every viewport with no scroll and no trailing
+white space. Verified: mobile 358×720 extraSpace 0; desktop 430×865 extraSpace 0, footer visible.
+lint ✓ (0 err) · breakpoint ✓ · a11y ✓ · no horizontal overflow (verified manually; LI iframe times out the
+overflow tool).
+
+TODO (next): instrument any not-yet-built variants — Columns (promo), Columns (text), Cards (news),
+Cards (quote) — from the source URLs + screenshots in the reference/ compressed HTML report, all viewports.
+
+### 2026-09-20 — columns (embed): JS-size iframe to LinkedIn content height (no scroll, no gap, full post)
+Fixed height/aspect-ratio couldn't match: measured the LinkedIn embed's own content height directly (loaded
+the embed URL same-origin) at multiple widths — 263w→674h, 358w→748h, 430w→804h. It grows LINEARLY with
+width (fixed header/footer + width-scaling video): height ≈ 0.778·w + 470. Any single fixed height/ratio
+either clipped the footer (internal scroll) or left a white gap. Fix: decorateEmbed() now sets the iframe
+height from its rendered width via that formula and keeps it in sync with a ResizeObserver; CSS keeps
+max-width 430 + a pre-JS aspect-ratio(430/804) fallback. Verified full post (video + reactions + Like/
+Comment/Share footer) shows with extraSpace 0 and no internal scroll: mobile 358×749, desktop 430×805. No
+horizontal overflow @1440 (scrollW===clientW).
+lint ✓ (0 err) · breakpoint ✓ · a11y ✓
+
+TODO (next): instrument not-yet-built variants — Columns (promo), Columns (text), Cards (news), Cards
+(quote) — from the source URLs + screenshots in the reference/ compressed HTML report, all viewports.
+
+### 2026-09-20 — columns (text): NEW variant (Eligibility & Requirements, coach-mentorship.html)
+Built the `columns.text` variant — a dark rounded card with a centered heading + two requirement columns
+(label + big lime title + diamond-bulleted items) and a centered lime CTA. Source-measured 390/768/1024/1440.
+Design system captured:
+- Card: bg #202020, radius 32px, padding 36px 24px (desktop/tablet) → 24px 16px (mobile). Uses the standard
+  columns container gutters 16/40/48/64.
+- Heading (USTA Sans 700, centered): 28 (<768) → 32 (768) → 40 (≥1024), lh 1.0.
+- Column label (USTA Sans 700, white, uppercase): 24/32 flat.
+- Big title MENTOR/MENTEE (USTA Sans 700, lime #cfff05): 28 (<1024) → 32 (≥1024).
+- Items: `<ul><li><strong>Age:</strong> …</li>` — Graphik Regular 18/24 white, 24px apart, each with a 17px
+  green-diamond marker (::before, media/green-diamond.png downloaded from source), text indented 27px.
+- CTA "Register Now": Graphik Semibold 18/20, #000 on lime, radius 12, padding 14×24, centered.
+- Layout: two columns side-by-side ≥768 (24px gap); stacks below 768.
+JS decorateText: hoists a heading-only first row to a centered card heading; tags label/title (first two <p>)
++ list items (<li>); a trailing link-only row becomes the centered CTA. Added `.text` to the default-variant
+`:not()` guards and the dispatch. Sample: block-samples/columns-text.plain.html (rewrote to the standard
+wrapper structure so the page <title> resolves — a11y needs it).
+Verified vs source @1440: card #202020/32r/36×24 pad, col gap 24, heading 40 centered, label 24/32, title 32
+lime, item 18/24 + diamond, CTA lime pill. @768 2-col heading 32/title 28; @390 stacked, pad 24×16, heading 28.
+lint ✓ (0 err) · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): pixel-parity drift fix (label→title gap)
+Pixel-comparing source vs migrated screenshots for the Eligibility & Requirements card surfaced one drift:
+the small column label → big lime title gap was 8px in the build vs **24px** in the source. Fixed by setting
+`.columns.text .columns-text-label { margin: 0 0 24px; }` (was `0 0 8px`). Re-measured all other metrics and
+they already matched source (heading→label 66px desktop/tablet / 24px mobile; title→first item 24px; item gap
+24px; diamond 17px + 27px indent; column gap 24px). Verified label→title = 24px at 390/768/1440.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): CTA size + diamond color parity
+Two source-mismatches found comparing screenshots:
+- **CTA "Register Now"** was shrink-to-fit; source is a fixed **280×56** flex-centered pill, **uppercase** with
+  **letter-spacing 1px**. Fixed `.columns-text-cta` to width 280 / height 56, flex center, text-transform
+  uppercase, letter-spacing 1px (padding 14×24, radius 12, lime bg, Graphik Semibold 18/20 unchanged).
+- **Diamond marker** was the lime `green-diamond.png`; the source actually uses a **white** diamond
+  (`/content/dam/.../white-diamond.png`). Downloaded it to media/white-diamond.png (17×17 RGBA) and switched
+  the `.columns-text-item::before` background to it. Removed the now-unused green-diamond.png.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): CTA re-measured from source DevTools (corrected)
+Prior fix over-corrected. Re-extracted the source `.button-core` computed styles exactly:
+- Text is **title case "Register Now"** — the outer `<a>` sets `text-transform: uppercase` but the inner
+  `.button-core__text-content` span resets it to `none`, so the visible label is title case. Removed the
+  wrongly-applied `text-transform: uppercase`.
+- Width is **breakpoint-dependent, not a flat 280px**: mobile (<768) = fixed `width: 280px`; **≥768 = `width:
+  max-content` with `min-width: 120px`** (shrinks to content, ~155–206px). Added the ≥768 rule.
+- Added the source's `border: 2px solid #000` and `overflow: hidden`. Height 56, radius 12, padding 14×24,
+  letter-spacing 1px, Graphik Semibold 18/20, weight 400, lime bg / black text — all confirmed.
+Verified @390 (280px fixed) / @768 & @1440 (content-width, min 120) — matches source.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): pixel-parity sweep vs source @440 (CTA centering + marker)
+Measured every component in the source Eligibility card at 440px and diffed against the build. Two drifts:
+- **CTA not centered** — the wrapper was `display:flex; justify-content:center` but the block's row rule made
+  it `flex-direction: column`, so justify centered on the *cross* axis and the pill stayed left-aligned at the
+  card's left padding (left=32 vs source left=80/card-center). Added `flex-direction: column; align-items:
+  center` to `.columns-text-cta-wrapper` → CTA now centers on the card (left=80, center=220 = card center),
+  matching source.
+- **Diamond marker vertical position** — source sits at `top: 5px` within the item row; build had `top: 3px`.
+  Set `.columns-text-item::before { top: 5px }`.
+Confirmed matching source @440: item gaps 24px, text indent 27px (17px diamond + 10px gap), item font 18/24,
+label 24/32, title 28, CTA 280×56 centered. lint ✓ · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (text): diamond marker moved to icons/ as SVG
+Relocated the item marker out of a per-block PNG into the shared icons/ folder as a scalable vector:
+created `icons/diamond.svg` (17×17 white diamond), pointed `.columns-text-item::before` at
+`url("/icons/diamond.svg")`, and deleted `blocks/columns/media/white-diamond.png` (+ the now-empty media/
+dir). SVG is crisp at any DPR and the icons/ folder is the project convention for UI glyphs.
+Verified icon loads (200) and renders at top 5px / 17×17. lint ✓ · check:svg ✓ (under budget) · a11y ✓
+
+### 2026-09-20 — cards (news): parity pass vs source (news.html) + NEW sample page
+decorateNews existed and .cards.news CSS existed but there was NO sample page and several drifts vs the
+source news-card grid (measured news.html @390/768/1024/1280/1440). Fixes:
+- **Grid**: source is 1-up → 2-up (≥768) → **4-up (≥1280)**, gap **24px at every breakpoint**. Build had
+  2-up max and bumped gap to 40 at ≥768. Corrected columns + gap.
+- **Card**: flex column, **16px gap** (image → arrow → content). Was padding-top 24 with no gap.
+- **Image**: source aspect **320/301 (~1.06, near-square)**, radius 20, cover. Build had 16/9.
+- **Arrow affordance**: source shows a **lime 52×48 pill (radius 12) with a black right-arrow SVG** between
+  image and text (inset 16px), NOT an inline "→" after the title. Added `icons/arrow-right.svg` (23×12 glyph),
+  a `.cards-news-cta-wrapper` (padding 0 16px) + `.cards-news-arrow` (52×48 lime pill), and decorateNews now
+  emits it (an `<a>` to the article when the title links, else a span; aria-hidden, tabindex -1). Removed the
+  inline arrow `::after`.
+- **Content**: padding 0 16px 16px, flex column **gap 24px**; date pulled up `-8px` (net 16px below title,
+  matching source). Title 24 → 28 (≥768) → **32 (≥1280, was ≥1024)**.
+Sample: block-samples/cards-news.plain.html (4 cards). Verified @1440 4-up/title32, @768 2-up/title28, @390
+1-up/title24; arrow 52×48 lime + SVG, image aspect 1.06 radius 20, gap 24 all breakpoints.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · check:svg ✓ · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): NEW variant ("What Others Are Saying") + sample page
+Built the `cards.quote` variant from the summit page's testimonial grid (measured
+usta-coaches-inclusion-summit.html @390/768/1440). NOTE the live page's testimonial text has since changed
+(now "WHAT PAST ATTENDEES SAY", plain/transparent), but the block container + the report's design intent are
+the dark rounded quote cards — followed the report ("italic testimonial quote + divider + attribution").
+Design system captured:
+- Grid: **1-up mobile (16px gap) → 3-up ≥768 (24px gap)**; equal-width, equal-height cards (align-items stretch).
+- Card: bg **#2a2a2a**, radius **20px**, **1px solid #a0a0a0** border, **24px** padding, flex column.
+- Quote: Graphik Regular **italic 16/24** white.
+- Divider: full-width `<hr>` 1px solid **#808080**, **16px** above & below.
+- Attribution: name white 16/24 directly above role/org **#bedbff** 16/24 (0 gap).
+JS decorateQuote (cards.js): one row per card; the last two <p> = name + role, the rest = quote; injects an
+`<hr>` divider between quote and attribution. Added `.quote` to the three default-variant `:not()` guards and
+the dispatch branch. Sample: block-samples/cards-quote.plain.html (3 cards: Hassan Humayun / Celia Quintero /
+Gonzo Garcia, from the report).
+Verified @1440 & @768 3-up gap24 card421 #2a2a2a/20r/1px#a0a0a0/24pad, quote italic 16/24, divider #808080
+16/16, name #fff role #bedbff; @390 1-up gap16.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (promo): NEW variant (featured event/promo rows) + sample page
+Built the `columns.promo` variant from coaching-workshops "IN-PERSON EVENTS" + webinar promo rows
+(measured @390/768/1440). Design system captured:
+- Panel: **transparent, 1px solid #fff, 20px radius**; content inset **25px** (mobile/tablet) → **49px top/bottom
+  25px sides** (≥1024). Panels stacked with 24px between.
+- Header: title (left) + lime CTA (right), **flex space-between on one row**; wraps/stacks below on narrow
+  widths (source kept them on one row but the 280px CTA overflowed the panel — wrapping is the overflow-safe
+  equivalent; verified no horizontal overflow at any breakpoint).
+- Title: Graphik Semibold white **28 → 32 (≥1024)**, line-height 1.
+- CTA: the shared lime pill — 280×56, radius 12, 2px black border, letter-spacing 1px, title-case (Graphik
+  Semibold 18/20) — same contract as columns-text/columns-media CTAs.
+- Details: Graphik Regular **18/21.6** white, **48px** below the header.
+JS decoratePromo (columns.js): one row per panel; first heading/p = title, the link = CTA (both moved into a
+`.columns-promo-header`), remaining paragraphs = `.columns-promo-details`. Added `.promo` to the 7 default-
+variant `:not()` guards + the dispatch branch. Sample: block-samples/columns-promo.plain.html (2 panels: STMS
+World Congress + Coaches Open).
+Verified @1440 panel 1px#fff/20r/49-25 pad, title 32 + CTA 280×56 same row, details 48px below 18/21.6;
+@768 title 28 CTA wraps; @390 stacked, title 28.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — typography parity audit (cards news/quote, columns promo) — 2 drifts fixed
+Full per-element typography diff vs source at 390/768/1024/1280/1440 for all three new blocks (font-family,
+size, weight, line-height, letter-spacing, color, transform, style, align). Findings:
+- **cards (news)** — already exact. Title Graphik Semibold, size scales 24→28(≥768)→32(≥1280) with matching
+  letter-spacing -0.03em (measured -0.72/-0.84/-0.96px); date + excerpt Graphik Regular flat 16/19.2. ✓
+- **cards (quote)** — DRIFT: build made the quote **italic**; the LIVE source is `font-style: normal` (flat
+  16/24 Graphik Regular at every viewport). Removed `font-style: italic` from `.cards-quote-text p` (and the
+  sample copy). Name #fff, role #bedbff, all 16/24. Now exact. (The report's "italic" note predates the live
+  page; matched the live computed style.)
+- **columns (promo)** — 2 DRIFTS: (1) title 28→32 bump was at ≥1024 but the source bumps at **≥1280**;
+  (2) details were flat 18/21.6 but the source is **16/19.2 below 1280, 18/21.6 at ≥1280**. Also moved the
+  panel's roomier 49px top/bottom inset to ≥1280 (source stays 25px inset through 1024). CTA is flat 18/20
+  ls 1px title-case at all widths (unchanged). Now exact at every breakpoint.
+Re-verified computed values on the build @390/768/1280/1440 == source for every text element.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920, all 3) · typography ✓ (all 3) · a11y ✓ (all 3)
+
+### 2026-09-20 — columns (promo): swapped sample to live webinar content + fixed header wrap
+Replaced the sample content with the two live ONLINE WEBINARS panels ("Fueling the Ace…" + "Elevate Your
+Coaching…") for a true side-by-side vs source. Their longer titles exposed a layout drift: with
+`justify-content: space-between` and a non-flexing title, the long one-line title pushed the CTA onto its own
+row instead of wrapping. Source keeps title + CTA on the SAME top row with the **title wrapping to 2 lines**
+beside the fixed 280px CTA. Fix: header is `flex-direction: column` (stacked) on mobile → `row` from ≥768 with
+`.columns-promo-title { flex: 1 1 auto; min-width: 0 }` (wraps) and CTA `flex: 0 0 auto` (fixed); both
+top-aligned (align-items flex-start). Verified @1440 title=2 lines, CTA pinned top-right (inset 26 ≈ source 25),
+title top 50 == CTA top 50, title→details 48px; @390 CTA stacks below title, no overflow.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (promo): meta/body spacer parity (Date → description gap)
+Side-by-side vs source revealed the last drift: the source separates the meta lines (Presenters/Moderator/
+Date) from the body description with a **~43px gap** (two empty 21.6px paragraphs in the CMS). My build ran
+the description immediately under the Date line (0 gap). Fix: decoratePromo now splits the detail paragraphs
+into `.columns-promo-meta` (lines matching `^(Presenters|Moderator|Date|Location|Time):`) and
+`.columns-promo-body` (the rest), dropping the empty authored paragraphs; CSS adds
+`.columns-promo-body { margin-top: 43px }`. Meta lines stay tight (line-height rhythm, 0 inter-line margin),
+exactly like the source. Verified @1440 Date-bottom → body-top = 43px (== source).
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — columns (promo): body paragraph spacing + full-width mobile CTA
+Two more source-parity fixes:
+- **Body sub-paragraphs** (e.g. a trailing "Can't make it live? Register today…") now sit on their own line
+  with a blank-line gap. Source separates body paragraphs by ~1 line-height (measured 22px @1440). Added
+  `.columns-promo-body .columns-promo-detail + .columns-promo-detail { margin-top: 1.2em }`. The decorator
+  already keeps all non-meta paragraphs in `.columns-promo-body`, so this spaces them like the source.
+- **Mobile CTA** was a fixed 280px left-aligned pill; the source stretches it **full-width** in the stacked
+  panel (edge-to-edge to the 25px insets, so it reads centered). Made `.columns-promo-cta` `width: 100%`
+  mobile-first, restored `width: 280px` at ≥768 (still pinned top-right beside the wrapping title).
+Verified @390 CTA full-width centered (insets 26/26) + "Can't make it live?" on its own line (19px gap);
+@1440 CTA 280px top-right + body para gap 22px (== source).
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (news): live content/images + grid-width (gutter) parity
+Two updates for a clean side-by-side vs news.html:
+- **Content/images**: swapped the sample to the 4 live grid cards (Coaches Open / Butch Staples / Parks &
+  Recreation / Tina Lee) with their exact titles, dates, excerpts, and the real source image URLs
+  (content/dam/coaching/public-pages/news/…). Each renders at 310×292 (aspect 1.06, radius 20).
+- **Grid width DRIFT**: the news grid uses its OWN wider gutters than the site default 16/40/48/64. Measured
+  news.html: **24 (mobile) → 52 (≥768) → 60 (≥1024) → 76 (≥1280)**, 1536-capped (grid caps at 1384 @1920).
+  My build used 16/40/48/64 (grid 1312 vs source 1288 @1440). Updated `.cards-container:has(.cards.news)`
+  padding-inline to 24/52/60/76.
+Verified grid width == source at every breakpoint: @390 24/342, @768 52/664, @1024 60/904, @1440 76/1288.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): quote is ITALIC (corrected)
+Side-by-side vs the source screenshot showed the quote text should be italic. Re-inspected the live source:
+the quote paragraph's own `font-style` is `normal`, BUT the quote text is wrapped in an `<i>` element
+(`<p><i>"…"</i></p>`), so it renders italic. An earlier pass had read the `<p>` style and wrongly set the
+build to non-italic. Restored `font-style: italic` on `.cards-quote-text p` and updated the sample copy.
+Re-verified all other card metrics still match source @1440: card 421 / 24pad / 20r / 1px #a0a0a0 / #2a2a2a;
+quote italic 16/24 #fff; quote→divider 16; divider 1px #808080; divider→name 16; name #fff, role #bedbff.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): live content + inner 12px text inset (wrap parity)
+Swapped the sample to the exact live quotes (Miyako Coffey / Marc Atkinson / Marti Love). With identical
+content the quote wrapped WIDER than the source (my text used the full 371px content box; source wrapped to
+6 lines). DevTools showed the source nests the text in an inner `.text.aem-GridColumn` wrapper with **12px
+side padding**, so the quote + attribution sit inset 12px inside the card content box (text column = 347px,
+left inset 37), while the **divider spans the full 371px content box**. Reproduced: added
+`padding-inline: 12px` to `.cards-quote-text` + `.cards-quote-attribution` (divider unchanged, full-width).
+Verified @1440: quote left 37 / width 347 / **6 lines** (== source), divider 25/371/25, name left 37; @390
+no overflow (card 358, quote 284, divider 308). Quote italic retained.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-20 — cards (quote): bottom padding parity (extra space below attribution)
+Pixel compare showed the source cards have MORE space below the attribution than the build. Measured @1100
+(card 319w): source tallest card (Marc, 12-line quote) role→card-bottom = **57px** (not the plain 24px pad) —
+its AEM grid row stretches ~32px past the content. Build had role→bottom = 25px (pad only). Set the card
+`padding: 24px 24px 56px` (extra ~32px at the bottom). Now the tallest card's role→bottom = 57px == source;
+internal rhythm unchanged (quote→divider 16, divider→name 16, 12-line wrap, 12px text inset). Residual card-
+height delta vs the live page is only because the source's full-page grid row is stretched by a taller
+sibling elsewhere — not reproducible (or meaningful) in the isolated block sample.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓

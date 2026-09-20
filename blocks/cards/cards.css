@@ -11,7 +11,7 @@
    variant, so those variants never inherit the bordered base styles. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos) > ul {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote) > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -20,7 +20,7 @@
   gap: 24px;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos) > ul > li {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote) > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -33,7 +33,7 @@
   line-height: 0;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos) > ul > li img {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote) > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
@@ -1059,13 +1059,14 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* ------------------------------------------------------------------- news --
    News/article cards: a 2-up grid of article cards, each = a top image (rounded)
    + a bold title (a link), a publish date, and an excerpt. The title link shows
-   a lime arrow affordance. Section gutters 16/40/48/64 in the 1536-capped
-   centered container. */
+   a lime arrow affordance. The news grid uses its OWN wider gutters (measured on
+   news.html): 24 → 52 (>=768) → 60 (>=1024) → 76 (>=1280), 1536-capped centered
+   container (so the grid caps at 1384). */
 .cards-container:has(.cards.news) {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
-  padding-inline: 16px;
+  padding-inline: 24px;
 }
 
 .cards-container:has(.cards.news) > .cards-wrapper {
@@ -1084,9 +1085,11 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   align-items: start;
 }
 
+/* card = flex column: image, lime arrow CTA, then content — 16px apart (source) */
 .cards.news .cards-news-card {
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 
 .cards.news .cards-news-image {
@@ -1097,20 +1100,35 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   width: 100%;
   height: auto;
   display: block;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 320 / 301;
   object-fit: cover;
   border-radius: 20px;
 }
 
+/* lime arrow affordance between the image and the text (source: 52x48 pill,
+   black right-arrow glyph), inset 16px to align with the content text */
+.cards.news .cards-news-cta-wrapper {
+  padding: 0 16px;
+}
+
+.cards.news .cards-news-arrow {
+  display: block;
+  width: 52px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--usta-lime) url("/icons/arrow-right.svg") center / 23px 12px no-repeat;
+}
+
+/* content column: title, date, excerpt — 24px apart, inset 16px (source) */
 .cards.news .cards-news-body {
   display: flex;
   flex-direction: column;
-  padding-top: 24px;
+  gap: 24px;
+  padding: 0 16px 16px;
 }
 
-/* title (usually a link) with a lime arrow affordance — source:
-   24px (<=767) -> 28px (768) -> 32px (>=1024), Graphik Semibold weight 400,
-   line-height 1.0, letter-spacing -0.03em (the global tracking) */
+/* title (a link) — source: 24px (<768) -> 28px (768) -> 32px (>=1280),
+   Graphik Semibold weight 400, line-height 1.0, letter-spacing -0.03em */
 .cards.news .cards-news-title {
   margin: 0;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
@@ -1126,15 +1144,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   text-decoration: none;
 }
 
-.cards.news .cards-news-title a::after {
-  content: " →";
-  color: var(--usta-lime);
-}
-
-/* publish date — source: 16px Graphik Regular, line-height 19.2px (1.2),
-   letter-spacing normal, white */
+/* publish date — source: 16px Graphik Regular, line-height 19.2px (1.2), white.
+   Source pulls the date up 8px so it sits 16px below the title (24 gap - 8) */
 .cards.news .cards-news-date {
-  margin: 12px 0 0;
+  margin: -8px 0 0;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
@@ -1142,10 +1155,9 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   color: #fff;
 }
 
-/* excerpt — source: 16px Graphik Regular, line-height 19.2px (1.2),
-   letter-spacing normal, white */
+/* excerpt — source: 16px Graphik Regular, line-height 19.2px (1.2), white */
 .cards.news .cards-news-excerpt {
-  margin: 12px 0 0;
+  margin: 0;
   font-family: "Graphik Regular", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
@@ -1154,11 +1166,11 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 @media (width >= 768px) {
-  .cards-container:has(.cards.news) { padding-inline: 40px; }
+  .cards-container:has(.cards.news) { padding-inline: 52px; }
 
+  /* 2-up from tablet, gap stays 24px (source) */
   .cards.news > ul {
     grid-template-columns: repeat(2, 1fr);
-    gap: 40px;
   }
 
   /* title 24 -> 28 at the tablet breakpoint */
@@ -1166,14 +1178,18 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 @media (width >= 1024px) {
-  .cards-container:has(.cards.news) { padding-inline: 48px; }
-
-  /* title 28 -> 32 at the desktop breakpoint */
-  .cards.news .cards-news-title { font-size: 32px; }
+  .cards-container:has(.cards.news) { padding-inline: 60px; }
 }
 
 @media (width >= 1280px) {
-  .cards-container:has(.cards.news) { padding-inline: 64px; }
+  .cards-container:has(.cards.news) { padding-inline: 76px; }
+
+  /* 4-up + title 28 -> 32 at the wide desktop breakpoint (source) */
+  .cards.news > ul {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .cards.news .cards-news-title { font-size: 32px; }
 }
 
 /* ------------------------------------------------------------------ media -- */
@@ -1672,4 +1688,113 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   .cards-container:has(.cards.logos) {
     padding-inline: 64px;
   }
+}
+
+/* ------------------------------------------------------------------ quote --
+   Testimonial quote cards (source: "What Others Are Saying" on the coaching-
+   community summit page). A grid of dark rounded cards, each = an italic quote,
+   a full-width divider, then the attribution name + role/org. 1-up on mobile,
+   3-up from tablet up (24px gap). Section gutters 16/40/48/64 in the 1536-capped
+   centered container. */
+.cards-container:has(.cards.quote) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+.cards-container:has(.cards.quote) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cards.quote > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* card: dark rounded panel, 1px grey border, 24px padding (source) */
+.cards.quote .cards-quote-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  /* 24px top/sides; the source card reserves extra space below the attribution
+     (its grid row stretches ~32px past the content), so bottom is 56px */
+  padding: 24px 24px 56px;
+  border: 1px solid #a0a0a0;
+  border-radius: 20px;
+  background: #2a2a2a;
+}
+
+/* the source nests the text inside an inner wrapper with 12px side padding, so
+   the quote + attribution sit inset 12px from the card content box while the
+   divider spans full width. Reproduce that inset on the text blocks only. */
+.cards.quote .cards-quote-text,
+.cards.quote .cards-quote-attribution {
+  padding-inline: 12px;
+}
+
+/* quote — Graphik Regular 16/24 white, ITALIC (source wraps the quote in an <i>,
+   so the rendered text is italic) */
+.cards.quote .cards-quote-text p {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* full-width divider (spans the card content box), 16px above and below (source) */
+.cards.quote .cards-quote-divider {
+  width: 100%;
+  height: 0;
+  margin: 16px 0;
+  border: 0;
+  border-top: 1px solid #808080;
+}
+
+/* attribution: name (white) directly above role/org (light blue) — 16/24 */
+.cards.quote .cards-quote-attribution p {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.cards.quote .cards-quote-name {
+  color: #fff;
+}
+
+.cards.quote .cards-quote-role {
+  color: #bedbff;
+}
+
+@media (width >= 768px) {
+  .cards-container:has(.cards.quote) { padding-inline: 40px; }
+
+  /* 3-up from tablet, 24px gap (source) */
+  .cards.quote > ul {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (width >= 1024px) {
+  .cards-container:has(.cards.quote) { padding-inline: 48px; }
+}
+
+@media (width >= 1280px) {
+  .cards-container:has(.cards.quote) { padding-inline: 64px; }
 }

@@ -14,35 +14,35 @@
    by the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) img {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) img {
   width: 100%;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > div {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > div {
   order: 1;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > .columns-img-col {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > .columns-img-col {
   order: 0;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > .columns-img-col img {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed) > div > div {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > div {
     flex: 1;
     order: unset;
   }
@@ -1013,17 +1013,29 @@ main > .section.columns-container:has(.columns.list) > div {
   border-radius: 20px;
 }
 
-/* ---- content card (bordered) ---- */
+/* ---- content card (bordered) ----
+   Source model (.v-news-article-tile__content): flex COLUMN with a 20px gap
+   (title → excerpt → footer), 1px #fff border, 20px radius, 14px 18px padding.
+   The gap gives 20px title→excerpt; the excerpt adds 5px margin-bottom so
+   excerpt→footer = 25px. The CTA is NOT pinned to the card bottom. */
 .columns.list .columns-list-content {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  gap: 20px;
   border: 1px solid #fff;
   border-radius: 20px;
-  padding: 15px 19px;
+  padding: 14px 18px;
 }
 
-/* title (link) */
+/* title (link) — the link may sit inside a <p> wrapper; flatten the wrapper's
+   default paragraph margins and give it the title line-box so the 20px flex gap
+   is the only space above the excerpt (matches source). */
+.columns.list .columns-list-title-wrapper {
+  margin: 0;
+  line-height: 44px;
+}
+
 .columns.list .columns-list-title,
 .columns.list .columns-list-title:any-link {
   margin: 0;
@@ -1040,26 +1052,36 @@ main > .section.columns-container:has(.columns.list) > div {
   text-decoration: none;
 }
 
-/* excerpt */
+/* excerpt — Graphik Regular 16/19.2 white; 5px bottom margin so the gap to the
+   CTA is 25px (20px flex gap + 5px). Clamped to TWO lines at every viewport
+   (source .v-news-article-tile__description) so a long excerpt ends "…" on
+   mobile instead of pushing the card taller. */
 .columns.list .columns-list-excerpt {
-  margin: 20px 0 0;
+  margin: 0 0 5px;
   font-family: var(--body-font-family);
   font-size: 16px;
-  line-height: 1.2;
+  line-height: 19.2px;
   font-weight: 400;
   letter-spacing: normal;
   color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* CTA "Read Article" — lime pill, pinned bottom-right (48px min gap above) */
+/* CTA "Read Article" — lime pill. MOBILE (<768): full-width block (source
+   stretches the CTA to the card's inner width below its mobile breakpoint).
+   No top-margin/auto: the card's 20px column gap + excerpt's 5px = 25px above. */
 .columns.list .columns-list-cta-wrapper {
-  margin: 48px 0 0;
+  margin: 0;
   display: flex;
-  justify-content: flex-end;
 }
 
 .columns.list .columns-list-cta:any-link {
-  display: inline-block;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   padding: 16px 24px;
   border-radius: 12px;
   background: var(--usta-lime);
@@ -1068,8 +1090,9 @@ main > .section.columns-container:has(.columns.list) > div {
   font-size: 16px;
   line-height: 1;
   font-weight: 400;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.48px;
   text-transform: uppercase;
+  text-align: center;
   text-decoration: none;
 }
 
@@ -1079,9 +1102,19 @@ main > .section.columns-container:has(.columns.list) > div {
   color: #000;
 }
 
-/* tablet (>=768): larger gutter (still stacked) */
+/* tablet (>=768): larger gutter (still stacked). CTA shrinks to an inline pill,
+   right-aligned in the card (source footer: single CTA on the right). */
 @media (width >= 768px) {
   main > .section.columns-container:has(.columns.list) > div { padding: 0 40px; }
+
+  .columns.list .columns-list-cta-wrapper {
+    justify-content: flex-end;
+  }
+
+  .columns.list .columns-list-cta:any-link {
+    display: inline-block;
+    width: auto;
+  }
 }
 
 /* desktop (>=1024): side-by-side, thumbnail fixed width stretched to card height */
@@ -1102,11 +1135,6 @@ main > .section.columns-container:has(.columns.list) > div {
   .columns.list .columns-list-content {
     flex: 1 1 auto;
     min-width: 0;
-  }
-
-  /* the CTA row grows to fill so the button sits at the card bottom-right */
-  .columns.list .columns-list-cta-wrapper {
-    margin-top: auto;
   }
 }
 
@@ -1144,8 +1172,13 @@ main > .section.columns-container:has(.columns.embed) > div {
 .columns.embed .columns-embed-media iframe {
   display: block;
   width: 100%;
-  max-width: 504px;
-  height: 875px;
+
+  /* Source embed is capped at 430px wide (width="430"). The HEIGHT is set by JS
+     from the rendered width (height ≈ 0.778·w + 470) so the full post shows with
+     no scroll and no trailing gap at every width — see decorateEmbed. The
+     aspect-ratio here is only a pre-JS fallback (~430/804) to avoid layout jump. */
+  max-width: 430px;
+  aspect-ratio: 430 / 804;
   border: none;
   border-radius: 8px;
   background: #fff;
@@ -1162,10 +1195,13 @@ main > .section.columns-container:has(.columns.embed) > div {
   color: #fff;
 }
 
+/* bullet list — source: list-style disc, padding-left 40px, 18px top/bottom
+   margin; list items are the same 18/24 Graphik Regular as body copy. */
 .columns.embed .columns-embed-content ul,
 .columns.embed .columns-embed-content ol {
-  margin: 0 0 24px;
-  padding-left: 24px;
+  margin: 18px 0;
+  padding-left: 40px;
+  list-style: disc;
 }
 
 .columns.embed .columns-embed-content li {
@@ -1181,27 +1217,27 @@ main > .section.columns-container:has(.columns.embed) > div {
   margin: 0;
 }
 
-/* bold section heading ("The Coach's Edge…") — authored as an h2/h3 or bold */
+/* section heading ("The Coach's Edge…") — source uses Graphik REGULAR (not
+   Semibold), weight 400, line-height 1.0, ls normal, #fff. Font-size is
+   RESPONSIVE: 28 below 1024, 32 at ≥1024 (see the desktop media query). */
 .columns.embed .columns-embed-content h1,
 .columns.embed .columns-embed-content h2,
 .columns.embed .columns-embed-content h3 {
   margin: 40px 0 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-size: 32px;
+  font-family: var(--body-font-family);
+  font-size: 28px;
   line-height: 1;
   font-weight: 400;
   letter-spacing: normal;
   color: #fff;
 }
 
-/* tablet (>=768): larger gutter (still stacked) */
+/* tablet (>=768): side-by-side. The source lays this on a 12-col grid: the embed
+   column is `tablet--5` (5/12 ≈ 41.7%) at 768–1023, `desktop-small--6` (6/12 =
+   50%) at 1024–1279, and `default--5` (5/12) at ≥1280 — so it is NOT stacked at
+   tablet (that was the drift). Text takes the remaining columns. 48px gap. */
 @media (width >= 768px) {
   main > .section.columns-container:has(.columns.embed) > div { padding: 0 40px; }
-}
-
-/* desktop (>=1024): side-by-side, embed ~40% (capped 515) + text ~60% */
-@media (width >= 1024px) {
-  main > .section.columns-container:has(.columns.embed) > div { padding: 0 48px; }
 
   .columns.embed > div {
     flex-direction: row;
@@ -1210,7 +1246,7 @@ main > .section.columns-container:has(.columns.embed) > div {
   }
 
   .columns.embed .columns-embed-media {
-    flex: 0 0 40%;
+    flex: 0 0 calc(41.667% - 24px); /* 5/12 minus half the 48px gap */
     max-width: 515px;
   }
 
@@ -1220,7 +1256,362 @@ main > .section.columns-container:has(.columns.embed) > div {
   }
 }
 
-/* wide desktop (>=1280): 64px gutter */
+/* small desktop (>=1024): embed grows to 6/12 (50%); section heading → 32
+   (source steps the "Coach's Edge" heading 28 → 32 at this breakpoint). */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.embed) > div { padding: 0 48px; }
+
+  .columns.embed .columns-embed-media {
+    flex: 0 0 calc(50% - 24px); /* 6/12 minus half the 48px gap */
+  }
+
+  .columns.embed .columns-embed-content h1,
+  .columns.embed .columns-embed-content h2,
+  .columns.embed .columns-embed-content h3 {
+    font-size: 32px;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter; embed back to 5/12 (≈41.7%) */
 @media (width >= 1280px) {
   main > .section.columns-container:has(.columns.embed) > div { padding: 0 64px; }
+
+  .columns.embed .columns-embed-media {
+    flex: 0 0 calc(41.667% - 24px); /* 5/12 minus half the 48px gap */
+  }
+}
+
+/* =================================================================== text ==
+   Eligibility & Requirements (coach-mentorship.html): a dark rounded CARD
+   holding a centered heading + two requirement columns (label + big lime title
+   + diamond-bulleted items) with an optional centered lime CTA below.
+   Source-measured 390/768/1024/1280/1440. Card #202020, 32px radius, padding
+   36px 24px (24px 16px mobile). Two columns side-by-side ≥768 (24px gap); stack
+   below. Heading USTA Sans 700 centered, 28 → 32 (768) → 40 (1024). Column label
+   USTA Sans 700 24/32 white; big title USTA Sans 700 lime, 28 → 32 (1024). Items
+   Graphik Regular 18/24 white with a 17px diamond marker (icons/diamond.svg), 24px apart. */
+main > .section.columns-container:has(.columns.text) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* the block itself is the dark card */
+.columns.text {
+  box-sizing: border-box;
+  background: #202020;
+  border-radius: 32px;
+  padding: 24px 16px;
+}
+
+/* heading (authored as the block's preceding default-content h2 is separate;
+   here the card's own centered heading is the section heading if present) */
+.columns.text .columns-text-heading {
+  margin: 0 0 24px;
+  font-family: "USTA Sans", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: #fff;
+  text-align: center;
+}
+
+/* the row: stacked on mobile */
+.columns.text > div {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.columns.text .columns-text-col {
+  min-width: 0;
+}
+
+/* small label above the big title (24px gap to title, per source) */
+.columns.text .columns-text-label {
+  margin: 0 0 24px;
+  font-family: "USTA Sans", tahoma, arial, sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+/* big lime title (MENTOR / MENTEE) */
+.columns.text .columns-text-title {
+  margin: 0 0 24px;
+  font-family: "USTA Sans", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 28px;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: var(--usta-lime);
+  text-transform: uppercase;
+}
+
+/* the items live in a <ul>; strip its default list styling so each item's
+   diamond marker (::before) is the only bullet */
+.columns.text .columns-text-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* requirement items — diamond marker + Graphik Regular 18/24 text, 24px apart.
+   The <b>/<strong> lead-in stays the same size/weight family (bold). */
+.columns.text .columns-text-item {
+  position: relative;
+  margin: 0 0 24px;
+  padding-left: 27px;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+  list-style: none;
+}
+
+.columns.text .columns-text-item:last-child {
+  margin-bottom: 0;
+}
+
+.columns.text .columns-text-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 17px;
+  height: 17px;
+  background: url("/icons/diamond.svg") center / contain no-repeat;
+}
+
+/* CTA "Register Now" — centered lime pill below the columns */
+.columns.text .columns-text-cta-wrapper {
+  margin: 40px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.columns.text .columns-text-cta:any-link {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 280px;
+  height: 56px;
+  padding: 14px 24px;
+  overflow: hidden;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+.columns.text .columns-text-cta:hover {
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+}
+
+/* tablet (>=768): card padding 36×24, larger gutter; columns side-by-side */
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.text) > div { padding: 0 40px; }
+
+  .columns.text {
+    padding: 36px 24px;
+  }
+
+  .columns.text .columns-text-heading {
+    font-size: 32px;
+    margin-bottom: 66px;
+  }
+
+  .columns.text > div {
+    flex-direction: row;
+    gap: 24px;
+  }
+
+  .columns.text .columns-text-col {
+    flex: 1 1 0;
+  }
+
+  /* CTA shrinks to its content from tablet up (source: width max-content,
+     min-width 120px); mobile keeps the fixed 280px pill */
+  .columns.text .columns-text-cta:any-link {
+    width: max-content;
+    min-width: 120px;
+  }
+}
+
+/* small desktop (>=1024): heading 40, big title 32 */
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.text) > div { padding: 0 48px; }
+
+  .columns.text .columns-text-heading { font-size: 40px; }
+
+  .columns.text .columns-text-title {
+    font-size: 32px;
+    line-height: 32px;
+  }
+}
+
+/* wide desktop (>=1280): 64px gutter */
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.text) > div { padding: 0 64px; }
+}
+
+/* ================================================================== promo ==
+   Featured event/promo rows (coaching-workshops "IN-PERSON EVENTS" + webinar
+   rows): an outlined rounded panel with a header (bold title left + lime
+   "Register Now" pill right, sharing the top line — stacks on mobile) and
+   detail paragraphs (Presenters / Location / Date) below. Source-measured
+   390/768/1440. Panel: transparent, 1px solid #fff, 20px radius, content inset
+   ~25px. Title Graphik Semibold white 28 → 32 (≥1024). Details Graphik Regular
+   18/21.6 white. CTA = the shared lime 280×56 pill. Gutters 16/40/48/64 on the
+   1536-capped centered container. */
+main > .section.columns-container:has(.columns.promo) > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+/* each row = an outlined rounded panel; stacked with 24px between panels */
+.columns.promo > div {
+  display: block;
+}
+
+.columns.promo .columns-promo-panel {
+  box-sizing: border-box;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 25px;
+}
+
+.columns.promo .columns-promo-panel + .columns-promo-panel {
+  margin-top: 24px;
+}
+
+/* header: title (left) + CTA (right). Mobile-first the title sits above the CTA
+   (stacked); from tablet up they share the top row — the title flexes to fill the
+   space beside the fixed-width CTA so its text wraps (matching the source) rather
+   than pushing the CTA down. Both top-aligned. */
+.columns.promo .columns-promo-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* title — Graphik Semibold white, 28 → 32 (≥1280) */
+.columns.promo .columns-promo-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* CTA — the shared lime pill (radius 12, 2px black border, uppercase transform
+   reset by content so it reads title-case, 1px tracking). Mobile-first it is
+   FULL-WIDTH (source stretches it edge-to-edge in the stacked panel); from tablet
+   up it becomes the fixed 280px pill pinned top-right. */
+.columns.promo .columns-promo-cta:any-link {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 56px;
+  padding: 14px 24px;
+  overflow: hidden;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+/* details — Graphik Regular white, 16/19.2 → 18/21.6 (≥1280); 48px below header.
+   Meta lines (Presenters/Moderator/Date) are tight; a gap separates them from the
+   body copy, reproducing the source's spacer between the date and description. */
+.columns.promo .columns-promo-details {
+  margin-top: 48px;
+}
+
+.columns.promo .columns-promo-body {
+  margin-top: 43px;
+}
+
+/* body copy can have multiple paragraphs (e.g. a trailing "Can't make it live?"
+   line); the source separates them by one blank line (~1 line-height) */
+.columns.promo .columns-promo-body .columns-promo-detail + .columns-promo-detail {
+  margin-top: 1.2em;
+}
+
+.columns.promo .columns-promo-detail {
+  margin: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.promo) > div { padding: 0 40px; }
+
+  /* title + CTA share the top row from tablet up; title flexes (wraps) beside the
+     fixed-width CTA, both top-aligned (source) */
+  .columns.promo .columns-promo-header {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .columns.promo .columns-promo-title {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .columns.promo .columns-promo-cta:any-link {
+    flex: 0 0 auto;
+    width: 280px;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.promo) > div { padding: 0 48px; }
+}
+
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.promo) > div { padding: 0 64px; }
+
+  /* wide desktop: roomier top/bottom inset (source ~49px) + title 28 -> 32 +
+     details 16/19.2 -> 18/21.6 */
+  .columns.promo .columns-promo-panel { padding: 49px 25px; }
+
+  .columns.promo .columns-promo-title { font-size: 32px; }
+
+  .columns.promo .columns-promo-detail { font-size: 18px; }
 }
