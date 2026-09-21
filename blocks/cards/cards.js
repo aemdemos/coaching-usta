@@ -1,15 +1,42 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
- * cards — a row of repeating cards. Three variants share this block:
+ * cards — a row of repeating cards. Variants share this block:
  *   • default  : bordered image + body tile (boilerplate).
  *   • media    : editorial cards — photo, heading, paragraph (transparent).
  *   • pricing  : membership tiers — label, tier name, price, feature list, CTA.
+ *   • logos    : partner/affiliation logo tiles — white rounded squares in a
+ *                4-up grid (ustacoaching.com/…/about "Partners & Affiliations").
  * The variant is authored as a class on the block (e.g. `cards (media)`), so we
  * dispatch on it here and keep each variant's own inner class names.
  *
  * @param {Element} block the cards block element
  */
+function decorateLogos(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-logo-card';
+    // the cell holds the logo image, usually wrapped in <p>/<div> and optionally
+    // a link. Pull out the picture/img and its wrapping <a> (which carries the
+    // partner URL) directly; ignore the wrappers and any stray label text.
+    const cell = row.children[0] || row;
+    const img = cell.querySelector('img');
+    if (!img) return;
+    const picture = img.closest('picture') || img;
+    const link = img.closest('a');
+    li.append(link || picture);
+    ul.append(li);
+  });
+
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '256' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
 function decorateMedia(block) {
   const ul = document.createElement('ul');
 
@@ -492,12 +519,71 @@ function decorateNews(block) {
       if (!p.classList.contains('cards-news-date')) p.classList.add('cards-news-excerpt');
     });
 
+    // the article link (from the title) becomes the card's whole-tile link target;
+    // reproduce the source's lime arrow affordance sitting between image and body.
+    const titleLink = heading && heading.querySelector('a');
+    const cta = document.createElement('div');
+    cta.className = 'cards-news-cta-wrapper';
+    const arrow = document.createElement(titleLink ? 'a' : 'span');
+    arrow.className = 'cards-news-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.tabIndex = -1;
+    if (titleLink) arrow.href = titleLink.href;
+    cta.append(arrow);
+
+    if (imageDiv) li.append(cta);
     li.append(body);
     ul.append(li);
   });
 
   ul.querySelectorAll('picture > img').forEach((img) => {
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+  });
+
+  block.replaceChildren(ul);
+}
+
+/*
+ * quote — a grid of testimonial cards (source: "What Others Are Saying" on the
+ * coaching-community summit page). Each card is a dark rounded panel holding an
+ * italic quote, a full-width divider, then the attribution name + role/org.
+ * 3-up from tablet up, 1-up on mobile.
+ * Authoring (one row per card): a single cell with
+ *   - the quote (first paragraph),
+ *   - the attribution name (2nd-to-last paragraph),
+ *   - the role/org (last paragraph).
+ */
+function decorateQuote(block) {
+  const ul = document.createElement('ul');
+
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-quote-card';
+    // pull the paragraphs out of the (single) authored cell
+    const cell = row.firstElementChild && row.children.length === 1 ? row.firstElementChild : row;
+    const paras = [...cell.querySelectorAll('p')];
+
+    // last two paragraphs = attribution (name + role); the rest = the quote
+    const role = paras.pop();
+    const name = paras.pop();
+    const quoteParas = paras;
+
+    const quote = document.createElement('div');
+    quote.className = 'cards-quote-text';
+    quoteParas.forEach((p) => quote.append(p));
+    li.append(quote);
+
+    const hr = document.createElement('hr');
+    hr.className = 'cards-quote-divider';
+    li.append(hr);
+
+    const attribution = document.createElement('div');
+    attribution.className = 'cards-quote-attribution';
+    if (name) { name.classList.add('cards-quote-name'); attribution.append(name); }
+    if (role) { role.classList.add('cards-quote-role'); attribution.append(role); }
+    li.append(attribution);
+
+    ul.append(li);
   });
 
   block.replaceChildren(ul);
@@ -520,11 +606,13 @@ function decorateDefault(block) {
 
 export default function decorate(block) {
   if (block.classList.contains('media')) decorateMedia(block);
+  else if (block.classList.contains('logos')) decorateLogos(block);
   else if (block.classList.contains('pricing')) decoratePricing(block);
   else if (block.classList.contains('course')) decorateCourse(block);
   else if (block.classList.contains('text')) decorateText(block);
   else if (block.classList.contains('profile')) decorateProfile(block);
   else if (block.classList.contains('comparison')) decorateComparison(block);
   else if (block.classList.contains('news')) decorateNews(block);
+  else if (block.classList.contains('quote')) decorateQuote(block);
   else decorateDefault(block);
 }
