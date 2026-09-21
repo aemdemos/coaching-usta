@@ -94,14 +94,16 @@
   object-fit: cover;
 }
 
-/* Consent-style message text (source: centred, black on grey, Graphik 16px,
-   with a blue underlined "cookie preferences" link). */
+/* Consent-style message text (source: centred, black on grey, Graphik, with a
+   blue underlined "cookie preferences" link). Single paragraph constrained to
+   400px like the source, so it wraps naturally + stays centred at any width. */
 .video .video-message {
   position: relative;
+  max-width: 400px;
   color: var(--dark-color);
   font-family: var(--body-font-family);
-  font-size: 16px;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.5;
   text-align: center;
 }
 
@@ -130,6 +132,10 @@
 
   .video .video-heading p {
     font-size: 32px;
+  }
+
+  .video .video-message {
+    font-size: 16px;
   }
 
   .video .video-player {
