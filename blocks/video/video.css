@@ -1,0 +1,154 @@
+/* Video block — a heading over a video that mirrors the source: the player is
+   NOT embedded on load. It shows a grey placeholder panel at the source's
+   fixed height per breakpoint (200 / 320 / 650), full content width; the
+   third-party player loads only on click. Dark theme; uses global tokens. */
+
+.video {
+  margin: 24px auto;
+  text-align: center;
+}
+
+/* Leading heading/intro above the player. The source renders this as
+   bold, white, centered display type with a lime-highlighted phrase
+   (authored as *italic* → lime via the global content accent). */
+.video .video-heading {
+  margin-bottom: 24px;
+  color: var(--text-color);
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  line-height: 1;
+  text-transform: none;
+}
+
+.video .video-heading p {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.video .video-heading em,
+.video .video-heading i {
+  color: var(--usta-lime);
+  font-style: normal;
+}
+
+/* Player container — full content width, fixed height per breakpoint (source
+   heights: 200 mobile / 320 tablet / 650 desktop). */
+.video .video-player {
+  position: relative;
+  width: 100%;
+  height: 200px;
+}
+
+.video .video-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.video .video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video .video-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Grey consent-style placeholder shown until the user clicks (matches the
+   source's #eef0f0 panel with the centred "This video requires…" notice). */
+.video .video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  background-color: #eef0f0;
+  overflow: hidden;
+}
+
+.video .video-placeholder-button {
+  cursor: pointer;
+}
+
+.video .video-player[data-embed-loaded='true'] .video-placeholder {
+  display: none;
+}
+
+/* An optional authored poster fills the panel behind the message. */
+.video .video-placeholder picture {
+  position: absolute;
+  inset: 0;
+}
+
+.video .video-placeholder picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Consent-style message text (source: centred, black on grey, Graphik, with a
+   blue underlined "cookie preferences" link). Single paragraph constrained to
+   400px like the source, so it wraps naturally + stays centred at any width. */
+.video .video-message {
+  position: relative;
+  max-width: 400px;
+  color: var(--dark-color);
+  font-family: var(--body-font-family);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.video .video-message p {
+  margin: 0;
+}
+
+.video .video-message a {
+  /* source link is #418fde; darkened to #1667c0 to meet AA contrast (4.9:1)
+     on the grey #eef0f0 panel while staying a close link-blue. */
+  color: #1667c0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.video .video-message a:focus-visible,
+.video .video-placeholder-button:focus-visible {
+  outline: 2px solid var(--usta-blue);
+  outline-offset: 2px;
+}
+
+@media (width >= 768px) {
+  .video {
+    margin: 40px auto;
+  }
+
+  .video .video-heading p {
+    font-size: 32px;
+  }
+
+  .video .video-message {
+    font-size: 16px;
+  }
+
+  .video .video-player {
+    height: 320px;
+  }
+}
+
+@media (width >= 1024px) {
+  .video .video-heading p {
+    font-size: 40px;
+  }
+
+  .video .video-player {
+    height: 650px;
+  }
+}
