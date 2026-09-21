@@ -305,7 +305,7 @@ main > .section.accordion-container > div {
    short description has no flag, shows in full, and gets no "…". Gating the clamp on
    the SAME flag as the "…" guarantees a card is never cut without a "…". */
 .accordion.pathway .accordion-timeline-desc-wrapper[data-clamp-overflow="true"] .accordion-timeline-desc-clamp {
-  max-height: 150.72px; /* source clamp height; keep in sync with PATHWAY_CLAMP_MAX_PX */
+  max-height: calc(1.57rem * 5);
   overflow: hidden;
 }
 
@@ -337,7 +337,6 @@ main > .section.accordion-container > div {
   position: absolute;
   right: 0;
   bottom: -2px;
-  padding: 0 0 0 8px;
   border: 0;
   background-color: #fff;
   color: #000;
@@ -806,7 +805,7 @@ main > .section.accordion-container > div {
      a row read as equal-height; expanding one grows past it (align-items:start on
      the grid keeps the neighbour at its own height, so no empty stretch). */
   .accordion.pathway .accordion-timeline-course {
-    min-height: 347px;
+    min-height: 315px;
   }
 
   /* course badge steps 120px -> 148px at >=1024 (source `.v-course__badge`). This
