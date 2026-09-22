@@ -1,0 +1,80 @@
+/* ---------------------------------------------------------------- quote -- *
+ * Highlighted pull-quote callout (source: article body callout).
+ * The quote is large Graphik Semibold in brand lime; the attribution is
+ * smaller white Graphik Regular below it. Sits on the page's dark background.
+ *
+ * Source truth (live site, computed): quote 28px / line-height 1 (32px @1280),
+ * lime #cfff05; attribution 18px / line-height 24px, white; 24px gap between
+ * quote and attribution. Background transparent.
+ *
+ * Layout: the source nests the quote in its 12-column grid at columns 2–11
+ * (offset 1, span 10) within the article's content column, which itself sits
+ * inside a per-breakpoint gutter. Net effect — a centred box whose width vs the
+ * viewport is ~68.5% (mobile) growing to ~73% (desktop). Because our font-size
+ * matches the source exactly, reproducing that box width reproduces the source
+ * line wrapping at every breakpoint (measured source: 267px/7 lines @390,
+ * 534px/3 @768, 734px/3 @1024, 921px/2 @1280, 1054px/2 @1440). We size the box
+ * in viewport units (vw) so it resolves against the viewport — exactly like the
+ * source ratios — rather than against the wrapper's padded content box, then
+ * centre it. This lands the same absolute width, inset and wrap points.
+ *
+ * The source content container caps at max-width 1536px, so past ~1575px the
+ * quote box stops growing and freezes at ~1134px (72% of 1536) — the wrap point
+ * then stays put. We mirror that with a matching max-width so wide screens wrap
+ * identically instead of the box widening indefinitely with vw. */
+
+.quote {
+  width: 68.5vw;
+  max-width: 1134px;
+  margin: 0 auto;
+}
+
+.quote .quote-text {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+
+  /* source uses normal tracking; our global heading style tightens it, which
+     would compress the quote and change where it wraps — reset to match. */
+  letter-spacing: normal;
+}
+
+.quote .quote-attribution {
+  margin-top: 24px;
+}
+
+.quote .quote-attribution p {
+  margin: 0;
+  color: #fff;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+/* tablet (>=768): content column widens, quote box ~69.5vw */
+@media (width >= 768px) {
+  .quote {
+    width: 69.5vw;
+  }
+}
+
+/* small desktop (>=1024): ~71.7vw */
+@media (width >= 1024px) {
+  .quote {
+    width: 71.7vw;
+  }
+}
+
+/* wide desktop (>=1280): quote grows to 32px; box ~72vw */
+@media (width >= 1280px) {
+  .quote {
+    width: 72vw;
+  }
+
+  .quote .quote-text {
+    font-size: 32px;
+  }
+}
