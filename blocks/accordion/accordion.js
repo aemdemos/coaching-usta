@@ -95,11 +95,13 @@ function buildToggle({
   return btn;
 }
 
-/* The CSS clamps the description to this fixed max-height in px (must match the
-   `max-height` on `.accordion-timeline-desc-clamp` in the CSS). Mirrors the source
-   `.v-course__description.clamp` height (150.72px) — plain overflow clipping, NOT a
-   line count, so the native line-clamp "…" never fights our corner "…" button. */
-const PATHWAY_CLAMP_MAX_PX = 150.72;
+/* The CSS clamps the description to a WHOLE number of text lines (see
+   `.accordion-timeline-desc-clamp` in the CSS) so the clip lands between lines and
+   never slices glyphs. That line count must match here so the "…" flag and the clamp
+   agree. The clamp height in px differs per breakpoint (the desc font-size steps
+   14px -> 18px), so we derive the threshold from the element's OWN line-height at
+   measure time rather than a fixed px constant. */
+const PATHWAY_CLAMP_LINES = 6;
 
 /*
  * Mark each pathway course card as clamped-with-ellipsis ONLY when its description is
@@ -122,9 +124,15 @@ function measureClampOverflow(root) {
     // lift the clamp so scrollHeight reports the full natural height, then compare
     delete wrapper.dataset.clampOverflow;
     if (clamp.scrollHeight <= 1) return; // still hidden/unrendered — try again later
-    // overflow when the natural copy is taller than the clamp cap (few px of slack so a
+    // clamp cap = the description's own line-height × the shared line count, so the
+    // threshold tracks the CSS clamp at every breakpoint (14px vs 18px text). Read the
+    // line-height off a desc paragraph (the clamp div may report "normal").
+    const descP = clamp.querySelector('.accordion-timeline-desc') || clamp;
+    const lineHeight = parseFloat(getComputedStyle(descP).lineHeight) || 0;
+    const capPx = lineHeight * PATHWAY_CLAMP_LINES;
+    // overflow when the natural copy is taller than the cap (few px of slack so a
     // description that fits within a line's rounding isn't needlessly clamped)
-    wrapper.dataset.clampOverflow = String(clamp.scrollHeight > PATHWAY_CLAMP_MAX_PX + 4);
+    wrapper.dataset.clampOverflow = String(clamp.scrollHeight > capPx + 4);
   });
 }
 

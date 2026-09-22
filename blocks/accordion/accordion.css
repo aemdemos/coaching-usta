@@ -317,8 +317,15 @@ main > .section.accordion-container > div {
    short description has no flag, shows in full, and gets no "…". Gating the clamp on
    the SAME flag as the "…" guarantees a card is never cut without a "…". */
 .accordion.pathway .accordion-timeline-desc-wrapper[data-clamp-overflow="true"] .accordion-timeline-desc-clamp {
-  max-height: calc(1.57rem * 5);
+  /* Match the source clamp EXACTLY: it shows 6 text lines with a 20px top pad that
+     also acts as slack, so 6 whole lines (6 × line-height) fit fully inside the box
+     without slicing glyphs even though the total isn't a clean line-multiple. The
+     top pad reproduces the source's blank-line breathing room above the copy.
+     Mobile desc = 14px/1.2 (16.8px line): 20px pad + 6×16.8 = 120.8px. */
+  box-sizing: content-box;
+  max-height: calc(20px + 14px * 1.2 * 6);
   overflow: hidden;
+  padding-top: 20px;
   padding-right: 2rem;
 }
 
@@ -820,6 +827,14 @@ main > .section.accordion-container > div {
 
   :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
     display: block;
+  }
+
+  /* >=768 the desc is 18px/1.2 (21.6px line). Re-clip to 6 WHOLE lines so the cut
+     lands between lines (the mobile 14px multiple would be fractional here and slice
+     glyphs) and shows the same 6 lines as the source. 6 lines = 129.6px (≈ source
+     150.72px, which was 6 lines at its larger line-height). */
+  .accordion.pathway .accordion-timeline-desc-wrapper[data-clamp-overflow="true"] .accordion-timeline-desc-clamp {
+    max-height: calc(18px * 1.2 * 6);
   }
 
   /* course eyebrow + title scale: 12/18 -> 16/28 */
