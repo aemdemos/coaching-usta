@@ -10,7 +10,9 @@
 
 .quote {
   margin: 0;
-  margin-left: 7%;
+  margin-left: 8.33%;
+  margin-right: 6.5%;
+  width: 83.33333333%;
 }
 
 .quote .quote-text {
@@ -34,9 +36,30 @@
   line-height: 24px;
 }
 
+main > .section {
+  padding: unset;
+}
+
+.quote-container .quote-wrapper .quote {
+padding: 70px 0;
+}
+
+
+@media (width >= 767px) {
+.quote {
+  width: 75.33333333%;
+}
+}
+
 /* wide desktop (>=1280): quote grows to 32px */
 @media (width >= 1280px) {
   .quote .quote-text {
     font-size: 32px;
   }
+
+  .quote {
+  width: unset;
+   margin-right: unset;
+}
+
 }
