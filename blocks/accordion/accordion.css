@@ -343,6 +343,7 @@ main > .section.accordion-container > div {
    default; shown ONLY on cards whose copy overflows the clamp (data-clamp-overflow),
    and hidden again once that card's description is expanded (nothing left to reveal). */
 .accordion.pathway .accordion-timeline-desc-ellipsis {
+  display: none;
   position: absolute;
   right: 0;
   bottom: -2px;
@@ -675,6 +676,10 @@ main > .section.accordion-container > div {
   /* section gutter */
   main > .section.accordion-container > div {
     padding-inline: 40px;
+  }
+
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-chevron {
+  display: block;
   }
 
   /* accordion-default row title scale (source .cmp-accordion__title): 24 -> 28 */

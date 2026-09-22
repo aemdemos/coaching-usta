@@ -254,6 +254,14 @@ function assembleCourseCard({
     descWrapper.append(clamp, ellipsis);
   }
 
+  // PATHWAY: the description lives INSIDE the text column, below the eyebrow/title —
+  // exactly like the source `.v-course__info > .v-course__description-wrapper`. Sitting
+  // in the narrower text column (beside the badge) is what makes the copy wrap enough to
+  // overflow the 150.72px clamp so the "…" appears (a full-width desc wraps too short and
+  // never overflows). On mobile the whole text column drops below the badge, so the
+  // description still reads as "row 2" there — no reparenting needed.
+  if (descWrapper) head.append(descWrapper);
+
   if (badgeImg) {
     const badge = document.createElement('div');
     badge.className = 'accordion-timeline-course-badge';
@@ -264,8 +272,6 @@ function assembleCourseCard({
   content.append(head);
   label.append(content);
   card.append(label);
-  // PATHWAY description: full-width block below the header row (same pattern as TIMELINE).
-  if (descWrapper) card.append(descWrapper);
 
   // TIMELINE: description is a full-width block below the header row.
   if (!clampDesc) {
