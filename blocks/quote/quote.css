@@ -6,13 +6,21 @@
  * Source truth (live site, computed): quote 28px / line-height 1 (32px @1280),
  * lime #cfff05; attribution 18px / line-height 24px, white; 24px gap between
  * quote and attribution. Background transparent.
- * ------------------------------------------------------------------------- */
+ *
+ * Layout: the source nests the quote in its 12-column grid at columns 2–11
+ * (offset 1, span 10) within the article's content column, which itself sits
+ * inside a per-breakpoint gutter. Net effect — a centred box whose width vs the
+ * viewport is ~68.5% (mobile) growing to ~73% (desktop). Because our font-size
+ * matches the source exactly, reproducing that box width reproduces the source
+ * line wrapping at every breakpoint (measured source: 267px/7 lines @390,
+ * 534px/3 @768, 734px/3 @1024, 921px/2 @1280, 1054px/2 @1440). We size the box
+ * in viewport units (vw) so it resolves against the viewport — exactly like the
+ * source ratios — rather than against the wrapper's padded content box, then
+ * centre it. This lands the same absolute width, inset and wrap points. */
 
 .quote {
-  margin: 0;
-  margin-left: 8.33%;
-  margin-right: 6.5%;
-  width: 83.33333333%;
+  width: 68.5vw;
+  margin: 0 auto;
 }
 
 .quote .quote-text {
@@ -21,6 +29,10 @@
   font-size: 28px;
   font-weight: 400;
   line-height: 1;
+
+  /* source uses normal tracking; our global heading style tightens it, which
+     would compress the quote and change where it wraps — reset to match. */
+  letter-spacing: normal;
 }
 
 .quote .quote-attribution {
@@ -36,30 +48,27 @@
   line-height: 24px;
 }
 
-main > .section {
-  padding: unset;
+/* tablet (>=768): content column widens, quote box ~69.5vw */
+@media (width >= 768px) {
+  .quote {
+    width: 69.5vw;
+  }
 }
 
-.quote-container .quote-wrapper .quote {
-padding: 70px 0;
+/* small desktop (>=1024): ~71.7vw */
+@media (width >= 1024px) {
+  .quote {
+    width: 71.7vw;
+  }
 }
 
-
-@media (width >= 767px) {
-.quote {
-  width: 75.33333333%;
-}
-}
-
-/* wide desktop (>=1280): quote grows to 32px */
+/* wide desktop (>=1280): quote grows to 32px; box ~72vw */
 @media (width >= 1280px) {
+  .quote {
+    width: 72vw;
+  }
+
   .quote .quote-text {
     font-size: 32px;
   }
-
-  .quote {
-  width: unset;
-   margin-right: unset;
-}
-
 }
