@@ -16,10 +16,16 @@
  * 534px/3 @768, 734px/3 @1024, 921px/2 @1280, 1054px/2 @1440). We size the box
  * in viewport units (vw) so it resolves against the viewport — exactly like the
  * source ratios — rather than against the wrapper's padded content box, then
- * centre it. This lands the same absolute width, inset and wrap points. */
+ * centre it. This lands the same absolute width, inset and wrap points.
+ *
+ * The source content container caps at max-width 1536px, so past ~1575px the
+ * quote box stops growing and freezes at ~1134px (72% of 1536) — the wrap point
+ * then stays put. We mirror that with a matching max-width so wide screens wrap
+ * identically instead of the box widening indefinitely with vw. */
 
 .quote {
   width: 68.5vw;
+  max-width: 1134px;
   margin: 0 auto;
 }
 
