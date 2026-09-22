@@ -316,6 +316,7 @@ main > .section.accordion-container > div {
 .accordion.pathway .accordion-timeline-desc-wrapper[data-clamp-overflow="true"] .accordion-timeline-desc-clamp {
   max-height: calc(1.57rem * 5);
   overflow: hidden;
+  padding-right: 2rem;
 }
 
 /* expanded: drop the clamp, reveal full copy */
@@ -342,7 +343,6 @@ main > .section.accordion-container > div {
    default; shown ONLY on cards whose copy overflows the clamp (data-clamp-overflow),
    and hidden again once that card's description is expanded (nothing left to reveal). */
 .accordion.pathway .accordion-timeline-desc-ellipsis {
-  display: none;
   position: absolute;
   right: 0;
   bottom: -2px;
