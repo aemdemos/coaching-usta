@@ -191,6 +191,15 @@ main > .section.accordion-container > div {
   text-decoration: underline;
 }
 
+ .accordion.pathway .accordion-timeline-panel-intro a {
+ text-decoration: none;
+}
+
+.accordion.pathway .accordion-timeline-panel-intro a:hover,
+.accordion.pathway .accordion-timeline-panel-intro a:focus-visible {
+ color: var(--usta-lime);
+}
+
 /* meta grid: stacked on mobile, 3 columns on desktop. It fills the info row so
    its last column can absorb the leftover width. */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-meta {
