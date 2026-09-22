@@ -226,15 +226,15 @@ function assembleCourseCard({
   title.textContent = titleText;
   head.append(title);
 
-  // PATHWAY: the description lives INSIDE the text column (beside the badge, source
-  // `.v-course__info-section`) — a narrow column so the copy wraps to enough lines to
-  // overflow the clamp, making the "…" reveal meaningful. It's line-clamped to a fixed
-  // max-height with a "…" ellipsis (bottom-right) that expands it in place, INDEPENDENT
-  // of the chevron (which reveals the module timeline). TIMELINE keeps its description
-  // as a full-width block below the header row.
+  // PATHWAY: build the clamped description wrapper (line-clamped to a fixed max-height with
+  // a "…" ellipsis that expands it in place, INDEPENDENT of the chevron). Like TIMELINE, it
+  // is appended DIRECTLY to the card, BELOW the header row (label) — NOT nested in the
+  // badge/title `head` — so the card reads: row 1 = badge + eyebrow/title + chevron; row 2 =
+  // description (full-width); then the rest (timeline). Matches the source `.v-course`.
+  let descWrapper = null;
   if (clampDesc && descNodes.length) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'accordion-timeline-desc-wrapper';
+    descWrapper = document.createElement('div');
+    descWrapper.className = 'accordion-timeline-desc-wrapper';
     const clamp = document.createElement('div');
     clamp.className = 'accordion-timeline-desc-clamp';
     descNodes.forEach((node) => {
@@ -251,8 +251,7 @@ function assembleCourseCard({
       const expanded = card.classList.toggle('is-desc-expanded');
       ellipsis.setAttribute('aria-expanded', String(expanded));
     });
-    wrapper.append(clamp, ellipsis);
-    head.append(wrapper);
+    descWrapper.append(clamp, ellipsis);
   }
 
   if (badgeImg) {
@@ -265,6 +264,8 @@ function assembleCourseCard({
   content.append(head);
   label.append(content);
   card.append(label);
+  // PATHWAY description: full-width block below the header row (same pattern as TIMELINE).
+  if (descWrapper) card.append(descWrapper);
 
   // TIMELINE: description is a full-width block below the header row.
   if (!clampDesc) {
