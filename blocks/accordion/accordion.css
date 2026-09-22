@@ -302,6 +302,9 @@ main > .section.accordion-container > div {
 .accordion.pathway .accordion-timeline-desc-wrapper {
   position: relative;
   margin: 12px 0 0;
+
+  /* mobile (<=767): full-width row 2 of the card grid; reset to auto at >=768 */
+  grid-column: 1 / -1;
 }
 
 /* Clamp the description to a fixed max-height with plain overflow clipping — EXACTLY
@@ -472,6 +475,64 @@ main > .section.accordion-container > div {
 /* mobile: description hidden while the card is collapsed */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-course:not(.is-open) .accordion-timeline-desc {
   display: none;
+}
+
+/* ==========================================================================
+   PATHWAY MOBILE ONLY (<=767, base tier): re-flow the card header so the
+   description drops to a FULL-WIDTH second row.
+     Row 1: badge (left) + eyebrow/title (middle) + chevron (right)
+     Row 2: description spanning the full card width
+     Below: the module timeline (unchanged, only shown when open)
+   The description is authored INSIDE the text column (`head`, beside the badge)
+   for the desktop layout. On mobile we flatten the `label`/`content`/`head`
+   wrappers with `display: contents` so their children (badge, eyebrow, title,
+   description, chevron) all become direct items of the card grid, then place them
+   explicitly. ALL of this is reset to the flex layout at >=768 (see the 768 tier),
+   so tablet/desktop are byte-for-byte unchanged. */
+.accordion.pathway .accordion-timeline-course {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: 16px;
+}
+
+/* unwrap the header wrappers so their children join the card grid */
+.accordion.pathway .accordion-timeline-course-label,
+.accordion.pathway .accordion-timeline-course-content,
+.accordion.pathway .accordion-timeline-head {
+  display: contents;
+}
+
+/* row 1: badge spans the two title rows on the left */
+.accordion.pathway .accordion-timeline-course-badge {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  align-self: center;
+}
+
+/* row 1 middle: eyebrow on line 1, title on line 2 */
+.accordion.pathway .accordion-timeline-eyebrow {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+}
+
+.accordion.pathway .accordion-timeline-title {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+}
+
+/* row 1 right: chevron spans the two title rows */
+.accordion.pathway .accordion-timeline-course-label > .accordion-timeline-chevron {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  align-self: center;
+}
+
+/* row 2: description spans the full card width (grid-column set on the base
+   .accordion-timeline-desc-wrapper rule above). Module timeline below it: */
+.accordion.pathway .accordion-timeline-steps {
+  grid-column: 1 / -1;
 }
 
 /* ---- chevron toggle: rounded-square <button> with a caret; flips when open.
@@ -678,10 +739,6 @@ main > .section.accordion-container > div {
     padding-inline: 40px;
   }
 
-  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-chevron {
-  display: block;
-  }
-
   /* accordion-default row title scale (source .cmp-accordion__title): 24 -> 28 */
   .accordion.accordion-default .accordion-item-label {
     font-size: 28px;
@@ -718,6 +775,36 @@ main > .section.accordion-container > div {
     padding: 24px;
   }
 
+  /* >=768: undo the pathway MOBILE grid re-flow — restore the desktop flex layout
+     (badge beside the text column that holds eyebrow/title/description; chevron in
+     the label row). Re-establish the wrappers and clear the mobile grid placements. */
+  .accordion.pathway .accordion-timeline-course {
+    display: block;
+  }
+
+  .accordion.pathway .accordion-timeline-course-label {
+    display: flex;
+  }
+
+  .accordion.pathway .accordion-timeline-course-content {
+    display: flex;
+  }
+
+  .accordion.pathway .accordion-timeline-head {
+    display: block;
+  }
+
+  .accordion.pathway .accordion-timeline-course-badge,
+  .accordion.pathway .accordion-timeline-eyebrow,
+  .accordion.pathway .accordion-timeline-title,
+  .accordion.pathway .accordion-timeline-course-label > .accordion-timeline-chevron,
+  .accordion.pathway .accordion-timeline-desc-wrapper,
+  .accordion.pathway .accordion-timeline-steps {
+    grid-column: auto;
+    grid-row: auto;
+    align-self: auto;
+  }
+
   :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-course-content {
     gap: 24px;
   }
@@ -750,6 +837,7 @@ main > .section.accordion-container > div {
 
   /* chevron grows to 48x48 */
   :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-chevron {
+    display: block;
     width: 48px;
     height: 48px;
   }
