@@ -74,7 +74,7 @@ function decorateDefault(block) {
  * carries aria-expanded + an accessible label; the caret glyph is drawn in CSS.
  */
 function buildToggle({
-  label, region, host, open = false,
+  label, region, host, open = false, onToggle,
 }) {
   const btn = document.createElement('button');
   btn.type = 'button';
@@ -88,10 +88,52 @@ function buildToggle({
     // when an explicit region is passed (the panel's course list) hide it
     // outright on every breakpoint; course cards rely on CSS instead
     if (region) region.hidden = !isOpen;
+    if (onToggle) onToggle(isOpen);
   };
   setState(open);
   btn.addEventListener('click', () => setState(btn.getAttribute('aria-expanded') !== 'true'));
   return btn;
+}
+
+/* The CSS clamps the description to a WHOLE number of text lines (see
+   `.accordion-timeline-desc-clamp` in the CSS) so the clip lands between lines and
+   never slices glyphs. That line count must match here so the "…" flag and the clamp
+   agree. The clamp height in px differs per breakpoint (the desc font-size steps
+   14px -> 18px), so we derive the threshold from the element's OWN line-height at
+   measure time rather than a fixed px constant. */
+const PATHWAY_CLAMP_LINES = 6;
+
+/*
+ * Mark each pathway course card as clamped-with-ellipsis ONLY when its description is
+ * TALLER THAN the clamp's max-height; otherwise the copy is short, shows in full, and
+ * gets NO "…". BOTH the clamp and the "…" are gated on the resulting
+ * `data-clamp-overflow` flag (see CSS), so a card is never cut without also getting a
+ * "…". Measured against the description's NATURAL height (the flag is cleared first so
+ * the CSS clamp is lifted during measurement) vs `PATHWAY_CLAMP_MAX_PX`.
+ * RE-RUN on font-load + resize because heights shift when the web font swaps in or the
+ * column width changes — the timing bug that previously left cards cut with no "…".
+ * The panel starts collapsed (courses `hidden` → heights read 0), so the first run
+ * happens after it's revealed.
+ */
+function measureClampOverflow(root) {
+  root.querySelectorAll('.accordion-timeline-desc-wrapper').forEach((wrapper) => {
+    // don't fight a user who has expanded this description
+    if (wrapper.closest('.accordion-timeline-course.is-desc-expanded')) return;
+    const clamp = wrapper.querySelector('.accordion-timeline-desc-clamp');
+    if (!clamp) return;
+    // lift the clamp so scrollHeight reports the full natural height, then compare
+    delete wrapper.dataset.clampOverflow;
+    if (clamp.scrollHeight <= 1) return; // still hidden/unrendered — try again later
+    // clamp cap = the description's own line-height × the shared line count, so the
+    // threshold tracks the CSS clamp at every breakpoint (14px vs 18px text). Read the
+    // line-height off a desc paragraph (the clamp div may report "normal").
+    const descP = clamp.querySelector('.accordion-timeline-desc') || clamp;
+    const lineHeight = parseFloat(getComputedStyle(descP).lineHeight) || 0;
+    const capPx = lineHeight * PATHWAY_CLAMP_LINES;
+    // overflow when the natural copy is taller than the cap (few px of slack so a
+    // description that fits within a line's rounding isn't needlessly clamped)
+    wrapper.dataset.clampOverflow = String(clamp.scrollHeight > capPx + 4);
+  });
 }
 
 /*
@@ -156,10 +198,16 @@ function buildPanelHeader(cell) {
   return { head, info };
 }
 
-/* Build one course card from a "Title — N modules" label + body cell. */
-function buildCourseCard(labelCell, bodyCell) {
-  const [titleText, countText] = splitLabel(labelCell && labelCell.textContent);
-
+/*
+ * Assemble a white course card from its already-parsed pieces. Shared by the
+ * TIMELINE builder (which parses a "Title — N modules" label + body cell) and the
+ * PATHWAY builder (which parses a separate badge cell + a content cell holding an
+ * eyebrow <p>, an <h3> title, description <p>s and an <ol>/<ul> module list).
+ * Emits the SAME `.accordion-timeline-course*` markup so both variants share CSS.
+ */
+function assembleCourseCard({
+  titleText, countText, badgeImg, descNodes = [], timeline = null, clampDesc = false,
+}) {
   const card = document.createElement('div');
   card.className = 'accordion-timeline-course';
 
@@ -186,28 +234,41 @@ function buildCourseCard(labelCell, bodyCell) {
   title.textContent = titleText;
   head.append(title);
 
-  // the ordered list is the collapsible timeline; a leading <p><img> is the course
-  // badge; the remaining paragraph(s) are the description. In the source
-  // (`.v-course`) the description is a FULL-WIDTH block sibling BELOW the header
-  // row (`.v-course__content` = badge + eyebrow/title + chevron) — it spans the
-  // entire card, flowing under the chevron column too, NOT confined beside the
-  // badge. So collect the description here and append it as a sibling of `label`
-  // (a direct child of the card) rather than inside the badge/text row.
-  const timeline = bodyCell ? bodyCell.querySelector('ol, ul') : null;
-  let badgeImg = null;
-  const descNodes = [];
-  if (bodyCell) {
-    [...bodyCell.children].forEach((child) => {
-      if (child === timeline) return;
-      const img = child.tagName === 'P' && child.querySelector('img');
-      if (img && !badgeImg) {
-        badgeImg = img;
-        return;
-      }
-      child.classList.add('accordion-timeline-desc');
-      descNodes.push(child);
+  // PATHWAY: build the clamped description wrapper (line-clamped to a fixed max-height with
+  // a "…" ellipsis that expands it in place, INDEPENDENT of the chevron). Like TIMELINE, it
+  // is appended DIRECTLY to the card, BELOW the header row (label) — NOT nested in the
+  // badge/title `head` — so the card reads: row 1 = badge + eyebrow/title + chevron; row 2 =
+  // description (full-width); then the rest (timeline). Matches the source `.v-course`.
+  let descWrapper = null;
+  if (clampDesc && descNodes.length) {
+    descWrapper = document.createElement('div');
+    descWrapper.className = 'accordion-timeline-desc-wrapper';
+    const clamp = document.createElement('div');
+    clamp.className = 'accordion-timeline-desc-clamp';
+    descNodes.forEach((node) => {
+      node.classList.add('accordion-timeline-desc');
+      clamp.append(node);
     });
+    const ellipsis = document.createElement('button');
+    ellipsis.type = 'button';
+    ellipsis.className = 'accordion-timeline-desc-ellipsis';
+    ellipsis.textContent = '…';
+    ellipsis.setAttribute('aria-label', `Show full description for ${titleText}`);
+    ellipsis.setAttribute('aria-expanded', 'false');
+    ellipsis.addEventListener('click', () => {
+      const expanded = card.classList.toggle('is-desc-expanded');
+      ellipsis.setAttribute('aria-expanded', String(expanded));
+    });
+    descWrapper.append(clamp, ellipsis);
   }
+
+  // PATHWAY: the description lives INSIDE the text column, below the eyebrow/title —
+  // exactly like the source `.v-course__info > .v-course__description-wrapper`. Sitting
+  // in the narrower text column (beside the badge) is what makes the copy wrap enough to
+  // overflow the 150.72px clamp so the "…" appears (a full-width desc wraps too short and
+  // never overflows). On mobile the whole text column drops below the badge, so the
+  // description still reads as "row 2" there — no reparenting needed.
+  if (descWrapper) head.append(descWrapper);
 
   if (badgeImg) {
     const badge = document.createElement('div');
@@ -220,8 +281,13 @@ function buildCourseCard(labelCell, bodyCell) {
   label.append(content);
   card.append(label);
 
-  // description: full-width block below the header row (source `.v-course__description`)
-  descNodes.forEach((node) => card.append(node));
+  // TIMELINE: description is a full-width block below the header row.
+  if (!clampDesc) {
+    descNodes.forEach((node) => {
+      node.classList.add('accordion-timeline-desc');
+      card.append(node);
+    });
+  }
 
   if (timeline) {
     timeline.className = 'accordion-timeline-steps';
@@ -252,6 +318,64 @@ function buildCourseCard(labelCell, bodyCell) {
   }));
 
   return card;
+}
+
+/* Build one course card from a "Title — N modules" label + body cell (TIMELINE). */
+function buildCourseCard(labelCell, bodyCell) {
+  const [titleText, countText] = splitLabel(labelCell && labelCell.textContent);
+
+  // the ordered list is the collapsible timeline; a leading <p><img> is the course
+  // badge; the remaining paragraph(s) are the description.
+  const timeline = bodyCell ? bodyCell.querySelector('ol, ul') : null;
+  let badgeImg = null;
+  const descNodes = [];
+  if (bodyCell) {
+    [...bodyCell.children].forEach((child) => {
+      if (child === timeline) return;
+      const img = child.tagName === 'P' && child.querySelector('img');
+      if (img && !badgeImg) {
+        badgeImg = img;
+        return;
+      }
+      descNodes.push(child);
+    });
+  }
+
+  return assembleCourseCard({
+    titleText, countText, badgeImg, descNodes, timeline,
+  });
+}
+
+/*
+ * PATHWAY course card: a badge cell (a single
+ * <img>) + a content cell holding an eyebrow <p> ("N modules"), an <h3> title,
+ * one-or-more description <p>s, then an <ol>/<ul> module list.
+ */
+function buildPathwayCard(badgeCell, contentCell) {
+  const badgeImg = badgeCell ? badgeCell.querySelector('img') : null;
+  const timeline = contentCell ? contentCell.querySelector('ol, ul') : null;
+  let titleText = '';
+  let countText = '';
+  const descNodes = [];
+  if (contentCell) {
+    [...contentCell.children].forEach((child) => {
+      if (child === timeline) return;
+      if (child.tagName === 'H3') {
+        titleText = child.textContent.trim();
+        return;
+      }
+      // a "6 modules" paragraph before the title is the eyebrow; other <p>s are desc
+      if (child.tagName === 'P' && !titleText && /^\s*\d+\s*modules?\s*$/i.test(child.textContent)) {
+        countText = child.textContent.trim();
+        return;
+      }
+      descNodes.push(child);
+    });
+  }
+
+  return assembleCourseCard({
+    titleText, countText, badgeImg, descNodes, timeline, clampDesc: true,
+  });
 }
 
 function decorateTimeline(block) {
@@ -310,6 +434,160 @@ function decorateTimeline(block) {
   block.replaceChildren(panel);
 }
 
+/*
+ * PATHWAY variant (`accordion pathway`) — the "Recommended Learning Pathway" card
+ * from ustacoaching.com/…/results/college-coach.html. Same dark bordered panel as
+ * TIMELINE (badge logo + intro + lime meta grid header, its own chevron revealing
+ * the body), but the body is a set of SECTION groups: a full-width centred intro
+ * line ("Complete all 6 required courses…" / "Choose and complete at least 2…")
+ * followed by a 2-column (>=1024) GRID of white course cards, ending in a
+ * "View All Courses" footer button.
+ *
+ * Authoring model (each authored row = a table row of cells):
+ *   row 0: [logo <img>] [intro <p> with a link]           → panel header
+ *   row 1: [<p>heading</p><p>value</p>…] × 3               → lime meta grid
+ *   section-intro row: a single cell with one paragraph    → full-width heading
+ *   course row: [badge <img>] [eyebrow/title/desc/<ol>]    → white card
+ *   footer row: a single cell whose only content is a link → View All Courses
+ */
+function decoratePathway(block) {
+  const rows = [...block.children];
+
+  // outer panel — dark bordered container
+  const panel = document.createElement('div');
+  panel.className = 'accordion-timeline-panel';
+
+  // ---- header: row 0 (logo + intro) + row 1 (meta grid) ----
+  const headerRow = rows.shift();
+  const metaRow = rows.shift();
+
+  const header = document.createElement('div');
+  header.className = 'accordion-timeline-panel-label';
+  const head = document.createElement('div');
+  head.className = 'accordion-timeline-panel-head';
+  const body = document.createElement('div');
+  body.className = 'accordion-timeline-panel-body';
+
+  // logo (first header cell holds the pathway logo image) + intro (second cell)
+  const headerCells = headerRow ? [...headerRow.children] : [];
+  const logoImg = headerCells[0] && headerCells[0].querySelector('img');
+  if (logoImg) {
+    const logo = document.createElement('div');
+    logo.className = 'accordion-timeline-badge';
+    logo.append(logoImg);
+    head.append(logo);
+  }
+  const introCell = headerCells[1] || headerCells[0];
+  if (introCell) {
+    [...introCell.children].forEach((node) => {
+      if (node.querySelector && node.querySelector('img')) return; // skip logo dup
+      node.classList.add('accordion-timeline-panel-intro');
+      body.append(node);
+    });
+  }
+
+  // meta grid: each cell = a heading <p> + value <p>s
+  const meta = document.createElement('div');
+  meta.className = 'accordion-timeline-meta';
+  if (metaRow) {
+    [...metaRow.children].forEach((cell) => {
+      const column = document.createElement('div');
+      column.className = 'accordion-timeline-meta-col';
+      [...cell.children].forEach((p, i) => {
+        if (i === 0) {
+          p.className = 'accordion-timeline-meta-heading';
+        } else {
+          p.className = 'accordion-timeline-meta-value';
+        }
+        column.append(p);
+      });
+      meta.append(column);
+    });
+  }
+
+  const info = document.createElement('div');
+  info.className = 'accordion-timeline-panel-info';
+  if (meta.children.length) {
+    meta.lastElementChild.classList.add('accordion-timeline-meta-col-grow');
+    info.append(meta);
+  }
+  body.append(info);
+  head.append(body);
+  header.append(head);
+  panel.append(header);
+
+  // ---- body: section-intro rows, course grids, footer ----
+  // A row is a SECTION INTRO when it has a single cell with no img/list/link and
+  // no "— modules" — the "Complete all 6…" / "Choose and complete…" headings.
+  const isSectionIntro = (row) => row.children.length === 1
+    && !row.children[0].querySelector('img, ol, ul, a, h3');
+  // A trailing single-cell row whose only content is a link = the footer CTA.
+  const isFooterRow = (row) => row.children.length === 1
+    && !row.children[0].querySelector('img, ol, ul, h3')
+    && row.children[0].querySelector('a');
+
+  const list = document.createElement('div');
+  list.className = 'accordion-timeline-courses';
+
+  let footerRow = null;
+  if (rows.length && isFooterRow(rows[rows.length - 1])) {
+    footerRow = rows.pop();
+  }
+
+  let currentGrid = null;
+  rows.forEach((row) => {
+    if (isSectionIntro(row)) {
+      // full-width centred heading; starts a new card grid after it
+      const intro = document.createElement('p');
+      intro.className = 'accordion-timeline-section-intro';
+      intro.append(...(row.children[0].firstElementChild
+        ? row.children[0].firstElementChild.childNodes
+        : row.children[0].childNodes));
+      list.append(intro);
+      currentGrid = null;
+      return;
+    }
+    // course card row: ensure a grid container exists to hold it
+    if (!currentGrid) {
+      currentGrid = document.createElement('div');
+      currentGrid.className = 'accordion-timeline-grid';
+      list.append(currentGrid);
+    }
+    currentGrid.append(buildPathwayCard(row.children[0], row.children[1]));
+  });
+
+  // footer CTA (lime pill) inside the collapsible region, below the cards
+  if (footerRow) {
+    const footer = document.createElement('div');
+    footer.className = 'accordion-timeline-footer';
+    const cta = footerRow.children[0].querySelector('a');
+    cta.className = 'accordion-timeline-viewall';
+    footer.append(cta);
+    list.append(footer);
+  }
+
+  panel.append(list);
+
+  // chevron beside the meta grid; toggles the whole body region. On first open,
+  // measure which card descriptions overflow the clamp so only those get a "…".
+  (info.children.length ? info : header).append(buildToggle({
+    label: 'Toggle course list',
+    region: list,
+    host: panel,
+    open: false,
+    onToggle: (isOpen) => { if (isOpen) measureClampOverflow(list); },
+  }));
+
+  block.replaceChildren(panel);
+
+  // Re-measure whenever line counts could shift: after the web font swaps in (the
+  // timing bug that left cards cut with no "…") and on viewport resize (column width
+  // + the 132/150px limit change). measureClampOverflow no-ops on still-hidden cards.
+  const remeasure = () => measureClampOverflow(list);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+  window.addEventListener('resize', remeasure);
+}
+
 /**
  * loads and decorates the block
  * @param {Element} block The block element
@@ -317,6 +595,10 @@ function decorateTimeline(block) {
 export default function decorate(block) {
   if (block.classList.contains('timeline')) {
     decorateTimeline(block);
+    return;
+  }
+  if (block.classList.contains('pathway')) {
+    decoratePathway(block);
     return;
   }
   decorateDefault(block);
