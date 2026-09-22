@@ -1,0 +1,206 @@
+/* subscribe — the "GET ON THE LIST." signup card on the home page.
+   Scoped to the boilerplate-forms block (.form.block) rendering the
+   /forms/subscribe.json sheet. Values measured from the source
+   (ustacoaching.com): USTA Sans title, Graphik Semibold uppercase labels,
+   black inputs with a grey hairline border, and the light "Subscribe" pill.
+   The boilerplate ships a light theme; these rules retheme it to the dark
+   card in the design. Per skills/forms-enablement Part D, each form gets its
+   own scoped file imported into form.css — do NOT edit the shared file. */
+
+/* The boilerplate ships a light theme: it paints the section (.form-container)
+   and the block white via --form-background-color, and gives the wrapper its own
+   40px padding + box-shadow + radius (a white-card treatment). On this dark site
+   that white bled around the card AND the extra 40px padding made the form narrower
+   than the cards/columns above it. Neutralise all of it so the card sits on the
+   page's black background and fills the same 1136px content width as sibling blocks. */
+main .section.form-container,
+main .section.form-container div.form-wrapper {
+  background-color: transparent;
+}
+
+/* Match the global content gutter (styles.css: .section > div is 0 24px, and
+   0 32px at >=1024) so the form card aligns with the cards/columns above it —
+   the boilerplate's 40px wrapper padding made the form narrower than siblings. */
+main .section.form-container div.form-wrapper {
+  padding: 0 24px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (width >= 1024px) {
+  main .section.form-container div.form-wrapper {
+    padding: 0 32px;
+  }
+}
+
+/* Card shell — dark, rounded, hairline border. Horizontal padding kept tight so
+   the fields don't sit far inset from the card edges (mobile base). */
+main .form.block {
+  box-sizing: border-box;
+  background-color: #000;
+  color: var(--text-color);
+  border: 1px solid #4c4c4c;
+  border-radius: 20px;
+  padding: 28px 20px;
+}
+
+/* The boilerplate lays the form on a 12-col grid; keep it single-column
+   with a consistent vertical rhythm for this compact signup form. */
+main .form.block form {
+  gap: 20px 0;
+}
+
+/* Every field spans the full width (source stacks email + zip, not side-by-side) */
+main .form.block form .field-wrapper {
+  grid-column: span 12;
+  margin: 0;
+  color: var(--text-color);
+}
+
+/* Title — "GET ON THE LIST." (authored as plain-text with Style: subscribe-heading) */
+main .form.block .subscribe-heading p {
+  margin: 0 0 4px;
+  font-family: var(--heading-font-family);
+  font-size: 40px;
+  line-height: 1;
+  color: var(--text-color);
+}
+
+/* Field labels — Graphik Semibold, uppercase */
+main .form.block .field-email > label.field-label,
+main .form.block .field-zipcode > label.field-label {
+  display: block;
+  margin: 0 0 8px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--text-color);
+}
+
+/* Required asterisk — red, before the label text (matches source) */
+main .form.block [data-required="true"] > label.field-label::after {
+  content: none;
+}
+
+main .form.block .field-email[data-required="true"] > label.field-label::before,
+main .form.block .field-zipcode[data-required="true"] > label.field-label::before {
+  content: "* ";
+  color: #f00;
+}
+
+/* Text inputs — black fill, grey hairline, square corners */
+main .form.block input[type="email"],
+main .form.block input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 16px 20px;
+  background-color: #000;
+  color: var(--text-color);
+  border: 1px solid #878787;
+  border-radius: 0;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+main .form.block input[type="email"]:hover,
+main .form.block input[type="text"]:hover {
+  border-color: #878787;
+}
+
+main .form.block input::placeholder {
+  color: #878787;
+}
+
+main .form.block input:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+  border-color: var(--text-color);
+}
+
+/* Checkbox group — "What type of coach are you?" */
+main .form.block .checkbox-group-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+}
+
+main .form.block .checkbox-group-wrapper > legend.field-label {
+  flex-basis: 100%;
+  margin: 0 0 4px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-color);
+}
+
+main .form.block .checkbox-wrapper {
+  margin: 0;
+  gap: 10px;
+}
+
+main .form.block .checkbox-wrapper input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  accent-color: var(--usta-lime);
+  cursor: pointer;
+}
+
+main .form.block .checkbox-wrapper label {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* Legal / consent copy (authored as plain-text with Style: subscribe-legal) */
+main .form.block .subscribe-legal p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--text-color);
+}
+
+main .form.block .subscribe-legal a {
+  color: var(--text-color);
+  text-decoration: underline;
+}
+
+/* Submit — light grey pill button */
+main .form.block .submit-wrapper {
+  margin: 0;
+}
+
+main .form.block button.button {
+  width: auto;
+  margin: 0;
+  padding: 16px 24px;
+  background-color: #bdbdb9;
+  color: #4c4c4c;
+  border: 2px solid #000;
+  border-radius: 12px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+main .form.block button.button:hover {
+  background-color: #cfcfca;
+}
+
+main .form.block button.button:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+@media (width >= 768px) {
+  main .form.block {
+    padding: 40px 32px;
+  }
+}
