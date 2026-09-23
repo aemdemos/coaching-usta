@@ -103,7 +103,7 @@ main .form.block .field-zipcode {
 
 main .form.block .field-zipcode .form-char-counter {
   position: absolute;
-  top: -4px;
+  top: -17px;
   right: 0;
   font-family: var(--body-font-family);
   font-size: 16px;
