@@ -1,0 +1,52 @@
+{
+  "total": 6,
+  "offset": 0,
+  "limit": 6,
+  "data": [
+    {
+      "Name": "subscribeHeading",
+      "Type": "plain-text",
+      "Label": "GET ON THE LIST.",
+      "Style": "subscribe-heading"
+    },
+    {
+      "Name": "email",
+      "Type": "email",
+      "Label": "Email Address",
+      "Mandatory": "true",
+      "Required Error Message": "Please enter your email address",
+      "Pattern Error Message": "Please enter a valid email address"
+    },
+    {
+      "Name": "zipcode",
+      "Type": "text",
+      "Label": "Zip Code",
+      "Mandatory": "true",
+      "Max": "5",
+      "Pattern": "^[0-9]{5}$",
+      "Required Error Message": "Please enter your zip code",
+      "Pattern Error Message": "Please enter a valid 5-digit zip code"
+    },
+    {
+      "Name": "coachType",
+      "Type": "checkbox-group",
+      "Label": "What type of coach are you?",
+      "Options": "PARENT_GUARDIAN_COACH,SCHOOL_COACH,PROFESSIONAL_COACH,VOLUNTEER_OR_EMERGING_COACH,FACILITY_OWNER_OPERATOR,OTHER",
+      "OptionNames": "Parent/Guardian Coach,School Coach,Professional Coach,Volunteer or Emerging Coach,Facility Owner/Operator,Other"
+    },
+    {
+      "Name": "subscribeLegal",
+      "Type": "plain-text",
+      "Label": "By clicking SUBSCRIBE, you agree that you have read AND understood the USTA <a href=\"https://www.usta.com/en/home/about-usta/who-we-are/national/usta-terms-of-use.html\">Terms of Use</a> AND <a href=\"https://www.usta.com/en/home/about-usta/who-we-are/national/usta-privacy-policy.html\">Privacy Policy</a>. You must be at least 13 years of age to subscribe.",
+      "Style": "subscribe-legal",
+      "richText": "true"
+    },
+    {
+      "Name": "subscribe",
+      "Type": "submit",
+      "Label": "Subscribe",
+      "Value": "Thank you! You're on the list."
+    }
+  ],
+  ":type": "sheet"
+}
