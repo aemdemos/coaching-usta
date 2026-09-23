@@ -405,6 +405,7 @@ export async function loadRuleEngine(formDef, htmlForm, captcha, genFormRenditio
         try {
           sub.callback(sub.fieldDiv, e.payload.field, 'change', e.payload);
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.error(`Error in subscription callback for field "${fieldId}":`, err);
         }
       }
