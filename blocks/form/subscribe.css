@@ -352,11 +352,12 @@ main .form.block .button-wrapper button.button:hover {
 }
 
 /* Wide desktop — all six coach-type options on ONE row. The six items total
-   ~1169px; the source's 1216px content column leaves ~47px for the five gaps, so
-   a 9px column gap keeps them on a single line (nowrap) at the source's width. */
+   ~1169px. At the exact 1280 step the content box is viewport-constrained
+   (~1176px, tighter than the 1216 it reaches by ~1332), so the five column gaps
+   must stay ≤6px to keep one line without overflowing at 1280. */
 @media (width >= 1280px) {
   main .form.block .checkbox-group-wrapper {
     flex-flow: row nowrap;
-    gap: 14px 9px;
+    gap: 14px 6px;
   }
 }
