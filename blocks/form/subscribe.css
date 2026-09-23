@@ -26,9 +26,12 @@ main .section.form-container div.form-wrapper {
   box-shadow: none;
 }
 
+/* Desktop: the source aligns the form content to the page gutter with a 1200px
+   content box (content left ~120, width 1200) — the wrapper already sits there,
+   so drop the extra side padding that was over-indenting + narrowing the form. */
 @media (width >= 1024px) {
   main .section.form-container div.form-wrapper {
-    padding: 0 32px;
+    padding: 0;
   }
 }
 
@@ -123,13 +126,13 @@ main .form.block input:focus-visible {
   border-color: var(--text-color);
 }
 
-/* Checkbox group — "What type of coach are you?". Mobile-first: allow the six
-   options to wrap so they never overflow narrow screens. The legend sits on its
-   own line above. (Desktop puts them all on one row — see the >=1024px rule.) */
+/* Checkbox group — "What type of coach are you?". Mobile-first: the source
+   stacks all six options in a SINGLE column (one per row). The legend sits on
+   its own line above. (Wide desktop lays them on one row — see >=1280px.) */
 main .form.block .checkbox-group-wrapper {
   display: flex;
-  flex-wrap: wrap;
-  gap: 14px 20px;
+  flex-direction: column;
+  gap: 14px;
 }
 
 /* Legend — Graphik Semibold 16px, white */
@@ -245,10 +248,10 @@ main .form.block button.button:focus-visible {
 
 /* Wide desktop — lay all six coach-type options on a single row, spread across
    the full form width, matching the source. The six labels need ~1190px, so this
-   only kicks in at the widest breakpoint (>=1280px); below that they wrap. */
+   only kicks in at the widest breakpoint (>=1280px); below that they stack. */
 @media (width >= 1280px) {
   main .form.block .checkbox-group-wrapper {
-    flex-wrap: nowrap;
+    flex-flow: row nowrap;
     justify-content: space-between;
     gap: 14px 12px;
   }
