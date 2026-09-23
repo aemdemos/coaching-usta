@@ -41,6 +41,19 @@ const { list: BREAKPOINTS, source: BP_SOURCE } = loadBreakpoints();
 const ALLOWED = new Set(BREAKPOINTS);
 const SET_STR = `{${BREAKPOINTS.join(', ')}}`;
 
+/*
+ * Vendored CSS excluded from the Breakpoint Rule. The aem-boilerplate-forms
+ * block (blocks/form/) is a third-party vendored dependency — like scripts/aem.js
+ * and the form rule engine (see .eslintignore). Its base form.css and UE-only
+ * component CSS (modal/wizard/…) ship at the boilerplate's own breakpoints and
+ * must track upstream, not be hand-edited. Our OWN authored per-form styles live
+ * in separate imported files (e.g. blocks/form/lead-interests.css) and ARE checked.
+ */
+function isVendored(rel) {
+  const p = rel.split('\\').join('/');
+  return p === 'blocks/form/form.css' || p.startsWith('blocks/form/components/');
+}
+
 function walk(dir, out = []) {
   let entries;
   try { entries = readdirSync(dir); } catch { return out; }
@@ -51,7 +64,7 @@ function walk(dir, out = []) {
     if (s.isDirectory()) {
       if (name === 'node_modules' || name.startsWith('.')) continue;
       walk(full, out);
-    } else if (name.endsWith('.css')) {
+    } else if (name.endsWith('.css') && !isVendored(relative(ROOT, full))) {
       out.push(full);
     }
   }

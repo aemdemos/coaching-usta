@@ -1,0 +1,145 @@
+/*
+ * lead-interests — scoped styles for the "Your USTA Coaching Interests"
+ * lead-capture form (DA sheet: /forms/lead-interests.json). Reproduces the
+ * source's dark panel: white title, black-fill inputs with grey borders, white
+ * checkbox labels, and the grey rounded "SAVE CHANGES" button.
+ *
+ * Scope: every selector is gated by :has(.lead-interests-heading) so these
+ * rules only reach this form and never leak into other forms sharing form.css.
+ * Mobile-first, min-width only (this repo's breakpoints).
+ */
+
+main .form:has(.lead-interests-heading) {
+  --li-panel-bg: #1d1d1d;
+  --li-title-color: #fff;
+  --li-text-color: #fff;
+  --li-input-bg: #000;
+  --li-input-border: #878787;
+  --li-button-bg: #bdbdb9;
+  --li-button-color: #4c4c4c;
+
+  background-color: var(--li-panel-bg);
+  padding: 24px;
+}
+
+main div.form-wrapper:has(.lead-interests-heading) {
+  background: var(--li-panel-bg);
+  box-shadow: none;
+  border-radius: 0;
+  padding: 24px;
+}
+
+/* Title — white, large, USTA Sans (inherits global font-family) */
+
+/* Title — USTA Sans bold condensed display face, UPPERCASE, like the source */
+main .form:has(.lead-interests-heading) .lead-interests-heading p {
+  color: var(--li-title-color);
+  font-family: var(--heading-font-family);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+/* Field labels + legends + checkbox text → white on the dark panel.
+   Field/zip labels are UPPERCASE like the source; checkbox option labels stay
+   sentence-case. Legend selectors mirror the boilerplate's specificity to win. */
+main .form:has(.lead-interests-heading) label,
+main .form:has(.lead-interests-heading) .checkbox-wrapper label,
+main .form:has(.lead-interests-heading) fieldset.checkbox-group-wrapper legend,
+main .form:has(.lead-interests-heading) fieldset.radio-group-wrapper legend,
+main .form:has(.lead-interests-heading) fieldset:not(.checkbox-group-wrapper, .radio-group-wrapper) legend {
+  color: var(--li-text-color);
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+
+/* Text-input field labels uppercased (Email Address, Zip Code) — not the
+   checkbox options or the group legend. */
+main .form:has(.lead-interests-heading) .text-wrapper > label,
+main .form:has(.lead-interests-heading) .email-wrapper > label {
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+/* Text/email/zip inputs — black fill, grey border, square corners */
+main .form:has(.lead-interests-heading) input[type='text'],
+main .form:has(.lead-interests-heading) input[type='email'],
+main .form:has(.lead-interests-heading) input[type='tel'] {
+  height: 58px;
+  padding: 16px 20px;
+  font-size: 18px;
+  color: var(--li-text-color);
+  background-color: var(--li-input-bg);
+  border: 1px solid var(--li-input-border);
+  border-radius: 0;
+}
+
+main .form:has(.lead-interests-heading) input[type='text']:hover,
+main .form:has(.lead-interests-heading) input[type='email']:hover,
+main .form:has(.lead-interests-heading) input[type='tel']:hover {
+  border-color: #fff;
+}
+
+/* Checkbox group — vertical list of options, each row: box left, label right */
+main .form:has(.lead-interests-heading) .checkbox-group-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Each option row is a single inline line (box + label), never stacked */
+main .form:has(.lead-interests-heading) .checkbox-wrapper {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+}
+
+main .form:has(.lead-interests-heading) .checkbox-wrapper label {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+/* Checkbox — 24px, transparent fill, white border, slight radius (source) */
+main .form:has(.lead-interests-heading) input[type='checkbox'] {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  background-color: transparent;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  accent-color: var(--li-button-bg);
+}
+
+/* SAVE CHANGES button — grey pill, dark text, sized to content */
+main .form:has(.lead-interests-heading) button {
+  width: auto;
+  padding: 16px 24px;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--li-button-color);
+  background-color: var(--li-button-bg);
+  border: 2px solid transparent;
+  border-radius: 12px;
+}
+
+main .form:has(.lead-interests-heading) button:hover {
+  background-color: #cfcfca;
+}
+
+/* Desktop: constrain the form to the source's ~666px column */
+@media (width >= 768px) {
+  main .form:has(.lead-interests-heading) {
+    max-width: 666px;
+    padding: 40px;
+  }
+
+  main .form:has(.lead-interests-heading) .lead-interests-heading p {
+    font-size: 40px;
+  }
+}

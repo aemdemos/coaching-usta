@@ -1,0 +1,10 @@
+{
+  "variantName": "form",
+  "baseBlock": "form",
+  "visualCharacteristics": "A signup form: text/email/ZIP fields, a checkbox group, consent/legal copy, and a submit button.",
+  "contentPattern": "One row per field, each self-describing: first cell is the field type (text | email | zip | checkbox-group | legal | submit), remaining cells provide label, name, and options. Controls are built in JS because DA strips form markup from the fragment.",
+  "usage": "Newsletter / lead-capture signup form.",
+  "canonicalModel": "standalone",
+  "options": [],
+  "memberVariantIds": ["form"]
+}
