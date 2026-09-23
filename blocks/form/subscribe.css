@@ -61,6 +61,15 @@ main .section.form-container div.form-wrapper {
   main .section.form-container {
     padding: 0 52px;
   }
+
+  /* Match the source's form content column exactly: it's a near-full-bleed band
+     whose content column measures 1216px (vs our default 1200) starting ~8px
+     further out — that extra width is what lets the coach-type row breathe. Bump
+     the wrapper to 1216 with no inner padding to reproduce it. */
+  main .section.form-container div.form-wrapper {
+    max-width: 1216px;
+    padding: 0;
+  }
 }
 
 /* Form shell — no card. Transparent, no border/radius; just holds the fields
@@ -319,7 +328,7 @@ main .form.block .button-wrapper button.button:hover {
 
   main .form.block .checkbox-group-wrapper {
     flex-flow: row wrap;
-    gap: 14px 28px;
+    gap: 14px 16px;
   }
 
   main .form.block .checkbox-wrapper label {
@@ -342,14 +351,12 @@ main .form.block .button-wrapper button.button:hover {
   }
 }
 
-/* Wide desktop — lay all six coach-type options on a single row, spread across
-   the full form width, matching the source. Use `wrap` (not `nowrap`) so at the
-   exact 1280 step — where the content box is a few px too narrow for one row —
-   they gracefully flow instead of overflowing; past ~1300 they settle on one row. */
+/* Wide desktop — all six coach-type options on ONE row. The six items total
+   ~1169px; the source's 1216px content column leaves ~47px for the five gaps, so
+   a 9px column gap keeps them on a single line (nowrap) at the source's width. */
 @media (width >= 1280px) {
   main .form.block .checkbox-group-wrapper {
-    flex-flow: row wrap;
-    justify-content: space-between;
-    gap: 14px 12px;
+    flex-flow: row nowrap;
+    gap: 14px 9px;
   }
 }
