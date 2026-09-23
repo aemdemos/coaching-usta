@@ -20,23 +20,53 @@ main .section.form-container div.form-wrapper {
   background-color: transparent;
 }
 
+/* Match the SHARED two-layer section container the other blocks use so the form
+   sits on the IDENTICAL grid/gutter at every viewport (Grid Rule). Sibling
+   sections are a 1536-capped centred container with the site gutter tiers
+   (16→40→48→52), and INSIDE that a 1200-capped content box with 0 32px padding.
+   The boilerplate `main .form-container` (0 10px) + `main div.form-wrapper`
+   (40px card) break this, so re-assert both layers here.
+   Reproduces sibling content-left: 40 @390 · 64 @768 · 80 @1024 · 120 @1440. */
+main .section.form-container {
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
 main .section.form-container div.form-wrapper {
+  max-width: 1200px;
+  margin-inline: auto;
   padding: 0 24px;
   border-radius: 0;
   box-shadow: none;
 }
 
-/* Desktop: the source aligns the form content to the page gutter with a 1200px
-   content box (content left ~120, width 1200) — the wrapper already sits there,
-   so drop the extra side padding that was over-indenting + narrowing the form. */
+@media (width >= 768px) {
+  main .section.form-container {
+    padding: 0 40px;
+  }
+}
+
 @media (width >= 1024px) {
+  main .section.form-container {
+    padding: 0 48px;
+  }
+
   main .section.form-container div.form-wrapper {
-    padding: 0;
+    padding: 0 32px;
+  }
+}
+
+@media (width >= 1280px) {
+  main .section.form-container {
+    padding: 0 52px;
   }
 }
 
 /* Form shell — no card. Transparent, no border/radius; just holds the fields
-   on the black page. */
+   on the black page. Also resets the global body letter-spacing (-0.03em from
+   styles.css) — the source form text is `letter-spacing: normal` everywhere
+   EXCEPT the submit button, which re-declares its own negative tracking below. */
 main .form.block {
   box-sizing: border-box;
   background-color: transparent;
@@ -44,6 +74,7 @@ main .form.block {
   border: 0;
   border-radius: 0;
   padding: 0;
+  letter-spacing: normal;
 }
 
 /* The boilerplate lays the form on a 12-col grid; keep it single-column
@@ -59,8 +90,9 @@ main .form.block form .field-wrapper {
   color: var(--text-color);
 }
 
-/* Title — "GET ON THE LIST." (authored as plain-text with Style: subscribe-heading).
-   Source: USTA Sans 56px/56px desktop, 32px/32px mobile, weight 400, white. */
+/* Title — "GET ON THE LIST." (plain-text, Style: subscribe-heading). USTA Sans
+   400, white, line-height 1. Source responsive scale: 32px mobile → 40px tablet
+   (>=768) → 56px desktop (>=1024). */
 main .form.block .subscribe-heading p {
   margin: 0 0 8px;
   font-family: var(--heading-font-family);
@@ -70,7 +102,7 @@ main .form.block .subscribe-heading p {
   color: var(--text-color);
 }
 
-/* Field labels — Graphik Semibold, uppercase, 14px */
+/* Field labels — Graphik Semibold, uppercase, 14px/24px (all viewports) */
 main .form.block .field-email > label.field-label,
 main .form.block .field-zipcode > label.field-label {
   display: block;
@@ -78,6 +110,7 @@ main .form.block .field-zipcode > label.field-label {
   font-family: "Graphik Semibold", tahoma, sans-serif;
   font-size: 14px;
   font-weight: 400;
+  line-height: 24px;
   letter-spacing: normal;
   text-transform: uppercase;
   color: var(--text-color);
@@ -103,10 +136,11 @@ main .form.block .field-zipcode {
 
 main .form.block .field-zipcode .form-char-counter {
   position: absolute;
-  top: -4px;
+  top: -17px;
   right: 0;
   font-family: var(--body-font-family);
-  font-size: 16px;
+  font-size: 14px;
+  line-height: 18px;
   color: #878787;
 }
 
@@ -124,7 +158,8 @@ main .form.block input[type="text"] {
   border-radius: 0;
   font-family: var(--body-font-family);
   font-size: 18px;
-  letter-spacing: -0.03em;
+  line-height: 24px;
+  letter-spacing: normal;
 }
 
 main .form.block input[type="email"]:hover,
@@ -151,13 +186,14 @@ main .form.block .checkbox-group-wrapper {
   gap: 14px;
 }
 
-/* Legend — Graphik Semibold 16px, white */
+/* Legend — Graphik Semibold, white. Mobile 12px/12px → 16px/16px at >=768. */
 main .form.block .checkbox-group-wrapper > legend.field-label {
   flex-basis: 100%;
   margin: 0 0 16px;
   font-family: "Graphik Semibold", tahoma, sans-serif;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 400;
+  line-height: 12px;
   color: var(--text-color);
 }
 
@@ -202,24 +238,24 @@ main .form.block .checkbox-wrapper input[type="checkbox"]:focus-visible {
   outline-offset: 2px;
 }
 
-/* Checkbox labels — Graphik Regular 18px, white. Size to content and sit
-   inline beside the box (base form.css gives the label flex:0 1 calc(100%-24px)
-   which, with the wrapper wrapping, pushed the label below the box). */
+/* Checkbox labels — Graphik Regular, white; sized to content and inline beside
+   the box. Mobile 14px/24px → 18px/24px at >=768. */
 main .form.block .checkbox-wrapper label {
   flex: 0 0 auto;
   font-family: var(--body-font-family);
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 400;
+  line-height: 24px;
   color: var(--text-color);
   cursor: pointer;
 }
 
-/* Legal / consent copy (authored as plain-text with Style: subscribe-legal).
-   Source: Graphik Regular 18px, line-height 1.2, white. */
+/* Legal / consent copy (plain-text, Style: subscribe-legal). Graphik Regular,
+   line-height 1.2, white. Mobile 16px → 18px at >=768. */
 main .form.block .subscribe-legal p {
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.2;
   color: var(--text-color);
 }
@@ -234,8 +270,10 @@ main .form.block .submit-wrapper {
   margin: 0;
 }
 
+/* Mobile-first: the source's Subscribe button is FULL-WIDTH on phones (spans the
+   content column), then compact/auto-width from tablet up (see the >=768 rule). */
 main .form.block button.button {
-  width: auto;
+  width: 100%;
   margin: 0;
   padding: 16px 24px;
   background-color: #bdbdb9;
@@ -243,8 +281,9 @@ main .form.block button.button {
   border: 2px solid #000;
   border-radius: 12px;
   font-family: "Graphik Semibold", tahoma, sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
 main .form.block button.button:focus-visible {
@@ -261,30 +300,55 @@ main .form.block .button-wrapper button.button:hover {
   border: 2px solid #000;
 }
 
-/* Desktop: title grows to the source's 56px */
+/* Tablet (>=768) typography + layout (source): heading 40px, legend 16px,
+   checkbox labels 18px, legal 18px, submit 18px/-0.54px + compact width; the
+   coach-type options flow multiple-per-row (single-column stacking is mobile-only). */
 @media (width >= 768px) {
   main .form.block .subscribe-heading p {
-    font-size: 56px;
+    font-size: 40px;
   }
 
-  /* Tablet+: the source flows the coach-type options multiple-per-row (wrap),
-     not a single column. Single-column stacking is mobile-only (<768px). */
+  main .form.block .checkbox-group-wrapper > legend.field-label {
+    font-size: 16px;
+    line-height: 16px;
+  }
+
+  main .form.block .subscribe-legal p {
+    font-size: 18px;
+  }
+
   main .form.block .checkbox-group-wrapper {
     flex-flow: row wrap;
     gap: 14px 28px;
   }
 
   main .form.block .checkbox-wrapper label {
+    font-size: 18px;
     white-space: nowrap;
+  }
+
+  /* Submit: compact (auto) width, 18px, source tracking — full-width is mobile-only. */
+  main .form.block button.button {
+    width: auto;
+    font-size: 18px;
+    letter-spacing: -0.54px;
+  }
+}
+
+/* Desktop: heading grows to the source's 56px. */
+@media (width >= 1024px) {
+  main .form.block .subscribe-heading p {
+    font-size: 56px;
   }
 }
 
 /* Wide desktop — lay all six coach-type options on a single row, spread across
-   the full form width, matching the source. The six labels need ~1190px, so this
-   only kicks in at the widest breakpoint (>=1280px); below that they stack. */
+   the full form width, matching the source. Use `wrap` (not `nowrap`) so at the
+   exact 1280 step — where the content box is a few px too narrow for one row —
+   they gracefully flow instead of overflowing; past ~1300 they settle on one row. */
 @media (width >= 1280px) {
   main .form.block .checkbox-group-wrapper {
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     justify-content: space-between;
     gap: 14px 12px;
   }
