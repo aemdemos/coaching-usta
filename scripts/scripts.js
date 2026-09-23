@@ -194,6 +194,37 @@ function decorateIntroStatement(main) {
   });
 }
 
+/**
+ * Adds a live "used / max" character counter to any form text input that has a
+ * `maxlength` (e.g. the subscribe form's 5-digit Zip Code, which shows "0 / 5"
+ * in the source). The boilerplate-forms block builds its fields ASYNCHRONOUSLY
+ * (it fetches the sheet after page decoration), so we watch each form block with
+ * a MutationObserver and decorate inputs as they appear. Block-agnostic and
+ * idempotent — never modifies the vendored form block. Positioning is styled per
+ * form (see the `.form-char-counter` rules in the form's scoped CSS).
+ * @param {Element} main The main element
+ */
+function decorateFormCharCounters(main) {
+  const attachCounter = (input) => {
+    if (!input.maxLength || input.maxLength < 0 || input.dataset.counterAttached) return;
+    input.dataset.counterAttached = 'true';
+    const counter = document.createElement('span');
+    counter.className = 'form-char-counter';
+    counter.setAttribute('aria-hidden', 'true');
+    const update = () => { counter.textContent = `${input.value.length} / ${input.maxLength}`; };
+    update();
+    input.addEventListener('input', update);
+    (input.closest('.field-wrapper') || input.parentElement).append(counter);
+  };
+  main.querySelectorAll('.form.block').forEach((form) => {
+    form.querySelectorAll('input[maxlength]').forEach(attachCounter);
+    const observer = new MutationObserver(() => {
+      form.querySelectorAll('input[maxlength]').forEach(attachCounter);
+    });
+    observer.observe(form, { childList: true, subtree: true });
+  });
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
@@ -203,6 +234,7 @@ export function decorateMain(main) {
   decorateBlocks(main);
   decorateButtons(main);
   decorateIntroStatement(main);
+  decorateFormCharCounters(main);
 }
 
 /**

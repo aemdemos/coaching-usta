@@ -94,6 +94,22 @@ main .form.block .field-zipcode[data-required="true"] > label.field-label::befor
   color: #f00;
 }
 
+/* Char counter ("0 / 5") for the Zip Code field — added by decorateFormCharCounters
+   in scripts.js. Source places it at the field's top-right, on the label line, in
+   the grey hairline colour. Anchor it to the (relative) zip field wrapper. */
+main .form.block .field-zipcode {
+  position: relative;
+}
+
+main .form.block .field-zipcode .form-char-counter {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  color: #878787;
+}
+
 /* Text inputs — black fill, grey hairline, square corners, 58px tall */
 main .form.block input[type="email"],
 main .form.block input[type="text"] {
@@ -169,15 +185,16 @@ main .form.block .checkbox-wrapper input[type="checkbox"] {
   cursor: pointer;
 }
 
-/* Checked state — lime fill with a black check mark (inline SVG, no native
-   blue tick — appearance:none suppresses the browser default). */
+/* Checked state — lime fill with a black check mark. Uses the source site's
+   exact checkmark SVG (fill:black) as a background image; appearance:none
+   suppresses the native blue tick. */
 main .form.block .checkbox-wrapper input[type="checkbox"]:checked {
   background-color: var(--usta-lime);
   border-color: var(--usta-lime);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>');
+  background-image: url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%20fill='none'%3e%3cpath%20d='M20.3637%207.74311L20.697%207.38985L20.3536%207.04645L18.9536%205.64645L18.59%205.28288L18.2367%205.65646L9.87802%2014.4955L5.74116%2010.6345L5.38802%2010.3049L5.04645%2010.6464L3.64645%2012.0464L3.28049%2012.4124L3.65884%2012.7655L9.65884%2018.3655L10.0224%2018.7049L10.3637%2018.3431L20.3637%207.74311Z'%20fill='black'%20stroke='black'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 18px 18px;
+  background-size: 22px 24px;
 }
 
 main .form.block .checkbox-wrapper input[type="checkbox"]:focus-visible {
@@ -230,13 +247,18 @@ main .form.block button.button {
   font-weight: 400;
 }
 
-main .form.block button.button:hover {
-  background-color: #cfcfca;
-}
-
 main .form.block button.button:focus-visible {
   outline: 2px solid var(--usta-lime);
   outline-offset: 2px;
+}
+
+/* No hover change — the source's Subscribe button is static on hover. Neutralise
+   the base form.css `.button-wrapper button:hover` (which flips border/colour/bg)
+   so the button keeps its resting appearance. */
+main .form.block .button-wrapper button.button:hover {
+  background-color: #bdbdb9;
+  color: #4c4c4c;
+  border: 2px solid #000;
 }
 
 /* Desktop: title grows to the source's 56px */
