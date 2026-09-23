@@ -123,11 +123,13 @@ main .form.block input:focus-visible {
   border-color: var(--text-color);
 }
 
-/* Checkbox group — "What type of coach are you?" */
+/* Checkbox group — "What type of coach are you?". Mobile-first: allow the six
+   options to wrap so they never overflow narrow screens. The legend sits on its
+   own line above. (Desktop puts them all on one row — see the >=1024px rule.) */
 main .form.block .checkbox-group-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px 28px;
+  gap: 14px 20px;
 }
 
 /* Legend — Graphik Semibold 16px, white */
@@ -142,27 +144,49 @@ main .form.block .checkbox-group-wrapper > legend.field-label {
 
 main .form.block .checkbox-wrapper {
   display: flex;
+  flex: 0 0 auto;
   flex-wrap: nowrap;
   align-items: center;
   margin: 0;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* Checkbox — 24x24 white-outlined square (source uses a bordered box, not a
-   lime accent-color fill). */
+/* Checkbox — 24x24 transparent box with a 1px white border and 4px radius
+   (measured from the source: appearance:none, transparent fill, white outline
+   — NOT a native white box or a lime accent fill). */
 main .form.block .checkbox-wrapper input[type="checkbox"] {
+  appearance: none;
   width: 24px;
   height: 24px;
   flex: 0 0 auto;
-  accent-color: var(--usta-lime);
+  margin: 0;
+  background-color: transparent;
+  border: 1px solid var(--text-color);
+  border-radius: 4px;
   cursor: pointer;
+}
+
+/* Checked state — lime fill with a black check mark (inline SVG, no native
+   blue tick — appearance:none suppresses the browser default). */
+main .form.block .checkbox-wrapper input[type="checkbox"]:checked {
+  background-color: var(--usta-lime);
+  border-color: var(--usta-lime);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 18px 18px;
+}
+
+main .form.block .checkbox-wrapper input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
 }
 
 /* Checkbox labels — Graphik Regular 18px, white. Size to content and sit
    inline beside the box (base form.css gives the label flex:0 1 calc(100%-24px)
    which, with the wrapper wrapping, pushed the label below the box). */
 main .form.block .checkbox-wrapper label {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   font-family: var(--body-font-family);
   font-size: 18px;
   font-weight: 400;
@@ -216,5 +240,20 @@ main .form.block button.button:focus-visible {
 @media (width >= 768px) {
   main .form.block .subscribe-heading p {
     font-size: 56px;
+  }
+}
+
+/* Wide desktop — lay all six coach-type options on a single row, spread across
+   the full form width, matching the source. The six labels need ~1190px, so this
+   only kicks in at the widest breakpoint (>=1280px); below that they wrap. */
+@media (width >= 1280px) {
+  main .form.block .checkbox-group-wrapper {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 14px 12px;
+  }
+
+  main .form.block .checkbox-wrapper label {
+    white-space: nowrap;
   }
 }
