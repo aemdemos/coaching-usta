@@ -141,6 +141,9 @@ main .form.block .checkbox-group-wrapper > legend.field-label {
 }
 
 main .form.block .checkbox-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
   margin: 0;
   gap: 10px;
 }
@@ -155,8 +158,11 @@ main .form.block .checkbox-wrapper input[type="checkbox"] {
   cursor: pointer;
 }
 
-/* Checkbox labels — Graphik Regular 18px, white */
+/* Checkbox labels — Graphik Regular 18px, white. Size to content and sit
+   inline beside the box (base form.css gives the label flex:0 1 calc(100%-24px)
+   which, with the wrapper wrapping, pushed the label below the box). */
 main .form.block .checkbox-wrapper label {
+  flex: 0 1 auto;
   font-family: var(--body-font-family);
   font-size: 18px;
   font-weight: 400;
