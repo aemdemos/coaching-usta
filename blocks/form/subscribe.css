@@ -103,7 +103,7 @@ main .form.block .field-zipcode {
 
 main .form.block .field-zipcode .form-char-counter {
   position: absolute;
-  top: -17px;
+  top: -4px;
   right: 0;
   font-family: var(--body-font-family);
   font-size: 16px;
@@ -266,6 +266,17 @@ main .form.block .button-wrapper button.button:hover {
   main .form.block .subscribe-heading p {
     font-size: 56px;
   }
+
+  /* Tablet+: the source flows the coach-type options multiple-per-row (wrap),
+     not a single column. Single-column stacking is mobile-only (<768px). */
+  main .form.block .checkbox-group-wrapper {
+    flex-flow: row wrap;
+    gap: 14px 28px;
+  }
+
+  main .form.block .checkbox-wrapper label {
+    white-space: nowrap;
+  }
 }
 
 /* Wide desktop — lay all six coach-type options on a single row, spread across
@@ -276,9 +287,5 @@ main .form.block .button-wrapper button.button:hover {
     flex-flow: row nowrap;
     justify-content: space-between;
     gap: 14px 12px;
-  }
-
-  main .form.block .checkbox-wrapper label {
-    white-space: nowrap;
   }
 }
