@@ -1,0 +1,363 @@
+/* subscribe — the "GET ON THE LIST." signup form on the home page.
+   Scoped to the boilerplate-forms block (.form.block) rendering the
+   /forms/subscribe.json sheet. Values measured from the source
+   (ustacoaching.com/en/home): the form sits DIRECTLY on the page's black
+   background — no card, border, or radius — with a big USTA Sans title,
+   Graphik Semibold uppercase field labels, black inputs with a grey hairline,
+   white-outlined square checkboxes, and a light-grey "Subscribe" pill.
+   The boilerplate ships a light card theme; these rules retheme it to match.
+   Each form gets its own scoped file imported into form.css (see the
+   @import at the top of form.css) — do NOT put form-specific rules in the
+   shared form.css. */
+
+/* The boilerplate paints the section + block white via --form-background-color
+   and gives the wrapper a 40px padding + box-shadow + radius (a white card).
+   The source has NO card: the form is flush on the black page. Neutralise the
+   white/card treatment so it sits on the page background at the shared content
+   width, matching sibling blocks. */
+main .section.form-container,
+main .section.form-container div.form-wrapper {
+  background-color: transparent;
+}
+
+/* Match the SHARED two-layer section container the other blocks use so the form
+   sits on the IDENTICAL grid/gutter at every viewport (Grid Rule). Sibling
+   sections are a 1536-capped centred container with the site gutter tiers
+   (16→40→48→52), and INSIDE that a 1200-capped content box with 0 32px padding.
+   The boilerplate `main .form-container` (0 10px) + `main div.form-wrapper`
+   (40px card) break this, so re-assert both layers here.
+   Reproduces sibling content-left: 40 @390 · 64 @768 · 80 @1024 · 120 @1440. */
+main .section.form-container {
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+main .section.form-container div.form-wrapper {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 0 24px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (width >= 768px) {
+  main .section.form-container {
+    padding: 0 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  main .section.form-container {
+    padding: 0 48px;
+  }
+
+  main .section.form-container div.form-wrapper {
+    padding: 0 32px;
+  }
+}
+
+@media (width >= 1280px) {
+  main .section.form-container {
+    padding: 0 52px;
+  }
+
+  /* Match the source's form content column exactly: it's a near-full-bleed band
+     whose content column measures 1216px (vs our default 1200) starting ~8px
+     further out — that extra width is what lets the coach-type row breathe. Bump
+     the wrapper to 1216 with no inner padding to reproduce it. */
+  main .section.form-container div.form-wrapper {
+    max-width: 1216px;
+    padding: 0;
+  }
+}
+
+/* Form shell — no card. Transparent, no border/radius; just holds the fields
+   on the black page. Also resets the global body letter-spacing (-0.03em from
+   styles.css) — the source form text is `letter-spacing: normal` everywhere
+   EXCEPT the submit button, which re-declares its own negative tracking below. */
+main .form.block {
+  box-sizing: border-box;
+  background-color: transparent;
+  color: var(--text-color);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  letter-spacing: normal;
+}
+
+/* The boilerplate lays the form on a 12-col grid; keep it single-column
+   with the source's vertical rhythm (labels/inputs stacked). */
+main .form.block form {
+  gap: 24px 0;
+}
+
+/* Every field spans the full width (source stacks email + zip, not side-by-side) */
+main .form.block form .field-wrapper {
+  grid-column: span 12;
+  margin: 0;
+  color: var(--text-color);
+}
+
+/* Title — "GET ON THE LIST." (plain-text, Style: subscribe-heading). USTA Sans
+   400, white, line-height 1. Source responsive scale: 32px mobile → 40px tablet
+   (>=768) → 56px desktop (>=1024). */
+main .form.block .subscribe-heading p {
+  margin: 0 0 8px;
+  font-family: var(--heading-font-family);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text-color);
+}
+
+/* Field labels — Graphik Semibold, uppercase, 14px/24px (all viewports) */
+main .form.block .field-email > label.field-label,
+main .form.block .field-zipcode > label.field-label {
+  display: block;
+  margin: 0 0 8px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  color: var(--text-color);
+}
+
+/* Required asterisk — red, before the label text (matches source) */
+main .form.block [data-required="true"] > label.field-label::after {
+  content: none;
+}
+
+main .form.block .field-email[data-required="true"] > label.field-label::before,
+main .form.block .field-zipcode[data-required="true"] > label.field-label::before {
+  content: "* ";
+  color: #f00;
+}
+
+/* Char counter ("0 / 5") for the Zip Code field — added by decorateFormCharCounters
+   in scripts.js. Source places it at the field's top-right, on the label line, in
+   the grey hairline colour. Anchor it to the (relative) zip field wrapper. */
+main .form.block .field-zipcode {
+  position: relative;
+}
+
+main .form.block .field-zipcode .form-char-counter {
+  position: absolute;
+  top: -17px;
+  right: 0;
+  font-family: var(--body-font-family);
+  font-size: 14px;
+  line-height: 18px;
+  color: #878787;
+}
+
+/* Text inputs — black fill, grey hairline, square corners, 58px tall */
+main .form.block input[type="email"],
+main .form.block input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  height: 58px;
+  margin: 0;
+  padding: 16px 20px;
+  background-color: #000;
+  color: var(--text-color);
+  border: 1px solid #878787;
+  border-radius: 0;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+main .form.block input[type="email"]:hover,
+main .form.block input[type="text"]:hover {
+  border-color: #878787;
+}
+
+main .form.block input::placeholder {
+  color: #878787;
+}
+
+main .form.block input:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+  border-color: var(--text-color);
+}
+
+/* Checkbox group — "What type of coach are you?". Mobile-first: the source
+   stacks all six options in a SINGLE column (one per row). The legend sits on
+   its own line above. (Wide desktop lays them on one row — see >=1280px.) */
+main .form.block .checkbox-group-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Legend — Graphik Semibold, white. Mobile 12px/12px → 16px/16px at >=768. */
+main .form.block .checkbox-group-wrapper > legend.field-label {
+  flex-basis: 100%;
+  margin: 0 0 16px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  color: var(--text-color);
+}
+
+main .form.block .checkbox-wrapper {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin: 0;
+  gap: 8px;
+}
+
+/* Checkbox — 24x24 transparent box with a 1px white border and 4px radius
+   (measured from the source: appearance:none, transparent fill, white outline
+   — NOT a native white box or a lime accent fill). */
+main .form.block .checkbox-wrapper input[type="checkbox"] {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  margin: 0;
+  background-color: transparent;
+  border: 1px solid var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Checked state — lime fill with a black check mark. Uses the source site's
+   exact checkmark SVG (fill:black) as a background image; appearance:none
+   suppresses the native blue tick. */
+main .form.block .checkbox-wrapper input[type="checkbox"]:checked {
+  background-color: var(--usta-lime);
+  border-color: var(--usta-lime);
+  background-image: url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%20fill='none'%3e%3cpath%20d='M20.3637%207.74311L20.697%207.38985L20.3536%207.04645L18.9536%205.64645L18.59%205.28288L18.2367%205.65646L9.87802%2014.4955L5.74116%2010.6345L5.38802%2010.3049L5.04645%2010.6464L3.64645%2012.0464L3.28049%2012.4124L3.65884%2012.7655L9.65884%2018.3655L10.0224%2018.7049L10.3637%2018.3431L20.3637%207.74311Z'%20fill='black'%20stroke='black'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 22px 24px;
+}
+
+main .form.block .checkbox-wrapper input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+/* Checkbox labels — Graphik Regular, white; sized to content and inline beside
+   the box. Mobile 14px/24px → 18px/24px at >=768. */
+main .form.block .checkbox-wrapper label {
+  flex: 0 0 auto;
+  font-family: var(--body-font-family);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* Legal / consent copy (plain-text, Style: subscribe-legal). Graphik Regular,
+   line-height 1.2, white. Mobile 16px → 18px at >=768. */
+main .form.block .subscribe-legal p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+main .form.block .subscribe-legal a {
+  color: var(--text-color);
+  text-decoration: underline;
+}
+
+/* Submit — light grey pill button */
+main .form.block .submit-wrapper {
+  margin: 0;
+}
+
+/* Mobile-first: the source's Subscribe button is FULL-WIDTH on phones (spans the
+   content column), then compact/auto-width from tablet up (see the >=768 rule). */
+main .form.block button.button {
+  width: 100%;
+  margin: 0;
+  padding: 16px 24px;
+  background-color: #bdbdb9;
+  color: #4c4c4c;
+  border: 2px solid #000;
+  border-radius: 12px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+main .form.block button.button:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+/* No hover change — the source's Subscribe button is static on hover. Neutralise
+   the base form.css `.button-wrapper button:hover` (which flips border/colour/bg)
+   so the button keeps its resting appearance. */
+main .form.block .button-wrapper button.button:hover {
+  background-color: #bdbdb9;
+  color: #4c4c4c;
+  border: 2px solid #000;
+}
+
+/* Tablet (>=768) typography + layout (source): heading 40px, legend 16px,
+   checkbox labels 18px, legal 18px, submit 18px/-0.54px + compact width; the
+   coach-type options flow multiple-per-row (single-column stacking is mobile-only). */
+@media (width >= 768px) {
+  main .form.block .subscribe-heading p {
+    font-size: 40px;
+  }
+
+  main .form.block .checkbox-group-wrapper > legend.field-label {
+    font-size: 16px;
+    line-height: 16px;
+  }
+
+  main .form.block .subscribe-legal p {
+    font-size: 18px;
+  }
+
+  main .form.block .checkbox-group-wrapper {
+    flex-flow: row wrap;
+    gap: 14px 16px;
+  }
+
+  main .form.block .checkbox-wrapper label {
+    font-size: 18px;
+    white-space: nowrap;
+  }
+
+  /* Submit: compact (auto) width, 18px, source tracking — full-width is mobile-only. */
+  main .form.block button.button {
+    width: auto;
+    font-size: 18px;
+    letter-spacing: -0.54px;
+  }
+}
+
+/* Desktop: heading grows to the source's 56px. */
+@media (width >= 1024px) {
+  main .form.block .subscribe-heading p {
+    font-size: 56px;
+  }
+}
+
+/* Wide desktop — all six coach-type options on ONE row. The six items total
+   ~1169px. At the exact 1280 step the content box is viewport-constrained
+   (~1176px, tighter than the 1216 it reaches by ~1332), so the five column gaps
+   must stay ≤6px to keep one line without overflowing at 1280. */
+@media (width >= 1280px) {
+  main .form.block .checkbox-group-wrapper {
+    flex-flow: row nowrap;
+    gap: 14px 6px;
+  }
+}
