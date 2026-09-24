@@ -163,6 +163,29 @@ const handleFocusOut = (input) => {
   input.value = displayValue;
 };
 
+/**
+ * Adds a live "used / max" character counter to a text input that declares a
+ * maxLength (e.g. the subscribe form's 5-digit Zip Code → "0 / 5", matching the
+ * source). Runs synchronously per field from inputDecorator (no MutationObserver
+ * needed). Idempotent and aria-hidden — the input's own maxlength already conveys
+ * the limit to assistive tech. Positioning is styled per form (see the
+ * `.form-char-counter` rules in the form's scoped CSS).
+ * @param {HTMLElement} input The rendered input element
+ * @param {HTMLElement} element The field wrapper
+ */
+function decorateCharCounter(input, element) {
+  const max = input.maxLength;
+  if (!max || max < 0 || input.dataset.counterAttached) return;
+  input.dataset.counterAttached = 'true';
+  const counter = document.createElement('span');
+  counter.className = 'form-char-counter';
+  counter.setAttribute('aria-hidden', 'true');
+  const update = () => { counter.textContent = `${input.value.length} / ${max}`; };
+  update();
+  input.addEventListener('input', update);
+  element.append(counter);
+}
+
 function inputDecorator(field, element) {
   const input = element?.querySelector('input,textarea,select');
   if (input) {
@@ -238,6 +261,7 @@ function inputDecorator(field, element) {
     }
     setConstraintsMessage(element, field.constraintMessages);
     element.dataset.required = field.required;
+    decorateCharCounter(input, element);
   }
 }
 
