@@ -48,8 +48,10 @@ main .form.block .gallagher-copy a {
   text-decoration: underline;
 }
 
+/* source hover: stays white, underline drops (.cmp-text--colored a) */
 main .form.block .gallagher-copy a:hover {
-  color: var(--usta-lime);
+  color: var(--text-color);
+  text-decoration: none;
 }
 
 /* Submit (Style: gallagher-submit) — the source's primary lime pill
@@ -76,6 +78,7 @@ main .form.block .gallagher-submit button.button:hover {
   background-color: var(--text-color);
   color: #000;
   border-color: var(--text-color);
+  opacity: 1; /* no global button:hover fade on the source */
 }
 
 main .form.block .gallagher-submit button.button:focus-visible {

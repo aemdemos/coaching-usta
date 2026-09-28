@@ -27,13 +27,13 @@ main .section.form-container div.form-wrapper {
    The boilerplate `main .form-container` (0 10px) + `main div.form-wrapper`
    (40px card) break this, so re-assert both layers here.
    Reproduces sibling content-left: 40 @390 · 64 @768 · 80 @1024 · 120 @1440. */
-main .section.form-container {
+main .section.form-container:not(.split) {
   max-width: 1536px;
   margin-inline: auto;
   padding: 0 16px;
 }
 
-main .section.form-container div.form-wrapper {
+main .section.form-container:not(.split) div.form-wrapper {
   max-width: 1200px;
   margin-inline: auto;
   padding: 0 24px;
@@ -42,23 +42,23 @@ main .section.form-container div.form-wrapper {
 }
 
 @media (width >= 768px) {
-  main .section.form-container {
+  main .section.form-container:not(.split) {
     padding: 0 40px;
   }
 }
 
 @media (width >= 1024px) {
-  main .section.form-container {
+  main .section.form-container:not(.split) {
     padding: 0 48px;
   }
 
-  main .section.form-container div.form-wrapper {
+  main .section.form-container:not(.split) div.form-wrapper {
     padding: 0 32px;
   }
 }
 
 @media (width >= 1280px) {
-  main .section.form-container {
+  main .section.form-container:not(.split) {
     padding: 0 52px;
   }
 
@@ -66,7 +66,7 @@ main .section.form-container div.form-wrapper {
      whose content column measures 1216px (vs our default 1200) starting ~8px
      further out — that extra width is what lets the coach-type row breathe. Bump
      the wrapper to 1216 with no inner padding to reproduce it. */
-  main .section.form-container div.form-wrapper {
+  main .section.form-container:not(.split) div.form-wrapper {
     max-width: 1216px;
     padding: 0;
   }

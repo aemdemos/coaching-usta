@@ -13,7 +13,9 @@ Every form follows the same pattern:
    `richText`, `Required Error Message`, `Pattern Error Message`, `Style`, and
    optionally `Fieldset` (parent panel's `Name`) + `Custom Type` (component).
 2. **Page** — a single-cell `form` block whose content is a link to the sheet
-   (`/forms/<name>.json`). Drafts live under `/drafts/shivani/`.
+   (`/forms/<name>.json`). Drafts live under `/drafts/shivani/`. For the
+   source's "intro left, form right" layout, put the heading + intro as default
+   content in the form's section and set section style `split` (styles.css).
 3. **Styles** — `Style` values become classes on each field wrapper
    (`<form>-heading`, `<form>-submit`, …). Each form gets its own scoped CSS
    file (`subscribe.css`, `gallagher-disclaimer.css`) `@import`ed at the top of

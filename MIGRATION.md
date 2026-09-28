@@ -2884,3 +2884,37 @@ item→copy→button 24/24, copy 16/19.2 → 18/21.6 → 24/28.8, Submit 261×50
 lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y — full-page run fails only on the
 pre-existing raw `/forms/subscribe.json` link in the footer fragment (footer content has an undecorated
 `form` block); the form itself is clean.
+
+### 2026-09-28 — Gallagher form: full-page parity + `split` section style
+The form on the source is the RIGHT half of a 6/6 AEM grid (intro heading + copy left), stacked on mobile —
+its width drives every line wrap, so full-width wasn't a match. Draft page
+`/drafts/shivani/gallagher-disclaimer-form` now has the h1 + intro as default content in the form's section,
+section-metadata `style: split`.
+- **`split` section style (styles.css, generic)**: shared container (1536 cap, gutters 16/40/48/64) on the
+  12-col grid, `--grid-gap: 24px` (source = 12px padding per AEM grid column); default content cols 1–6,
+  block(s) 7–12 from 768; stacked below with a 24px row gap. Top padding 36px (24 container offset + 12 col
+  pad). Right column content = 396/332 @768 · 524/452 @1024 · 652/564 @1280 · 732/644 @1440 · 972/692 @1920
+  (== source). The block's first element drops its top margin so both columns start on the same line (the
+  form renders inside the link's `<p>`, whose 0.8em margin pushed it 13px down).
+- **Intro type is page-level on the source** (`.text--font-size--64px-32px` h1 = 32 / 40 (≥1024) / 64 (≥1280),
+  centred; `.text--font-size--24px-16px` copy = 16/19.2 → 18/21.6 → 24/28.8, one blank line between/after
+  paragraphs), not the global h1/body scale → scoped under `.section.split` and recorded as a
+  **`scopedExceptions`** entry in `tools/quality/typography.json` (check:typography skips it like block type;
+  typography-discover preserves the key on `--write`).
+- **Gotcha — bold = synthesized**: the source declares `Graphik Regular` `font-weight: normal` only, so `<b>`
+  gets Chrome's faux bold. Ours declares `400 700`, which suppresses synthesis → `<strong>` rendered regular.
+  Added a `Graphik Regular Synth` alias face (same file, `normal` only) used by the split intro's `<strong>`.
+  NOT changed globally: other blocks (cards, course-filter) were tuned on the 400–700 face. Site-wide this is a
+  parity gap for any bold Graphik Regular text — revisit deliberately.
+- **subscribe.css** container re-assert rules now `:not(.split)` (they were unscoped and would override the split
+  grid for any form section).
+- Accordion toggle `gap: 0` (source title takes all but the 48px icon — wraps at 236 @768); mailto hover stays
+  white + drops underline; Submit hover `opacity: 1` (overrides global `button:hover` 0.9).
+- **Known, out of scope — header height 768–1023**: our header is 90px there vs the source's 116px (ours
+  switches at 1024), so every page sits 26px higher in that band. Site-wide header fix, not form.
+Verified by a scripted source-vs-build diff (x/y/w/h + font-size/line-height/weight/tracking/colour/decoration
+for h1, both intro paragraphs, bold runs, accordion card/title/icon, list, copy, link, Submit) at
+390/768/1024/1280/1440/1920, closed AND open: all MATCH within 1px (768–1023 y offset by the header delta).
+Hover states (accordion, Submit, link) match. lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓
+(page + subscribe regression) · axe scoped to main (390/768/1440, closed+open) 0 violations; full-page a11y
+still fails only on the pre-existing footer `/forms/subscribe.json` link.

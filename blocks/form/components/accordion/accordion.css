@@ -46,7 +46,7 @@ main .form fieldset.accordion .accordion-toggle {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 0; /* source: title takes all but the 48px icon (wraps at 236 @768) */
   width: 100%;
   margin: 0;
   padding: 0;
