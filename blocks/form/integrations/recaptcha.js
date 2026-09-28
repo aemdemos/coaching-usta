@@ -50,16 +50,14 @@ export default class GoogleReCaptcha {
       if (submit == null) {
         // eslint-disable-next-line no-console
         console.warn('Captcha can not be loaded. Submit button is missing.');
-        // eslint-disable-next-line no-alert
-        alert('Captcha can not be loaded. Add Submit button.');
       } else {
         obs.observe(submit);
       }
     } else {
+      // No site key authored yet (sheet captcha row "Value"): skip the captcha
+      // quietly instead of alert()ing every visitor. getToken() returns null.
       // eslint-disable-next-line no-console
       console.warn('Captcha configuration in missing.');
-      // eslint-disable-next-line no-alert
-      alert('Captcha can not be loaded. Captcha configuration in missing.');
     }
   }
 

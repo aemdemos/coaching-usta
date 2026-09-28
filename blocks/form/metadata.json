@@ -5,6 +5,14 @@
   "contentPattern": "One row per field, each self-describing: first cell is the field type (text | email | zip | checkbox-group | legal | submit), remaining cells provide label, name, and options. Controls are built in JS because DA strips form markup from the fragment.",
   "usage": "Newsletter / lead-capture signup form.",
   "canonicalModel": "standalone",
-  "options": [],
-  "memberVariantIds": ["form"]
+  "options": ["application"],
+  "memberVariantIds": ["form", "form-application"],
+  "variants": {
+    "application": {
+      "visualCharacteristics": "Complex validated application form in a navy card: grouped Name / Address fieldsets with sub-labels under the inputs, two-column rows from 1024px, date and file-upload fields, a required acknowledgement checkbox, inline pink 'Required field' pills, reCAPTCHA v3 and a small centred Submit.",
+      "source": "https://www.ustacoaching.com/en/home/learning-pathway/usta-coaching-equivalency-application.html (Formstack embeds)",
+      "sheets": ["/forms/education-equivalency.json", "/forms/industry-experience.json"],
+      "compound": "Tabs (application) -> Form (application)"
+    }
+  }
 }

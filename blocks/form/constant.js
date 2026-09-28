@@ -1,5 +1,6 @@
-export const fileAttachmentText = 'Attach';
-export const dragDropText = 'Drag and Drop To Upload';
+// File-upload copy, matching the source site's upload fields
+export const fileAttachmentText = 'Browse files';
+export const dragDropText = 'Drag and drop here or';
 
 export const DEFAULT_THANK_YOU_MESSAGE = 'Thank you for your submission.';
 

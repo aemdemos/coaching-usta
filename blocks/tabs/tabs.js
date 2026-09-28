@@ -1,5 +1,42 @@
 // eslint-disable-next-line import/no-unresolved
-import { toClassName } from '../../scripts/aem.js';
+import { toClassName, loadBlock } from '../../scripts/aem.js';
+
+/*
+ * Compound Tabs -> Form: a tab panel whose only content is a link to a form
+ * sheet (/forms/{name}.json) renders that form. EDS never decorates blocks
+ * nested inside a block, so build the form block here and load it directly.
+ * The tabs block's variant classes (e.g. "application") are passed on, so
+ * "Tabs (application)" renders "Form (application)" panels.
+ * decorateBlock() is deliberately not used: it would tag the tabs section as a
+ * form-container and pull in the standalone form section styles.
+ */
+function decorateFormPanel(block, panel) {
+  const links = panel.querySelectorAll('a[href]');
+  if (links.length !== 1 || panel.textContent.trim() !== links[0].textContent.trim()) return null;
+  const link = links[0];
+  const { pathname } = new URL(link.href, window.location.href);
+  if (!/^\/forms\/.+\.json$/.test(pathname)) return null;
+
+  const variants = [...block.classList].filter((c) => !['tabs', 'block'].includes(c));
+  const form = document.createElement('div');
+  form.classList.add('form', ...variants, 'block');
+  form.dataset.blockName = 'form';
+  form.dataset.blockStatus = 'initialized';
+  const row = document.createElement('div');
+  const cell = document.createElement('div');
+  cell.append(link);
+  row.append(cell);
+  form.append(row);
+  panel.replaceChildren(form);
+  return loadBlock(form);
+}
+
+// "#tab=educationequivalencyapplication" (the source site's deep-link format)
+// preselects the tab whose id matches, ignoring hyphens.
+function getHashTab() {
+  const match = window.location.hash.match(/tab=([\w-]+)/);
+  return match ? match[1].replace(/-/g, '').toLowerCase() : null;
+}
 
 // Normalise a pathname for comparison: drop a trailing ".html" and any trailing
 // slash so "/foo", "/foo.html" and "/foo/" all compare equal.
@@ -77,14 +114,19 @@ export default async function decorate(block) {
 
   // decorate tabs and tabpanels
   const tabs = rows.map((child) => child.firstElementChild);
+  const ids = tabs.map((tab) => toClassName(tab.textContent));
+  const hashTab = getHashTab();
+  const selected = Math.max(0, ids.findIndex((id) => id.replace(/-/g, '') === hashTab));
+  const formLoads = [];
   tabs.forEach((tab, i) => {
-    const id = toClassName(tab.textContent);
+    const id = ids[i];
+    const isSelected = i === selected;
 
     // decorate tabpanel
     const tabpanel = block.children[i];
     tabpanel.className = 'tabs-panel';
     tabpanel.id = `tabpanel-${id}`;
-    tabpanel.setAttribute('aria-hidden', !!i);
+    tabpanel.setAttribute('aria-hidden', !isSelected);
     tabpanel.setAttribute('aria-labelledby', `tab-${id}`);
     tabpanel.setAttribute('role', 'tabpanel');
 
@@ -94,7 +136,7 @@ export default async function decorate(block) {
     button.id = `tab-${id}`;
     button.innerHTML = tab.innerHTML;
     button.setAttribute('aria-controls', `tabpanel-${id}`);
-    button.setAttribute('aria-selected', !i);
+    button.setAttribute('aria-selected', isSelected);
     button.setAttribute('role', 'tab');
     button.setAttribute('type', 'button');
     button.addEventListener('click', () => {
@@ -109,7 +151,11 @@ export default async function decorate(block) {
     });
     tablist.append(button);
     tab.remove();
+
+    const formLoad = decorateFormPanel(block, tabpanel);
+    if (formLoad) formLoads.push(formLoad);
   });
 
   block.prepend(tablist);
+  await Promise.all(formLoads);
 }
