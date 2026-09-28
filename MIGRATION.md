@@ -2894,3 +2894,24 @@ doc-based form pattern (same as subscribe / lead-interests / flag-profile):
   placeholder reads "Select a state" (source blank). Native date input instead of Formstack's picker.
 lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓ (only the pre-existing footer
 `/forms/subscribe.json` link target-size violation, present on every page)
+
+### 2026-09-28 — form (application) + tabs (application): pixel parity pass
+Element-by-element comparison vs the live Formstack embeds (positions relative to the form title, source
+measured inside its iframe at the same viewport). All rows now match at 390 / 768 / 1440 (both forms):
+- **Tabs width** = source columns 2–11 of its 12-col page grid: `(content + 24) × 5/6 − 24`, page gutter
+  32.5 / 53 @768 / 61 @1024 / 77 @1280, content capped 1382 → 267 / 548 / 748 / 934 / 1068 / 1148 (== source).
+  Panel inset 12px (8px sides <768), 20px below the track (the iframe inset).
+- **Card**: wide layout (≥1024) padding 120px 80px (Formstack wrapper 40 + form margin 40 + form padding 40);
+  compact 40px. Title margin 21px top AND bottom (h1 UA margin) → first label 61px below the title.
+- **Rhythm**: subheadings 16px margins; file fields reserve 20px below the drop area; drop area padding
+  19px 0 (text spans the full width); Submit 160px below the last field — the checkbox group ends 10px short
+  in the wide layout only (150px after it); Submit is FULL WIDTH in the compact layout, 60px centred in wide.
+- **Source quirks kept**: ZIP stays 20% wide on mobile (its sub-label wraps); "Details&nbsp;(if …)" uses a
+  non-breaking space (now in the sheet labels, re-uploaded + previewed); years/hours inputs misalign when one
+  label wraps.
+- **States**: focus = 2px #0197ec outline, border unchanged (was blue border + shadow); checked checkbox =
+  solid #edeff0 square, no tick; help tooltip 48px in / 17px below / 354px wide / 11px padding / 22px lh /
+  3px 3px 7px rgb(0 0 0 / 25%) shadow; Submit has no hover change; date input 14px side padding.
+- **Bug fixed**: checkbox inherited the boilerplate 12px input padding (rendered 21×26) and the label
+  `order:-2`, which put the box on the right; an empty `.files-list` was forced visible (+8px per upload).
+- Not replicated: the source iframe's fixed 1500px height (it scrolls the form inside the frame).

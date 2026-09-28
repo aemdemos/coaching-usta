@@ -37,7 +37,7 @@ main .form.application.block {
   --application-text: #edeff0;
   --application-muted: #acb5bf;
   --application-border: #687680;
-  --application-focus: #3a8dde;
+  --application-focus: #0197ec;
   --application-error: #ff3c3c;
   --application-error-bg: #fae9e9;
   --application-drop-bg: #1e2c35;
@@ -93,13 +93,13 @@ main .form.application.block form p {
 }
 
 main .form.application.block form .application-title p {
-  margin: 21px 0 0;
+  margin: 21px 0;
   font-size: 32px;
   font-weight: 700;
 }
 
 main .form.application.block form .application-subheading {
-  margin: 24px 0 36px;
+  margin: 16px 0;
 }
 
 main .form.application.block form .application-subheading p {
@@ -163,6 +163,11 @@ main .form.application.block .panel-wrapper > .field-wrapper[data-required="true
   content: none;
 }
 
+/* source quirk: ZIP stays 20% wide even when the address stacks on mobile */
+main .form.application.block form .application-address > .field-zipcode {
+  width: 20%;
+}
+
 /* Controls: 36px, 12px text, slate hairline, 3px radius */
 main .form.application.block input:is([type="text"], [type="email"], [type="tel"], [type="date"]),
 main .form.application.block select,
@@ -207,9 +212,14 @@ main .form.application.block textarea:hover {
 main .form.application.block input:is([type="text"], [type="email"], [type="tel"], [type="date"]):focus-visible,
 main .form.application.block select:focus-visible,
 main .form.application.block textarea:focus-visible {
-  outline: none;
-  border-color: var(--application-focus);
-  box-shadow: 0 0 0 1px var(--application-focus);
+  /* source: 2px blue outline, border unchanged */
+  outline: 2px solid var(--application-focus);
+  outline-offset: 0;
+}
+
+/* source date field: 14px side padding (placeholder segments at x14) */
+main .form.application.block input[type="date"] {
+  padding: 0 13px;
 }
 
 /* Help text (Description column, e.g. "Found in your USTA Coaching Settings"):
@@ -217,16 +227,20 @@ main .form.application.block textarea:focus-visible {
    in the DOM (aria-describedby) and is revealed on focus. */
 main .form.application.block form .field-wrapper:not(.field-invalid) > .field-description {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
+  top: calc(100% + 17px);
+  left: 48px;
   z-index: 1;
-  padding: 4px 8px;
+  box-sizing: border-box;
+  width: 354px;
+  max-width: calc(100% - 48px);
+  padding: 11px;
   border-radius: 3px;
   background-color: var(--application-text);
+  box-shadow: 3px 3px 7px rgb(0 0 0 / 25%);
   color: var(--application-bg);
   font-size: 11px;
   font-weight: 400;
-  line-height: 15px;
+  line-height: 22px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
@@ -292,6 +306,7 @@ main .form.application.block form .checkbox-wrapper {
   align-items: center;
   gap: 7px;
   margin: 0;
+  padding-left: 2px;
 }
 
 main .form.application.block .checkbox-wrapper input[type="checkbox"] {
@@ -300,6 +315,7 @@ main .form.application.block .checkbox-wrapper input[type="checkbox"] {
   width: 12px;
   height: 12px;
   margin: 0;
+  padding: 0;
   background-color: var(--application-bg);
   border: 1px solid var(--application-border);
   border-radius: 0;
@@ -309,10 +325,6 @@ main .form.application.block .checkbox-wrapper input[type="checkbox"] {
 main .form.application.block .checkbox-wrapper input[type="checkbox"]:checked {
   background-color: var(--application-text);
   border-color: var(--application-text);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 4.8 9 10 3.4' fill='none' stroke='%2315232b' stroke-width='2'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 10px 10px;
 }
 
 main .form.application.block .checkbox-wrapper input[type="checkbox"]:focus-visible {
@@ -327,6 +339,8 @@ main .form.application.block .field-invalid .checkbox-wrapper input[type="checkb
 
 main .form.application.block form .checkbox-wrapper label {
   flex: 1 1 auto;
+  order: 0;
+  margin: 0;
   color: var(--application-text);
   font-family: var(--application-font);
   font-size: 12px;
@@ -341,10 +355,10 @@ main .form.application.block .file-wrapper .file-drag-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
+  justify-content: flex-start;
+  gap: 0;
   min-height: 99px;
-  padding: 20px;
+  padding: 19px 0;
   border: 1px dashed var(--application-border);
   border-radius: 3px;
   background-color: var(--application-drop-bg);
@@ -355,6 +369,7 @@ main .form.application.block .file-wrapper .file-drag-area {
 main .form.application.block .file-wrapper .file-drag-icon {
   width: 20px;
   height: 20px;
+  margin-bottom: 2px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23edeff0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 18a4.5 4.5 0 0 1-.5-8.97A6 6 0 0 1 18 9a4 4 0 0 1 0 9'/%3E%3Cpath d='M12 20v-8M9 15l3-3 3 3'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
@@ -373,7 +388,12 @@ main .form.application.block .file-wrapper .file-drag-hint {
   line-height: 15px;
 }
 
-main .form.application.block .file-wrapper .files-list {
+/* source upload cell reserves 20px below the drop area */
+main .form.application.block form .file-wrapper {
+  padding-bottom: 20px;
+}
+
+main .form.application.block .file-wrapper .files-list:not(:empty) {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -385,15 +405,15 @@ main .form.application.block .file-wrapper .file-description {
   margin: 0;
 }
 
-/* Submit: small light button, centred, well below the last field */
+/* Submit: small light button well below the last field — full width in the
+   compact (<1024) layout, 60px and centred in the wide one (source). */
 main .form.application.block form .submit-wrapper {
-  align-items: center;
   margin: 120px 0 0;
 }
 
 main .form.application.block button.button,
 main .form.application.block .button-wrapper button.button:hover {
-  width: auto;
+  width: 100%;
   margin: 0;
   padding: 10px;
   background-color: var(--application-text);
@@ -406,10 +426,6 @@ main .form.application.block .button-wrapper button.button:hover {
   line-height: 12px;
   letter-spacing: normal;
   cursor: pointer;
-}
-
-main .form.application.block .button-wrapper button.button:hover {
-  background-color: #fff;
 }
 
 main .form.application.block .button-wrapper button.button:focus-visible {
@@ -425,17 +441,33 @@ main .form.application.block .form-message {
   font-size: 14px;
 }
 
-/* >=1024 the source's embed is wide enough (~724px) for its two-column rows:
-   Name first|last, Email|Phone, City|State|ZIP (ZIP is 20%), and the frame
-   gains a 40px margin around the card. */
+/* >=1024 the source's embed is wide enough (~720px) for its two-column rows:
+   Name first|last, Email|Phone, City|State|ZIP (ZIP is 20%), and the card
+   gains Formstack's wide-layout offsets: 120px above the title (40 wrapper +
+   40 form margin + 40 form padding) and 80px at the sides. */
 @media (width >= 1024px) {
   main .form.application.block {
-    padding: 80px;
+    padding: 120px 80px;
   }
 
   main .form.application.block form,
   main .form.application.block form fieldset.panel-wrapper {
     grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  /* wide layout: the option row's 24px line box overhangs the cell by 10px, so
+     Submit sits 150px below the checkbox vs 160px after other fields */
+  main .form.application.block form fieldset.checkbox-group-wrapper {
+    margin-bottom: -10px;
+  }
+
+  main .form.application.block form .submit-wrapper {
+    align-items: center;
+  }
+
+  main .form.application.block button.button,
+  main .form.application.block .button-wrapper button.button:hover {
+    width: auto;
   }
 
   main .form.application.block form .field-wrapper.col-6 {
@@ -448,6 +480,10 @@ main .form.application.block .form-message {
 
   main .form.application.block form .application-address > .field-wrapper {
     grid-column: auto;
+  }
+
+  main .form.application.block form .application-address > .field-zipcode {
+    width: auto;
   }
 
   main .form.application.block form .application-address > :is(.field-addressline1, .field-addressline2) {

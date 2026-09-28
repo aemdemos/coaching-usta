@@ -115,7 +115,23 @@
    /en/home/learning-pathway/usta-coaching-equivalency-application.html).
    Same pill model as the default, with the source's taller pills (68px mobile,
    101px tablet+), pills inset 8px in the track, and a stepped label size
-   (14 → 12 @768 → 14 @1024 → 16 @1280). Panels hold Form (application). */
+   (14 → 12 @768 → 14 @1024 → 16 @1280). Panels hold Form (application).
+
+   Width: the source places this toggle on columns 2–11 of its 12-col page grid
+   (grid = page content + 24px gutter): width = (content + 24) × 10/12 − 24.
+   Source page content = viewport − 2 × gutter (32.5 / 53 @768 / 61 @1024 /
+   77 @1280), capped at 1382. Measured: 267 @390, 548 @768, 748 @1024,
+   934 @1280, 1068 @1440, 1148 @1920. */
+.tabs.application {
+  --tabs-page-gutter: 32.5px;
+  --tabs-width: calc((min(100vw - 2 * var(--tabs-page-gutter), 1382px) + 24px) * 5 / 6 - 24px);
+
+  /* centred even where the source span (1148 @1920) is a hair wider than our
+     1136 content box */
+  width: var(--tabs-width);
+  margin-inline: calc((100% - var(--tabs-width)) / 2);
+}
+
 .tabs.application .tabs-list button {
   display: flex;
   align-items: center;
@@ -127,11 +143,22 @@
   line-height: 22px;
 }
 
+/* The source embeds each form in an iframe inset 12px (8px sides on mobile)
+   inside the panel, 20px below the track. */
 .tabs.application .tabs-panel {
   margin-top: 20px;
+  padding: 12px 8px;
 }
 
 @media (width >= 768px) {
+  .tabs.application {
+    --tabs-page-gutter: 53px;
+  }
+
+  .tabs.application .tabs-panel {
+    padding: 12px;
+  }
+
   .tabs.application .tabs-list {
     padding: 0 8px;
   }
@@ -144,12 +171,20 @@
 }
 
 @media (width >= 1024px) {
+  .tabs.application {
+    --tabs-page-gutter: 61px;
+  }
+
   .tabs.application .tabs-list button {
     font-size: 14px;
   }
 }
 
 @media (width >= 1280px) {
+  .tabs.application {
+    --tabs-page-gutter: 77px;
+  }
+
   .tabs.application .tabs-list button {
     font-size: 16px;
   }
