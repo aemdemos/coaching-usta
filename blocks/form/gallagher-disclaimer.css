@@ -1,0 +1,103 @@
+/* gallagher-disclaimer — the Gallagher consent/acknowledgment form
+   (ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-rally.html),
+   rendering the /forms/gallagher-disclaimer.json sheet. A single-item disclaimer
+   accordion (components/accordion — owns the pill card + toggle), eligibility
+   copy with a support mailto, and a lime Submit pill. Every rule is scoped to a
+   sheet `Style` class (gallagher-*) so it can't leak into other forms — and so
+   it wins over the unscoped defaults in subscribe.css (imported first). */
+
+/* Disclaimer list inside the accordion item (Style: gallagher-legal).
+   Graphik Regular 18/24 at every viewport; inherits the card colour (white on
+   black closed, black on lime open) instead of the form's white label colour. */
+main .form.block form .gallagher-legal {
+  margin: 0;
+  color: inherit;
+}
+
+main .form.block .gallagher-legal ul {
+  margin: 18px 0;
+  padding-left: 40px;
+  list-style: disc;
+}
+
+main .form.block .gallagher-legal li {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: inherit;
+}
+
+/* Eligibility copy (Style: gallagher-copy). White Graphik Regular, lh 1.2:
+   16px → 18px (>=1024) → 24px (>=1280). The source separates the paragraphs
+   with an empty <p> — i.e. one blank line — reproduced as a 1.2em top margin. */
+main .form.block .gallagher-copy p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+main .form.block .gallagher-copy p + p {
+  margin-top: 1.2em;
+}
+
+main .form.block .gallagher-copy a {
+  color: var(--text-color);
+  text-decoration: underline;
+}
+
+main .form.block .gallagher-copy a:hover {
+  color: var(--usta-lime);
+}
+
+/* Submit (Style: gallagher-submit) — the source's primary lime pill
+   (.coaching-primary-button inside .v-form-button). Auto width at every
+   viewport: 16px / 16px 102px padding on mobile → 24px / 16px 48px (>=768).
+   Hover: white fill + white border. Overrides the grey pill in subscribe.css. */
+main .form.block .gallagher-submit button.button {
+  width: auto;
+  padding: 16px 102px;
+  background-color: var(--usta-lime);
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 12px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+main .form.block .gallagher-submit button.button:hover {
+  background-color: var(--text-color);
+  color: #000;
+  border-color: var(--text-color);
+}
+
+main .form.block .gallagher-submit button.button:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+
+@media (width >= 768px) {
+  main .form.block .gallagher-submit button.button {
+    padding: 16px 48px;
+    font-size: 24px;
+  }
+}
+
+@media (width >= 1024px) {
+  main .form.block .gallagher-copy p {
+    font-size: 18px;
+  }
+}
+
+@media (width >= 1280px) {
+  main .form.block .gallagher-copy p {
+    font-size: 24px;
+  }
+}

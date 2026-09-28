@@ -2854,3 +2854,33 @@ internal rhythm unchanged (quote→divider 16, divider→name 16, 12-line wrap, 
 height delta vs the live page is only because the source's full-page grid row is stretched by a taller
 sibling elsewhere — not reproducible (or meaningful) in the isolated block sample.
 lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-28 — form: Gallagher disclaimer consent form (+ form `accordion` component)
+Source: ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-rally.html — a consent gate: one
+collapsible "AJG GAIS Disclaimer" item (legal list), eligibility copy + coachcare@usta.com mailto, lime Submit.
+Follows the shared form pattern (see `blocks/form/README.md`): sheet **`/forms/gallagher-disclaimer.json`** →
+page **`/drafts/shivani/gallagher-disclaimer-form`** (single `form` block linking the sheet) → scoped CSS
+**`blocks/form/gallagher-disclaimer.css`** `@import`ed in `form.css`. Sheet rows: `disclaimers` (fieldset,
+`Custom Type: accordion`) › `ajgGaisDisclaimer` (fieldset, Label = item title) › `ajgGaisDisclaimerText`
+(rich plain-text `<ul>`, Style `gallagher-legal`); `eligibility` (rich plain-text, `gallagher-copy`);
+`submit` (`gallagher-submit`, Value = thank-you msg — swap for an https URL to redirect).
+- **New component `blocks/form/components/accordion/`** (registered in `mappings.js`). Same contract as
+  upstream aem-boilerplate-forms `accordion`, but upstream toggles on a click on a bare `<legend>` (not
+  keyboard-reachable) and opens item 1 — ours puts a `<button aria-expanded aria-controls>` in the legend and
+  starts collapsed, single-open (source behaviour). Styled as the site coaching accordion: 1px white / 20r /
+  23pad card → lime + black + minus when open; title Graphik Semibold 24→28(≥768)→32(≥1280), -0.03em.
+- **Gotcha — legend in a bordered fieldset** notches into the top border ("rendered legend"). `float:left;
+  width:100%` on the legend puts it inside the card; the body gets `clear: both`.
+- **Gotcha — legend colour**: base form.css paints legends `#666`; the legend must `color: inherit`.
+- **Gotcha — subscribe.css is NOT form-scoped** (`main .form.block button.button` etc. hit every form). Gallagher
+  rules are scoped by sheet `Style` classes and imported after it so they win at equal specificity.
+- **form.js `createPlainText`**: rich text containing block markup (`<p>/<ul>/<ol>/<h*>`) now renders in a
+  `<div>` instead of a `<p>` (was invalid `<p><ul>` nesting). Inline-only rich text (subscribe legal) unchanged.
+- Submit on the source hits an auth-gated USTA service (401 → account.usta.com login). Backend/redirect wiring
+  is out of scope for this frontend pass.
+Verified vs source at 390/768/1024/1280/1440: card padding/radius, title sizes, list 18/24 + 28/42 spacing,
+item→copy→button 24/24, copy 16/19.2 → 18/21.6 → 24/28.8, Submit 261×50 (16px, 16/102 pad) mobile →
+179×58 (24px, 16/48) ≥768. Enter/Space toggle. axe (scoped to main, closed+open, 390/1440): 0 violations.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y — full-page run fails only on the
+pre-existing raw `/forms/subscribe.json` link in the footer fragment (footer content has an undecorated
+`form` block); the form itself is clean.
