@@ -1,0 +1,329 @@
+/* flag-profile — the "FLAG COACH PROFILE" report form
+   (ustacoaching.com/en/home/account/flag-profile.html), rendering the
+   /forms/flag-profile.json sheet. Scoped via :has(.flag-profile-heading) (the
+   sheet's heading row carries Style: flag-profile-heading) so it only restyles
+   THIS form; subscribe.css applies to every `main .form.block`, so the rules
+   below also undo its field look (black 58px inputs, red "* " prefix, grey pill).
+   Source layout: a centred USTA Sans title + Graphik Semibold intro (8 of 12
+   cols), a grey rule, then an embedded Formstack form in a fixed 675px-tall
+   frame (2px inset iframe border) spanning 12 → 8 (>=1024) → 6 (>=1280) cols.
+   The frame is drawn across the field rows: the first field carries its top,
+   every field its sides, the submit row its bottom. Each frame row is a size
+   container so the Formstack layout switch (at a 641px-wide form: 40px insets,
+   660px max content, compact centred button) follows the FRAME's width — not the
+   viewport — exactly like the source iframe. */
+
+@font-face {
+  font-family: Lato;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/lato-regular.woff2') format('woff2');
+}
+
+/* Section — source content gutters 16 → 40 → 48 → 64 on the 1536 container
+   (content caps at 1408), not the subscribe 1200/1216 content box. */
+main .section.form-container:has(.flag-profile-heading) {
+  padding: 0 16px;
+}
+
+main .section.form-container div.form-wrapper:has(.flag-profile-heading) {
+  max-width: none;
+  padding: 0;
+}
+
+/* The form replaces the authored link inside its <p>; drop that paragraph's margins */
+main .form.block:has(.flag-profile-heading) > div > div > p {
+  margin: 0;
+}
+
+/* One 12-col grid with the source's 24px column gutter (AEM grid: 12px per side),
+   so the 8- and 6-col spans land on the same lines as the source. Rows are spaced
+   per element below. */
+main .form.block:has(.flag-profile-heading) form {
+  gap: 0 24px;
+  margin: 0;
+}
+
+main .form.block:has(.flag-profile-heading) form .field-wrapper {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* Title — USTA Sans 700, centred, line-height 1: 32 → 40 → 56 → 80 */
+main .form.block:has(.flag-profile-heading) .flag-profile-heading,
+main .form.block:has(.flag-profile-heading) .flag-profile-intro {
+  order: -1;
+}
+
+main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
+  margin: 0 0 24px;
+  font-family: var(--heading-font-family);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: var(--text-color);
+}
+
+/* Intro — Graphik Semibold, line-height 1.2, centred: 16 → 18 → 24 */
+main .form.block:has(.flag-profile-heading) .flag-profile-intro p {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text-color);
+}
+
+/* Grey rule between the intro and the form (source <hr>, 1px inset grey).
+   The form's ::before is its first grid item; the title + intro are pulled
+   ahead of it with order: -1. */
+main .form.block:has(.flag-profile-heading) form::before {
+  content: "";
+  grid-column: 1 / -1;
+  margin: 32px 0;
+  border: 1px inset #808080;
+}
+
+/* Frame rows — every field after the intro (fields + submit) */
+main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .field-wrapper {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 20px;
+  border-inline: 2px inset #000;
+}
+
+main .form.block:has(.flag-profile-heading) .flag-profile-intro + .field-wrapper {
+  border-top: 2px inset #000;
+}
+
+main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .submit-wrapper {
+  padding: 0;
+  border-bottom: 2px inset #000;
+}
+
+/* Frame content — 20px inset (Formstack narrow layout) */
+main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .field-wrapper > * {
+  box-sizing: border-box;
+  width: calc(100% - 40px);
+  margin-inline: 20px;
+}
+
+/* Labels — Lato 16, white, trailing white "*" on required fields */
+main .form.block:has(.flag-profile-heading) .field-wrapper > label.field-label {
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text-color);
+}
+
+/* First frame row — 20px top inset */
+main .form.block:has(.flag-profile-heading) .flag-profile-intro + .field-wrapper > label.field-label {
+  margin-top: 20px;
+}
+
+main .form.block:has(.flag-profile-heading) .field-wrapper[data-required="true"] > label.field-label::before {
+  content: none;
+}
+
+main .form.block:has(.flag-profile-heading) .field-wrapper[data-required="true"] > label.field-label::after {
+  content: "*";
+  padding: 0;
+  color: var(--text-color);
+}
+
+/* Inputs — white fill + hairline, square, Lato 14; 42px (textarea 156px) */
+main .form.block:has(.flag-profile-heading) .field-wrapper input,
+main .form.block:has(.flag-profile-heading) .field-wrapper textarea {
+  order: 2;
+  height: 42px;
+  margin-block: 0;
+  padding: 7px;
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #fff;
+  border-radius: 0;
+  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: normal;
+}
+
+main .form.block:has(.flag-profile-heading) .field-wrapper textarea {
+  height: 156px;
+  min-height: 0;
+  resize: vertical;
+}
+
+/* Validation — Formstack's inline banner ABOVE the input (pink fill, red
+   hairline, red "!" icon, 12px dark text) + red input border with the icon. */
+main .form.block:has(.flag-profile-heading) .field-invalid .field-description {
+  order: 1;
+  margin-block: 0 7px;
+  padding: 7px 12px 7px 33px;
+  background: #fae9e9 url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3ccircle%20cx='8'%20cy='8'%20r='8'%20fill='%23ff3c3c'/%3e%3cpath%20d='M8%203.5v5.5'%20stroke='%23fff'%20stroke-width='2'%20stroke-linecap='round'/%3e%3ccircle%20cx='8'%20cy='12'%20r='1.2'%20fill='%23fff'/%3e%3c/svg%3e") no-repeat 12px center / 14px 14px;
+  border: 1px solid #ff3c3c;
+  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  color: #15232b;
+}
+
+main .form.block:has(.flag-profile-heading) .field-invalid input,
+main .form.block:has(.flag-profile-heading) .field-invalid textarea {
+  padding-right: 34px;
+  border-color: #ff3c3c;
+  background: #fff url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3ccircle%20cx='8'%20cy='8'%20r='8'%20fill='%23ff3c3c'/%3e%3cpath%20d='M8%203.5v5.5'%20stroke='%23fff'%20stroke-width='2'%20stroke-linecap='round'/%3e%3ccircle%20cx='8'%20cy='12'%20r='1.2'%20fill='%23fff'/%3e%3c/svg%3e") no-repeat right 10px center / 16px 16px;
+}
+
+main .form.block:has(.flag-profile-heading) .field-invalid textarea {
+  background-position: right 10px top 10px;
+}
+
+main .form.block:has(.flag-profile-heading) .field-wrapper input:focus-visible,
+main .form.block:has(.flag-profile-heading) .field-wrapper textarea:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+/* No hover change on valid fields (source) */
+main .form.block:has(.flag-profile-heading) .field-wrapper:not(.field-invalid) input:hover,
+main .form.block:has(.flag-profile-heading) .field-wrapper:not(.field-invalid) textarea:hover {
+  border-color: #fff;
+}
+
+/* Submit — black, white hairline, Lato 14, 36px tall; full-width in the narrow
+   layout. It sits 60px under the textarea; its bottom margin fills the fixed
+   675px frame (narrow: 675 − 409 above − 60 − 36 − 2 = 168). */
+main .form.block:has(.flag-profile-heading) .submit-wrapper button.button,
+main .form.block:has(.flag-profile-heading) .button-wrapper button.button:hover {
+  display: block;
+  margin-block: 60px 168px;
+  padding: 10px;
+  background-color: #000;
+  color: var(--text-color);
+  border: 1px solid var(--text-color);
+  border-radius: 0;
+  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  letter-spacing: normal;
+}
+
+/* reCAPTCHA — when the sheet has a captcha row after Submit, that row closes the
+   frame instead: the badge is rendered inline into it (integrations/recaptcha.js)
+   and sits like the source's viewport-fixed badge inside the iframe — 14px above
+   the frame bottom, collapsed to its 70px logo tile at the right edge, opening to
+   the full 256px on hover/focus. (Google's INLINE badge puts the logo on the
+   right, so it's right-aligned and clipped from the left.) Frame height stays 675: button margin
+   94 (narrow) / 54 (wide) + badge 60 + 14 + border 2. */
+main .form.block:has(.flag-profile-heading) .submit-wrapper:has(+ .captcha-wrapper) {
+  border-bottom: 0;
+}
+
+main .form.block:has(.flag-profile-heading) .submit-wrapper:has(+ .captcha-wrapper) button.button {
+  margin-bottom: 94px;
+}
+
+main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .captcha-wrapper {
+  overflow: hidden;
+  padding: 0 0 14px;
+  border-bottom: 2px inset #000;
+}
+
+main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .captcha-wrapper > .form-recaptcha-badge {
+  width: 256px;
+  height: 60px;
+  margin: 0 0 0 auto;
+  clip-path: inset(0 0 0 186px);
+  transition: clip-path 0.3s ease;
+}
+
+main .form.block:has(.flag-profile-heading) .captcha-wrapper:hover > .form-recaptcha-badge,
+main .form.block:has(.flag-profile-heading) .captcha-wrapper:focus-within > .form-recaptcha-badge {
+  clip-path: inset(0);
+}
+
+/* Formstack wide layout — the embedded form is >=641px wide: 40px insets, content
+   capped at 660px and centred, 60px top inset, compact centred button (frame
+   height stays 675: 675 − 449 above − 60 − 36 − 2 = 128). */
+@container (width >= 641px) {
+  main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .field-wrapper > * {
+    width: min(100% - 80px, 660px);
+    margin-inline: auto;
+  }
+
+  main .form.block:has(.flag-profile-heading) .flag-profile-intro + .field-wrapper > label.field-label {
+    margin-top: 60px;
+  }
+
+  main .form.block:has(.flag-profile-heading) .submit-wrapper button.button,
+  main .form.block:has(.flag-profile-heading) .button-wrapper button.button:hover {
+    width: auto;
+    margin-bottom: 128px;
+  }
+
+  main .form.block:has(.flag-profile-heading) .submit-wrapper:has(+ .captcha-wrapper) button.button {
+    margin-bottom: 54px;
+  }
+}
+
+@media (width >= 768px) {
+  main .section.form-container:has(.flag-profile-heading) {
+    padding: 0 40px;
+  }
+
+  main .form.block:has(.flag-profile-heading) form .flag-profile-intro {
+    grid-column: 3 / span 8;
+  }
+
+  main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  main .section.form-container:has(.flag-profile-heading) {
+    padding: 0 48px;
+  }
+
+  main .form.block:has(.flag-profile-heading) form .flag-profile-intro ~ .field-wrapper {
+    grid-column: 3 / span 8;
+  }
+
+  main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
+    font-size: 56px;
+  }
+
+  main .form.block:has(.flag-profile-heading) .flag-profile-intro p {
+    font-size: 18px;
+  }
+}
+
+@media (width >= 1280px) {
+  main .section.form-container:has(.flag-profile-heading) {
+    padding: 0 64px;
+  }
+
+  main .form.block:has(.flag-profile-heading) form .flag-profile-intro ~ .field-wrapper {
+    grid-column: 4 / span 6;
+  }
+
+  main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
+    font-size: 80px;
+  }
+
+  main .form.block:has(.flag-profile-heading) .flag-profile-intro p {
+    font-size: 24px;
+  }
+}
