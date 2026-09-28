@@ -116,6 +116,7 @@ main .section.form-container div.form-wrapper {
    (>=768) → 56px desktop (>=1024). */
 :is(main, .footer-form) .form.block .subscribe-heading p {
   margin: 0 0 8px;
+  text-align: center;
   font-family: var(--heading-font-family);
   font-size: 32px;
   font-weight: 400;
@@ -334,6 +335,7 @@ main .section.form-container div.form-wrapper {
 @media (width >= 768px) {
   :is(main, .footer-form) .form.block .subscribe-heading p {
     font-size: 40px;
+    text-align: start;
   }
 
   :is(main, .footer-form) .form.block .checkbox-group-wrapper > legend.field-label {

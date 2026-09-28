@@ -271,3 +271,8 @@ footer .footer-social img {
     padding-top: 0
   }
 }
+
+/* Space between the subscribe form and the footer wordmark below it */
+footer .footer-form + .footer-brand {
+  padding-top: 168px;
+}
