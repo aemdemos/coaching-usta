@@ -1,5 +1,6 @@
 /* Per-form styling lives in its own scoped file (see skills/forms-enablement Part D). */
 @import url('./subscribe.css');
+@import url('./lead-interests.css');
 
 :root {
     --background-color-primary: #fff;
