@@ -268,11 +268,17 @@ footer .footer-social img {
   }
 
   footer .footer-content:has(> .footer-form) {
-    padding-top: 0
+    padding-top: 76px;
   }
 }
 
 /* Space between the subscribe form and the footer wordmark below it */
 footer .footer-form + .footer-brand {
   padding-top: 168px;
+}
+
+/* An empty trailing page section (48px top + bottom padding) sits right above
+   the footer form and doubles the gap to "GET ON THE LIST." — collapse it. */
+body:has(footer .footer-form) main > .section:last-child:not(:has(*)) {
+  display: none;
 }
