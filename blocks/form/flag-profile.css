@@ -21,6 +21,15 @@
   src: url('../../fonts/lato-regular.woff2') format('woff2');
 }
 
+/* bold is only used by the error-summary heading */
+@font-face {
+  font-family: Lato;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/lato-bold.woff2') format('woff2');
+}
+
 /* Section — source content gutters 16 → 40 → 48 → 64 on the 1536 container
    (content caps at 1408), not the subscribe 1200/1216 content box. */
 main .section.form-container:has(.flag-profile-heading) {
@@ -189,10 +198,82 @@ main .form.block:has(.flag-profile-heading) .field-invalid textarea {
   background-position: right 10px top 10px;
 }
 
+/* Focus — Formstack's thin blue ring (1px #0197ec, flush); 6.9:1 on the black frame */
 main .form.block:has(.flag-profile-heading) .field-wrapper input:focus-visible,
 main .form.block:has(.flag-profile-heading) .field-wrapper textarea:focus-visible {
-  outline: 2px solid var(--usta-lime);
-  outline-offset: 2px;
+  outline: 1px solid #0197ec;
+  outline-offset: 0;
+}
+
+/* Error summary — a plain-text sheet row with Style `form-error-summary` (the
+   authored heading text). On a failed submit, submit.js wraps it in
+   .form-error-summary-box, adds one link per invalid field and focuses it.
+   Source (Formstack): the box takes the first label's slot (20px / 60px wide
+   inset), pink fill + red hairline, 20px padding, bold 14px heading with the red
+   "!" icon, 12px underlined field links, 51px above the first label. Hidden (and
+   0px tall, so the frame's top border stays) until then. */
+main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .form-error-summary {
+  padding: 0;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary:not(.show) > * {
+  display: none;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary.show {
+  padding-bottom: 51px;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary:not(.show) + .field-wrapper > label.field-label {
+  margin-top: 20px;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary-box {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fae9e9;
+  border: 1px solid #ff3c3c;
+  color: #15232b;
+  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary-box:focus-visible {
+  outline: 1px solid #0197ec;
+  outline-offset: 0;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary-box > p {
+  margin: 0 0 10px;
+  padding-left: 21px;
+  background: url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3ccircle%20cx='8'%20cy='8'%20r='8'%20fill='%23ff3c3c'/%3e%3cpath%20d='M8%203.5v5.5'%20stroke='%23fff'%20stroke-width='2'%20stroke-linecap='round'/%3e%3ccircle%20cx='8'%20cy='12'%20r='1.2'%20fill='%23fff'/%3e%3c/svg%3e") no-repeat left 2px / 14px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: normal;
+  color: #15232b;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary-box ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* one 15px line per link (source) — not the page's taller body line-height */
+main .form.block:has(.flag-profile-heading) .form-error-summary-box li {
+  margin: 0;
+  font-size: 12px;
+  line-height: normal;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary-box a {
+  font-size: 12px;
+  line-height: normal;
+  color: #15232b;
+  text-decoration: underline;
+}
+
+main .form.block:has(.flag-profile-heading) .form-error-summary-box a:focus-visible {
+  outline: 1px solid #0197ec;
 }
 
 /* No hover change on valid fields (source) */
@@ -265,6 +346,14 @@ main .form.block:has(.flag-profile-heading) .captcha-wrapper .grecaptcha-badge {
     margin-top: 60px;
   }
 
+  main .form.block:has(.flag-profile-heading) .form-error-summary:not(.show) + .field-wrapper > label.field-label {
+    margin-top: 60px;
+  }
+
+  main .form.block:has(.flag-profile-heading) .form-error-summary-box {
+    margin-top: 60px;
+  }
+
   main .form.block:has(.flag-profile-heading) .submit-wrapper button.button,
   main .form.block:has(.flag-profile-heading) .button-wrapper button.button:hover {
     width: auto;
@@ -324,4 +413,11 @@ main .form.block:has(.flag-profile-heading) .captcha-wrapper .grecaptcha-badge {
   main .form.block:has(.flag-profile-heading) .flag-profile-intro p {
     font-size: 24px;
   }
+}
+
+/* Submit focus — same Formstack ring as the fields (kept last: it must follow
+   every button.button rule for no-descending-specificity). */
+main .form.block:has(.flag-profile-heading) .submit-wrapper button.button:focus-visible {
+  outline: 1px solid #0197ec;
+  outline-offset: 0;
 }
