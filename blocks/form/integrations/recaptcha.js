@@ -51,7 +51,7 @@ export default class GoogleReCaptcha {
     this.loadPromise.then((grecaptcha) => grecaptcha.ready(() => {
       this.widgetId = grecaptcha.render(badge, {
         sitekey: this.config.siteKey,
-        badge: 'inline',
+        badge: 'bottomright',
         size: 'invisible',
       });
     })).catch((error) => {

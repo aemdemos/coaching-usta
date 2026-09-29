@@ -221,12 +221,14 @@ main .form.block:has(.flag-profile-heading) .button-wrapper button.button:hover 
 }
 
 /* reCAPTCHA — when the sheet has a captcha row after Submit, that row closes the
-   frame instead: the badge is rendered inline into it (integrations/recaptcha.js)
-   and sits like the source's viewport-fixed badge inside the iframe — 14px above
-   the frame bottom, collapsed to its 70px logo tile at the right edge, opening to
-   the full 256px on hover/focus. (Google's INLINE badge puts the logo on the
-   right, so it's right-aligned and clipped from the left.) Frame height stays 675: button margin
-   94 (narrow) / 54 (wide) + badge 60 + 14 + border 2. */
+   frame instead. integrations/recaptcha.js renders Google's standard bottom-right
+   badge (logo left, like the source) INTO this row; Google pins it with inline
+   `position: fixed; bottom: 14px; right: -186px`. Making the row the containing
+   block (relative + overflow hidden) and the badge absolute reproduces the source
+   exactly — there the badge is fixed inside the Formstack IFRAME's viewport: 14px
+   above the frame bottom, only its 70px logo tile showing at the right edge, and
+   Google's own hover slide still works. Frame height stays 675: button margin
+   94 (narrow) / 54 (wide) + row 74 (badge 60 + 14) + border 2. */
 main .form.block:has(.flag-profile-heading) .submit-wrapper:has(+ .captcha-wrapper) {
   border-bottom: 0;
 }
@@ -236,22 +238,18 @@ main .form.block:has(.flag-profile-heading) .submit-wrapper:has(+ .captcha-wrapp
 }
 
 main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .captcha-wrapper {
+  position: relative;
   overflow: hidden;
-  padding: 0 0 14px;
+  box-sizing: content-box;
+  height: 74px;
+  padding: 0;
   border-bottom: 2px inset #000;
 }
 
-main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .captcha-wrapper > .form-recaptcha-badge {
-  width: 256px;
-  height: 60px;
-  margin: 0 0 0 auto;
-  clip-path: inset(0 0 0 186px);
-  transition: clip-path 0.3s ease;
-}
-
-main .form.block:has(.flag-profile-heading) .captcha-wrapper:hover > .form-recaptcha-badge,
-main .form.block:has(.flag-profile-heading) .captcha-wrapper:focus-within > .form-recaptcha-badge {
-  clip-path: inset(0);
+/* !important is required here (only): Google sets position: fixed as an INLINE
+   style on the badge, which no selector can otherwise override. */
+main .form.block:has(.flag-profile-heading) .captcha-wrapper .grecaptcha-badge {
+  position: absolute !important;
 }
 
 /* Formstack wide layout — the embedded form is >=641px wide: 40px insets, content
