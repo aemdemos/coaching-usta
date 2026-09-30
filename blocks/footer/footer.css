@@ -15,6 +15,31 @@ footer .footer-content {
   padding: 48px 16px 40px;
 }
 
+/* ---- Subscribe form (authored into the footer document) ----
+   The form's field-level visuals (title, labels, inputs, checkboxes, submit) are
+   themed by blocks/form/subscribe.css, whose selectors are scoped to
+   `:is(main, .footer-form) .form.block` so they reach here too. This only owns
+   the footer-specific CONTAINER. It deliberately does NOT use the footer's
+   narrower 81.6% column: it reproduces the SAME content column the form has as a
+   page section (band-left 40 @390 · 64 @768 · 80 @1024 · 112 @>=1280, capped at
+   1312px), so it looks identical whether authored on a page or in the footer.
+   The inline padding below is added on top of .footer-content's own gutter
+   (16px <768, 52px >=768). */
+footer .footer-form {
+  box-sizing: border-box;
+  margin: 0 0 48px;
+  padding: 0 24px;
+}
+
+/* When the footer opens with the form, its top padding (sized for the wordmark)
+   is replaced so the gap from the last page block to the "GET ON THE LIST."
+   title matches the source: 68 @390 · 60 @768 · 76 @1024 · 124 @>=1280, minus
+   the 48px bottom padding of the last main section. Footers without a form keep
+   their normal padding. */
+footer .footer-content:has(> .footer-form) {
+  padding-top: 20px;
+}
+
 /* ---- Brand / wordmark logo ----
    Mobile: source leaves ~68px between the wordmark and the first link; the
    logo box is 33px tall with a tight line-box, so a 62px bottom margin
@@ -133,6 +158,15 @@ footer .footer-social img {
     margin-right: auto;
   }
 
+  /* form content-left 64 @768 = 52 footer gutter + 12 */
+  footer .footer-form {
+    padding: 0 12px;
+  }
+
+  footer .footer-content:has(> .footer-form) {
+    padding-top: 12px;
+  }
+
   footer .footer-brand {
     margin-bottom: 66px;
   }
@@ -190,6 +224,15 @@ footer .footer-social img {
   footer .footer-social {
     flex: 0 0 auto;
   }
+
+  /* form content-left 80 @1024 = 52 footer gutter + 28 */
+  footer .footer-form {
+    padding: 0 28px;
+  }
+
+  footer .footer-content:has(> .footer-form) {
+    padding-top: 28px;
+  }
 }
 
 /* Footer-link font-size responsive bands (measured from source, all viewports):
@@ -217,4 +260,25 @@ footer .footer-social img {
   footer .footer-links ul {
     gap: 30px;
   }
+
+  /* form: same band as the page form at >=1280 — 112px side gutter
+     (52 footer gutter + 60), growing to 1312 inside the 1536-capped footer */
+  footer .footer-form {
+    padding: 0 60px;
+  }
+
+  footer .footer-content:has(> .footer-form) {
+    padding-top: 76px;
+  }
+}
+
+/* Space between the subscribe form and the footer wordmark below it */
+footer .footer-form + .footer-brand {
+  padding-top: 168px;
+}
+
+/* An empty trailing page section (48px top + bottom padding) sits right above
+   the footer form and doubles the gap to "GET ON THE LIST." — collapse it. */
+body:has(footer .footer-form) main > .section:last-child:not(:has(*)) {
+  display: none;
 }
