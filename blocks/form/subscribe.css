@@ -309,6 +309,37 @@ main .form.block .button-wrapper button.button:hover {
   border: 2px solid #000;
 }
 
+/* Submit feedback (submit.js) — shared by every form on the site's black page,
+   replacing the boilerplate's light Bootstrap alert fills. Success is inserted
+   BEFORE the <form> (so it carries its own bottom spacing); the error is
+   prepended INSIDE the form grid, whose 24px row gap spaces it. White copy on
+   black with a lime (success) / error-red (error) 1px outline, 12px radius to
+   match the pill buttons. submit.js scrollIntoView()s the message — the
+   scroll-margin keeps it clear of the fixed header (header.css height token). */
+main .form.block .form-message.success-message,
+main .form.block .form-message.error-message {
+  box-sizing: border-box;
+  margin: 0;
+  scroll-margin-top: calc(var(--usta-header-height, 90px) + 16px);
+  padding: 16px 24px;
+  border: 1px solid var(--usta-lime);
+  border-radius: 12px;
+  background-color: #000;
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+main .form.block .form-message.success-message {
+  margin-bottom: 24px;
+}
+
+main .form.block .form-message.error-message {
+  border-color: var(--form-error-color);
+}
+
 /* Tablet (>=768) typography + layout (source): heading 40px, legend 16px,
    checkbox labels 18px, legal 18px, submit 18px/-0.54px + compact width; the
    coach-type options flow multiple-per-row (single-column stacking is mobile-only). */
@@ -323,6 +354,11 @@ main .form.block .button-wrapper button.button:hover {
   }
 
   main .form.block .subscribe-legal p {
+    font-size: 18px;
+  }
+
+  main .form.block .form-message.success-message,
+  main .form.block .form-message.error-message {
     font-size: 18px;
   }
 

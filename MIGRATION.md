@@ -2918,3 +2918,36 @@ for h1, both intro paragraphs, bold runs, accordion card/title/icon, list, copy,
 Hover states (accordion, Submit, link) match. lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓
 (page + subscribe regression) · axe scoped to main (390/768/1440, closed+open) 0 violations; full-page a11y
 still fails only on the pre-existing footer `/forms/subscribe.json` link.
+
+### 2026-09-30 — Gallagher form: multi-item spacing, opt-in checkbox, order-independent CSS, branded messages
+Styling-only pass. The source has 4 sibling pages (`gallagher-disclaimer-baseline|rally|pro|pro-plus`); Rally has 1
+accordion item, **Pro-Plus has 4 items + a required, pre-checked "Opt-In for Electronic Delivery of Policy Documents"
+checkbox**. Measured Pro-Plus live and built against it (test sheet served via a Playwright route — no content edits).
+- **Accordion item gap is responsive** (`components/accordion/accordion.css`): 36px (<768; source = 16 gap + 20
+  margin) → 16px (>=768) → 24px (>=1280). Was a flat 24px. Invisible on Rally (1 item).
+- **Correction to the 2026-09-28 entry:** the source accordion is **multi-open** (opening item 2 leaves item 1 open on
+  Pro-Plus), not single-open. Our component is still single-open — behavioural (JS) follow-up, not fixed here.
+- **New sheet Style `gallagher-optin`** (checkbox row): #1d1d1d panel, 16px pad, 8px radius; label LEFT (Graphik
+  Semibold 16/16, -0.03em), 24x24 box RIGHT (`row-reverse` — DOM order is input → label), space-between, 48px min gap.
+  Unchecked = 1px white border; checked = border 0 + lime + the shared subscribe.css tick drawn at 24px/0 0 (source).
+  Focus ring = 2px lime (source uses the UA default, near-invisible on black — deliberate a11y deviation).
+- **Submit `:disabled`** (in-flight submit; the source also disables it while the opt-in is unchecked): source grey
+  pill #bdbdb9/#4c4c4c, default cursor, no hover change.
+- **Order-independence (Gotcha, supersedes the 09-28 note):** only two Gallagher rules tied with a shared
+  subscribe.css rule and won by @import order — `.gallagher-legal` vs `main .form.block form .field-wrapper` (legal
+  text went WHITE on the lime card when order flipped) and Submit `:hover` vs `.button-wrapper button.button:hover`
+  (stayed lime). Both now compound (`.gallagher-legal.field-wrapper`, `.gallagher-submit.button-wrapper`). Proven by
+  flipping the imports: 0 computed-style diffs across 18 states; negative control (old selectors) reproduces both bugs.
+  NOTE: subscribe.css's "generic" input/checkbox/button rules are the de-facto **shared dark form theme** —
+  `lead-interests` (no Style classes) depends on them — so they were NOT scoped to subscribe-* classes.
+- **Branded submit feedback** (subscribe.css, shared — every form is on black): success/error `.form-message` = white
+  Graphik Regular 16→18 (>=768)/1.2 on black, 1px lime (success) / `--form-error-color` (error) outline, 12px radius,
+  16/24 pad; success gets 24px below (it's inserted before the <form>). `scroll-margin-top:
+  calc(var(--usta-header-height) + 16px)` — submit.js scrollIntoView() previously parked the error UNDER the fixed header.
+Verified: Rally vs source 390–1920 closed+open — geometry unchanged (all within 1px). Pro-Plus test vs source
+390/768/1024/1280/1440, checked+unchecked — all 4 cards, opt-in row/label/box, copy, Submit within 1px. Other forms
+(subscribe, lead-interests, flag) computed-style fingerprint before/after: 0 diffs. axe on main (opt-in, open item,
+error, success, disabled; 390+1440): 0 violations. lint 0 errors · breakpoint ✓ · overflow ✓ (360–1920) ·
+full-page a11y fails only on the pre-existing footer `/forms/subscribe.json` link.
+- **Found, pre-existing:** `check:typography` fails on this page (10 drifts: split-intro h1/p) at HEAD too — the
+  `scopedExceptions` entry the 09-28 entry describes was never committed (absent from typography.json and the checker).

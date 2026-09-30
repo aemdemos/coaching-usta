@@ -1,15 +1,17 @@
 /* gallagher-disclaimer — the Gallagher consent/acknowledgment form
    (ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-rally.html),
    rendering the /forms/gallagher-disclaimer.json sheet. A single-item disclaimer
-   accordion (components/accordion — owns the pill card + toggle), eligibility
-   copy with a support mailto, and a lime Submit pill. Every rule is scoped to a
-   sheet `Style` class (gallagher-*) so it can't leak into other forms — and so
-   it wins over the unscoped defaults in subscribe.css (imported first). */
+   accordion (components/accordion — owns the pill card + toggle), an optional
+   opt-in checkbox (Pro-Plus), eligibility copy with a support mailto, and a lime
+   Submit pill. Every rule is scoped to a sheet `Style` class (gallagher-*) so it
+   can't leak into other forms, and each selector OUT-RANKS the shared dark-theme
+   rules in subscribe.css (compound `.gallagher-*.field-wrapper` etc.) so the
+   result doesn't depend on @import order in form.css. */
 
 /* Disclaimer list inside the accordion item (Style: gallagher-legal).
    Graphik Regular 18/24 at every viewport; inherits the card colour (white on
    black closed, black on lime open) instead of the form's white label colour. */
-main .form.block form .gallagher-legal {
+main .form.block form .gallagher-legal.field-wrapper {
   margin: 0;
   color: inherit;
 }
@@ -74,15 +76,76 @@ main .form.block .gallagher-submit button.button {
   cursor: pointer;
 }
 
-main .form.block .gallagher-submit button.button:hover {
+main .form.block .gallagher-submit button.button:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+
+main .form.block .gallagher-submit.button-wrapper button.button:hover {
   background-color: var(--text-color);
   color: #000;
   border-color: var(--text-color);
   opacity: 1; /* no global button:hover fade on the source */
 }
 
-main .form.block .gallagher-submit button.button:focus-visible {
-  outline: 2px solid var(--text-color);
+/* Disabled (in-flight submit; source also disables it while the opt-in is
+   unchecked): the source's grey pill, no hover change. */
+main .form.block .gallagher-submit.button-wrapper button.button:disabled,
+main .form.block .gallagher-submit.button-wrapper button.button:disabled:hover {
+  background-color: #bdbdb9;
+  color: #4c4c4c;
+  border-color: #000;
+  opacity: 1;
+  cursor: default;
+}
+
+/* Opt-in checkbox (Style: gallagher-optin — Pro-Plus "Opt-In for Electronic
+   Delivery of Policy Documents"). Source: a #1d1d1d panel, 16px padding, 8px
+   radius; label LEFT (Graphik Semibold 16/16, -0.03em), 24x24 box RIGHT,
+   space-between with a 48px minimum gap. Unchecked = 1px white outline,
+   checked = lime fill + black tick (the shared tick from subscribe.css, drawn
+   edge-to-edge as on the source). DOM order is input → label, so row-reverse. */
+main .form.block .gallagher-optin.checkbox-wrapper {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  gap: 48px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #1d1d1d;
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper label {
+  flex: 0 1 auto;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 16px;
+  letter-spacing: -0.03em;
+  white-space: normal;
+  color: var(--text-color);
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"] {
+  box-sizing: border-box;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--text-color);
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"]:checked {
+  border: 0;
+  background-color: var(--usta-lime);
+  background-position: 0 0;
+  background-size: 24px 24px;
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--usta-lime);
   outline-offset: 2px;
 }
 

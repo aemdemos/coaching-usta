@@ -3,12 +3,14 @@
    disclaimer form). Each item is a ROUNDED BORDERED PILL CARD (1px white border,
    20px radius, 23px padding) on black; the OPEN item turns LIME with black text
    and a minus glyph. Title: Graphik Semibold, line-height 1, -0.03em — 24px
-   mobile → 28px (>=768) → 32px (>=1280). Loaded on demand by mappings.js. */
+   mobile → 28px (>=768) → 32px (>=1280). Loaded on demand by mappings.js.
+   Item-to-item gap (source, multi-item Gallagher Pro-Plus): 36px mobile →
+   16px (>=768) → 24px (>=1280). */
 
 main .form form fieldset.accordion {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 36px;
   padding: 0;
 }
 
@@ -110,12 +112,20 @@ main .form fieldset.accordion .accordion-content[hidden] {
 }
 
 @media (width >= 768px) {
+  main .form form fieldset.accordion {
+    gap: 16px;
+  }
+
   main .form fieldset.accordion .accordion-title {
     font-size: 28px;
   }
 }
 
 @media (width >= 1280px) {
+  main .form form fieldset.accordion {
+    gap: 24px;
+  }
+
   main .form fieldset.accordion .accordion-title {
     font-size: 32px;
   }

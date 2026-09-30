@@ -43,6 +43,13 @@ from `components/<name>/`.
   the site's pill card (white border → lime when open, +/- glyph).
 - **repeat** — repeatable panels (boilerplate).
 
+Gallagher Style classes (`gallagher-disclaimer.css`): `gallagher-disclaimers`
+(accordion panel), `gallagher-legal` (item body list), `gallagher-optin` (a
+`checkbox` row — label left, box right, dark panel; Pro-Plus opt-in),
+`gallagher-copy` (eligibility text), `gallagher-submit` (lime pill). Its
+selectors out-rank the shared dark theme in `subscribe.css`, so they don't
+depend on `@import` order.
+
 Rich text: set `richText: true`; the `Label` may carry `<p>`, `<ul>/<li>`, `<a>`,
 etc. (block-level markup renders in a `<div>`, inline markup in a `<p>`).
 
