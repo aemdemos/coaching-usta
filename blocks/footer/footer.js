@@ -1,3 +1,5 @@
+import { loadCSS } from '../../scripts/aem.js';
+
 /**
  * The active locale, derived from the page URL (/en/ vs /es/). Any page whose
  * path contains an `/es/` segment uses the Spanish footer; everything else the
@@ -60,8 +62,35 @@ export default async function decorate(block) {
   const footer = document.createElement('div');
   footer.className = 'footer-content';
 
+  // A `form` block may be authored into the footer document. The footer builds its
+  // own layout and never runs the EDS block pipeline, so decorate the form block
+  // ourselves — otherwise it renders as a raw `/forms/*.json` link. Detach ONLY the
+  // block (not its whole section: authors may put it in the same section as the
+  // logo), then drop any section left empty so the positional brand/links/social
+  // mapping below still lines up. It renders above the footer content.
+  const formBlock = fragment.querySelector('.form');
+  if (formBlock) {
+    formBlock.remove();
+    try {
+      // The form block's own CSS (form.css, which @imports subscribe.css) is only
+      // loaded by the EDS block loader — which we bypass here — so load it
+      // explicitly, otherwise the footer form renders unstyled.
+      loadCSS(`${window.hlx.codeBasePath}/blocks/form/form.css`);
+      // The EDS block loader normally adds the `block` class; we bypass it, so add
+      // it ourselves — the form styling is scoped to `.form.block`.
+      formBlock.classList.add('block');
+      const { default: decorateForm } = await import('../form/form.js');
+      await decorateForm(formBlock);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Footer form decoration failed', error);
+    }
+  }
+
   // Fragment sections in order: 0 brand(logo) | 1 footer links | 2 social icons
-  const sections = [...fragment.querySelectorAll(':scope > div')];
+  // (ignoring any section that only held the form, detached above).
+  const sections = [...fragment.querySelectorAll(':scope > div')]
+    .filter((s) => s.children.length > 0);
   const [brandSrc, linksSrc, socialSrc] = sections;
 
   // --- Brand / logo ---
@@ -89,6 +118,15 @@ export default async function decorate(block) {
   });
 
   row.append(links, social);
+
+  // If a form was authored into the footer, render it above the brand/links row.
+  if (formBlock) {
+    const formWrap = document.createElement('div');
+    formWrap.className = 'footer-form';
+    formWrap.append(formBlock);
+    footer.append(formWrap);
+  }
+
   footer.append(brand, row);
 
   // must run AFTER the links are in the tree — mirrors the source, where every
