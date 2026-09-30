@@ -1,12 +1,4 @@
-/**
- * Form accordion component — same authoring contract as the upstream
- * aem-boilerplate-forms `accordion`: a panel (fieldset) with `Custom Type:
- * accordion` whose CHILD fieldsets are the accordion items (the child's Label is
- * the item title). Unlike upstream (click on a bare <legend>, first item open),
- * the toggle is a real <button> inside the legend (keyboard + aria-expanded) and
- * every item starts COLLAPSED, single-open — matching the source
- * (ustacoaching.com Gallagher disclaimer). Styling: accordion.css.
- */
+// Form accordion: child fieldsets are items (Label = title); button toggle, collapsed, single-open
 
 function setExpanded(tab, expanded) {
   const button = tab.querySelector(':scope > legend .accordion-toggle');

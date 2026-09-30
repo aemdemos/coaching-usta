@@ -1,24 +1,12 @@
-/* gallagher-disclaimer — the Gallagher consent/acknowledgment form
-   (ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-rally.html),
-   rendering the /forms/gallagher-disclaimer.json sheet. A single-item disclaimer
-   accordion (components/accordion — owns the pill card + toggle), an optional
-   opt-in checkbox (Pro-Plus), eligibility copy with a support mailto, and a lime
-   Submit pill. Every rule is scoped to a sheet `Style` class (gallagher-*) so it
-   can't leak into other forms, and each selector OUT-RANKS the shared dark-theme
-   rules in subscribe.css (compound `.gallagher-*.field-wrapper` etc.) so the
-   result doesn't depend on @import order in form.css. */
+/* Gallagher disclaimer form: rules scoped to sheet Style classes (gallagher-*), out-ranking subscribe.css */
 
-/* Every Gallagher field sits flush on the form column (source) — cancel the
-   shared 8px side inset subscribe.css gives `.field-wrapper` (measured for the
-   subscribe form), incl. the accordion's nested item fieldsets. */
+/* Gallagher fields sit flush: cancel subscribe.css's 8px field inset (incl. nested accordion items) */
 main .form.block form .field-wrapper:is(.gallagher-disclaimers, .gallagher-copy, .gallagher-optin, .gallagher-submit),
 main .form.block form .gallagher-disclaimers .field-wrapper {
   margin: 0;
 }
 
-/* Disclaimer list inside the accordion item (Style: gallagher-legal).
-   Graphik Regular 18/24 at every viewport; inherits the card colour (white on
-   black closed, black on lime open) instead of the form's white label colour. */
+/* Legal list (gallagher-legal): 18/24, inherits the card colour (white closed, black open) */
 main .form.block form .gallagher-legal.field-wrapper {
   color: inherit;
 }
@@ -37,9 +25,7 @@ main .form.block .gallagher-legal li {
   color: inherit;
 }
 
-/* Eligibility copy (Style: gallagher-copy). White Graphik Regular, lh 1.2:
-   16px → 18px (>=1024) → 24px (>=1280). The source separates the paragraphs
-   with an empty <p> — i.e. one blank line — reproduced as a 1.2em top margin. */
+/* Eligibility copy (gallagher-copy): 16 → 18 (>=1024) → 24px (>=1280), lh 1.2, one blank line between */
 main .form.block .gallagher-copy p {
   margin: 0;
   font-family: var(--body-font-family);
@@ -57,16 +43,12 @@ main .form.block .gallagher-copy a {
   text-decoration: underline;
 }
 
-/* source hover: stays white (the rule above out-ranks the global lime
-   a:hover), underline drops (.cmp-text--colored a) */
+/* hover: stays white, underline drops (source) */
 main .form.block .gallagher-copy a:hover {
   text-decoration: none;
 }
 
-/* Submit (Style: gallagher-submit) — the source's primary lime pill
-   (.coaching-primary-button inside .v-form-button). Auto width at every
-   viewport: 16px / 16px 102px padding on mobile → 24px / 16px 48px (>=768).
-   Hover: white fill + white border. Overrides the grey pill in subscribe.css. */
+/* Submit (gallagher-submit): lime pill, 16px / 16px 102px mobile → 24px / 16px 48px (>=768) */
 main .form.block .gallagher-submit button.button {
   width: auto;
   padding: 16px 102px;
@@ -95,9 +77,7 @@ main .form.block .gallagher-submit.button-wrapper button.button:hover {
   opacity: 1; /* no global button:hover fade on the source */
 }
 
-/* Disabled (in-flight submit; source also disables it while the opt-in is
-   unchecked): the source's grey pill. Same specificity as :hover and later, so
-   it also wins while hovered — no hover change. */
+/* disabled: source grey pill; same specificity as :hover and later, so it wins while hovered */
 main .form.block .gallagher-submit.button-wrapper button.button:disabled {
   background-color: #bdbdb9;
   color: #4c4c4c;
@@ -106,12 +86,7 @@ main .form.block .gallagher-submit.button-wrapper button.button:disabled {
   cursor: default;
 }
 
-/* Opt-in checkbox (Style: gallagher-optin — Pro-Plus "Opt-In for Electronic
-   Delivery of Policy Documents"). Source: a #1d1d1d panel, 16px padding, 8px
-   radius; label LEFT (Graphik Semibold 16/16, -0.03em), 24x24 box RIGHT,
-   space-between with a 48px minimum gap. Unchecked = 1px white outline,
-   checked = lime fill + black tick (the shared tick from subscribe.css, drawn
-   edge-to-edge as on the source). DOM order is input → label, so row-reverse. */
+/* Opt-in (gallagher-optin): #1d1d1d panel, label left + 24px box right (row-reverse), lime when checked */
 main .form.block .gallagher-optin.checkbox-wrapper {
   flex-direction: row-reverse;
   justify-content: space-between;
@@ -156,13 +131,7 @@ main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"]:focus-
   outline-offset: 2px;
 }
 
-/* Submit feedback (submit.js) for this form only — replaces the boilerplate's
-   light Bootstrap alert fills. Success is inserted BEFORE the <form> (so it
-   carries its own bottom spacing); the error is prepended INSIDE the form
-   grid, whose 24px row gap spaces it. White copy on black, 1px lime (success) /
-   error-red (error) outline, 12px radius like the pill. submit.js
-   scrollIntoView()s the message — scroll-margin keeps it clear of the fixed
-   header (header.css height token). */
+/* Submit feedback: white on black, lime (success) / red (error) outline; scroll-margin clears the fixed header */
 main .form.block:has(.gallagher-submit) .form-message {
   box-sizing: border-box;
   margin: 0;

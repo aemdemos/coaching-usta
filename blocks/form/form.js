@@ -108,8 +108,7 @@ function createRadioOrCheckboxGroup(fd) {
   return wrapper;
 }
 
-// Rich text that carries its own block-level markup (<p>, <ul>…) renders in a
-// <div> — nesting those inside a <p> is invalid HTML.
+// rich text with block-level markup (<p>, <ul>…) renders in a <div>: a <p> can't contain them
 const BLOCK_LEVEL_TAGS = /<(p|ul|ol|h[1-6]|hr)\b/i;
 
 function createPlainText(fd) {

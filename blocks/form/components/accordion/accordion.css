@@ -1,11 +1,6 @@
-/* Form accordion (components/accordion) — the site's coaching accordion theme,
-   measured from ustacoaching.com (.accordion--theme--coaching, Gallagher
-   disclaimer form). Each item is a ROUNDED BORDERED PILL CARD (1px white border,
-   20px radius, 23px padding) on black; the OPEN item turns LIME with black text
-   and a minus glyph. Title: Graphik Semibold, line-height 1, -0.03em — 24px
-   mobile → 28px (>=768) → 32px (>=1280). Loaded on demand by mappings.js.
-   Item-to-item gap (source, multi-item Gallagher Pro-Plus): 36px mobile →
-   16px (>=768) → 24px (>=1280). */
+/* Form accordion (components/accordion): coaching pill cards, lime when open; loaded by mappings.js */
+
+/* item gap per source: 36px mobile → 16px (>=768) → 24px (>=1280) */
 
 main .form form fieldset.accordion {
   display: flex;
@@ -26,15 +21,14 @@ main .form fieldset.accordion > fieldset.panel-wrapper {
   color: var(--text-color);
 }
 
-/* open: lime card. Border goes lime (not 0) so the geometry doesn't shift. */
+/* open: lime card; border turns lime (not 0) so the geometry doesn't shift */
 main .form fieldset.accordion > fieldset.panel-wrapper:not(.accordion-collapse) {
   border-color: var(--usta-lime);
   background-color: var(--usta-lime);
   color: #000;
 }
 
-/* float takes the legend out of the "rendered legend" slot so it sits INSIDE
-   the card's border (not notched into it) and the content flows below it */
+/* float keeps the legend inside the card border instead of notching into it */
 main .form fieldset.accordion > fieldset > legend.accordion-legend {
   float: left;
   width: 100%;
@@ -48,7 +42,7 @@ main .form fieldset.accordion .accordion-toggle {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0; /* source: title takes all but the 48px icon (wraps at 236 @768) */
+  gap: 0; /* title fills all but the 48px icon (source) */
   width: 100%;
   margin: 0;
   padding: 0;
@@ -72,8 +66,7 @@ main .form fieldset.accordion .accordion-title {
   letter-spacing: -0.03em;
 }
 
-/* +/- glyph: 48px box, 24x3.5 bars (source plus.svg / minus.svg, square caps);
-   the vertical bar hides when open */
+/* +/- glyph: 48px box, 24x3.5 bars; the vertical bar hides when open */
 main .form fieldset.accordion .accordion-icon {
   position: relative;
   flex: 0 0 48px;
