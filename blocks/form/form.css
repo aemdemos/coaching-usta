@@ -1,6 +1,6 @@
-/* Per-form styling lives in its own scoped file (see skills/forms-enablement Part D). */
+/* Per-form styling lives in its own scoped file (see skills/forms-enablement Part D).
+   Variant files (application.css) are loaded on demand by form.js (VARIANT_STYLES). */
 @import url('./subscribe.css');
-@import url('./application.css');
 
 :root {
     --background-color-primary: #fff;
@@ -597,6 +597,18 @@ main .form .form-message.error-message {
     flex: 100%;
     grid-column: span 12;
     padding: 10px;
+}
+
+/* Invalid-submit summary (submit.js, role="alert"): announced to screen
+   readers on every form, but only shown where a form theme styles it
+   (application.css) — the inline field errors are the visual cue elsewhere. */
+main .form .form-message.error-summary {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 main .form .file-wrapper .file-drag-area {

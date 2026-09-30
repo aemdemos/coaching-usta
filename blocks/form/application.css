@@ -41,6 +41,9 @@ main .form.application.block {
   --application-error: #ff3c3c;
   --application-error-bg: #fae9e9;
   --application-drop-bg: #1e2c35;
+  --application-drop-active-bg: #263843;
+  --application-success: #137333;
+  --application-success-bg: #e6f4ea;
   --application-font: "Open Sans", "Open Sans Fallback", "Helvetica Neue", arial, sans-serif;
 
   /* The embed frame: navy card inside the source iframe's 2px inset border */
@@ -82,7 +85,10 @@ main .form.application.block form .field-wrapper.captcha-wrapper {
   display: none;
 }
 
-/* Text: title, subheadings (plain-text rows; Style column) */
+/* Text: plain-text rows, and the title / section subheadings — Type
+   "heading" rows (h2 title, h3 subheadings; Style column) so the form nests
+   under the page h1 (a plain-text <p> row styles the same). Formstack's own
+   sizes, not the site heading scale. */
 main .form.application.block form p {
   margin: 0;
   color: var(--application-text);
@@ -92,18 +98,29 @@ main .form.application.block form p {
   letter-spacing: normal;
 }
 
-main .form.application.block form .application-title p {
+main .form.application.block form :is(.application-title, .application-subheading) :is(h2, h3, p) {
+  margin: 0;
+  color: var(--application-text);
+  font-family: var(--application-font);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+main .form.application.block form .application-title :is(h2, h3, p) {
   margin: 21px 0;
   font-size: 32px;
-  font-weight: 700;
 }
 
 main .form.application.block form .application-subheading {
   margin: 16px 0;
 }
 
-main .form.application.block form .application-subheading p {
-  font-weight: 700;
+/* Maxlength fields (First / Last Name, 20): the source shows no counter */
+main .form.application.block .form-char-counter {
+  display: none;
 }
 
 /* Labels + legends: 16px, 20px above the control */
@@ -393,16 +410,83 @@ main .form.application.block form .file-wrapper {
   padding-bottom: 20px;
 }
 
+main .form.application.block .file-wrapper .file-drag-text .file-attach-button:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* dragging a file over the drop area */
+main .form.application.block .file-wrapper .file-drag-area.file-drag-area-active {
+  border-color: var(--application-text);
+  background-color: var(--application-drop-active-bg);
+}
+
+/* rejected file (type / size): red drop area, the pill sits above it */
+main .form.application.block .file-wrapper.field-invalid .file-drag-area {
+  border-color: var(--application-error);
+}
+
+/* Attached files: name (opens a preview) · size · remove */
 main .form.application.block .file-wrapper .files-list:not(:empty) {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-top: 8px;
-  font-size: 12px;
 }
 
 main .form.application.block .file-wrapper .file-description {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 32px;
   margin: 0;
+  padding: 0 4px 0 12px;
+  border: 1px solid var(--application-border);
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+main .form.application.block .file-wrapper .file-description-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--application-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+main .form.application.block .file-wrapper .file-description-size {
+  flex: 0 0 auto;
+  color: var(--application-muted);
+}
+
+main .form.application.block .file-wrapper .file-description button.file-description-remove {
+  position: relative;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='m2 2 8 8M10 2l-8 8' stroke='%23edeff0' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") center / 10px no-repeat;
+  cursor: pointer;
+}
+
+/* 44px hit area around the 24px remove glyph */
+main .form.application.block .file-wrapper .file-description button.file-description-remove::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  transform: none;
+}
+
+main .form.application.block .file-wrapper .file-description button.file-description-remove:hover {
+  background-color: var(--application-drop-bg);
+}
+
+main .form.application.block .file-wrapper .file-description button.file-description-remove:focus-visible {
+  outline: 2px solid var(--application-focus);
+  outline-offset: 0;
 }
 
 /* Submit: small light button well below the last field — full width in the
@@ -413,6 +497,7 @@ main .form.application.block form .submit-wrapper {
 
 main .form.application.block button.button,
 main .form.application.block .button-wrapper button.button:hover {
+  position: relative;
   width: 100%;
   margin: 0;
   padding: 10px;
@@ -428,17 +513,92 @@ main .form.application.block .button-wrapper button.button:hover {
   cursor: pointer;
 }
 
+/* keep the source's 32px button but give it a 44px-tall hit area */
+main .form.application.block button.button::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}
+
 main .form.application.block .button-wrapper button.button:focus-visible {
   outline: 2px solid var(--application-focus);
   outline-offset: 2px;
 }
 
-/* Success / error banners rendered by submit.js */
+/* Submitting (submit.js sets aria-busy on the form and disables the button) */
+main .form.application.block .button-wrapper button.button:disabled,
+main .form.application.block form[aria-busy="true"] .button-wrapper button.button {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Disabled / read-only controls (sheet "Visible" / ReadOnly, rules) */
+main .form.application.block :is(input, select, textarea):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form-level banners (submit.js): the validation summary and submission
+   error sit at the top of the form; the success message replaces the
+   form's place above a fresh form. Same pill language as the field errors. */
 main .form.application.block .form-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 720px;
-  margin: 0 auto 24px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  border: 1px solid var(--application-error);
   border-radius: 3px;
+  background-color: var(--application-error-bg);
+  color: var(--application-bg);
+  font-family: var(--application-font);
   font-size: 14px;
+  line-height: 20px;
+}
+
+/* form.css hides the summary visually on unthemed forms; show it here */
+main .form.application.block .form-message.error-summary {
+  position: static;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+}
+
+main .form.application.block .form-message::before {
+  content: "";
+  flex: 0 0 16px;
+  height: 16px;
+  margin-top: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23ff3c3c'/%3E%3Cpath d='M7 3.5h2v6H7zM7 11h2v2H7z' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+main .form.application.block .form-message.success-message {
+  margin-bottom: 40px;
+  border-color: var(--application-success);
+  background-color: var(--application-success-bg);
+}
+
+main .form.application.block .form-message.success-message::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23137333'/%3E%3Cpath d='m4.5 8.2 2.3 2.3 4.7-4.8' fill='none' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E");
+}
+
+main .form.application.block .form-message :is(p, ul, ol) {
+  margin: 0;
+}
+
+main .form.application.block .form-message a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* banners take programmatic focus only (tabindex -1, not operable): no ring */
+main .form.application.block .form-message:focus {
+  outline: none;
 }
 
 /* >=1024 the source's embed is wide enough (~720px) for its two-column rows:

@@ -20,6 +20,9 @@
   --usta-lime: #cfff05;
   --usta-blue: #0373f3;
 
+  /* dark panel/track grey (pill tabs, course filter panel) */
+  --usta-dark-panel: #2d2d2d;
+
   /* AA-compliant blue for white text on a blue fill (brand #0373f3 is 4.42:1,
      just under the 4.5:1 small-text threshold; this is a hair darker at 4.74:1
      and visually near-identical). Use for small white-on-blue chips/bars. */

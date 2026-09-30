@@ -2915,3 +2915,47 @@ measured inside its iframe at the same viewport). All rows now match at 390 / 76
 - **Bug fixed**: checkbox inherited the boilerplate 12px input padding (rendered 21×26) and the label
   `order:-2`, which put the box on the right; an empty `.files-list` was forced visible (+8px per upload).
 - Not replicated: the source iframe's fixed 1500px height (it scrolls the form inside the frame).
+
+### 2026-09-30 — form (application) + tabs (application): frontend production-readiness pass
+Review of the equivalency forms vs the live Formstack embeds; frontend-only fixes so the backend can wire
+submission without further UI work. Hand-off contract: `blocks/form/README.md` → "Submission contract".
+- **Validation**: `emailPattern` (constant.js) rejected hyphens, plus-addressing, subdomains, 2-letter TLDs and
+  its `\.` collapsed to "any char" in a single-quoted string → now `[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}`
+  (valid under the `v` flag browsers use for `pattern`). Phone / years / hours patterns added in the sheet.
+- **A11y (shared engine, util.js)**: inline errors now set `aria-invalid` + `aria-describedby` on the control(s)
+  (every option of a checkbox group); per-field `aria-live` dropped in favour of ONE `role="alert"` summary
+  below the form title on invalid submit (removed once all fields are valid; visually hidden by form.css
+  on unthemed forms such as subscribe, shown by application.css); success = `role="status"`,
+  failure = `role="alert"`, both focused. Help text / thank-you HTML go through `sanitizeHTML` (tag allow-list,
+  no attributes except safe hrefs) — no DOMPurify in the project.
+- **New sheet columns** (transform.js): `Autocomplete` (WCAG 1.3.5 — the engine defaults to `off`), `Input Mode`,
+  `Heading Level` (Type `heading` rows; `createHeading` no longer emits a stray `<label>`); submit row
+  `Description` = failure message. Generator `tools/forms/application-forms.mjs` now sets source parity:
+  autocomplete tokens, names maxlength 20 (char counter hidden in application.css), numeric inputmode, the
+  source Accept list, h2 title / h3 subheadings. Both sheets re-uploaded to DA + previewed 2026-09-30
+  (application.css still styles a plain-text `<p>` title identically to the h2, for older sheets).
+- **Files**: dropped/pasted files are mirrored into `input.files` (DataTransfer) so they submit; with files the
+  request is multipart (`data` JSON part + one part per file field), otherwise JSON as before. Accept matching
+  compares extensions by FILE NAME (upstream compared the MIME type's suffix, so `.docx` never matched and
+  typeless files always passed). Bug: `dataset.required === "false"` counted as required, so removing a file
+  from an OPTIONAL upload flagged it invalid. Focus returns to "Browse files" after removing a file.
+- **Engine bugs**: module-level `captchaField` leaked between the forms on a page (two application forms + footer
+  subscribe) → resolved per form (`findCaptchaField`). The post-success reset re-render dropped the form's
+  thank-you / error / redirect datasets → copied onto the new form. Form gets `aria-labelledby` its heading.
+- **Perf**: `application.css` is no longer `@import`ed by form.css (the footer subscribe form put it + the Open
+  Sans faces on every page); `form.js` `VARIANT_STYLES` loads it only for `.form.application` blocks, awaited
+  before the form is inserted (no FOUC).
+- **Tabs**: WAI-ARIA keyboard model (roving tabindex, ←/→ wrap, Home/End, automatic activation — as the
+  source); `#tab=` kept in sync both ways (`history.replaceState` on select, `hashchange` listener); labels
+  no longer wrap a `<p>` inside `<button>`; focus ring = source (2px dotted currentcolor + 2px white halo).
+  Hover = lime, same as selected — this IS the source behaviour, kept. Colours → `--usta-lime` /
+  new global `--usta-dark-panel` (#2d2d2d, also used by course-filter).
+- **States styled (application.css)**: error summary / failure (pink pill), success (green), submitting
+  (`aria-busy` → 60% opacity + progress cursor), disabled controls, drag-over, invalid drop area, attached-file
+  rows (name · size · 24px remove with 44px hit area). Submit keeps the source's 32px look with a 44px hit area.
+- **Known / not changed**: tabs width still uses `100vw` (≤ ~12px wider with classic desktop scrollbars, no
+  overflow — fixing needs a container query on the section, outside the block). Checkbox stays 12px (source);
+  its label is part of the click target. Page body copy (h1, How it works, Before you apply…) is not migrated.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (360–1920, run in the preview browser — the checker's headless
+shell isn't installed here) · typography ✓ (page h1/body vs record) · a11y ✓ (axe-core in the preview:
+0 violations default / errors+file / 2nd tab) · svg n/a

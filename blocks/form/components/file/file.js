@@ -24,19 +24,22 @@ function getSizeInBytes(str) {
 }
 
 /**
- * matches the given mediaType with the accepted mediaTypes
- * @param {*} mediaType mediaType of the file to match
- * @param {[]} accepts accepted mediaTypes
- * @returns false if the mediaType is not accepted
+ * matches a file against the accept list: ".pdf"-style entries compare the
+ * file-name extension (MIME types such as .docx's don't end in "docx", and
+ * many files have no MIME type at all); "image/*" and "application/pdf"
+ * entries compare the MIME type.
+ * @param {File} file the file to match
+ * @param {[]} accepts accepted extensions / mediaTypes
+ * @returns false if the file is not accepted
  */
-function matchMediaType(mediaType, accepts) {
-  return !mediaType || accepts.some((accept) => {
-    const trimmedAccept = accept.trim();
-    const prefixAccept = trimmedAccept.split('/')[0];
-    const suffixAccept = trimmedAccept.split('.')[1];
-    return ((trimmedAccept.includes('*') && mediaType.startsWith(prefixAccept))
-      || (trimmedAccept.includes('.') && mediaType.endsWith(suffixAccept))
-      || (trimmedAccept === mediaType));
+function matchMediaType(file, accepts) {
+  const mediaType = (file.type || '').toLowerCase();
+  const fileName = (file.name || '').toLowerCase();
+  return accepts.some((accept) => {
+    const trimmedAccept = accept.trim().toLowerCase();
+    if (trimmedAccept.startsWith('.')) return fileName.endsWith(trimmedAccept);
+    if (trimmedAccept.endsWith('/*')) return mediaType.startsWith(trimmedAccept.slice(0, -1));
+    return trimmedAccept === mediaType;
   });
 }
 
@@ -62,7 +65,7 @@ function checkAccept(acceptedMediaTypes, files) {
     return true;
   }
   const invalidFile = Array.from(files)
-    .some((file) => !matchMediaType(file.type, acceptedMediaTypes));
+    .some((file) => !matchMediaType(file, acceptedMediaTypes));
   return !invalidFile;
 }
 
@@ -89,7 +92,9 @@ function fileValidation(input, files) {
   const minItems = (parseInt(input.dataset.minItems, 10) || 1);
   const maxItems = (parseInt(input.dataset.maxItems, 10) || -1);
   const fileSize = `${input.dataset.maxFileSize || '2MB'}`;
-  const isRequired = input.hasAttribute('required') || input.closest('.field-wrapper')?.dataset?.required !== undefined;
+  // dataset.required is the string "true"/"false" — any value used to count as
+  // required, so removing a file from an optional upload flagged it invalid
+  const isRequired = input.hasAttribute('required') || input.closest('.field-wrapper')?.dataset?.required === 'true';
   let constraint = '';
   let errorMessage = '';
   const wrapper = input.closest('.field-wrapper');
@@ -137,7 +142,20 @@ function updateButtonIndex(elements = []) {
   });
 }
 
+// Mirror the attached files (browsed, dropped or pasted) into the real input,
+// so input.files is what submit.js sends and what the form validates.
+function syncInputFiles(input, files) {
+  try {
+    const dataTransfer = new DataTransfer();
+    files.forEach((file) => { if (file instanceof File) dataTransfer.items.add(file); });
+    input.files = dataTransfer.files;
+  } catch (e) {
+    // very old browsers: no DataTransfer constructor — dropped files can't be mirrored
+  }
+}
+
 function dispatchChangeEvent(input, files) {
+  syncInputFiles(input, files);
   if (!files.length) {
     input.value = null;
   }
@@ -261,6 +279,8 @@ export default async function decorate(fieldDiv, field, htmlForm) {
   fieldDiv.classList.add('decorated');
   const fileListElement = document.createElement('div');
   fileListElement.classList.add('files-list');
+  // announce attached / removed files
+  fileListElement.setAttribute('aria-live', 'polite');
   const attachButton = dragArea.querySelector('.file-attach-button');
   attachButton.addEventListener('click', () => input.click());
   const fileHandler = createFileHandler(allFiles, input);
@@ -289,6 +309,8 @@ export default async function decorate(fieldDiv, field, htmlForm) {
   fileListElement.addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON') {
       fileHandler.removeFile(e.target?.parentElement?.dataset?.index || 0);
+      // the focused remove button is gone — return focus to the picker
+      attachButton.focus();
     } else if (e.target.tagName === 'SPAN') {
       fileHandler.previewFile(e.target?.parentElement?.dataset?.index || 0);
     }

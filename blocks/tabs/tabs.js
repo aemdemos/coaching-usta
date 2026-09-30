@@ -96,6 +96,14 @@ function decorateNav(block, rows) {
   block.prepend(tablist);
 }
 
+// Tab label content without the authored <p> wrapper (a <p> is not valid
+// inside a <button>).
+function getLabelNodes(tab) {
+  const only = tab.children.length === 1 && tab.firstElementChild.tagName === 'P'
+    ? tab.firstElementChild : tab;
+  return [...only.childNodes];
+}
+
 export default async function decorate(block) {
   const rows = [...block.children];
 
@@ -115,47 +123,84 @@ export default async function decorate(block) {
   // decorate tabs and tabpanels
   const tabs = rows.map((child) => child.firstElementChild);
   const ids = tabs.map((tab) => toClassName(tab.textContent));
-  const hashTab = getHashTab();
-  const selected = Math.max(0, ids.findIndex((id) => id.replace(/-/g, '') === hashTab));
+  const buttons = [];
+  const panels = [];
+
+  // WAI-ARIA tabs: only the selected tab is in the tab order (roving tabindex).
+  const select = (index, { focus = false, updateHash = false } = {}) => {
+    buttons.forEach((button, i) => {
+      const isSelected = i === index;
+      button.setAttribute('aria-selected', isSelected);
+      button.tabIndex = isSelected ? 0 : -1;
+      panels[i].setAttribute('aria-hidden', !isSelected);
+    });
+    if (focus) buttons[index].focus();
+    // same deep-link format as the source site; replaceState = no jump, no history spam
+    if (updateHash) {
+      window.history.replaceState(null, '', `#tab=${ids[index].replace(/-/g, '')}`);
+    }
+  };
+  const findHashTab = () => {
+    const hashTab = getHashTab();
+    return hashTab ? ids.findIndex((id) => id.replace(/-/g, '') === hashTab) : -1;
+  };
+
   const formLoads = [];
   tabs.forEach((tab, i) => {
     const id = ids[i];
-    const isSelected = i === selected;
 
     // decorate tabpanel
     const tabpanel = block.children[i];
     tabpanel.className = 'tabs-panel';
     tabpanel.id = `tabpanel-${id}`;
-    tabpanel.setAttribute('aria-hidden', !isSelected);
     tabpanel.setAttribute('aria-labelledby', `tab-${id}`);
     tabpanel.setAttribute('role', 'tabpanel');
+    panels.push(tabpanel);
 
     // build tab button
     const button = document.createElement('button');
     button.className = 'tabs-tab';
     button.id = `tab-${id}`;
-    button.innerHTML = tab.innerHTML;
+    button.append(...getLabelNodes(tab));
     button.setAttribute('aria-controls', `tabpanel-${id}`);
-    button.setAttribute('aria-selected', isSelected);
     button.setAttribute('role', 'tab');
     button.setAttribute('type', 'button');
-    button.addEventListener('click', () => {
-      block.querySelectorAll('[role=tabpanel]').forEach((panel) => {
-        panel.setAttribute('aria-hidden', true);
-      });
-      tablist.querySelectorAll('button').forEach((btn) => {
-        btn.setAttribute('aria-selected', false);
-      });
-      tabpanel.setAttribute('aria-hidden', false);
-      button.setAttribute('aria-selected', true);
-    });
+    button.addEventListener('click', () => select(i, { updateHash: true }));
+    buttons.push(button);
     tablist.append(button);
     tab.remove();
 
     const formLoad = decorateFormPanel(block, tabpanel);
     if (formLoad) formLoads.push(formLoad);
+    // a panel with no focusable content must itself be reachable (APG)
+    else if (!tabpanel.querySelector('a[href], button, input, select, textarea, [tabindex]')) {
+      tabpanel.tabIndex = 0;
+    }
   });
 
+  // Arrow keys move + activate (automatic activation, as on the source); Home/End jump.
+  tablist.addEventListener('keydown', (event) => {
+    const current = buttons.indexOf(document.activeElement);
+    if (current < 0) return;
+    const last = buttons.length - 1;
+    const next = {
+      ArrowRight: current === last ? 0 : current + 1,
+      ArrowLeft: current === 0 ? last : current - 1,
+      Home: 0,
+      End: last,
+    }[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    select(next, { focus: true, updateHash: true });
+  });
+
+  // back/forward or an in-page "#tab=…" link switches tabs too
+  window.addEventListener('hashchange', () => {
+    const index = findHashTab();
+    if (index >= 0) select(index);
+  });
+
+  select(Math.max(0, findHashTab()));
   block.prepend(tablist);
   await Promise.all(formLoads);
 }

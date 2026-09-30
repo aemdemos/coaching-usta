@@ -36,7 +36,7 @@
 
   /* Source pill is 56px tall: line-height 18px + 19px vertical padding. */
   padding: 19px 20px;
-  background-color: #2d2d2d;
+  background-color: var(--usta-dark-panel);
   color: #fff;
 
   /* Graphik Regular only ships 400/700, so weight 900 silently caps at 700 and
@@ -66,22 +66,27 @@
   text-align: left;
 }
 
-.tabs .tabs-list button p {
-  margin: 0;
-}
-
 .tabs .tabs-list button:hover,
 .tabs .tabs-list a.tabs-tab:hover {
-  background-color: #cfff05;
+  background-color: var(--usta-lime);
   color: #000;
 }
 
 .tabs .tabs-list button[aria-selected='true'],
 .tabs .tabs-list a.tabs-tab[aria-selected='true'],
 .tabs .tabs-list a.tabs-tab[aria-current='page'] {
-  background-color: #cfff05;
+  background-color: var(--usta-lime);
   color: #000;
   cursor: default;
+}
+
+/* Keyboard focus (source): 2px dotted ring in the label colour plus a 2px
+   white halo, so it reads on the lime pill and on the dark track alike. */
+.tabs .tabs-list button:focus-visible,
+.tabs .tabs-list a.tabs-tab:focus-visible {
+  outline: 2px dotted currentcolor;
+  outline-offset: 0;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .tabs .tabs-panel {
@@ -99,7 +104,7 @@
   .tabs .tabs-list {
     gap: 16px;
     border-radius: 20px;
-    background-color: #2d2d2d;
+    background-color: var(--usta-dark-panel);
     overflow-x: visible;
   }
 

@@ -169,6 +169,12 @@ export default class DocBasedFormToAF {
     'Min Error Message': 'constraintMessages.min',
     'Max Error Message': 'constraintMessages.max',
     'Custom Type': ':type',
+    // HTML autocomplete token (given-name, email, postal-code…) — WCAG 1.3.5
+    Autocomplete: 'autoComplete',
+    // inputmode hint for the on-screen keyboard (numeric, tel, email…)
+    'Input Mode': 'inputMode',
+    // Type "heading" rows: 2–6 (default 2)
+    'Heading Level': 'headingLevel',
   };
 
   /**
@@ -259,6 +265,11 @@ export default class DocBasedFormToAF {
             formDef.redirectUrl = submitValue;
           } else if (submitValue) {
             formDef.thankYouMsg = submitValue;
+          }
+          // submit row Description = submission-failure message (not rendered as help text)
+          if (field.description) {
+            formDef.errorMsg = field.description;
+            delete field.description;
           }
         }
 
