@@ -46,7 +46,9 @@ main .form.application.block {
   --application-success-bg: #e6f4ea;
   --application-font: "Open Sans", "Open Sans Fallback", "Helvetica Neue", arial, sans-serif;
 
-  /* The embed frame: navy card inside the source iframe's 2px inset border */
+  /* The embed frame: navy card inside the source iframe's 2px inset border
+     (positioned: hosts the reCAPTCHA badge in its bottom-right corner) */
+  position: relative;
   box-sizing: border-box;
   padding: 40px;
   background-color: var(--application-bg);
@@ -79,10 +81,51 @@ main .form.application.block form .field-wrapper {
   color: var(--application-text);
 }
 
-/* reCAPTCHA v3 has no visible widget (Google renders its own badge) — keep the
-   boilerplate's hidden placeholder hidden despite the flex rule above. */
+/* reCAPTCHA badge (integrations/recaptcha.js): hosted INSIDE the card, at its
+   bottom-right corner, 14px up — where the source's badge sits in its embed
+   (and clear of the site's chat launcher, which owns the viewport corner).
+   Collapsed to the 70px logo; slides open to 256px on hover/focus (0.3s),
+   like Google's floating badge. Hidden until a site key renders it. */
 main .form.application.block form .field-wrapper.captcha-wrapper {
+  --captcha-badge: inline;
+
   display: none;
+}
+
+main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready {
+  display: block;
+  position: absolute;
+  right: 0;
+  bottom: 14px;
+  width: 70px;
+  height: 60px;
+  margin: 0;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgb(128 128 128);
+  transition: width 0.3s;
+}
+
+/* Google's inline badge has its logo on the RIGHT: pin the badge's right edge
+   so the collapsed host shows the logo and the text slides out leftwards */
+main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready:is(:hover, :focus-within) {
+  width: 256px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready {
+    transition: none;
+  }
+}
+
+/* room for the badge under Submit in the compact card (40px bottom padding) */
+main .form.application.block:has(.captcha-ready) {
+  padding-bottom: 94px;
 }
 
 /* Text: plain-text rows, and the title / section subheadings — Type
@@ -282,6 +325,32 @@ main .form.application.block form .field-wrapper.field-invalid > .field-descript
   line-height: 15px;
 }
 
+/* Grouped fields (Name, Address): ONE pill for the group, full width, 20px
+   under the legend and 7px above the inputs (source) — the first invalid
+   sub-field's message. Sub-field messages stay for screen readers only. */
+main .form.application.block form fieldset.panel-wrapper > .panel-error {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  grid-column: 1 / -1;
+  margin: 0 0 -13px;
+  padding: 7px 12px;
+  border: 1px solid var(--application-error);
+  border-radius: 3px;
+  background-color: var(--application-error-bg);
+  color: var(--application-bg);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 15px;
+}
+
+main .form.application.block form fieldset.panel-wrapper > .panel-error::before {
+  content: "";
+  flex: 0 0 12px;
+  height: 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23ff3c3c'/%3E%3Cpath d='M7 3.5h2v6H7zM7 11h2v2H7z' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 main .form.application.block form .field-wrapper.field-invalid > .field-description::before {
   content: "";
   flex: 0 0 12px;
@@ -291,6 +360,19 @@ main .form.application.block form .field-wrapper.field-invalid > .field-descript
 
 main .form.application.block form .field-wrapper:not(.field-invalid):focus-within > .field-description {
   opacity: 1;
+}
+
+/* grouped sub-fields: the group pill (.panel-error) is the visual message */
+main .form.application.block form fieldset.panel-wrapper > .field-wrapper.field-invalid > .field-description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 main .form.application.block .field-invalid > input:is([type="text"], [type="email"], [type="tel"], [type="date"]),
@@ -606,7 +688,8 @@ main .form.application.block .form-message:focus {
    gains Formstack's wide-layout offsets: 120px above the title (40 wrapper +
    40 form margin + 40 form padding) and 80px at the sides. */
 @media (width >= 1024px) {
-  main .form.application.block {
+  main .form.application.block,
+  main .form.application.block:has(.captcha-ready) {
     padding: 120px 80px;
   }
 

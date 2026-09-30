@@ -343,13 +343,25 @@ function enableValidation(form) {
     });
   });
 
-  form.addEventListener('change', (event) => {
-    checkValidation(event.target);
+  const revalidate = (field) => {
+    checkValidation(field);
     // all fields fixed → the "please correct the highlighted fields" summary is stale
     if (!form.querySelector('.field-invalid')) {
       form.querySelector(':scope > .error-summary')?.remove();
     }
+  };
+
+  // Opt-in (form.dataset.validateOn = "blur", set for the application variant):
+  // validate as soon as a field is left, even untouched — the source's
+  // behaviour ("Required field" appears when you tab past an empty field).
+  form.addEventListener('focusout', (event) => {
+    const { target } = event;
+    if (form.dataset.validateOn === 'blur' && target.matches?.('input:not([type="file"]), select, textarea')) {
+      revalidate(target);
+    }
   });
+
+  form.addEventListener('change', (event) => revalidate(event.target));
 }
 
 function isDocumentBasedForm(formDef) {
@@ -429,7 +441,7 @@ export async function createForm(formDef, data, source = 'aem') {
     const response = await createForm(formDef, undefined, currentSource);
     if (response?.form) {
       // keep setupForm()'s settings (thank-you / error / redirect / id) on the new form
-      ['redirectUrl', 'thankYouMsg', 'errorMsg', 'id', 'rules']
+      ['redirectUrl', 'thankYouMsg', 'errorMsg', 'id', 'rules', 'validateOn']
         .filter((key) => key in form.dataset)
         .forEach((key) => { response.form.dataset[key] = form.dataset[key]; });
       document.querySelector(`[data-action="${form?.dataset?.action}"]`)?.replaceWith(response?.form);
@@ -659,6 +671,8 @@ export default async function decorate(block) {
       block,
       editMode: block.classList.contains('edit-mode'),
     }));
+    // Formstack-style forms validate each field on blur (see enableValidation)
+    if (block.classList.contains('application')) form.dataset.validateOn = 'blur';
     await variantStyles;
     container.replaceWith(form);
   }

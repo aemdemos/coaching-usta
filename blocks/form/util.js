@@ -206,6 +206,34 @@ function setDescribedBy(control, id, add) {
 }
 
 /**
+ * Grouped fields (a Fieldset panel such as Name or Address) get ONE group-level
+ * message — the first invalid sub-field's — as on the source (Formstack shows a
+ * single pill above the group). Presentational only (aria-hidden): each
+ * sub-field keeps its own linked message for assistive tech. Hidden unless a
+ * form theme shows it (application.css).
+ * @param {HTMLElement} panel fieldset.panel-wrapper
+ */
+function updatePanelError(panel) {
+  const firstInvalid = [...panel.querySelectorAll(':scope > .field-wrapper.field-invalid')][0];
+  let banner = panel.querySelector(':scope > .panel-error');
+  if (!firstInvalid) {
+    banner?.remove();
+    panel.classList.remove('panel-invalid');
+    return;
+  }
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.className = 'panel-error';
+    banner.setAttribute('aria-hidden', 'true');
+    const legend = panel.querySelector(':scope > legend');
+    if (legend) legend.after(banner);
+    else panel.prepend(banner);
+  }
+  banner.textContent = firstInvalid.querySelector(':scope > .field-description')?.textContent || '';
+  panel.classList.add('panel-invalid');
+}
+
+/**
  * Shows (msg) or clears ('') a field's inline error. The message element is
  * linked to its control(s) via aria-describedby and the control is flagged
  * aria-invalid, so screen readers announce the error on focus. Help text
@@ -235,6 +263,9 @@ export function updateOrCreateInvalidMsg(fieldElement, msg) {
       controls.forEach((control) => setDescribedBy(control, element.id, false));
       element.remove();
     }
+  }
+  if (container.parentElement?.matches('fieldset.panel-wrapper')) {
+    updatePanelError(container.parentElement);
   }
   return element;
 }

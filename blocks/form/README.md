@@ -34,8 +34,16 @@ Per-form styling lives in its own scoped CSS file: `subscribe.css` is imported b
   Also rendered inside "Tabs (application)": a tab panel holding only a `/forms/*.json` link
   becomes a form, and the tabs variant is passed on.
 
-Type `captcha` rows render reCAPTCHA v3: put the site key in the row's Value. Without a key
-the captcha is skipped quietly (console warning, no token sent).
+Type `captcha` rows render reCAPTCHA (v3 / Enterprise score key, explicit render — one script
+per page): put the site key in the row's Value. Without a key the captcha is skipped quietly
+(console warning, no token sent). Badge placement is chosen by the form theme: a captcha wrapper
+with `--captcha-badge: inline` (application.css) hosts the badge inside the form — for
+`application`, at the card's bottom-right corner, collapsed to the logo and sliding open on
+hover like the source embed; otherwise Google's fixed bottom-right badge is used.
+
+The `application` variant validates each field on blur (`form.dataset.validateOn = "blur"`,
+source behaviour) and shows one error pill per grouped field (Name, Address) — `.panel-error`,
+hidden on other forms.
 
 ## Submission contract (for the backend)
 

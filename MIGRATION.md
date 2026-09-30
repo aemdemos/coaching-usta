@@ -2959,3 +2959,27 @@ submission without further UI work. Hand-off contract: `blocks/form/README.md` �
 lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (360–1920, run in the preview browser — the checker's headless
 shell isn't installed here) · typography ✓ (page h1/body vs record) · a11y ✓ (axe-core in the preview:
 0 violations default / errors+file / 2nd tab) · svg n/a
+
+### 2026-09-30 — form (application): blur validation, group error pills, inline reCAPTCHA badge
+User feedback: "Required field" alerts missing in both tabs; captcha missing bottom-right.
+- **Blur validation** (source): Formstack shows "Required field" as soon as an empty required field is LEFT;
+  the engine only validated on change/submit. `enableValidation` now also revalidates on `focusout` when
+  `form.dataset.validateOn === "blur"` — set by form.js for `.form.application` blocks only (subscribe
+  etc. unchanged); kept across the post-success reset re-render.
+- **One pill per group** (source): Name / Address show a single pill between legend and inputs with the
+  FIRST invalid sub-field's message. util.js `updatePanelError` maintains an aria-hidden `.panel-error`
+  (form.css hides it by default); application.css shows it (measured == source: 20px under the legend,
+  7px above the inputs, full 720px width, 31px tall) and visually hides the per-sub-field pills (still
+  linked via aria-describedby for screen readers). Sub-field inputs keep their red border + icon.
+- **reCAPTCHA badge**: never rendered — no site key in the sheet (Formstack's key is domain-bound; the
+  real key must be registered for our domains and entered in the captcha row Value). recaptcha.js
+  rewritten to explicit render (`api.js?render=explicit`, one script per page — it was loaded once per
+  form) with the badge placement chosen by the theme: `--captcha-badge: inline` on the captcha wrapper
+  (application.css) renders Google's inline badge inside the card, bottom-right, 14px up — where the
+  source badge sits in its embed, and clear of the site chat launcher in the viewport corner. Collapsed
+  to the 70px logo (inline badge has its logo on the RIGHT → badge pinned right), 256px on hover/focus,
+  0.3s (reduced-motion: none). Compact card gets 94px bottom padding only once the badge renders.
+  Verified with Google's public test key in the browser only (never saved): renders, slides, returns a
+  token. **Explicit render + execute(widgetId) must be re-checked with the production v3 key.**
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (360/768/1024/1440, preview browser) · a11y ✓ (axe: 0 on both
+tabs with blur/submit errors) · subscribe form unaffected

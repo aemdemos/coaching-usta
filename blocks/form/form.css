@@ -599,6 +599,12 @@ main .form .form-message.error-message {
     padding: 10px;
 }
 
+/* Group-level error (util.js updatePanelError): only shown by form themes
+   that want Formstack-style one-pill-per-group (application.css). */
+main .form .panel-error {
+    display: none;
+}
+
 /* Invalid-submit summary (submit.js, role="alert"): announced to screen
    readers on every form, but only shown where a form theme styles it
    (application.css) — the inline field errors are the visual cue elsewhere. */
