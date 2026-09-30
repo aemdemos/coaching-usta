@@ -612,7 +612,8 @@ main > .section.bordered > div {
    Sits on the shared site container (1536 cap, gutters 16/40/48/64) and splits
    it on the 12-col grid with the source's 24px column gap (12px padding per
    AEM grid column): cols 1–6 | 7–12 from 768; stacked below. Content starts 36px
-   below the header (24px container offset + 12px column padding on the source).
+   below the header (24px container offset + 12px column padding on the source)
+   and ends 12px below the last element (the column's bottom padding).
    Measured right-column content: 396/332 @768 · 524/452 @1024 · 652/564 @1280 ·
    732/644 @1440 · 972/692 @1920. */
 main > .section.split {
@@ -626,7 +627,7 @@ main > .section.split {
   width: 100%;
   max-width: 1536px;
   margin-inline: auto;
-  padding: 36px 16px 48px;
+  padding: 36px 16px 12px;
 }
 
 /* the section owns the gutter: its wrappers are plain grid cells (no second
@@ -640,10 +641,15 @@ main > .section.split > div {
   box-shadow: none;
 }
 
-/* both columns start on the same line: drop the top margin of a block's first
-   element (e.g. the <p> a form block renders into) */
+/* both columns start on the same line (and the section ends flush with its
+   content): drop the outer margins of the element a block renders into (e.g.
+   the <p> a form block renders into) */
 main > .section.split > div > .block > div > div > :first-child {
   margin-top: 0;
+}
+
+main > .section.split > div > .block > div > div > :last-child {
+  margin-bottom: 0;
 }
 
 /* Intro column type — the source's page-level text utilities on this layout

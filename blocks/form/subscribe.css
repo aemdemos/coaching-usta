@@ -64,20 +64,10 @@ main .section.form-container:not(.split) div.form-wrapper {
    form band is its own full-width container. */
 @media (width >= 1280px) {
   main .section.form-container:not(.split) {
-    padding: 0 52px;
-  }
-
-  /* Match the source's form content column exactly: it's a near-full-bleed band
-     whose content column measures 1216px (vs our default 1200) starting ~8px
-     further out — that extra width is what lets the coach-type row breathe. Bump
-     the wrapper to 1216 with no inner padding to reproduce it. */
-  main .section.form-container:not(.split) div.form-wrapper {
-    max-width: 1216px;
-  main .section.form-container {
     padding: 0 112px;
   }
 
-  main .section.form-container div.form-wrapper {
+  main .section.form-container:not(.split) div.form-wrapper {
     max-width: none;
     padding: 0;
   }
@@ -339,37 +329,6 @@ main .section.form-container:not(.split) div.form-wrapper {
   border: 2px solid #000;
 }
 
-/* Submit feedback (submit.js) — shared by every form on the site's black page,
-   replacing the boilerplate's light Bootstrap alert fills. Success is inserted
-   BEFORE the <form> (so it carries its own bottom spacing); the error is
-   prepended INSIDE the form grid, whose 24px row gap spaces it. White copy on
-   black with a lime (success) / error-red (error) 1px outline, 12px radius to
-   match the pill buttons. submit.js scrollIntoView()s the message — the
-   scroll-margin keeps it clear of the fixed header (header.css height token). */
-main .form.block .form-message.success-message,
-main .form.block .form-message.error-message {
-  box-sizing: border-box;
-  margin: 0;
-  scroll-margin-top: calc(var(--usta-header-height, 90px) + 16px);
-  padding: 16px 24px;
-  border: 1px solid var(--usta-lime);
-  border-radius: 12px;
-  background-color: #000;
-  color: var(--text-color);
-  font-family: var(--body-font-family);
-  font-size: 16px;
-  line-height: 1.2;
-  letter-spacing: normal;
-}
-
-main .form.block .form-message.success-message {
-  margin-bottom: 24px;
-}
-
-main .form.block .form-message.error-message {
-  border-color: var(--form-error-color);
-}
-
 /* Tablet (>=768) typography + layout (source): heading 40px, legend 16px,
    checkbox labels 18px, legal 18px, submit 18px/-0.54px + compact width; the
    coach-type options flow multiple-per-row (single-column stacking is mobile-only). */
@@ -388,12 +347,6 @@ main .form.block .form-message.error-message {
     font-size: 18px;
   }
 
-  main .form.block .form-message.success-message,
-  main .form.block .form-message.error-message {
-    font-size: 18px;
-  }
-
-  main .form.block .checkbox-group-wrapper {
   /* Source: 16px gap both ways, wrapping — with the band now at the source's
      width the row breaks exactly where the source's does (5+1 @1440, all six
      on one line from ~1536 up). */

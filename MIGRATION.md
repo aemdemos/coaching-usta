@@ -2940,7 +2940,7 @@ checkbox**. Measured Pro-Plus live and built against it (test sheet served via a
   flipping the imports: 0 computed-style diffs across 18 states; negative control (old selectors) reproduces both bugs.
   NOTE: subscribe.css's "generic" input/checkbox/button rules are the de-facto **shared dark form theme** —
   `lead-interests` (no Style classes) depends on them — so they were NOT scoped to subscribe-* classes.
-- **Branded submit feedback** (subscribe.css, shared — every form is on black): success/error `.form-message` = white
+- **Branded submit feedback** (now in gallagher-disclaimer.css, scoped to this form — see 2026-09-30 cleanup): success/error `.form-message` = white
   Graphik Regular 16→18 (>=768)/1.2 on black, 1px lime (success) / `--form-error-color` (error) outline, 12px radius,
   16/24 pad; success gets 24px below (it's inserted before the <form>). `scroll-margin-top:
   calc(var(--usta-header-height) + 16px)` — submit.js scrollIntoView() previously parked the error UNDER the fixed header.
@@ -2951,3 +2951,28 @@ error, success, disabled; 390+1440): 0 violations. lint 0 errors · breakpoint �
 full-page a11y fails only on the pre-existing footer `/forms/subscribe.json` link.
 - **Found, pre-existing:** `check:typography` fails on this page (10 drifts: split-intro h1/p) at HEAD too — the
   `scopedExceptions` entry the 09-28 entry describes was never committed (absent from typography.json and the checker).
+
+### 2026-09-30 — Gallagher form: PR cleanup after merging `main` (PR #41 footer subscribe form)
+Scope: the disclaimer form only. The footer "GET ON THE LIST." form (PR #41) is **intentional — not touched**.
+- **Broken merge fixed (Gotcha):** merge commit `af9c66e` (main → this branch) mis-resolved two `subscribe.css`
+  hunks — the >=1280 `.form-container` rules were interleaved with a missing `}`, and a dangling
+  `main .form.block .checkbox-group-wrapper {` opened a rule inside the >=768 block. Browsers stopped parsing after
+  ~6 rules, silently dropping the whole shared form theme (grid collapsed to 0px columns → 768 overflow, 20px row
+  gap, +5px under Submit). Resolved to PR #41's values + this branch's `:not(.split)` guard. `subscribe.css` now
+  differs from `main` ONLY by the 7 `:not(.split)` guards (main-scoped; keep the form-container band rules off the
+  split layout — they don't reach the footer). Lesson: after any merge touching CSS, run `npx stylelint` — a
+  `CssSyntaxError: Unclosed block` is otherwise invisible in the browser.
+- **Branded success/error messages moved** out of subscribe.css (they also restyled the footer form) into
+  gallagher-disclaimer.css, scoped `main .form.block:has(.gallagher-submit) .form-message`.
+- **PR #41's `:is(main, .footer-form) … .field-wrapper { margin: 0 8px }`** (measured for the subscribe form) now
+  reaches every form; Gallagher fields reset it to 0 (incl. the accordion's nested item fieldsets).
+- **split section bottom:** padding-bottom 48 → 12px (source column padding) and the block's wrapping `<p>` loses
+  its bottom margin → Submit→section end = 12px == source at every breakpoint.
+- Code tidy: accordion.js unused export `handleAccordionNavigation(…, forceOpen)` → local `toggleItem`; dropped
+  duplicate declarations in gallagher-disclaimer.css (legal margin, link-hover colour, `:disabled:hover`).
+- A `footer.js` "skip footer form when the page has its own form" change was tried and **reverted** (footer form is
+  intentional sitewide). The Gallagher page therefore shows it — by product decision, not a parity bug.
+Verified: Rally vs source 390/768/1024/1280/1440/1920 closed+open MATCH (incl. Submit→section end 12px); Pro-Plus
+test vs source 390–1440 MATCH; states (legal on lime, Submit hover/disabled, link hover) correct; footer form
+messages unaffected. lint 0 errors · breakpoint ✓ · overflow ✓ · a11y ✓ (full page now passes — the footer form
+renders instead of a raw link) · typography: 10 pre-existing split-intro drifts (scopedExceptions never committed).

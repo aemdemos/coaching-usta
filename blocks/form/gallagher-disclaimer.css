@@ -8,11 +8,18 @@
    rules in subscribe.css (compound `.gallagher-*.field-wrapper` etc.) so the
    result doesn't depend on @import order in form.css. */
 
+/* Every Gallagher field sits flush on the form column (source) — cancel the
+   shared 8px side inset subscribe.css gives `.field-wrapper` (measured for the
+   subscribe form), incl. the accordion's nested item fieldsets. */
+main .form.block form .field-wrapper:is(.gallagher-disclaimers, .gallagher-copy, .gallagher-optin, .gallagher-submit),
+main .form.block form .gallagher-disclaimers .field-wrapper {
+  margin: 0;
+}
+
 /* Disclaimer list inside the accordion item (Style: gallagher-legal).
    Graphik Regular 18/24 at every viewport; inherits the card colour (white on
    black closed, black on lime open) instead of the form's white label colour. */
 main .form.block form .gallagher-legal.field-wrapper {
-  margin: 0;
   color: inherit;
 }
 
@@ -50,9 +57,9 @@ main .form.block .gallagher-copy a {
   text-decoration: underline;
 }
 
-/* source hover: stays white, underline drops (.cmp-text--colored a) */
+/* source hover: stays white (the rule above out-ranks the global lime
+   a:hover), underline drops (.cmp-text--colored a) */
 main .form.block .gallagher-copy a:hover {
-  color: var(--text-color);
   text-decoration: none;
 }
 
@@ -89,9 +96,9 @@ main .form.block .gallagher-submit.button-wrapper button.button:hover {
 }
 
 /* Disabled (in-flight submit; source also disables it while the opt-in is
-   unchecked): the source's grey pill, no hover change. */
-main .form.block .gallagher-submit.button-wrapper button.button:disabled,
-main .form.block .gallagher-submit.button-wrapper button.button:disabled:hover {
+   unchecked): the source's grey pill. Same specificity as :hover and later, so
+   it also wins while hovered — no hover change. */
+main .form.block .gallagher-submit.button-wrapper button.button:disabled {
   background-color: #bdbdb9;
   color: #4c4c4c;
   border-color: #000;
@@ -149,10 +156,44 @@ main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"]:focus-
   outline-offset: 2px;
 }
 
+/* Submit feedback (submit.js) for this form only — replaces the boilerplate's
+   light Bootstrap alert fills. Success is inserted BEFORE the <form> (so it
+   carries its own bottom spacing); the error is prepended INSIDE the form
+   grid, whose 24px row gap spaces it. White copy on black, 1px lime (success) /
+   error-red (error) outline, 12px radius like the pill. submit.js
+   scrollIntoView()s the message — scroll-margin keeps it clear of the fixed
+   header (header.css height token). */
+main .form.block:has(.gallagher-submit) .form-message {
+  box-sizing: border-box;
+  margin: 0;
+  scroll-margin-top: calc(var(--usta-header-height, 90px) + 16px);
+  padding: 16px 24px;
+  border: 1px solid var(--usta-lime);
+  border-radius: 12px;
+  background-color: #000;
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+main .form.block:has(.gallagher-submit) .form-message.success-message {
+  margin-bottom: 24px;
+}
+
+main .form.block:has(.gallagher-submit) .form-message.error-message {
+  border-color: var(--form-error-color);
+}
+
 @media (width >= 768px) {
   main .form.block .gallagher-submit button.button {
     padding: 16px 48px;
     font-size: 24px;
+  }
+
+  main .form.block:has(.gallagher-submit) .form-message {
+    font-size: 18px;
   }
 }
 

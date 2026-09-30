@@ -16,8 +16,8 @@ function setExpanded(tab, expanded) {
   if (content) content.hidden = !expanded;
 }
 
-export function handleAccordionNavigation(panel, tab, forceOpen = false) {
-  const open = forceOpen || tab.classList.contains('accordion-collapse');
+function toggleItem(panel, tab) {
+  const open = tab.classList.contains('accordion-collapse');
   panel.querySelectorAll(':scope > fieldset').forEach((otherTab) => {
     if (otherTab !== tab) setExpanded(otherTab, false);
   });
@@ -51,7 +51,7 @@ export default function decorate(panel) {
     button.append(title, icon);
     legend.replaceChildren(button);
 
-    button.addEventListener('click', () => handleAccordionNavigation(panel, tab));
+    button.addEventListener('click', () => toggleItem(panel, tab));
     setExpanded(tab, false);
   });
   return panel;
