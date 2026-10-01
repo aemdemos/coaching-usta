@@ -27,13 +27,13 @@ main .section.form-container div.form-wrapper {
    The boilerplate `main .form-container` (0 10px) + `main div.form-wrapper`
    (40px card) break this, so re-assert both layers here.
    Reproduces sibling content-left: 40 @390 · 64 @768 · 80 @1024 · 120 @1440. */
-main .section.form-container {
+main .section.form-container:not(.split) {
   max-width: 1536px;
   margin-inline: auto;
   padding: 0 16px;
 }
 
-main .section.form-container div.form-wrapper {
+main .section.form-container:not(.split) div.form-wrapper {
   max-width: 1200px;
   margin-inline: auto;
   padding: 0 24px;
@@ -42,17 +42,17 @@ main .section.form-container div.form-wrapper {
 }
 
 @media (width >= 768px) {
-  main .section.form-container {
+  main .section.form-container:not(.split) {
     padding: 0 40px;
   }
 }
 
 @media (width >= 1024px) {
-  main .section.form-container {
+  main .section.form-container:not(.split) {
     padding: 0 48px;
   }
 
-  main .section.form-container div.form-wrapper {
+  main .section.form-container:not(.split) div.form-wrapper {
     padding: 0 32px;
   }
 }
@@ -63,11 +63,11 @@ main .section.form-container div.form-wrapper {
    This is wider than the sibling-section content box — deliberate, the source
    form band is its own full-width container. */
 @media (width >= 1280px) {
-  main .section.form-container {
+  main .section.form-container:not(.split) {
     padding: 0 112px;
   }
 
-  main .section.form-container div.form-wrapper {
+  main .section.form-container:not(.split) div.form-wrapper {
     max-width: none;
     padding: 0;
   }

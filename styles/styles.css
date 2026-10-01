@@ -604,3 +604,111 @@ main > .section.bordered > div {
     max-width: calc(1536px - 128px);
   }
 }
+
+/* Split section (style: split): default content and/or blocks 50/50 from 768, in authored order (1st left, 2nd right); stacked below */
+main > .section.split {
+  --grid-gap: 24px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--grid-gap);
+  align-items: start;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 36px 16px 12px;
+}
+
+/* the section owns the gutter: its wrappers are plain grid cells; :not(#split-cell) out-ranks blocks' own section-wrapper gutters */
+main > .section.split > div:not(#split-cell) {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* both columns start on the same line and end flush: drop the cells' outer margins */
+main > .section.split > .default-content-wrapper > :first-child,
+main > .section.split > div > .block > div > div > :first-child {
+  margin-top: 0;
+}
+
+main > .section.split > div > .block > div > div > :last-child {
+  margin-bottom: 0;
+}
+
+/* keep every block inside its column, incl. blocks that size themselves from the viewport (e.g. quote) */
+main > .section.split > div > .block {
+  max-width: 100%;
+}
+
+@media (width >= 768px) {
+  main > .section.split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-inline: 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.split {
+    padding-inline: 48px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.split {
+    padding-inline: 64px;
+  }
+}
+
+/* Intro text (style: intro-text): the source's page-level intro type, not the global h1/body scale */
+main > .section.intro-text > .default-content-wrapper h1 {
+  margin: 0 0 24px;
+  font-size: 32px;
+  line-height: 1;
+  text-align: center;
+}
+
+main > .section.intro-text > .default-content-wrapper p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+/* source bold = synthesized bold of Graphik Regular (see fonts.css) */
+main > .section.intro-text > .default-content-wrapper strong {
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+}
+
+/* one blank line between and after paragraphs (source empty <p>) */
+main > .section.intro-text > .default-content-wrapper p + p {
+  margin-top: 1.2em;
+}
+
+main > .section.intro-text > .default-content-wrapper p:last-child {
+  margin-bottom: 1.2em;
+}
+
+@media (width >= 1024px) {
+  main > .section.intro-text > .default-content-wrapper h1 {
+    font-size: 40px;
+  }
+
+  main > .section.intro-text > .default-content-wrapper p {
+    font-size: 18px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.intro-text > .default-content-wrapper h1 {
+    font-size: 64px;
+  }
+
+  main > .section.intro-text > .default-content-wrapper p {
+    font-size: 24px;
+  }
+}
