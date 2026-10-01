@@ -342,6 +342,15 @@ function enableValidation(form) {
   form.addEventListener('change', (event) => {
     checkValidation(event.target);
   });
+
+  // Formstack-style forms (those with an authored error-summary row) also check a
+  // field as soon as the user leaves it — `change` never fires when an empty
+  // field is left empty, so "Required field" would otherwise wait for submit.
+  if (form.querySelector('.form-error-summary')) {
+    form.addEventListener('focusout', (event) => {
+      if (event.target.matches('input, textarea, select')) checkValidation(event.target);
+    });
+  }
 }
 
 function isDocumentBasedForm(formDef) {
