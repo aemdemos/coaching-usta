@@ -421,3 +421,23 @@ main .form.block:has(.flag-profile-heading) .submit-wrapper button.button:focus-
   outline: 1px solid #0197ec;
   outline-offset: 0;
 }
+
+/* The source frame is a FIXED 675px iframe with the badge pinned to its bottom,
+   so each "Required field" banner (31px + 7px margin = 38px) pushes the button
+   38px closer to the badge: gap 94 → 56 → 18 (narrow) / 54 → 16 (wide). Mirror
+   that so the frame keeps 675px; stop at the last positive gap (the source then
+   overlaps the button) and let the frame grow from there. */
+main .form.block:has(.flag-profile-heading) form:has(.field-invalid) .submit-wrapper:has(+ .captcha-wrapper) button.button {
+  margin-bottom: 56px;
+}
+
+main .form.block:has(.flag-profile-heading) form:is(:has(.field-invalid ~ .field-invalid), :has(.form-error-summary.show)) .submit-wrapper:has(+ .captcha-wrapper) button.button {
+  margin-bottom: 18px;
+}
+
+@container (width >= 641px) {
+  main .form.block:has(.flag-profile-heading) form:has(.field-invalid) .submit-wrapper:has(+ .captcha-wrapper) button.button,
+  main .form.block:has(.flag-profile-heading) form:is(:has(.field-invalid ~ .field-invalid), :has(.form-error-summary.show)) .submit-wrapper:has(+ .captcha-wrapper) button.button {
+    margin-bottom: 16px;
+  }
+}
