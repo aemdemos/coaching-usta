@@ -15,7 +15,8 @@ Every form follows the same pattern:
 2. **Page** — a single-cell `form` block whose content is a link to the sheet
    (`/forms/<name>.json`). Drafts live under `/drafts/shivani/`. For the
    source's "intro left, form right" layout, put the heading + intro as default
-   content in the form's section and set section style `split` (styles.css).
+   content in the form's section and set section style `split, intro-text`
+   (styles.css: `split` = generic 50/50 layout, `intro-text` = the intro's type).
 3. **Styles** — `Style` values become classes on each field wrapper
    (`<form>-heading`, `<form>-submit`, …). Each form gets its own scoped CSS
    file (`subscribe.css`, `gallagher-disclaimer.css`) `@import`ed at the top of

@@ -2976,3 +2976,24 @@ Verified: Rally vs source 390/768/1024/1280/1440/1920 closed+open MATCH (incl. S
 test vs source 390–1440 MATCH; states (legal on lime, Submit hover/disabled, link hover) correct; footer form
 messages unaffected. lint 0 errors · breakpoint ✓ · overflow ✓ · a11y ✓ (full page now passes — the footer form
 renders instead of a raw link) · typography: 10 pre-existing split-intro drifts (scopedExceptions never committed).
+
+### 2026-10-01 — `split` section style made generic; intro type split out as `intro-text`
+`split` was hard-wired to "default content cols 1–6, block(s) cols 7–12" and carried the Gallagher intro type.
+(A `columns (form)` block variant was tried as an alternative and **reverted** — `split` covers it, one way only.)
+- **`split` (styles.css) = layout only:** any children — default content and/or blocks — on a 2-column 50/50
+  grid from 768 (24px gap = the same lines as the source's 6/6 spans), placed in **authored order** (1st left,
+  2nd right; more wrap to new rows); stacked below 768. Container: 1536 cap, gutters 16/40/48/64, padding 36/12
+  (the source grid's offset + 12px column padding). Cells' outer margins trimmed so columns top-align.
+  `max-width: 100%` on blocks in a split cell — some blocks size from the viewport (quote/cards/hero/course-filter
+  use vw) and otherwise overflow a half column (seen with quote: 72vw → +329px horizontal scroll).
+- **`intro-text` (styles.css), new section style:** the source's page-level intro type (h1 32/40/64 centred, copy
+  16/18/24 lh 1.2, synthetic bold via the `Graphik Regular Synth` alias, one blank line between/after paragraphs).
+  Independent of `split`.
+- **Authoring:** the Gallagher page's section-metadata Style must become **`split, intro-text`** (was `split`).
+  Until then it keeps the 50/50 layout but the intro uses the global h1/body scale.
+- **Gotcha — blocks that style their own section wrapper** (`main > .section.<block>-container > div`, 15 rules: accordion, banner, course-filter, hero, 11 columns variants) apply their page gutter + 1536 cap to EVERY wrapper in the section, so `accordion + quote` in a split came out 332/614px at 768 and overflowed. The split cell reset uses `div:not(#split-cell)` (ID weight, no `!important`) to out-rank them; verified 50/50 for accordion+quote, quote+accordion, text+accordion, accordion+text at 768–1920, stacked at 390, no overflow. Section-level rules (`hero (video)`, `spacer`) are not neutralised — don't put those in a split.
+- subscribe.css keeps its `:not(.split)` guards (a form block inside a split section still gets `form-container`).
+Verified on a temp standards-mode drafts/ page (deleted): Gallagher section vs source 390–1920 closed+open MATCH;
+block-left/text-right and two-blocks sections 50/50 at 768–1920, stacked at 390, no overflow at any width.
+lint 0 errors · breakpoint ✓ · overflow ✓ · a11y ✓ · typography: 10 drifts = the intentional `intro-text` sizes
+(check:typography has no exception mechanism — the `scopedExceptions` mentioned on 09-28 was never built).
