@@ -108,8 +108,12 @@ function createRadioOrCheckboxGroup(fd) {
   return wrapper;
 }
 
+// rich text with block-level markup (<p>, <ul>…) renders in a <div>: a <p> can't contain them
+const BLOCK_LEVEL_TAGS = /<(p|ul|ol|h[1-6]|hr)\b/i;
+
 function createPlainText(fd) {
-  const paragraph = document.createElement('p');
+  const hasBlockMarkup = fd.richText && BLOCK_LEVEL_TAGS.test(fd.value);
+  const paragraph = document.createElement(hasBlockMarkup ? 'div' : 'p');
   if (fd.richText) {
     paragraph.innerHTML = stripTags(fd.value);
   } else {

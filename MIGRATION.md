@@ -2854,3 +2854,146 @@ internal rhythm unchanged (quote→divider 16, divider→name 16, 12-line wrap, 
 height delta vs the live page is only because the source's full-page grid row is stretched by a taller
 sibling elsewhere — not reproducible (or meaningful) in the isolated block sample.
 lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y ✓
+
+### 2026-09-28 — form: Gallagher disclaimer consent form (+ form `accordion` component)
+Source: ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-rally.html — a consent gate: one
+collapsible "AJG GAIS Disclaimer" item (legal list), eligibility copy + coachcare@usta.com mailto, lime Submit.
+Follows the shared form pattern (see `blocks/form/README.md`): sheet **`/forms/gallagher-disclaimer.json`** →
+page **`/drafts/shivani/gallagher-disclaimer-form`** (single `form` block linking the sheet) → scoped CSS
+**`blocks/form/gallagher-disclaimer.css`** `@import`ed in `form.css`. Sheet rows: `disclaimers` (fieldset,
+`Custom Type: accordion`) › `ajgGaisDisclaimer` (fieldset, Label = item title) › `ajgGaisDisclaimerText`
+(rich plain-text `<ul>`, Style `gallagher-legal`); `eligibility` (rich plain-text, `gallagher-copy`);
+`submit` (`gallagher-submit`, Value = thank-you msg — swap for an https URL to redirect).
+- **New component `blocks/form/components/accordion/`** (registered in `mappings.js`). Same contract as
+  upstream aem-boilerplate-forms `accordion`, but upstream toggles on a click on a bare `<legend>` (not
+  keyboard-reachable) and opens item 1 — ours puts a `<button aria-expanded aria-controls>` in the legend and
+  starts collapsed, single-open (source behaviour). Styled as the site coaching accordion: 1px white / 20r /
+  23pad card → lime + black + minus when open; title Graphik Semibold 24→28(≥768)→32(≥1280), -0.03em.
+- **Gotcha — legend in a bordered fieldset** notches into the top border ("rendered legend"). `float:left;
+  width:100%` on the legend puts it inside the card; the body gets `clear: both`.
+- **Gotcha — legend colour**: base form.css paints legends `#666`; the legend must `color: inherit`.
+- **Gotcha — subscribe.css is NOT form-scoped** (`main .form.block button.button` etc. hit every form). Gallagher
+  rules are scoped by sheet `Style` classes and imported after it so they win at equal specificity.
+- **form.js `createPlainText`**: rich text containing block markup (`<p>/<ul>/<ol>/<h*>`) now renders in a
+  `<div>` instead of a `<p>` (was invalid `<p><ul>` nesting). Inline-only rich text (subscribe legal) unchanged.
+- Submit on the source hits an auth-gated USTA service (401 → account.usta.com login). Backend/redirect wiring
+  is out of scope for this frontend pass.
+Verified vs source at 390/768/1024/1280/1440: card padding/radius, title sizes, list 18/24 + 28/42 spacing,
+item→copy→button 24/24, copy 16/19.2 → 18/21.6 → 24/28.8, Submit 261×50 (16px, 16/102 pad) mobile →
+179×58 (24px, 16/48) ≥768. Enter/Space toggle. axe (scoped to main, closed+open, 390/1440): 0 violations.
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓ · a11y — full-page run fails only on the
+pre-existing raw `/forms/subscribe.json` link in the footer fragment (footer content has an undecorated
+`form` block); the form itself is clean.
+
+### 2026-09-28 — Gallagher form: full-page parity + `split` section style
+The form on the source is the RIGHT half of a 6/6 AEM grid (intro heading + copy left), stacked on mobile —
+its width drives every line wrap, so full-width wasn't a match. Draft page
+`/drafts/shivani/gallagher-disclaimer-form` now has the h1 + intro as default content in the form's section,
+section-metadata `style: split`.
+- **`split` section style (styles.css, generic)**: shared container (1536 cap, gutters 16/40/48/64) on the
+  12-col grid, `--grid-gap: 24px` (source = 12px padding per AEM grid column); default content cols 1–6,
+  block(s) 7–12 from 768; stacked below with a 24px row gap. Top padding 36px (24 container offset + 12 col
+  pad). Right column content = 396/332 @768 · 524/452 @1024 · 652/564 @1280 · 732/644 @1440 · 972/692 @1920
+  (== source). The block's first element drops its top margin so both columns start on the same line (the
+  form renders inside the link's `<p>`, whose 0.8em margin pushed it 13px down).
+- **Intro type is page-level on the source** (`.text--font-size--64px-32px` h1 = 32 / 40 (≥1024) / 64 (≥1280),
+  centred; `.text--font-size--24px-16px` copy = 16/19.2 → 18/21.6 → 24/28.8, one blank line between/after
+  paragraphs), not the global h1/body scale → scoped under `.section.split` and recorded as a
+  **`scopedExceptions`** entry in `tools/quality/typography.json` (check:typography skips it like block type;
+  typography-discover preserves the key on `--write`).
+- **Gotcha — bold = synthesized**: the source declares `Graphik Regular` `font-weight: normal` only, so `<b>`
+  gets Chrome's faux bold. Ours declares `400 700`, which suppresses synthesis → `<strong>` rendered regular.
+  Added a `Graphik Regular Synth` alias face (same file, `normal` only) used by the split intro's `<strong>`.
+  NOT changed globally: other blocks (cards, course-filter) were tuned on the 400–700 face. Site-wide this is a
+  parity gap for any bold Graphik Regular text — revisit deliberately.
+- **subscribe.css** container re-assert rules now `:not(.split)` (they were unscoped and would override the split
+  grid for any form section).
+- Accordion toggle `gap: 0` (source title takes all but the 48px icon — wraps at 236 @768); mailto hover stays
+  white + drops underline; Submit hover `opacity: 1` (overrides global `button:hover` 0.9).
+- **Known, out of scope — header height 768–1023**: our header is 90px there vs the source's 116px (ours
+  switches at 1024), so every page sits 26px higher in that band. Site-wide header fix, not form.
+Verified by a scripted source-vs-build diff (x/y/w/h + font-size/line-height/weight/tracking/colour/decoration
+for h1, both intro paragraphs, bold runs, accordion card/title/icon, list, copy, link, Submit) at
+390/768/1024/1280/1440/1920, closed AND open: all MATCH within 1px (768–1023 y offset by the header delta).
+Hover states (accordion, Submit, link) match. lint ✓ · breakpoint ✓ · overflow ✓ (360–1920) · typography ✓
+(page + subscribe regression) · axe scoped to main (390/768/1440, closed+open) 0 violations; full-page a11y
+still fails only on the pre-existing footer `/forms/subscribe.json` link.
+
+### 2026-09-30 — Gallagher form: multi-item spacing, opt-in checkbox, order-independent CSS, branded messages
+Styling-only pass. The source has 4 sibling pages (`gallagher-disclaimer-baseline|rally|pro|pro-plus`); Rally has 1
+accordion item, **Pro-Plus has 4 items + a required, pre-checked "Opt-In for Electronic Delivery of Policy Documents"
+checkbox**. Measured Pro-Plus live and built against it (test sheet served via a Playwright route — no content edits).
+- **Accordion item gap is responsive** (`components/accordion/accordion.css`): 36px (<768; source = 16 gap + 20
+  margin) → 16px (>=768) → 24px (>=1280). Was a flat 24px. Invisible on Rally (1 item).
+- **Correction to the 2026-09-28 entry:** the source accordion is **multi-open** (opening item 2 leaves item 1 open on
+  Pro-Plus), not single-open. Our component is still single-open — behavioural (JS) follow-up, not fixed here.
+- **New sheet Style `gallagher-optin`** (checkbox row): #1d1d1d panel, 16px pad, 8px radius; label LEFT (Graphik
+  Semibold 16/16, -0.03em), 24x24 box RIGHT (`row-reverse` — DOM order is input → label), space-between, 48px min gap.
+  Unchecked = 1px white border; checked = border 0 + lime + the shared subscribe.css tick drawn at 24px/0 0 (source).
+  Focus ring = 2px lime (source uses the UA default, near-invisible on black — deliberate a11y deviation).
+- **Submit `:disabled`** (in-flight submit; the source also disables it while the opt-in is unchecked): source grey
+  pill #bdbdb9/#4c4c4c, default cursor, no hover change.
+- **Order-independence (Gotcha, supersedes the 09-28 note):** only two Gallagher rules tied with a shared
+  subscribe.css rule and won by @import order — `.gallagher-legal` vs `main .form.block form .field-wrapper` (legal
+  text went WHITE on the lime card when order flipped) and Submit `:hover` vs `.button-wrapper button.button:hover`
+  (stayed lime). Both now compound (`.gallagher-legal.field-wrapper`, `.gallagher-submit.button-wrapper`). Proven by
+  flipping the imports: 0 computed-style diffs across 18 states; negative control (old selectors) reproduces both bugs.
+  NOTE: subscribe.css's "generic" input/checkbox/button rules are the de-facto **shared dark form theme** —
+  `lead-interests` (no Style classes) depends on them — so they were NOT scoped to subscribe-* classes.
+- **Branded submit feedback** (now in gallagher-disclaimer.css, scoped to this form — see 2026-09-30 cleanup): success/error `.form-message` = white
+  Graphik Regular 16→18 (>=768)/1.2 on black, 1px lime (success) / `--form-error-color` (error) outline, 12px radius,
+  16/24 pad; success gets 24px below (it's inserted before the <form>). `scroll-margin-top:
+  calc(var(--usta-header-height) + 16px)` — submit.js scrollIntoView() previously parked the error UNDER the fixed header.
+Verified: Rally vs source 390–1920 closed+open — geometry unchanged (all within 1px). Pro-Plus test vs source
+390/768/1024/1280/1440, checked+unchecked — all 4 cards, opt-in row/label/box, copy, Submit within 1px. Other forms
+(subscribe, lead-interests, flag) computed-style fingerprint before/after: 0 diffs. axe on main (opt-in, open item,
+error, success, disabled; 390+1440): 0 violations. lint 0 errors · breakpoint ✓ · overflow ✓ (360–1920) ·
+full-page a11y fails only on the pre-existing footer `/forms/subscribe.json` link.
+- **Found, pre-existing:** `check:typography` fails on this page (10 drifts: split-intro h1/p) at HEAD too — the
+  `scopedExceptions` entry the 09-28 entry describes was never committed (absent from typography.json and the checker).
+
+### 2026-09-30 — Gallagher form: PR cleanup after merging `main` (PR #41 footer subscribe form)
+Scope: the disclaimer form only. The footer "GET ON THE LIST." form (PR #41) is **intentional — not touched**.
+- **Broken merge fixed (Gotcha):** merge commit `af9c66e` (main → this branch) mis-resolved two `subscribe.css`
+  hunks — the >=1280 `.form-container` rules were interleaved with a missing `}`, and a dangling
+  `main .form.block .checkbox-group-wrapper {` opened a rule inside the >=768 block. Browsers stopped parsing after
+  ~6 rules, silently dropping the whole shared form theme (grid collapsed to 0px columns → 768 overflow, 20px row
+  gap, +5px under Submit). Resolved to PR #41's values + this branch's `:not(.split)` guard. `subscribe.css` now
+  differs from `main` ONLY by the 7 `:not(.split)` guards (main-scoped; keep the form-container band rules off the
+  split layout — they don't reach the footer). Lesson: after any merge touching CSS, run `npx stylelint` — a
+  `CssSyntaxError: Unclosed block` is otherwise invisible in the browser.
+- **Branded success/error messages moved** out of subscribe.css (they also restyled the footer form) into
+  gallagher-disclaimer.css, scoped `main .form.block:has(.gallagher-submit) .form-message`.
+- **PR #41's `:is(main, .footer-form) … .field-wrapper { margin: 0 8px }`** (measured for the subscribe form) now
+  reaches every form; Gallagher fields reset it to 0 (incl. the accordion's nested item fieldsets).
+- **split section bottom:** padding-bottom 48 → 12px (source column padding) and the block's wrapping `<p>` loses
+  its bottom margin → Submit→section end = 12px == source at every breakpoint.
+- Code tidy: accordion.js unused export `handleAccordionNavigation(…, forceOpen)` → local `toggleItem`; dropped
+  duplicate declarations in gallagher-disclaimer.css (legal margin, link-hover colour, `:disabled:hover`).
+- A `footer.js` "skip footer form when the page has its own form" change was tried and **reverted** (footer form is
+  intentional sitewide). The Gallagher page therefore shows it — by product decision, not a parity bug.
+Verified: Rally vs source 390/768/1024/1280/1440/1920 closed+open MATCH (incl. Submit→section end 12px); Pro-Plus
+test vs source 390–1440 MATCH; states (legal on lime, Submit hover/disabled, link hover) correct; footer form
+messages unaffected. lint 0 errors · breakpoint ✓ · overflow ✓ · a11y ✓ (full page now passes — the footer form
+renders instead of a raw link) · typography: 10 pre-existing split-intro drifts (scopedExceptions never committed).
+
+### 2026-10-01 — `split` section style made generic; intro type split out as `intro-text`
+`split` was hard-wired to "default content cols 1–6, block(s) cols 7–12" and carried the Gallagher intro type.
+(A `columns (form)` block variant was tried as an alternative and **reverted** — `split` covers it, one way only.)
+- **`split` (styles.css) = layout only:** any children — default content and/or blocks — on a 2-column 50/50
+  grid from 768 (24px gap = the same lines as the source's 6/6 spans), placed in **authored order** (1st left,
+  2nd right; more wrap to new rows); stacked below 768. Container: 1536 cap, gutters 16/40/48/64, padding 36/12
+  (the source grid's offset + 12px column padding). Cells' outer margins trimmed so columns top-align.
+  `max-width: 100%` on blocks in a split cell — some blocks size from the viewport (quote/cards/hero/course-filter
+  use vw) and otherwise overflow a half column (seen with quote: 72vw → +329px horizontal scroll).
+- **`intro-text` (styles.css), new section style:** the source's page-level intro type (h1 32/40/64 centred, copy
+  16/18/24 lh 1.2, synthetic bold via the `Graphik Regular Synth` alias, one blank line between/after paragraphs).
+  Independent of `split`.
+- **Authoring:** the Gallagher page's section-metadata Style must become **`split, intro-text`** (was `split`).
+  Until then it keeps the 50/50 layout but the intro uses the global h1/body scale.
+- **Gotcha — blocks that style their own section wrapper** (`main > .section.<block>-container > div`, 15 rules: accordion, banner, course-filter, hero, 11 columns variants) apply their page gutter + 1536 cap to EVERY wrapper in the section, so `accordion + quote` in a split came out 332/614px at 768 and overflowed. The split cell reset uses `div:not(#split-cell)` (ID weight, no `!important`) to out-rank them; verified 50/50 for accordion+quote, quote+accordion, text+accordion, accordion+text at 768–1920, stacked at 390, no overflow. Section-level rules (`hero (video)`, `spacer`) are not neutralised — don't put those in a split.
+- subscribe.css keeps its `:not(.split)` guards (a form block inside a split section still gets `form-container`).
+Verified on a temp standards-mode drafts/ page (deleted): Gallagher section vs source 390–1920 closed+open MATCH;
+block-left/text-right and two-blocks sections 50/50 at 768–1920, stacked at 390, no overflow at any width.
+lint 0 errors · breakpoint ✓ · overflow ✓ · a11y ✓ · typography: 10 drifts = the intentional `intro-text` sizes
+(check:typography has no exception mechanism — the `scopedExceptions` mentioned on 09-28 was never built).

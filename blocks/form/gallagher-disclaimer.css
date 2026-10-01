@@ -1,0 +1,179 @@
+/* Gallagher disclaimer form: rules scoped to sheet Style classes (gallagher-*), out-ranking subscribe.css */
+
+/* Gallagher fields sit flush: cancel subscribe.css's 8px field inset (incl. nested accordion items) */
+main .form.block form .field-wrapper:is(.gallagher-disclaimers, .gallagher-copy, .gallagher-optin, .gallagher-submit),
+main .form.block form .gallagher-disclaimers .field-wrapper {
+  margin: 0;
+}
+
+/* Legal list (gallagher-legal): 18/24, inherits the card colour (white closed, black open) */
+main .form.block form .gallagher-legal.field-wrapper {
+  color: inherit;
+}
+
+main .form.block .gallagher-legal ul {
+  margin: 18px 0;
+  padding-left: 40px;
+  list-style: disc;
+}
+
+main .form.block .gallagher-legal li {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: inherit;
+}
+
+/* Eligibility copy (gallagher-copy): 16 → 18 (>=1024) → 24px (>=1280), lh 1.2, one blank line between */
+main .form.block .gallagher-copy p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+main .form.block .gallagher-copy p + p {
+  margin-top: 1.2em;
+}
+
+main .form.block .gallagher-copy a {
+  color: var(--text-color);
+  text-decoration: underline;
+}
+
+/* hover: stays white, underline drops (source) */
+main .form.block .gallagher-copy a:hover {
+  text-decoration: none;
+}
+
+/* Submit (gallagher-submit): lime pill, 16px / 16px 102px mobile → 24px / 16px 48px (>=768) */
+main .form.block .gallagher-submit button.button {
+  width: auto;
+  padding: 16px 102px;
+  background-color: var(--usta-lime);
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 12px;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+main .form.block .gallagher-submit button.button:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+
+main .form.block .gallagher-submit.button-wrapper button.button:hover {
+  background-color: var(--text-color);
+  color: #000;
+  border-color: var(--text-color);
+  opacity: 1; /* no global button:hover fade on the source */
+}
+
+/* disabled: source grey pill; same specificity as :hover and later, so it wins while hovered */
+main .form.block .gallagher-submit.button-wrapper button.button:disabled {
+  background-color: #bdbdb9;
+  color: #4c4c4c;
+  border-color: #000;
+  opacity: 1;
+  cursor: default;
+}
+
+/* Opt-in (gallagher-optin): #1d1d1d panel, label left + 24px box right (row-reverse), lime when checked */
+main .form.block .gallagher-optin.checkbox-wrapper {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  gap: 48px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #1d1d1d;
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper label {
+  flex: 0 1 auto;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  line-height: 16px;
+  letter-spacing: -0.03em;
+  white-space: normal;
+  color: var(--text-color);
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"] {
+  box-sizing: border-box;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--text-color);
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"]:checked {
+  border: 0;
+  background-color: var(--usta-lime);
+  background-position: 0 0;
+  background-size: 24px 24px;
+}
+
+main .form.block .gallagher-optin.checkbox-wrapper input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+/* Submit feedback: white on black, lime (success) / red (error) outline; scroll-margin clears the fixed header */
+main .form.block:has(.gallagher-submit) .form-message {
+  box-sizing: border-box;
+  margin: 0;
+  scroll-margin-top: calc(var(--usta-header-height, 90px) + 16px);
+  padding: 16px 24px;
+  border: 1px solid var(--usta-lime);
+  border-radius: 12px;
+  background-color: #000;
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+main .form.block:has(.gallagher-submit) .form-message.success-message {
+  margin-bottom: 24px;
+}
+
+main .form.block:has(.gallagher-submit) .form-message.error-message {
+  border-color: var(--form-error-color);
+}
+
+@media (width >= 768px) {
+  main .form.block .gallagher-submit button.button {
+    padding: 16px 48px;
+    font-size: 24px;
+  }
+
+  main .form.block:has(.gallagher-submit) .form-message {
+    font-size: 18px;
+  }
+}
+
+@media (width >= 1024px) {
+  main .form.block .gallagher-copy p {
+    font-size: 18px;
+  }
+}
+
+@media (width >= 1280px) {
+  main .form.block .gallagher-copy p {
+    font-size: 24px;
+  }
+}

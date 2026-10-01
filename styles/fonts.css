@@ -46,6 +46,15 @@
   src: url('../fonts/Graphik-Regular-App.woff2') format('woff2');
 }
 
+/* Graphik Regular declared weight-normal only, so <strong> gets synthesized bold like the source */
+@font-face {
+  font-family: "Graphik Regular Synth";
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url('../fonts/Graphik-Regular-App.woff2') format('woff2');
+}
+
 @font-face {
   font-family: "Graphik Semibold";
   font-style: normal;

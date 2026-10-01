@@ -1,7 +1,7 @@
 import { loadCSS } from '../../scripts/aem.js';
 
 let customComponents = [];
-const OOTBComponentDecorators = ['repeat'];
+const OOTBComponentDecorators = ['accordion', 'repeat'];
 
 export function setCustomComponents(components) {
   customComponents = components;
