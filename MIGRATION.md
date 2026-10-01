@@ -3178,3 +3178,24 @@ QA (online branch vs source, 360–1920) found regressions from the `main` merge
   section is still hidden while blocks decorate and the web font swaps later; the rule is idempotent once the
   pill is fully visible (an earlier margin-inclusive version ping-ponged at 360 where pill + margins > row).
 lint ✓ (CSS + tabs.js) · breakpoint ✓ · overflow ✓ (0 at 360–1920) · a11y ✓ (axe 0: Industry, Education + errors)
+
+### 2026-10-01 — form (application): fixed-height scrolling frame; tabs (application): switch transitions
+User feedback: the source form scrolls inside itself (the page doesn't move); tab switch transition missing.
+- **Source measured**: each Formstack embed is an iframe with a fixed `height=1500` at EVERY breakpoint; the form
+  scrolls inside it (document 3768px @390, 2412 @768; an inner `InnerFormBody` scroller @1440). Wheel over the
+  form scrolls the form first (page still); at the form's end the page continues (default scroll chaining).
+  Its reCAPTCHA badge is fixed in the iframe viewport (frame bottom-right, whatever the form scroll).
+- **Built**: `.form.application.block` is the 1500px frame (`height: 1500px; overflow: hidden`, 2px inset border
+  kept) and its row (`> div`) is the scroller (`height: 100%; overflow-y: auto`) carrying the former card
+  padding (40 / 120 80 ≥1024 / 94 bottom with a badge). The badge host stays `position: absolute` against the
+  frame (not the scroller), so it is pinned to the frame corner like the source. No overscroll-behavior override:
+  chaining to the page at the end matches the source. Verified 390/768/1440: frame 1500, wheel → form 900px with
+  page still, page scrolls only after the form end; invalid Submit still brings the first field into view.
+- **Tab switch (source)**: the newly shown form fades in (~0.7s phones/tablets, ~0.25s desktop — frame captures
+  at 600/768/1440) and on phones the pill row slides to the selected pill (~250ms). Built: tabs.js `fadeIn()`
+  replays `.tabs-panel-enter` (keyframes `tabs-panel-in`, 0.7s → 0.3s ≥1024) on a visitor's tab change only
+  (click / arrows / Home-End / #tab= change — not on load), and `revealPill(..., smooth)` uses
+  `scrollTo({ behavior: 'smooth' })` for those changes (load / resize stay instant). Both honour
+  prefers-reduced-motion. Verified: 390 fade 0→1 over ~700ms with the row sliding 0→266px in ~300ms; 1440 fade
+  ~300ms.
+lint ✓ · breakpoint ✓ · overflow ✓ (0 at 360/768/1024/1920) · a11y ✓ (axe 0, both tabs)

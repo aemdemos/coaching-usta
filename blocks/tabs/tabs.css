@@ -151,6 +151,29 @@
   line-height: 22px;
 }
 
+/* Tab change (source): the newly shown form fades in — ~0.7s on phones and
+   tablets, quicker (~0.3s) on desktop. tabs.js adds .tabs-panel-enter on a
+   visitor's tab change only (not on page load). */
+@keyframes tabs-panel-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.tabs.application .tabs-panel.tabs-panel-enter {
+  animation: tabs-panel-in 0.7s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs.application .tabs-panel.tabs-panel-enter {
+    animation: none;
+  }
+}
+
 /* The source embeds each form in an iframe inset 12px (8px sides on mobile)
    inside the panel, 20px below the track. */
 .tabs.application .tabs-panel {
@@ -185,6 +208,10 @@
   .tabs.application .tabs-list button {
     min-height: 106px;
     font-size: 14px;
+  }
+
+  .tabs.application .tabs-panel.tabs-panel-enter {
+    animation-duration: 0.3s;
   }
 }
 

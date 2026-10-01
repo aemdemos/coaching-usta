@@ -96,9 +96,20 @@ function decorateNav(block, rows) {
   block.prepend(tablist);
 }
 
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Tab change: replay the panel's fade-in (CSS .tabs-panel-enter, source)
+function fadeIn(panel) {
+  panel.classList.remove('tabs-panel-enter');
+  // eslint-disable-next-line no-void
+  void panel.offsetWidth; // restart the animation when the class is re-added
+  panel.classList.add('tabs-panel-enter');
+  panel.addEventListener('animationend', () => panel.classList.remove('tabs-panel-enter'), { once: true });
+}
+
 // Phones: the pill row scrolls sideways — keep the selected pill in view, as
 // the source does. Horizontal only (scrollIntoView would also jump the page).
-function revealPill(tablist, pill) {
+function revealPill(tablist, pill, smooth = false) {
   const margin = parseFloat(getComputedStyle(pill).marginLeft) || 0;
   const row = tablist.getBoundingClientRect();
   const box = pill.getBoundingClientRect(); // sub-pixel: offset* values round
@@ -108,15 +119,18 @@ function revealPill(tablist, pill) {
   const { scrollLeft } = tablist;
   // already fully in view → leave it (keeps repeated calls stable)
   if (box.width <= view && start >= scrollLeft - 0.5 && end <= scrollLeft + view + 0.5) return;
+  let left;
   if (box.width > view || start < scrollLeft) {
     // start of the row: keep the pill's margin — all of it when the pill can't
     // fit anyway (source), else as much as still fits
     const inset = box.width > view ? margin : Math.max(0, Math.min(margin, view - box.width));
-    tablist.scrollLeft = Math.max(0, start - inset);
+    left = Math.max(0, start - inset);
   } else {
     // right of the view: end flush with the row edge (source)
-    tablist.scrollLeft = Math.ceil(end - view);
+    left = Math.ceil(end - view);
   }
+  // a visitor's tab change slides the row (source); load / resize jump
+  tablist.scrollTo({ left, behavior: smooth && !reducedMotion() ? 'smooth' : 'auto' });
 }
 
 // Tab label content without the authored <p> wrapper (a <p> is not valid
@@ -150,14 +164,16 @@ export default async function decorate(block) {
   const panels = [];
 
   // WAI-ARIA tabs: only the selected tab is in the tab order (roving tabindex).
-  const select = (index, { focus = false, updateHash = false } = {}) => {
+  const select = (index, { focus = false, updateHash = false, animate = false } = {}) => {
+    const changed = buttons[index].getAttribute('aria-selected') !== 'true';
     buttons.forEach((button, i) => {
       const isSelected = i === index;
       button.setAttribute('aria-selected', isSelected);
       button.tabIndex = isSelected ? 0 : -1;
       panels[i].setAttribute('aria-hidden', !isSelected);
     });
-    revealPill(tablist, buttons[index]);
+    if (animate && changed) fadeIn(panels[index]);
+    revealPill(tablist, buttons[index], animate);
     if (focus) buttons[index].focus({ preventScroll: true });
     // same deep-link format as the source site; replaceState = no jump, no history spam
     if (updateHash) {
@@ -189,7 +205,7 @@ export default async function decorate(block) {
     button.setAttribute('aria-controls', `tabpanel-${id}`);
     button.setAttribute('role', 'tab');
     button.setAttribute('type', 'button');
-    button.addEventListener('click', () => select(i, { updateHash: true }));
+    button.addEventListener('click', () => select(i, { updateHash: true, animate: true }));
     buttons.push(button);
     tablist.append(button);
     tab.remove();
@@ -215,13 +231,13 @@ export default async function decorate(block) {
     }[event.key];
     if (next === undefined) return;
     event.preventDefault();
-    select(next, { focus: true, updateHash: true });
+    select(next, { focus: true, updateHash: true, animate: true });
   });
 
   // back/forward or an in-page "#tab=…" link switches tabs too
   window.addEventListener('hashchange', () => {
     const index = findHashTab();
-    if (index >= 0) select(index);
+    if (index >= 0) select(index, { animate: true });
   });
 
   block.prepend(tablist);

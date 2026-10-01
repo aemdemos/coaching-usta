@@ -46,11 +46,17 @@ main .form.application.block {
   --application-success-bg: #e6f4ea;
   --application-font: "Open Sans", "Open Sans Fallback", "Helvetica Neue", arial, sans-serif;
 
-  /* The embed frame: navy card inside the source iframe's 2px inset border
-     (positioned: hosts the reCAPTCHA badge in its bottom-right corner) */
+  /* The embed frame: the source iframe is a FIXED 1500px box (2px inset
+     border) at every breakpoint and the form scrolls INSIDE it — the page
+     only scrolls once the form reaches its end (default scroll chaining).
+     The frame clips; its row (> div, below) is the scroller. Positioned: hosts
+     the reCAPTCHA badge, pinned to the frame's bottom-right like the source's
+     badge, which is fixed inside the iframe viewport. */
   position: relative;
   box-sizing: border-box;
-  padding: 40px;
+  height: 1500px;
+  padding: 0;
+  overflow: hidden;
   background-color: var(--application-bg);
   border: 2px inset #000;
   border-radius: 0;
@@ -59,6 +65,20 @@ main .form.application.block {
   font-size: 16px;
   line-height: normal;
   letter-spacing: normal;
+}
+
+/* The scroller (the block's row): carries the card padding so it scrolls
+   with the form, as inside the source iframe */
+main .form.application.block > div {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+/* room for the badge under Submit in the compact card (40px bottom padding) */
+main .form.application.block:has(.captcha-ready) > div {
+  padding-bottom: 94px;
 }
 
 /* Content column: 720px max, centred (source .fsForm 800 incl. 40px padding) */
@@ -121,11 +141,6 @@ main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready:i
   main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready {
     transition: none;
   }
-}
-
-/* room for the badge under Submit in the compact card (40px bottom padding) */
-main .form.application.block:has(.captcha-ready) {
-  padding-bottom: 94px;
 }
 
 /* Text: plain-text rows, and the title / section subheadings — Type
@@ -706,8 +721,8 @@ main .form.application.block .form-message:focus {
    gains Formstack's wide-layout offsets: 120px above the title (40 wrapper +
    40 form margin + 40 form padding) and 80px at the sides. */
 @media (width >= 1024px) {
-  main .form.application.block,
-  main .form.application.block:has(.captcha-ready) {
+  main .form.application.block > div,
+  main .form.application.block:has(.captcha-ready) > div {
     padding: 120px 80px;
   }
 
