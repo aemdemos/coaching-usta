@@ -1,0 +1,125 @@
+/* Form accordion (components/accordion): coaching pill cards, lime when open; loaded by mappings.js */
+
+/* item gap per source: 36px mobile → 16px (>=768) → 24px (>=1280) */
+
+main .form form fieldset.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  padding: 0;
+}
+
+/* item card */
+main .form fieldset.accordion > fieldset.panel-wrapper {
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 23px;
+  border: 1px solid var(--text-color);
+  border-radius: 20px;
+  background-color: #000;
+  color: var(--text-color);
+}
+
+/* open: lime card; border turns lime (not 0) so the geometry doesn't shift */
+main .form fieldset.accordion > fieldset.panel-wrapper:not(.accordion-collapse) {
+  border-color: var(--usta-lime);
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+/* float keeps the legend inside the card border instead of notching into it */
+main .form fieldset.accordion > fieldset > legend.accordion-legend {
+  float: left;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: inherit;
+}
+
+main .form fieldset.accordion .accordion-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0; /* title fills all but the 48px icon (source) */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+main .form fieldset.accordion .accordion-toggle:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 4px;
+}
+
+main .form fieldset.accordion .accordion-title {
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* +/- glyph: 48px box, 24x3.5 bars; the vertical bar hides when open */
+main .form fieldset.accordion .accordion-icon {
+  position: relative;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+}
+
+main .form fieldset.accordion .accordion-icon::before,
+main .form fieldset.accordion .accordion-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 3.5px;
+  background-color: currentcolor;
+  transform: translate(-50%, -50%);
+}
+
+main .form fieldset.accordion .accordion-icon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+main .form fieldset.accordion > fieldset:not(.accordion-collapse) .accordion-icon::after {
+  display: none;
+}
+
+/* panel body — 10px below the title row */
+main .form fieldset.accordion .accordion-content {
+  clear: both;
+  padding-top: 10px;
+}
+
+main .form fieldset.accordion .accordion-content[hidden] {
+  display: none;
+}
+
+@media (width >= 768px) {
+  main .form form fieldset.accordion {
+    gap: 16px;
+  }
+
+  main .form fieldset.accordion .accordion-title {
+    font-size: 28px;
+  }
+}
+
+@media (width >= 1280px) {
+  main .form form fieldset.accordion {
+    gap: 24px;
+  }
+
+  main .form fieldset.accordion .accordion-title {
+    font-size: 32px;
+  }
+}

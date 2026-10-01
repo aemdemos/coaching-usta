@@ -1,6 +1,8 @@
 /* Per-form styling lives in its own scoped file (see skills/forms-enablement Part D).
    Variant files (application.css) are loaded on demand by form.js (VARIANT_STYLES). */
 @import url('./subscribe.css');
+@import url('./gallagher-disclaimer.css');
+@import url('./flag-profile.css');
 
 :root {
     --background-color-primary: #fff;

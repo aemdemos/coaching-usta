@@ -85,9 +85,53 @@ export default class GoogleReCaptcha {
     this.#api = api;
   }
 
+  /**
+   * Renders the reCAPTCHA badge INLINE into the form's captcha field (the row the
+   * author placed in the sheet) instead of Google's default viewport-fixed badge,
+   * so per-form CSS can position it (e.g. inside the flag-profile frame, like the
+   * source's embedded form). Falls back to the fixed badge if the field is missing.
+   * @param {HTMLFormElement} form
+   */
+  #renderInlineBadge(form) {
+    const container = form.querySelector(`[data-id="${this.id}"]`);
+    if (!container) {
+      this.#loadScript(`https://www.google.com/recaptcha/api.js?render=${this.config.siteKey}`);
+      return;
+    }
+    container.textContent = '';
+    const badge = document.createElement('div');
+    badge.className = 'form-recaptcha-badge';
+    container.append(badge);
+    this.#loadScript('https://www.google.com/recaptcha/api.js?render=explicit');
+    this.loadPromise.then((grecaptcha) => grecaptcha.ready(() => {
+      this.widgetId = grecaptcha.render(badge, {
+        sitekey: this.config.siteKey,
+        badge: 'bottomright',
+        size: 'invisible',
+      });
+    })).catch((error) => {
+      // eslint-disable-next-line no-console
+      console.warn('reCAPTCHA failed to load', error);
+    });
+  }
+
   loadCaptcha(form) {
     if (form && this.config.siteKey) {
       const submit = form.querySelector('button[type="submit"]');
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const { siteKey } = this.config;
+            const url = this.config.uri;
+            if (this.config.version === 'enterprise') {
+              this.#loadScript(`${url}?render=${siteKey}`);
+            } else {
+              this.#renderInlineBadge(form);
+            }
+            obs.disconnect();
+          }
+        });
+      });
       if (submit == null) {
         // eslint-disable-next-line no-console
         console.warn('Captcha can not be loaded. Submit button is missing.');
@@ -125,6 +169,24 @@ export default class GoogleReCaptcha {
       this.#pending = resolve;
       const result = this.#api.execute(this.widgetId, { action });
       if (result?.then) result.then(resolve);
+      const { grecaptcha } = window;
+      if (this.config.version === 'enterprise') {
+        grecaptcha.enterprise.ready(async () => {
+          const submitAction = `submit_${this.formName}_${this.name}`;
+          const token = await grecaptcha.enterprise.execute(
+            this.config.siteKey,
+            { action: submitAction },
+          );
+          resolve(token);
+        });
+      } else {
+        grecaptcha.ready(async () => {
+          // An explicitly rendered (inline) badge is executed by its widget id.
+          const target = this.widgetId ?? this.config.siteKey;
+          const token = await grecaptcha.execute(target, { action: 'submit' });
+          resolve(token);
+        });
+      }
     });
   }
 }

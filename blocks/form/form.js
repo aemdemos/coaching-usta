@@ -110,8 +110,12 @@ function createRadioOrCheckboxGroup(fd) {
   return wrapper;
 }
 
+// rich text with block-level markup (<p>, <ul>…) renders in a <div>: a <p> can't contain them
+const BLOCK_LEVEL_TAGS = /<(p|ul|ol|h[1-6]|hr)\b/i;
+
 function createPlainText(fd) {
-  const paragraph = document.createElement('p');
+  const hasBlockMarkup = fd.richText && BLOCK_LEVEL_TAGS.test(fd.value);
+  const paragraph = document.createElement(hasBlockMarkup ? 'div' : 'p');
   if (fd.richText) {
     paragraph.innerHTML = stripTags(fd.value);
   } else {
@@ -362,6 +366,14 @@ function enableValidation(form) {
   });
 
   form.addEventListener('change', (event) => revalidate(event.target));
+  // Formstack-style forms (those with an authored error-summary row) also check a
+  // field as soon as the user leaves it — `change` never fires when an empty
+  // field is left empty, so "Required field" would otherwise wait for submit.
+  if (form.querySelector('.form-error-summary')) {
+    form.addEventListener('focusout', (event) => {
+      if (event.target.matches('input, textarea, select')) checkValidation(event.target);
+    });
+  }
 }
 
 function isDocumentBasedForm(formDef) {
