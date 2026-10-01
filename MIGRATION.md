@@ -3199,3 +3199,17 @@ User feedback: the source form scrolls inside itself (the page doesn't move); ta
   prefers-reduced-motion. Verified: 390 fade 0→1 over ~700ms with the row sliding 0→266px in ~300ms; 1440 fade
   ~300ms.
 lint ✓ · breakpoint ✓ · overflow ✓ (0 at 360/768/1024/1920) · a11y ✓ (axe 0, both tabs)
+
+### 2026-10-01 — reCAPTCHA badge on the application forms (Google test key)
+The source badge is NOT frontend-only: Formstack's embed (ustayeqzp.formstack.com) loads
+`google.com/recaptcha/api.js?render=<Formstack's site key>` and Google draws the badge (api2/anchor iframe) — the key is
+domain-bound to Formstack. Ours had an empty captcha row, so nothing rendered. Set Google's PUBLIC TEST KEY
+(6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI — same as /forms/flag-form) in the captcha row Value of both
+/forms/education-equivalency and /forms/industry-experience (only that row changed), uploaded to DA + previewed.
+Badge now renders on both tabs (local 1440/390 + branch preview): 70×60 logo pinned 2px/16px from the frame's
+bottom-right, slides open to "protected by reCAPTCHA" on hover. The test key always passes (no real protection) and
+Google adds a red "testing purposes only" line — swap in the production USTA site key before go-live (sheet captcha
+row Value, or `RECAPTCHA_SITE_KEY=… node tools/forms/application-forms.mjs`; that generator is currently in
+`git stash` and still writes an empty key unless the env var is set).
+Test-env note: headless Playwright never sets :hover on the parent of a CROSS-origin iframe (same-origin works), so
+the slide-open can only be checked there via CDP CSS.forcePseudoState — real browsers hover normally.
