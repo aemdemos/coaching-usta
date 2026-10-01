@@ -96,6 +96,29 @@ function decorateNav(block, rows) {
   block.prepend(tablist);
 }
 
+// Phones: the pill row scrolls sideways — keep the selected pill in view, as
+// the source does. Horizontal only (scrollIntoView would also jump the page).
+function revealPill(tablist, pill) {
+  const margin = parseFloat(getComputedStyle(pill).marginLeft) || 0;
+  const row = tablist.getBoundingClientRect();
+  const box = pill.getBoundingClientRect(); // sub-pixel: offset* values round
+  const view = tablist.clientWidth;
+  const start = box.left - row.left + tablist.scrollLeft;
+  const end = start + box.width;
+  const { scrollLeft } = tablist;
+  // already fully in view → leave it (keeps repeated calls stable)
+  if (box.width <= view && start >= scrollLeft - 0.5 && end <= scrollLeft + view + 0.5) return;
+  if (box.width > view || start < scrollLeft) {
+    // start of the row: keep the pill's margin — all of it when the pill can't
+    // fit anyway (source), else as much as still fits
+    const inset = box.width > view ? margin : Math.max(0, Math.min(margin, view - box.width));
+    tablist.scrollLeft = Math.max(0, start - inset);
+  } else {
+    // right of the view: end flush with the row edge (source)
+    tablist.scrollLeft = Math.ceil(end - view);
+  }
+}
+
 // Tab label content without the authored <p> wrapper (a <p> is not valid
 // inside a <button>).
 function getLabelNodes(tab) {
@@ -134,7 +157,8 @@ export default async function decorate(block) {
       button.tabIndex = isSelected ? 0 : -1;
       panels[i].setAttribute('aria-hidden', !isSelected);
     });
-    if (focus) buttons[index].focus();
+    revealPill(tablist, buttons[index]);
+    if (focus) buttons[index].focus({ preventScroll: true });
     // same deep-link format as the source site; replaceState = no jump, no history spam
     if (updateHash) {
       window.history.replaceState(null, '', `#tab=${ids[index].replace(/-/g, '')}`);
@@ -200,7 +224,14 @@ export default async function decorate(block) {
     if (index >= 0) select(index);
   });
 
-  select(Math.max(0, findHashTab()));
   block.prepend(tablist);
+  select(Math.max(0, findHashTab()));
+  // the section is still hidden while blocks decorate, and the web font swaps
+  // in later: re-reveal the selected pill whenever the row or a pill resizes
+  const observer = new ResizeObserver(() => {
+    const selected = buttons.find((b) => b.getAttribute('aria-selected') === 'true');
+    if (selected) revealPill(tablist, selected);
+  });
+  [tablist, ...buttons].forEach((el) => observer.observe(el));
   await Promise.all(formLoads);
 }

@@ -137,12 +137,15 @@
   margin-inline: calc((100% - var(--tabs-width)) / 2);
 }
 
+/* Source pill spacing: every pill has an 8px margin on all sides, so the track
+   insets them 8px and the space between two pills is 8 + gap + 8 = 24px (<768)
+   / 32px (>=768, gap 16) — e.g. 250px pills in the 548px track @768. */
 .tabs.application .tabs-list button {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 68px;
-  margin: 8px 0;
+  margin: 8px;
   padding: 0 12px;
   font-size: 14px;
   line-height: 22px;
@@ -164,10 +167,6 @@
     padding: 12px;
   }
 
-  .tabs.application .tabs-list {
-    padding: 0 8px;
-  }
-
   .tabs.application .tabs-list button {
     min-height: 101px;
     padding: 0 20px;
@@ -180,7 +179,11 @@
     --tabs-page-gutter: 61px;
   }
 
+  /* source: 106px pills from 1024 to 1279 (101 again from 1280). Its 92px
+     pills from 1536 need a 1536 breakpoint that isn't in the agreed set
+     (tools/quality/breakpoints.json), so >=1536 stays at 101 (documented). */
   .tabs.application .tabs-list button {
+    min-height: 106px;
     font-size: 14px;
   }
 }
@@ -191,6 +194,7 @@
   }
 
   .tabs.application .tabs-list button {
+    min-height: 101px;
     font-size: 16px;
   }
 }

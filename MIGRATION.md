@@ -3149,3 +3149,32 @@ every footer), flag (badge pinned in frame, 72px logo, 14px up), disclaimer, coa
 with no script errors. Gotcha: re-check form/*.js with `node --check` after every merge from main —
 git's line-level merge happily produces code that doesn't parse.
 Not from this merge: `fonts/lato-regular.woff2` 404 (referenced by main's fonts.css, file not in repo).
+
+### 2026-10-01 — QA fixes: subscribe.css specificity leak, Submit spacing, tab pill spacing
+QA (online branch vs source, 360–1920) found regressions from the `main` merge plus tab spacing gaps.
+- **Root cause — `:is()` specificity**: main rewrote subscribe.css `main .form.block …` → `:is(main, .footer-form)
+  .form.block …` so the subscribe theme reaches the footer form. `:is()` takes its MOST specific argument, so
+  `.footer-form` added a class to all 38 rules and they began beating `.form.application` (application.css won
+  by one element before): red "* " + UPPERCASE 14/24px on the Email / ZIP labels (+14–16px drift below), the
+  acknowledgement legend at 16/16 (12/12 on mobile), and `.submit-wrapper { margin: 0 }` (Submit ~110px high).
+  Fix (kept to application files — this PR is application-forms only; subscribe.css and the footer stay as main
+  has them): application.css adds field-specific selectors to its own rules — `:is(.field-email, .field-zipcode)
+  > label.field-label` (+ the `::before` reset), `fieldset.checkbox-group-wrapper > legend.field-label`, and
+  `.field-wrapper.submit-wrapper` — same declarations, one class stronger than subscribe.css; no !important.
+  Verified by a computed-style diff of all 294 elements of both forms at 390/1024/1440: identical to the fixed
+  state. Gotcha: `:is()` takes its MOST specific argument — a class inside it raises every rule; prefer
+  `:where()` or element selectors when widening a selector's reach (raise with the subscribe owners).
+- **Submit rhythm (source, every breakpoint)**: the checkbox-row −10px overhang now applies at all widths (was
+  ≥1024 only: compact Submit sat 10px low); a file field directly before Submit (Industry) gets Submit 110px
+  (source: 170px below the drop area at <1024, 192 at ≥1024 — the two uploads share a row). Education Submit is
+  within 1px of the source at 360/390/768/1024/1440; Industry drop→Submit identical at 390–1920.
+- **Tabs (application)**: source spacing model — every pill has an 8px margin on all sides (track gap 8 / 16
+  @768), so pills sit 8px inside the track and 24px / 32px apart (was 8 / 16, with track padding 0 8px ≥768);
+  pill height 106px at 1024–1279. Pill positions + widths now equal the source at 768/1024/1280/1440/1920.
+  Not replicated: the source's 92px pills from 1536 (needs a 1536 breakpoint outside breakpoints.json).
+- **Tabs (mobile)**: the pill row scrolls sideways (<768); the selected pill (deep link, click, arrows, Home/End)
+  is now scrolled into view horizontally — never the page — like the source (Industry ends flush with the row
+  edge; a pill wider than the row keeps its 8px inset). Re-run on ResizeObserver of the row AND the pills: the
+  section is still hidden while blocks decorate and the web font swaps later; the rule is idempotent once the
+  pill is fully visible (an earlier margin-inclusive version ping-ponged at 360 where pill + margins > row).
+lint ✓ (CSS + tabs.js) · breakpoint ✓ · overflow ✓ (0 at 360–1920) · a11y ✓ (axe 0: Industry, Education + errors)

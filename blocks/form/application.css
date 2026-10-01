@@ -166,9 +166,15 @@ main .form.application.block .form-char-counter {
   display: none;
 }
 
-/* Labels + legends: 16px, 20px above the control */
+/* Labels + legends: 16px, 20px above the control. The field-specific
+   selectors out-rank subscribe.css, which themes every .form.block and styles
+   the email / zip labels and the checkbox-group legend with one class more
+   (`:is(main, .footer-form)` scope) — kept here, not in subscribe.css, so the
+   footer subscribe form is untouched. */
 main .form.application.block form label.field-label,
-main .form.application.block form legend.field-label {
+main .form.application.block form legend.field-label,
+main .form.application.block form :is(.field-email, .field-zipcode) > label.field-label,
+main .form.application.block form fieldset.checkbox-group-wrapper > legend.field-label {
   order: -2;
   width: 100%;
   margin: 0 0 20px;
@@ -184,7 +190,8 @@ main .form.application.block form legend.field-label {
 }
 
 /* Required asterisk: after the label text, same colour (source "USTA Number*") */
-main .form.application.block [data-required="true"] > label.field-label::before {
+main .form.application.block [data-required="true"] > label.field-label::before,
+main .form.application.block :is(.field-email, .field-zipcode)[data-required="true"] > label.field-label::before {
   content: none;
 }
 
@@ -389,12 +396,14 @@ main .form.application.block .field-invalid > input:is([type="text"], [type="ema
   background-size: 12px 12px;
 }
 
-/* Acknowledgement checkbox group */
+/* Acknowledgement checkbox group. The option row's 24px line box overhangs
+   the cell by 10px, so Submit sits 174px below the row top vs 160px after
+   other fields — at every breakpoint (source). */
 main .form.application.block form fieldset.checkbox-group-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin: 0;
+  margin: 0 0 -10px;
   padding: 0;
   border: 0;
 }
@@ -573,8 +582,17 @@ main .form.application.block .file-wrapper .file-description button.file-descrip
 
 /* Submit: small light button well below the last field — full width in the
    compact (<1024) layout, 60px and centred in the wide one (source). */
-main .form.application.block form .submit-wrapper {
+main .form.application.block form .field-wrapper.submit-wrapper {
   margin: 120px 0 0;
+}
+
+/* an upload field ending the form (Industry Experience): the source's Submit
+   sits 170px below the drop area, 10px tighter than our 20px reserve + 40 gap
+   + 120. On Submit itself, so it also holds when the two uploads share a row
+   (>=1024). The hidden captcha row may sit between them. */
+main .form.application.block form .file-wrapper + .submit-wrapper,
+main .form.application.block form .file-wrapper + .captcha-wrapper + .submit-wrapper {
+  margin-top: 110px;
 }
 
 main .form.application.block button.button,
@@ -696,12 +714,6 @@ main .form.application.block .form-message:focus {
   main .form.application.block form,
   main .form.application.block form fieldset.panel-wrapper {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  /* wide layout: the option row's 24px line box overhangs the cell by 10px, so
-     Submit sits 150px below the checkbox vs 160px after other fields */
-  main .form.application.block form fieldset.checkbox-group-wrapper {
-    margin-bottom: -10px;
   }
 
   main .form.application.block form .submit-wrapper {
