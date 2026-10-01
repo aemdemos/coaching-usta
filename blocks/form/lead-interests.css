@@ -43,11 +43,17 @@ main .form.block:has(.lead-interests-heading) form {
   border-radius: 20px;
 }
 
+/* margin: 0 undoes subscribe.css's generic `.field-wrapper { margin: 0 8px }`
+   (added with the footer form) — this form's 8px inset is the padding. */
 main .form.block:has(.lead-interests-heading) form .field-wrapper {
+  margin: 0;
   padding-inline: 8px;
 }
 
-main .form.block:has(.lead-interests-heading) form .submit-wrapper {
+/* `.field-wrapper.submit-wrapper` out-ranks subscribe.css's
+   `.field-wrapper:is(.subscribe-heading, .submit-wrapper) { margin: 0 }`, which
+   otherwise removes the space above SAVE CHANGES. */
+main .form.block:has(.lead-interests-heading) form .field-wrapper.submit-wrapper {
   margin-top: 64px;
   padding-inline: 0;
 }
@@ -71,7 +77,7 @@ main .form.block:has(.lead-interests-heading) .field-zipcode .form-char-counter 
 
 /* Interests group — 32px below the zip input; options stacked 16px apart.
    Drops the UA fieldset block padding so rows sit exactly 16px under the legend. */
-main .form.block:has(.lead-interests-heading) .checkbox-group-wrapper {
+main .form.block:has(.lead-interests-heading) form .checkbox-group-wrapper {
   margin-top: 32px;
   padding-block: 0;
   gap: 16px;
@@ -102,7 +108,7 @@ main .form.block:has(.lead-interests-heading) button.button {
     padding: 36px;
   }
 
-  main .form.block:has(.lead-interests-heading) form .submit-wrapper {
+  main .form.block:has(.lead-interests-heading) form .field-wrapper.submit-wrapper {
     margin-top: 42px;
   }
 
