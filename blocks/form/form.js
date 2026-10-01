@@ -671,8 +671,16 @@ export default async function decorate(block) {
       block,
       editMode: block.classList.contains('edit-mode'),
     }));
-    // Formstack-style forms validate each field on blur (see enableValidation)
-    if (block.classList.contains('application')) form.dataset.validateOn = 'blur';
+    if (block.classList.contains('application')) {
+      // Formstack-style forms validate each field on blur (see enableValidation)
+      form.dataset.validateOn = 'blur';
+      // Source look (agreed with the client): the Formstack embeds autofocus their
+      // first field, which then blurs, so the page loads with that field already
+      // flagged ("Required field" on Name, red First Name). Reproduced by
+      // validating the first required field once — without moving focus.
+      const first = form.querySelector('[required]:not([type="file"], [type="checkbox"], [type="radio"])');
+      if (first) checkValidation(first);
+    }
     await variantStyles;
     container.replaceWith(form);
   }

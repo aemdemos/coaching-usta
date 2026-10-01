@@ -2983,3 +2983,12 @@ User feedback: "Required field" alerts missing in both tabs; captcha missing bot
   token. **Explicit render + execute(widgetId) must be re-checked with the production v3 key.**
 lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (360/768/1024/1440, preview browser) · a11y ✓ (axe: 0 on both
 tabs with blur/submit errors) · subscribe form unaffected
+
+### 2026-09-30 — form (application): Name flagged on page load (client decision)
+The source's two Formstack embeds each AUTOFOCUS First Name; the one that loads first loses focus to the
+other, blurs, and shows "Required field" on Name before any interaction (the other shows it on the first
+click elsewhere) — random per load. Client chose to match that LOOK deterministically: form.js validates
+the first required field of every `.form.application` form once after render (no focus move, no scroll)
+→ Name group pill + red First Name on both tabs; clears when First Name is filled. Initial render only
+(not after the post-success reset). To revert: delete the `checkValidation(first)` block in form.js decorate().
+lint ✓ · a11y note: First Name carries aria-invalid from load (inherent to this choice)
