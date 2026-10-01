@@ -17,10 +17,10 @@ function loadScript(url) {
 
 /**
  * reCAPTCHA (v3 / Enterprise score keys) rendered explicitly per form, so
- * several forms can share a page. The badge placement is chosen by the form
- * theme: a captcha row whose wrapper has `--captcha-badge: inline` (e.g.
- * application.css) hosts the badge inside the form; otherwise Google's fixed
- * bottom-right badge is used.
+ * several forms can share a page. The badge is rendered into the form's
+ * captcha row; its style is chosen by the form theme: `--captcha-badge: inline`
+ * on the row (application.css) → Google's inline badge; otherwise Google's
+ * standard bottom-right badge (flag-profile.css positions it in its frame).
  */
 export default class GoogleReCaptcha {
   id;
@@ -67,8 +67,13 @@ export default class GoogleReCaptcha {
     const host = form.querySelector('.captcha-wrapper');
     const inline = host
       && getComputedStyle(host).getPropertyValue('--captcha-badge').trim() === 'inline';
+    // Render INTO the form's captcha row when there is one, so form CSS can place
+    // the badge: Google's inline badge for themes that opt in (application.css),
+    // otherwise its standard bottom-right badge (position: fixed by Google; e.g.
+    // flag-profile.css pins it inside its frame). No row → appended to <body>.
     const container = document.createElement('div');
-    if (inline) {
+    container.className = 'form-recaptcha-badge';
+    if (host) {
       host.replaceChildren(container);
     } else {
       document.body.append(container);
@@ -85,53 +90,9 @@ export default class GoogleReCaptcha {
     this.#api = api;
   }
 
-  /**
-   * Renders the reCAPTCHA badge INLINE into the form's captcha field (the row the
-   * author placed in the sheet) instead of Google's default viewport-fixed badge,
-   * so per-form CSS can position it (e.g. inside the flag-profile frame, like the
-   * source's embedded form). Falls back to the fixed badge if the field is missing.
-   * @param {HTMLFormElement} form
-   */
-  #renderInlineBadge(form) {
-    const container = form.querySelector(`[data-id="${this.id}"]`);
-    if (!container) {
-      this.#loadScript(`https://www.google.com/recaptcha/api.js?render=${this.config.siteKey}`);
-      return;
-    }
-    container.textContent = '';
-    const badge = document.createElement('div');
-    badge.className = 'form-recaptcha-badge';
-    container.append(badge);
-    this.#loadScript('https://www.google.com/recaptcha/api.js?render=explicit');
-    this.loadPromise.then((grecaptcha) => grecaptcha.ready(() => {
-      this.widgetId = grecaptcha.render(badge, {
-        sitekey: this.config.siteKey,
-        badge: 'bottomright',
-        size: 'invisible',
-      });
-    })).catch((error) => {
-      // eslint-disable-next-line no-console
-      console.warn('reCAPTCHA failed to load', error);
-    });
-  }
-
   loadCaptcha(form) {
     if (form && this.config.siteKey) {
       const submit = form.querySelector('button[type="submit"]');
-      const obs = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const { siteKey } = this.config;
-            const url = this.config.uri;
-            if (this.config.version === 'enterprise') {
-              this.#loadScript(`${url}?render=${siteKey}`);
-            } else {
-              this.#renderInlineBadge(form);
-            }
-            obs.disconnect();
-          }
-        });
-      });
       if (submit == null) {
         // eslint-disable-next-line no-console
         console.warn('Captcha can not be loaded. Submit button is missing.');
@@ -169,24 +130,6 @@ export default class GoogleReCaptcha {
       this.#pending = resolve;
       const result = this.#api.execute(this.widgetId, { action });
       if (result?.then) result.then(resolve);
-      const { grecaptcha } = window;
-      if (this.config.version === 'enterprise') {
-        grecaptcha.enterprise.ready(async () => {
-          const submitAction = `submit_${this.formName}_${this.name}`;
-          const token = await grecaptcha.enterprise.execute(
-            this.config.siteKey,
-            { action: submitAction },
-          );
-          resolve(token);
-        });
-      } else {
-        grecaptcha.ready(async () => {
-          // An explicitly rendered (inline) badge is executed by its widget id.
-          const target = this.widgetId ?? this.config.siteKey;
-          const token = await grecaptcha.execute(target, { action: 'submit' });
-          resolve(token);
-        });
-      }
     });
   }
 }

@@ -3134,3 +3134,18 @@ Verified on a temp standards-mode drafts/ page (deleted): Gallagher section vs s
 block-left/text-right and two-blocks sections 50/50 at 768–1920, stacked at 390, no overflow at any width.
 lint 0 errors · breakpoint ✓ · overflow ✓ · a11y ✓ · typography: 10 drifts = the intentional `intro-text` sizes
 (check:typography has no exception mechanism — the `scopedExceptions` mentioned on 09-28 was never built).
+
+### 2026-10-01 — form engine: repair of the main → branch merge (all forms broken)
+`Merge branch 'main' into aem-20260928-1646` (2ad06e0) auto-merged blocks/form/integrations/recaptcha.js
+WITHOUT a conflict, combining main's `#renderInlineBadge` (flag-profile: Google's standard bottom-right
+badge rendered INTO the captcha row; flag-profile.css pins it in its frame) with this branch's rewrite.
+Result: references to the removed private `#loadScript` / `loadPromise`, a duplicate `const obs` and a
+duplicate execute path → SyntaxError → form.js failed to import → EVERY form block (applications,
+subscribe in the footer, flag, disclaimer) stopped rendering. Fixed by keeping the rewrite (explicit
+render, one script per page) and adopting main's contract: the badge always renders into the form's
+captcha row (`.form-recaptcha-badge`), inline style for `--captcha-badge: inline` themes (application),
+standard bottom-right otherwise (flag-profile). Verified: equivalency (both tabs), subscribe (draft +
+every footer), flag (badge pinned in frame, 72px logo, 14px up), disclaimer, coaching-document render
+with no script errors. Gotcha: re-check form/*.js with `node --check` after every merge from main —
+git's line-level merge happily produces code that doesn't parse.
+Not from this merge: `fonts/lato-regular.woff2` 404 (referenced by main's fonts.css, file not in repo).
