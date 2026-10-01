@@ -1,0 +1,21 @@
+/* file component — drag & drop upload area (see file.js). Per-form theming
+   lives in the form's scoped CSS (e.g. application.css). */
+main .form .file-wrapper .file-drag-area.file-drag-area-active {
+  border-style: solid;
+}
+
+main .form .file-wrapper .file-drag-text .file-attach-button {
+  display: inline;
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+main .form .file-wrapper .files-list:empty {
+  display: none;
+}

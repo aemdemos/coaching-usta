@@ -26,7 +26,6 @@ import {
 } from './util.js';
 
 export const DELAY_MS = 0;
-let captchaField;
 let afModule;
 
 const withFieldWrapper = (element) => (fd) => {
@@ -47,10 +46,13 @@ const createSelect = withFieldWrapper((fd) => {
   return select;
 });
 
+// Type "heading" rows: the Label is the heading text (no <label>), and the
+// optional "Heading Level" column picks h2–h6 so the form nests under the page h1.
 function createHeading(fd) {
-  const wrapper = createFieldWrapper(fd);
-  const heading = document.createElement('h2');
-  heading.textContent = fd.value || fd.label.value;
+  const wrapper = createFieldWrapper(fd, 'div', () => null);
+  const level = Math.min(Math.max(parseInt(fd.headingLevel, 10) || 2, 2), 6);
+  const heading = document.createElement(`h${level}`);
+  heading.textContent = fd.value || fd.label?.value || '';
   heading.id = fd.id;
   wrapper.append(heading);
 
@@ -200,6 +202,9 @@ function inputDecorator(field, element) {
     }
     input.readOnly = field.readOnly;
     input.autocomplete = field.autoComplete ?? 'off';
+    if (field.inputMode) {
+      input.inputMode = field.inputMode;
+    }
     input.disabled = field.enabled === false;
     if (field.fieldType === 'drop-down' && field.readOnly) {
       input.disabled = true;
@@ -312,7 +317,6 @@ export async function generateFormRendition(panel, container, formId, getItems =
     field.value = field.value ?? '';
     const { fieldType } = field;
     if (fieldType === 'captcha') {
-      captchaField = field;
       const element = createFieldWrapper(field);
       element.textContent = 'CAPTCHA';
       return element;
@@ -343,10 +347,25 @@ function enableValidation(form) {
     });
   });
 
-  form.addEventListener('change', (event) => {
-    checkValidation(event.target);
+  const revalidate = (field) => {
+    checkValidation(field);
+    // all fields fixed → the "please correct the highlighted fields" summary is stale
+    if (!form.querySelector('.field-invalid')) {
+      form.querySelector(':scope > .error-summary')?.remove();
+    }
+  };
+
+  // Opt-in (form.dataset.validateOn = "blur", set for the application variant):
+  // validate as soon as a field is left, even untouched — the source's
+  // behaviour ("Required field" appears when you tab past an empty field).
+  form.addEventListener('focusout', (event) => {
+    const { target } = event;
+    if (form.dataset.validateOn === 'blur' && target.matches?.('input:not([type="file"]), select, textarea')) {
+      revalidate(target);
+    }
   });
 
+  form.addEventListener('change', (event) => revalidate(event.target));
   // Formstack-style forms (those with an authored error-summary row) also check a
   // field as soon as the user leaves it — `change` never fires when an empty
   // field is left empty, so "Required field" would otherwise wait for submit.
@@ -372,6 +391,14 @@ async function createFormForAuthoring(formDef) {
   return form;
 }
 
+function findCaptchaField(panel) {
+  const items = panel?.items
+    || panel?.[':itemsOrder']?.map((key) => panel[':items'][key])
+    || [];
+  return items.reduce((found, item) => found
+    || (item?.fieldType === 'captcha' ? item : findCaptchaField(item)), undefined);
+}
+
 export async function createForm(formDef, data, source = 'aem') {
   const { action: formPath } = formDef;
   const form = document.createElement('form');
@@ -384,6 +411,16 @@ export async function createForm(formDef, data, source = 'aem') {
   const formId = extractIdFromUrl(formPath); // formDef.id returns $form after getState()
   await generateFormRendition(formDef, form, formId);
 
+  // Name the form after its first heading (e.g. the application title).
+  const title = form.querySelector('h2, h3, h4, h5, h6');
+  if (title?.id) {
+    form.setAttribute('aria-labelledby', title.id);
+  }
+
+  // The captcha row of THIS form — the module-level captchaField is shared by
+  // every form on the page (two application forms + the footer subscribe form
+  // load concurrently), so it must not leak from one form into another.
+  const captchaField = findCaptchaField(formDef);
   let captcha;
   if (captchaField) {
     let config = captchaField?.properties?.['fd:captcha']?.config;
@@ -415,6 +452,10 @@ export async function createForm(formDef, data, source = 'aem') {
     const currentSource = form.dataset.source || 'aem';
     const response = await createForm(formDef, undefined, currentSource);
     if (response?.form) {
+      // keep setupForm()'s settings (thank-you / error / redirect / id) on the new form
+      ['redirectUrl', 'thankYouMsg', 'errorMsg', 'id', 'rules', 'validateOn']
+        .filter((key) => key in form.dataset)
+        .forEach((key) => { response.form.dataset[key] = form.dataset[key]; });
       document.querySelector(`[data-action="${form?.dataset?.action}"]`)?.replaceWith(response?.form);
     }
   });
@@ -599,6 +640,7 @@ async function setupForm(formDef, { pathname, block, editMode = false } = {}) {
 
   form.dataset.redirectUrl = def.redirectUrl || '';
   form.dataset.thankYouMsg = def.thankYouMsg || '';
+  form.dataset.errorMsg = def.errorMsg || '';
   form.dataset.action = def.action || pathname?.split('.json')[0];
   form.dataset.id = def.id;
   return { form, afbForm };
@@ -610,7 +652,20 @@ export async function renderForm(formDef, element) {
   return { form, afbForm };
 }
 
+// Form variants with their own stylesheet (blocks/form/{variant}.css). Loaded
+// only when a block uses the variant, so pages that just carry the footer
+// subscribe form don't download them.
+const VARIANT_STYLES = ['application'];
+
+function loadVariantStyles(block) {
+  const base = (window.hlx?.codeBasePath || '').replace(/\/$/, '');
+  return Promise.all(VARIANT_STYLES
+    .filter((variant) => block.classList.contains(variant))
+    .map((variant) => loadCSS(`${base}/blocks/form/${variant}.css`)));
+}
+
 export default async function decorate(block) {
+  const variantStyles = loadVariantStyles(block);
   let container = block.querySelector('a[href]');
   let formDef;
   let pathname;
@@ -628,6 +683,17 @@ export default async function decorate(block) {
       block,
       editMode: block.classList.contains('edit-mode'),
     }));
+    if (block.classList.contains('application')) {
+      // Formstack-style forms validate each field on blur (see enableValidation)
+      form.dataset.validateOn = 'blur';
+      // Source look (agreed with the client): the Formstack embeds autofocus their
+      // first field, which then blurs, so the page loads with that field already
+      // flagged ("Required field" on Name, red First Name). Reproduced by
+      // validating the first required field once — without moving focus.
+      const first = form.querySelector('[required]:not([type="file"], [type="checkbox"], [type="radio"])');
+      if (first) checkValidation(first);
+    }
+    await variantStyles;
     container.replaceWith(form);
   }
   return { form, afbForm };

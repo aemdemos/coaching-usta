@@ -22,6 +22,34 @@ export function stripTags(input, allowd = allowedTags) {
     .trim();
 }
 
+const SAFE_TAGS = new Set(['A', 'B', 'BR', 'EM', 'I', 'LI', 'OL', 'P', 'S', 'STRONG', 'SUB', 'SUP', 'U', 'UL']);
+
+/**
+ * Sanitizes author (sheet) HTML before it is injected: keeps a small set of
+ * inline/list tags, drops every attribute except a safe http(s)/mailto/tel or
+ * relative href on links, and unwraps any other element to its text.
+ * @param {string} html
+ * @returns {DocumentFragment}
+ */
+export function sanitizeHTML(html) {
+  const template = document.createElement('template');
+  template.innerHTML = typeof html === 'string' ? html : '';
+  const clean = (node) => {
+    [...node.children].forEach((el) => {
+      clean(el);
+      if (!SAFE_TAGS.has(el.tagName)) {
+        el.replaceWith(...(['SCRIPT', 'STYLE'].includes(el.tagName) ? [] : el.childNodes));
+        return;
+      }
+      const href = el.tagName === 'A' ? el.getAttribute('href') : null;
+      [...el.attributes].forEach((attr) => el.removeAttribute(attr.name));
+      if (href && /^(https?:|mailto:|tel:|\/|#)/i.test(href.trim())) el.setAttribute('href', href.trim());
+    });
+  };
+  clean(template.content);
+  return template.content;
+}
+
 /**
  * Sanitizes a string for use as class name.
  * @param {string} name The unsanitized string
@@ -157,12 +185,60 @@ function getFieldContainer(fieldElement) {
 export function createHelpText(fd) {
   const div = document.createElement('div');
   div.className = 'field-description';
-  div.setAttribute('aria-live', 'polite');
-  div.innerHTML = fd.description;
+  div.replaceChildren(sanitizeHTML(fd.description));
   div.id = `${fd.id}-description`;
   return div;
 }
 
+// The controls a field message describes: the input itself, or every option
+// of a checkbox/radio group.
+function getDescribedControls(fieldElement, container) {
+  return container.matches('fieldset')
+    ? [...container.querySelectorAll('input, select, textarea')]
+    : [fieldElement];
+}
+
+function setDescribedBy(control, id, add) {
+  const ids = (control.getAttribute('aria-describedby') || '').split(' ').filter((x) => x && x !== id);
+  if (add) ids.push(id);
+  if (ids.length) control.setAttribute('aria-describedby', ids.join(' '));
+  else control.removeAttribute('aria-describedby');
+}
+
+/**
+ * Grouped fields (a Fieldset panel such as Name or Address) get ONE group-level
+ * message — the first invalid sub-field's — as on the source (Formstack shows a
+ * single pill above the group). Presentational only (aria-hidden): each
+ * sub-field keeps its own linked message for assistive tech. Hidden unless a
+ * form theme shows it (application.css).
+ * @param {HTMLElement} panel fieldset.panel-wrapper
+ */
+function updatePanelError(panel) {
+  const firstInvalid = [...panel.querySelectorAll(':scope > .field-wrapper.field-invalid')][0];
+  let banner = panel.querySelector(':scope > .panel-error');
+  if (!firstInvalid) {
+    banner?.remove();
+    panel.classList.remove('panel-invalid');
+    return;
+  }
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.className = 'panel-error';
+    banner.setAttribute('aria-hidden', 'true');
+    const legend = panel.querySelector(':scope > legend');
+    if (legend) legend.after(banner);
+    else panel.prepend(banner);
+  }
+  banner.textContent = firstInvalid.querySelector(':scope > .field-description')?.textContent || '';
+  panel.classList.add('panel-invalid');
+}
+
+/**
+ * Shows (msg) or clears ('') a field's inline error. The message element is
+ * linked to its control(s) via aria-describedby and the control is flagged
+ * aria-invalid, so screen readers announce the error on focus. Help text
+ * (sheet Description) shares the element and is restored once valid.
+ */
 export function updateOrCreateInvalidMsg(fieldElement, msg) {
   const container = getFieldContainer(fieldElement);
   let element = container.querySelector(':scope > .field-description');
@@ -170,15 +246,26 @@ export function updateOrCreateInvalidMsg(fieldElement, msg) {
     element = createHelpText({ id: fieldElement.id });
     container.append(element);
   }
+  const controls = getDescribedControls(fieldElement, container);
   if (msg) {
     container.classList.add('field-invalid');
     element.textContent = msg;
-  } else if (container.dataset.description) {
+    controls.forEach((control) => {
+      control.setAttribute('aria-invalid', 'true');
+      setDescribedBy(control, element.id, true);
+    });
+  } else {
     container.classList.remove('field-invalid');
-    element.innerHTML = container.dataset.description;
-  } else if (element) {
-    element.remove();
-    container?.classList?.remove('field-invalid');
+    controls.forEach((control) => control.removeAttribute('aria-invalid'));
+    if (container.dataset.description) {
+      element.replaceChildren(sanitizeHTML(container.dataset.description));
+    } else {
+      controls.forEach((control) => setDescribedBy(control, element.id, false));
+      element.remove();
+    }
+  }
+  if (container.parentElement?.matches('fieldset.panel-wrapper')) {
+    updatePanelError(container.parentElement);
   }
   return element;
 }

@@ -1,7 +1,13 @@
-export const fileAttachmentText = 'Attach';
-export const dragDropText = 'Drag and Drop To Upload';
+// File-upload copy, matching the source site's upload fields
+export const fileAttachmentText = 'Browse files';
+export const dragDropText = 'Drag and drop here or';
 
 export const DEFAULT_THANK_YOU_MESSAGE = 'Thank you for your submission.';
+
+// Fallback copy only — a form sheet can override each via its submit row
+// ("Value" = thank-you message) and the submit row's "Description" (error).
+export const DEFAULT_ERROR_MESSAGE = 'Something went wrong while submitting the form. Please try again.';
+export const DEFAULT_ERROR_SUMMARY = 'Please correct the highlighted fields.';
 
 // Logging Configuration
 // Control logging via URL parameter: ?log=<level>
@@ -63,8 +69,11 @@ export const defaultErrorMessages = {
   required: 'Please fill in this field.',
 };
 
-// eslint-disable-next-line no-useless-escape
-export const emailPattern = '([A-Za-z0-9][._]?)+[A-Za-z0-9]@[A-Za-z0-9]+(\.?[A-Za-z0-9]){2}\.([A-Za-z0-9]{2,4})?';
+// local@domain.tld — accepts hyphens, plus-addressing, subdomains and 2-letter
+// TLDs (the upstream pattern rejected all of these, and its unescaped "." in a
+// single-quoted string matched any character). Valid under the "v" flag
+// browsers apply to the pattern attribute.
+export const emailPattern = String.raw`[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}`;
 
 let submitBaseUrl = '';
 

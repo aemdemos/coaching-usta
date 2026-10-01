@@ -36,7 +36,7 @@
 
   /* Source pill is 56px tall: line-height 18px + 19px vertical padding. */
   padding: 19px 20px;
-  background-color: #2d2d2d;
+  background-color: var(--usta-dark-panel);
   color: #fff;
 
   /* Graphik Regular only ships 400/700, so weight 900 silently caps at 700 and
@@ -66,22 +66,27 @@
   text-align: left;
 }
 
-.tabs .tabs-list button p {
-  margin: 0;
-}
-
 .tabs .tabs-list button:hover,
 .tabs .tabs-list a.tabs-tab:hover {
-  background-color: #cfff05;
+  background-color: var(--usta-lime);
   color: #000;
 }
 
 .tabs .tabs-list button[aria-selected='true'],
 .tabs .tabs-list a.tabs-tab[aria-selected='true'],
 .tabs .tabs-list a.tabs-tab[aria-current='page'] {
-  background-color: #cfff05;
+  background-color: var(--usta-lime);
   color: #000;
   cursor: default;
+}
+
+/* Keyboard focus (source): 2px dotted ring in the label colour plus a 2px
+   white halo, so it reads on the lime pill and on the dark track alike. */
+.tabs .tabs-list button:focus-visible,
+.tabs .tabs-list a.tabs-tab:focus-visible {
+  outline: 2px dotted currentcolor;
+  outline-offset: 0;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .tabs .tabs-panel {
@@ -99,7 +104,7 @@
   .tabs .tabs-list {
     gap: 16px;
     border-radius: 20px;
-    background-color: #2d2d2d;
+    background-color: var(--usta-dark-panel);
     overflow-x: visible;
   }
 
@@ -107,5 +112,116 @@
   .tabs .tabs-list a.tabs-tab {
     flex: 1 1 0;
     background-color: transparent;
+  }
+}
+
+/* Application variant — "Tabs (application)": the 2-tab pill toggle over the
+   equivalency application forms (source: ustacoaching.com
+   /en/home/learning-pathway/usta-coaching-equivalency-application.html).
+   Same pill model as the default, with the source's taller pills (68px mobile,
+   101px tablet+), pills inset 8px in the track, and a stepped label size
+   (14 → 12 @768 → 14 @1024 → 16 @1280). Panels hold Form (application).
+
+   Width: the source places this toggle on columns 2–11 of its 12-col page grid
+   (grid = page content + 24px gutter): width = (content + 24) × 10/12 − 24.
+   Source page content = viewport − 2 × gutter (32.5 / 53 @768 / 61 @1024 /
+   77 @1280), capped at 1382. Measured: 267 @390, 548 @768, 748 @1024,
+   934 @1280, 1068 @1440, 1148 @1920. */
+.tabs.application {
+  --tabs-page-gutter: 32.5px;
+  --tabs-width: calc((min(100vw - 2 * var(--tabs-page-gutter), 1382px) + 24px) * 5 / 6 - 24px);
+
+  /* centred even where the source span (1148 @1920) is a hair wider than our
+     1136 content box */
+  width: var(--tabs-width);
+  margin-inline: calc((100% - var(--tabs-width)) / 2);
+}
+
+/* Source pill spacing: every pill has an 8px margin on all sides, so the track
+   insets them 8px and the space between two pills is 8 + gap + 8 = 24px (<768)
+   / 32px (>=768, gap 16) — e.g. 250px pills in the 548px track @768. */
+.tabs.application .tabs-list button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 68px;
+  margin: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* Tab change (source): the newly shown form fades in — ~0.7s on phones and
+   tablets, quicker (~0.3s) on desktop. tabs.js adds .tabs-panel-enter on a
+   visitor's tab change only (not on page load). */
+@keyframes tabs-panel-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.tabs.application .tabs-panel.tabs-panel-enter {
+  animation: tabs-panel-in 0.7s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs.application .tabs-panel.tabs-panel-enter {
+    animation: none;
+  }
+}
+
+/* The source embeds each form in an iframe inset 12px (8px sides on mobile)
+   inside the panel, 20px below the track. */
+.tabs.application .tabs-panel {
+  margin-top: 20px;
+  padding: 12px 8px;
+}
+
+@media (width >= 768px) {
+  .tabs.application {
+    --tabs-page-gutter: 53px;
+  }
+
+  .tabs.application .tabs-panel {
+    padding: 12px;
+  }
+
+  .tabs.application .tabs-list button {
+    min-height: 101px;
+    padding: 0 20px;
+    font-size: 12px;
+  }
+}
+
+@media (width >= 1024px) {
+  .tabs.application {
+    --tabs-page-gutter: 61px;
+  }
+
+  /* source: 106px pills from 1024 to 1279 (101 again from 1280). Its 92px
+     pills from 1536 need a 1536 breakpoint that isn't in the agreed set
+     (tools/quality/breakpoints.json), so >=1536 stays at 101 (documented). */
+  .tabs.application .tabs-list button {
+    min-height: 106px;
+    font-size: 14px;
+  }
+
+  .tabs.application .tabs-panel.tabs-panel-enter {
+    animation-duration: 0.3s;
+  }
+}
+
+@media (width >= 1280px) {
+  .tabs.application {
+    --tabs-page-gutter: 77px;
+  }
+
+  .tabs.application .tabs-list button {
+    min-height: 101px;
+    font-size: 16px;
   }
 }

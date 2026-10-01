@@ -1,0 +1,762 @@
+/* application — "Form (application)": the USTA Coaching equivalency
+   application forms (/forms/education-equivalency.json,
+   /forms/industry-experience.json). Renders standalone or inside
+   "Tabs (application)" (tabs.js passes the variant on to the form).
+
+   Source: the Formstack embeds on ustacoaching.com
+   /en/home/learning-pathway/usta-coaching-equivalency-application.html —
+   a navy card (#15232b) in the embed frame, Open Sans, a 720px content
+   column, 12px/36px inputs with a slate hairline, labels 16px with 20px to the
+   input and 40px between fields, sub-labels (First Name, City…) 11px UNDER the
+   input, and pink "Required field" pills ABOVE invalid inputs.
+
+   Scoped to .form.application so it wins over subscribe.css, which themes
+   every .form.block (black subscribe look). Do NOT put these rules in the
+   shared form.css. */
+
+@font-face {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("../../fonts/open-sans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Open Sans Fallback";
+  size-adjust: 105.44%;
+  ascent-override: 101.65%;
+  descent-override: 27.86%;
+  line-gap-override: 0%;
+  src: local("Arial");
+}
+
+main .form.application.block {
+  --application-bg: #15232b;
+  --application-text: #edeff0;
+  --application-muted: #acb5bf;
+  --application-border: #687680;
+  --application-focus: #0197ec;
+  --application-error: #ff3c3c;
+  --application-error-bg: #fae9e9;
+  --application-drop-bg: #1e2c35;
+  --application-drop-active-bg: #263843;
+  --application-success: #137333;
+  --application-success-bg: #e6f4ea;
+  --application-font: "Open Sans", "Open Sans Fallback", "Helvetica Neue", arial, sans-serif;
+
+  /* The embed frame: the source iframe is a FIXED 1500px box (2px inset
+     border) at every breakpoint and the form scrolls INSIDE it — the page
+     only scrolls once the form reaches its end (default scroll chaining).
+     The frame clips; its row (> div, below) is the scroller. Positioned: hosts
+     the reCAPTCHA badge, pinned to the frame's bottom-right like the source's
+     badge, which is fixed inside the iframe viewport. */
+  position: relative;
+  box-sizing: border-box;
+  height: 1500px;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--application-bg);
+  border: 2px inset #000;
+  border-radius: 0;
+  color: var(--application-text);
+  font-family: var(--application-font);
+  font-size: 16px;
+  line-height: normal;
+  letter-spacing: normal;
+}
+
+/* The scroller (the block's row): carries the card padding so it scrolls
+   with the form, as inside the source iframe */
+main .form.application.block > div {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+/* room for the badge under Submit in the compact card (40px bottom padding) */
+main .form.application.block:has(.captcha-ready) > div {
+  padding-bottom: 94px;
+}
+
+/* Content column: 720px max, centred (source .fsForm 800 incl. 40px padding) */
+main .form.application.block form {
+  /* Mobile-first single column: a 12-col grid's 11 gaps alone (440px) would
+     overflow a phone-width card. The 12-col grid returns at >=1024. */
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 720px;
+  margin: 0 auto;
+  gap: 40px;
+}
+
+main .form.application.block form .field-wrapper {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1 / -1;
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  color: var(--application-text);
+}
+
+/* reCAPTCHA badge (integrations/recaptcha.js): hosted INSIDE the card, at its
+   bottom-right corner, 14px up — where the source's badge sits in its embed
+   (and clear of the site's chat launcher, which owns the viewport corner).
+   Collapsed to the 70px logo; slides open to 256px on hover/focus (0.3s),
+   like Google's floating badge. Hidden until a site key renders it. */
+main .form.application.block form .field-wrapper.captcha-wrapper {
+  --captcha-badge: inline;
+
+  display: none;
+}
+
+main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready {
+  display: block;
+  position: absolute;
+  right: 0;
+  bottom: 14px;
+  width: 70px;
+  height: 60px;
+  margin: 0;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgb(128 128 128);
+  transition: width 0.3s;
+}
+
+/* Google's inline badge has its logo on the RIGHT: pin the badge's right edge
+   so the collapsed host shows the logo and the text slides out leftwards */
+main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready:is(:hover, :focus-within) {
+  width: 256px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main .form.application.block form .field-wrapper.captcha-wrapper.captcha-ready {
+    transition: none;
+  }
+}
+
+/* Text: plain-text rows, and the title / section subheadings — Type
+   "heading" rows (h2 title, h3 subheadings; Style column) so the form nests
+   under the page h1 (a plain-text <p> row styles the same). Formstack's own
+   sizes, not the site heading scale. */
+main .form.application.block form p {
+  margin: 0;
+  color: var(--application-text);
+  font-family: var(--application-font);
+  font-size: 16px;
+  line-height: normal;
+  letter-spacing: normal;
+}
+
+main .form.application.block form :is(.application-title, .application-subheading) :is(h2, h3, p) {
+  margin: 0;
+  color: var(--application-text);
+  font-family: var(--application-font);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+main .form.application.block form .application-title :is(h2, h3, p) {
+  margin: 21px 0;
+  font-size: 32px;
+}
+
+main .form.application.block form .application-subheading {
+  margin: 16px 0;
+}
+
+/* Maxlength fields (First / Last Name, 20): the source shows no counter */
+main .form.application.block .form-char-counter {
+  display: none;
+}
+
+/* Labels + legends: 16px, 20px above the control. The field-specific
+   selectors out-rank subscribe.css, which themes every .form.block and styles
+   the email / zip labels and the checkbox-group legend with one class more
+   (`:is(main, .footer-form)` scope) — kept here, not in subscribe.css, so the
+   footer subscribe form is untouched. */
+main .form.application.block form label.field-label,
+main .form.application.block form legend.field-label,
+main .form.application.block form :is(.field-email, .field-zipcode) > label.field-label,
+main .form.application.block form fieldset.checkbox-group-wrapper > legend.field-label {
+  order: -2;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 0;
+  border: 0;
+  color: var(--application-text);
+  font-family: var(--application-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Required asterisk: after the label text, same colour (source "USTA Number*") */
+main .form.application.block [data-required="true"] > label.field-label::before,
+main .form.application.block :is(.field-email, .field-zipcode)[data-required="true"] > label.field-label::before {
+  content: none;
+}
+
+main .form.application.block [data-required="true"] > label.field-label::after,
+main .form.application.block fieldset[data-required="true"] > legend.field-label::after,
+main .form.application.block fieldset.panel-wrapper:has([required]) > legend.field-label::after {
+  content: "*";
+  padding: 0;
+  color: inherit;
+}
+
+/* Grouped fields (Name, Address): a fieldset panel whose sub-labels sit UNDER
+   each input in small muted type, and never carry their own asterisk. */
+main .form.application.block form fieldset.panel-wrapper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+
+  /* keep a row's inputs aligned when one sub-field's error pill wraps */
+  align-items: end;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+main .form.application.block form .panel-wrapper > .field-wrapper > label.field-label {
+  order: 1;
+  margin: 2px 0 0;
+  color: var(--application-muted);
+  font-size: 11px;
+  line-height: 11px;
+}
+
+main .form.application.block .panel-wrapper > .field-wrapper[data-required="true"] > label.field-label::after {
+  content: none;
+}
+
+/* source quirk: ZIP stays 20% wide even when the address stacks on mobile */
+main .form.application.block form .application-address > .field-zipcode {
+  width: 20%;
+}
+
+/* Controls: 36px, 12px text, slate hairline, 3px radius */
+main .form.application.block input:is([type="text"], [type="email"], [type="tel"], [type="date"]),
+main .form.application.block select,
+main .form.application.block textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  padding: 6px;
+  background-color: var(--application-bg);
+  border: 1px solid var(--application-border);
+  border-radius: 3px;
+  color: var(--application-text);
+  color-scheme: dark;
+  font-family: var(--application-font);
+  font-size: 12px;
+  line-height: 12px;
+  letter-spacing: normal;
+}
+
+main .form.application.block textarea {
+  height: 134px;
+  resize: vertical;
+}
+
+main .form.application.block select {
+  appearance: none;
+  padding-right: 24px;
+  border-color: var(--application-muted);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 12'%3E%3Cpath d='M4 0 8 5H0zM4 12 0 7h8z' fill='%23edeff0'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 6px 10px;
+}
+
+main .form.application.block input:is([type="text"], [type="email"], [type="tel"], [type="date"]):hover,
+main .form.application.block select:hover,
+main .form.application.block textarea:hover {
+  border-color: var(--application-muted);
+}
+
+main .form.application.block input:is([type="text"], [type="email"], [type="tel"], [type="date"]):focus-visible,
+main .form.application.block select:focus-visible,
+main .form.application.block textarea:focus-visible {
+  /* source: 2px blue outline, border unchanged */
+  outline: 2px solid var(--application-focus);
+  outline-offset: 0;
+}
+
+/* source date field: 14px side padding (placeholder segments at x14) */
+main .form.application.block input[type="date"] {
+  padding: 0 13px;
+}
+
+/* Help text (Description column, e.g. "Found in your USTA Coaching Settings"):
+   the source shows it as a light tooltip while the field has focus. It stays
+   in the DOM (aria-describedby) and is revealed on focus. */
+main .form.application.block form .field-wrapper:not(.field-invalid) > .field-description {
+  position: absolute;
+  top: calc(100% + 17px);
+  left: 48px;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 354px;
+  max-width: calc(100% - 48px);
+  padding: 11px;
+  border-radius: 3px;
+  background-color: var(--application-text);
+  box-shadow: 3px 3px 7px rgb(0 0 0 / 25%);
+  color: var(--application-bg);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 22px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+/* Inline validation: a pink pill with a red "!" ABOVE the control, and a red
+   border + icon on the invalid input (source "Required field",
+   "An address must be provided", …). */
+main .form.application.block form .field-wrapper.field-invalid > .field-description {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  order: -1;
+  margin: 0 0 7px;
+  padding: 7px 12px;
+  border: 1px solid var(--application-error);
+  border-radius: 3px;
+  background-color: var(--application-error-bg);
+  color: var(--application-bg);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 15px;
+}
+
+/* Grouped fields (Name, Address): ONE pill for the group, full width, 20px
+   under the legend and 7px above the inputs (source) — the first invalid
+   sub-field's message. Sub-field messages stay for screen readers only. */
+main .form.application.block form fieldset.panel-wrapper > .panel-error {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  grid-column: 1 / -1;
+  margin: 0 0 -13px;
+  padding: 7px 12px;
+  border: 1px solid var(--application-error);
+  border-radius: 3px;
+  background-color: var(--application-error-bg);
+  color: var(--application-bg);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 15px;
+}
+
+main .form.application.block form fieldset.panel-wrapper > .panel-error::before {
+  content: "";
+  flex: 0 0 12px;
+  height: 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23ff3c3c'/%3E%3Cpath d='M7 3.5h2v6H7zM7 11h2v2H7z' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+main .form.application.block form .field-wrapper.field-invalid > .field-description::before {
+  content: "";
+  flex: 0 0 12px;
+  height: 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23ff3c3c'/%3E%3Cpath d='M7 3.5h2v6H7zM7 11h2v2H7z' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+main .form.application.block form .field-wrapper:not(.field-invalid):focus-within > .field-description {
+  opacity: 1;
+}
+
+/* grouped sub-fields: the group pill (.panel-error) is the visual message */
+main .form.application.block form fieldset.panel-wrapper > .field-wrapper.field-invalid > .field-description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+main .form.application.block .field-invalid > input:is([type="text"], [type="email"], [type="tel"], [type="date"]),
+main .form.application.block .field-invalid > select,
+main .form.application.block .field-invalid > textarea {
+  border-color: var(--application-error);
+}
+
+main .form.application.block .field-invalid > input:is([type="text"], [type="email"], [type="tel"]) {
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23ff3c3c'/%3E%3Cpath d='M7 3.5h2v6H7zM7 11h2v2H7z' fill='%23fff'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px 12px;
+}
+
+/* Acknowledgement checkbox group. The option row's 24px line box overhangs
+   the cell by 10px, so Submit sits 174px below the row top vs 160px after
+   other fields — at every breakpoint (source). */
+main .form.application.block form fieldset.checkbox-group-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0 0 -10px;
+  padding: 0;
+  border: 0;
+}
+
+main .form.application.block form .checkbox-wrapper {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding-left: 2px;
+}
+
+main .form.application.block .checkbox-wrapper input[type="checkbox"] {
+  appearance: none;
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  padding: 0;
+  background-color: var(--application-bg);
+  border: 1px solid var(--application-border);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+main .form.application.block .checkbox-wrapper input[type="checkbox"]:checked {
+  background-color: var(--application-text);
+  border-color: var(--application-text);
+}
+
+main .form.application.block .checkbox-wrapper input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--application-focus);
+  outline-offset: 2px;
+}
+
+main .form.application.block .field-invalid .checkbox-wrapper input[type="checkbox"] {
+  border-color: var(--application-error);
+  outline: 0;
+}
+
+main .form.application.block form .checkbox-wrapper label {
+  flex: 1 1 auto;
+  order: 0;
+  margin: 0;
+  color: var(--application-text);
+  font-family: var(--application-font);
+  font-size: 12px;
+  line-height: 24px;
+  white-space: normal;
+  cursor: pointer;
+}
+
+/* File upload (components/file): dashed drop area with a cloud icon,
+   "Drag and drop here or Browse files" and the "Max file size" hint. */
+main .form.application.block .file-wrapper .file-drag-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  min-height: 99px;
+  padding: 19px 0;
+  border: 1px dashed var(--application-border);
+  border-radius: 3px;
+  background-color: var(--application-drop-bg);
+  color: var(--application-text);
+  text-align: center;
+}
+
+main .form.application.block .file-wrapper .file-drag-icon {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23edeff0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 18a4.5 4.5 0 0 1-.5-8.97A6 6 0 0 1 18 9a4 4 0 0 1 0 9'/%3E%3Cpath d='M12 20v-8M9 15l3-3 3 3'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+main .form.application.block .file-wrapper .file-drag-text {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+main .form.application.block .file-wrapper .file-drag-text .file-attach-button:focus-visible {
+  outline: 2px solid var(--application-focus);
+  outline-offset: 2px;
+}
+
+main .form.application.block .file-wrapper .file-drag-hint {
+  font-size: 11px;
+  line-height: 15px;
+}
+
+/* source upload cell reserves 20px below the drop area */
+main .form.application.block form .file-wrapper {
+  padding-bottom: 20px;
+}
+
+main .form.application.block .file-wrapper .file-drag-text .file-attach-button:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* dragging a file over the drop area */
+main .form.application.block .file-wrapper .file-drag-area.file-drag-area-active {
+  border-color: var(--application-text);
+  background-color: var(--application-drop-active-bg);
+}
+
+/* rejected file (type / size): red drop area, the pill sits above it */
+main .form.application.block .file-wrapper.field-invalid .file-drag-area {
+  border-color: var(--application-error);
+}
+
+/* Attached files: name (opens a preview) · size · remove */
+main .form.application.block .file-wrapper .files-list:not(:empty) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+main .form.application.block .file-wrapper .file-description {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 4px 0 12px;
+  border: 1px solid var(--application-border);
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+main .form.application.block .file-wrapper .file-description-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--application-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+main .form.application.block .file-wrapper .file-description-size {
+  flex: 0 0 auto;
+  color: var(--application-muted);
+}
+
+main .form.application.block .file-wrapper .file-description button.file-description-remove {
+  position: relative;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='m2 2 8 8M10 2l-8 8' stroke='%23edeff0' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") center / 10px no-repeat;
+  cursor: pointer;
+}
+
+/* 44px hit area around the 24px remove glyph */
+main .form.application.block .file-wrapper .file-description button.file-description-remove::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  transform: none;
+}
+
+main .form.application.block .file-wrapper .file-description button.file-description-remove:hover {
+  background-color: var(--application-drop-bg);
+}
+
+main .form.application.block .file-wrapper .file-description button.file-description-remove:focus-visible {
+  outline: 2px solid var(--application-focus);
+  outline-offset: 0;
+}
+
+/* Submit: small light button well below the last field — full width in the
+   compact (<1024) layout, 60px and centred in the wide one (source). */
+main .form.application.block form .field-wrapper.submit-wrapper {
+  margin: 120px 0 0;
+}
+
+/* an upload field ending the form (Industry Experience): the source's Submit
+   sits 170px below the drop area, 10px tighter than our 20px reserve + 40 gap
+   + 120. On Submit itself, so it also holds when the two uploads share a row
+   (>=1024). The hidden captcha row may sit between them. */
+main .form.application.block form .file-wrapper + .submit-wrapper,
+main .form.application.block form .file-wrapper + .captcha-wrapper + .submit-wrapper {
+  margin-top: 110px;
+}
+
+main .form.application.block button.button,
+main .form.application.block .button-wrapper button.button:hover {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+  background-color: var(--application-text);
+  border: 0;
+  border-radius: 3px;
+  color: var(--application-bg);
+  font-family: var(--application-font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+/* keep the source's 32px button but give it a 44px-tall hit area */
+main .form.application.block button.button::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}
+
+main .form.application.block .button-wrapper button.button:focus-visible {
+  outline: 2px solid var(--application-focus);
+  outline-offset: 2px;
+}
+
+/* Submitting (submit.js sets aria-busy on the form and disables the button) */
+main .form.application.block .button-wrapper button.button:disabled,
+main .form.application.block form[aria-busy="true"] .button-wrapper button.button {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Disabled / read-only controls (sheet "Visible" / ReadOnly, rules) */
+main .form.application.block :is(input, select, textarea):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form-level banners (submit.js): the validation summary and submission
+   error sit at the top of the form; the success message replaces the
+   form's place above a fresh form. Same pill language as the field errors. */
+main .form.application.block .form-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  border: 1px solid var(--application-error);
+  border-radius: 3px;
+  background-color: var(--application-error-bg);
+  color: var(--application-bg);
+  font-family: var(--application-font);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* form.css hides the summary visually on unthemed forms; show it here */
+main .form.application.block .form-message.error-summary {
+  position: static;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+}
+
+main .form.application.block .form-message::before {
+  content: "";
+  flex: 0 0 16px;
+  height: 16px;
+  margin-top: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23ff3c3c'/%3E%3Cpath d='M7 3.5h2v6H7zM7 11h2v2H7z' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+main .form.application.block .form-message.success-message {
+  margin-bottom: 40px;
+  border-color: var(--application-success);
+  background-color: var(--application-success-bg);
+}
+
+main .form.application.block .form-message.success-message::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23137333'/%3E%3Cpath d='m4.5 8.2 2.3 2.3 4.7-4.8' fill='none' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E");
+}
+
+main .form.application.block .form-message :is(p, ul, ol) {
+  margin: 0;
+}
+
+main .form.application.block .form-message a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* banners take programmatic focus only (tabindex -1, not operable): no ring */
+main .form.application.block .form-message:focus {
+  outline: none;
+}
+
+/* >=1024 the source's embed is wide enough (~720px) for its two-column rows:
+   Name first|last, Email|Phone, City|State|ZIP (ZIP is 20%), and the card
+   gains Formstack's wide-layout offsets: 120px above the title (40 wrapper +
+   40 form margin + 40 form padding) and 80px at the sides. */
+@media (width >= 1024px) {
+  main .form.application.block > div,
+  main .form.application.block:has(.captcha-ready) > div {
+    padding: 120px 80px;
+  }
+
+  main .form.application.block form,
+  main .form.application.block form fieldset.panel-wrapper {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  main .form.application.block form .submit-wrapper {
+    align-items: center;
+  }
+
+  main .form.application.block button.button,
+  main .form.application.block .button-wrapper button.button:hover {
+    width: auto;
+  }
+
+  main .form.application.block form .field-wrapper.col-6 {
+    grid-column: span 6;
+  }
+
+  main .form.application.block form fieldset.application-address {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 20%;
+  }
+
+  main .form.application.block form .application-address > .field-wrapper {
+    grid-column: auto;
+  }
+
+  main .form.application.block form .application-address > .field-zipcode {
+    width: auto;
+  }
+
+  main .form.application.block form .application-address > :is(.field-addressline1, .field-addressline2) {
+    grid-column: 1 / -1;
+  }
+}
