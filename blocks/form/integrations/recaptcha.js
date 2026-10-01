@@ -30,6 +30,36 @@ export default class GoogleReCaptcha {
     }
   }
 
+  /**
+   * Renders the reCAPTCHA badge INLINE into the form's captcha field (the row the
+   * author placed in the sheet) instead of Google's default viewport-fixed badge,
+   * so per-form CSS can position it (e.g. inside the flag-profile frame, like the
+   * source's embedded form). Falls back to the fixed badge if the field is missing.
+   * @param {HTMLFormElement} form
+   */
+  #renderInlineBadge(form) {
+    const container = form.querySelector(`[data-id="${this.id}"]`);
+    if (!container) {
+      this.#loadScript(`https://www.google.com/recaptcha/api.js?render=${this.config.siteKey}`);
+      return;
+    }
+    container.textContent = '';
+    const badge = document.createElement('div');
+    badge.className = 'form-recaptcha-badge';
+    container.append(badge);
+    this.#loadScript('https://www.google.com/recaptcha/api.js?render=explicit');
+    this.loadPromise.then((grecaptcha) => grecaptcha.ready(() => {
+      this.widgetId = grecaptcha.render(badge, {
+        sitekey: this.config.siteKey,
+        badge: 'bottomright',
+        size: 'invisible',
+      });
+    })).catch((error) => {
+      // eslint-disable-next-line no-console
+      console.warn('reCAPTCHA failed to load', error);
+    });
+  }
+
   loadCaptcha(form) {
     if (form && this.config.siteKey) {
       const submit = form.querySelector('button[type="submit"]');
@@ -41,7 +71,7 @@ export default class GoogleReCaptcha {
             if (this.config.version === 'enterprise') {
               this.#loadScript(`${url}?render=${siteKey}`);
             } else {
-              this.#loadScript(`https://www.google.com/recaptcha/api.js?render=${siteKey}`);
+              this.#renderInlineBadge(form);
             }
             obs.disconnect();
           }
@@ -80,7 +110,9 @@ export default class GoogleReCaptcha {
         });
       } else {
         grecaptcha.ready(async () => {
-          const token = await grecaptcha.execute(this.config.siteKey, { action: 'submit' });
+          // An explicitly rendered (inline) badge is executed by its widget id.
+          const target = this.widgetId ?? this.config.siteKey;
+          const token = await grecaptcha.execute(target, { action: 'submit' });
           resolve(token);
         });
       }
