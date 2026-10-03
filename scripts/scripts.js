@@ -182,14 +182,20 @@ function decorateSectionMetadata(main) {
  * SEMANTICALLY in the document — italic (<em>) → lime, underline (<u>) → blue
  * (see the `main em` / `main u` rules in styles.css) — so this only needs to
  * add the `.intro-statement` class that drives the large centred typography.
- * Detected by a bold standalone paragraph carrying an <em> or <u> accent, so
- * there is NO hardcoded phrase. No-op on pages without such a statement.
+ * Detected by a fully-bold paragraph carrying an <em> or <u> accent, so there
+ * is NO hardcoded phrase. "Fully bold" tolerates the bold being split into
+ * several <strong> runs (DA/markdown round-trips do this, sometimes nesting one
+ * as <em><strong>). No-op on pages without such a statement.
  * @param {Element} main The main element
  */
 function decorateIntroStatement(main) {
-  main.querySelectorAll('p > strong').forEach((strong) => {
-    if (!strong.querySelector('em, u')) return;
-    const section = strong.closest('.section') || strong.closest('div');
+  main.querySelectorAll('p').forEach((p) => {
+    if (!p.querySelector('strong') || !p.querySelector('em, u')) return;
+    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.textContent.trim() && !node.parentElement.closest('strong')) return;
+    }
+    const section = p.closest('.section') || p.closest('div');
     if (section) section.classList.add('intro-statement');
   });
 }

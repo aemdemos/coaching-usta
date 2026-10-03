@@ -431,27 +431,38 @@ main > .section.highlight {
 
 /* ---- Intro statement (below the hero) ----
    Big centred statement in Graphik Regular with two brand-coloured phrases.
-   Measured scale: 28 (mobile) -> 40 (tablet) -> 72 (desktop), line-height 1. */
+   Source scale (.text--font-size--72px-32px): 32 (mobile) -> 40 @768 -> 56
+   @1024 -> 72 @1280, line-height 1, letter-spacing -0.03em.
+   The typography lives on the PARAGRAPH and every <strong> run stays inline and
+   inherits it: DA/markdown round-trips repeatedly split the one bold run into
+   several sibling <strong>s (once with the accent as <em><strong>) — styling
+   `strong` as a block broke the sentence into separate lines and painted the
+   lime accent white. Vertical rhythm (source container margin 12/20/36/52 +
+   12px text padding): hero video → text 72/80/104/112, text → next card
+   48/64/96/128 at 375/768/1024/1280+. */
 main > .section.intro-statement {
+  padding: 24px 0 0;
   text-align: center;
 }
 
 main > .section.intro-statement p {
   margin: 0;
-}
 
-main > .section.intro-statement strong {
-  display: block;
-
-  /* Source renders this statement in Graphik Regular (a lighter weight than
-     Semibold). Our self-hosted "Graphik Regular" is a single regular master, so
-     keep the regular face at 400 — Semibold rendered too heavy vs the source. */
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  /* Source: Graphik Regular inside a <b> (weight 700) on a face declared
+     weight-normal only, so Chrome SYNTHESIZES the bold. The "Synth" face
+     (fonts.css) is declared the same way, so our bold runs get the identical
+     faux-bold stroke (the 400–700 "Graphik Regular" face would render thin). */
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
   font-weight: 400;
-  font-size: 28px;
+  font-size: 32px;
   line-height: 1;
   letter-spacing: -0.03em;
   color: #fff;
+}
+
+main > .section.intro-statement strong {
+  font-weight: 700;
+  color: inherit;
 }
 
 /* semantic accents inside the intro: italic → lime, underline → blue (author
@@ -468,20 +479,32 @@ main > .section.intro-statement u {
 }
 
 @media (width >= 768px) {
-  main > .section.intro-statement strong {
+  main > .section.intro-statement {
+    padding: 32px 0 16px;
+  }
+
+  main > .section.intro-statement p {
     font-size: 40px;
   }
 }
 
 /* source adds a 56px tier at the 1024 desktop step (40 → 56 → 72) */
 @media (width >= 1024px) {
-  main > .section.intro-statement strong {
+  main > .section.intro-statement {
+    padding: 56px 0 48px;
+  }
+
+  main > .section.intro-statement p {
     font-size: 56px;
   }
 }
 
 @media (width >= 1280px) {
-  main > .section.intro-statement strong {
+  main > .section.intro-statement {
+    padding: 64px 0 80px;
+  }
+
+  main > .section.intro-statement p {
     font-size: 72px;
   }
 }
@@ -490,8 +513,9 @@ main > .section.intro-statement u {
    A content-narrower container used by the intro statement so the big centred
    text wraps exactly like the source. Below 1280 it spans the content width
    with the hero gutters (16/40/48 → measured source widths 688 @768, 928 @1024);
-   at >=1280 it insets its content to 81.6% of the 1536-capped container (the
-   same inset ratio the footer uses → 956 @1280, 1089 @1440). */
+   at >=1280 the source places it on 10 of 12 columns, offset 1, plus the 12px
+   component padding — the same grid as the footer (162/956 @1280, 175/1089
+   @1440, 279/1169 @1728). */
 main > .section.narrow > div {
   max-width: 1536px;
   margin-inline: auto;
@@ -516,9 +540,7 @@ main > .section.narrow > div {
   }
 
   main > .section.narrow > div > * {
-    width: 81.6%;
-    max-width: 1170px;
-    margin-inline: auto;
+    margin-inline: calc(100% / 12 + 12px);
   }
 }
 
