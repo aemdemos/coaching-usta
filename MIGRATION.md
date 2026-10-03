@@ -3272,3 +3272,25 @@ checkbox, so its box starts 32px earlier — text position/width identical). Pix
 hidden): 42,239 → 3,820 px, the remainder being sub-pixel anti-aliasing on the wordmark/button edges.
 Supersedes the 81.6%/1170px footer column described in the 2026-09-14 entries.
 lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (/ and /es/home) · typography ✓ · a11y ✓
+
+### 2026-10-03 — columns (events): styles RESTORED (lost in merge PR #30) + source-parity fixes
+**Not previously logged here** — the variant was built in PR #25 (966746d, 2026-09-18; branch
+`aem-20260917-1142`), source `/en/home/coaching-community/coaching-workshops.html#tab=upcoming`.
+- **Regression:** merge PR #30 (`cf6bc66`, 2026-09-21) resolved a columns.css conflict by keeping only the
+  section-container + `.columns-events-list` rules — the other 34 events rules (card, date, info, location, title,
+  chips, View More, all 3 breakpoints) were dropped, so the block rendered as raw text (JS still decorated it).
+  An earlier merge had also spliced the `profile` section header into the middle of the events CSS. Restored the
+  235 lines from `39f5166` (last good main commit) directly after `.columns-events-list`, un-splicing it.
+  ⚠️ When resolving columns.css conflicts, check every variant section survives (`grep -c columns-events`).
+- **Authoring contract** (unchanged): one row per event, 3 cells — date | delivery method / location / title
+  (3 paragraphs) | bulleted chips (region, hours, certification, price); optional "View More" link row.
+- **Parity fixes** (source `.v-event*` computed styles, compared with the source's own event text injected into
+  the migrated cards @375/768/1024/1280/1440/1728 — every box now matches to ≤0.1px):
+  - location line is a Graphik Regular **16px / line-height normal** block around the 12px (14px ≥1280)
+    Semibold spans → 20px line box (40 when the address wraps on mobile); was 14.4 → cards 5.6–11.2px short.
+    Spans line-height 1.2 (16.8 ≥1280, was 20).
+  - date `width: 100%; min-width: 120px; letter-spacing: normal` (was −0.48px, 83px wide on mobile).
+  - ≥1024 the left group and chips column `align-self: center` (source row `align-items: center`) — were stretched,
+    putting chips 5–13px off and the left group 3px off at ≥1440.
+- Source overflows horizontally at 768 (836px content) — deliberately NOT reproduced.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓ (drafts/block-samples/columns-events)
