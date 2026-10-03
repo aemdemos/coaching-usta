@@ -9,10 +9,18 @@ footer {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
 }
 
+/* Source footer XF geometry (measured 375/768/1024/1280/1440/1728): the same
+   AEM container as every page section — 8/28/36/52px outer gutter (1536 cap)
+   plus each component's own 12px padding (12px 8px on mobile) — so content
+   sits at 16 / 40 / 48 px, and from 1280 up on 10 of 12 columns, offset 1
+   (see the >=1280 block). Bottom padding = row → page end: the source's 12px
+   component padding + container margins (24+12 / 32+12 / 32+20 / 32+36) + the
+   20px line box its trailing inline <iframe>/<noscript> tags add after the
+   footer — 68 / 76 / 84 / 100. */
 footer .footer-content {
   box-sizing: border-box;
   width: 100%;
-  padding: 48px 16px 40px;
+  padding: 48px 16px 68px;
 }
 
 /* ---- Subscribe form (authored into the footer document) ----
@@ -31,6 +39,13 @@ footer .footer-form {
   padding: 0 24px;
 }
 
+/* Subscribe button → wordmark: 176 (<1024) · 184 (1024–1279) · 216 (>=1280),
+   i.e. the source form's bottom padding + 96px band + the footer's top margin.
+   The form's 48px bottom margin + this padding make up the total. */
+footer .footer-form + .footer-brand {
+  padding-top: 128px;
+}
+
 /* When the footer opens with the form, its top padding (sized for the wordmark)
    is replaced so the gap from the last page block to the "GET ON THE LIST."
    title matches the source: 68 @390 · 60 @768 · 76 @1024 · 124 @>=1280, minus
@@ -41,11 +56,10 @@ footer .footer-content:has(> .footer-form) {
 }
 
 /* ---- Brand / wordmark logo ----
-   Mobile: source leaves ~68px between the wordmark and the first link; the
-   logo box is 33px tall with a tight line-box, so a 62px bottom margin
-   reproduces that gap (measured logo-bottom → first-link = 68px). */
+   Source: wordmark spans the content column; wordmark → links row is 66px at
+   every viewport (12 image padding + 42 separator + 12 footer padding). */
 footer .footer-brand {
-  margin: 0 0 62px;
+  margin: 0 0 66px;
 }
 
 footer .footer-brand p {
@@ -84,12 +98,15 @@ footer .footer-links ul {
   gap: 16px;
 }
 
-/* Tight list rows: the <li> would otherwise inherit the body line-height
-   (~35px), inflating the mobile link pitch to ~51px. Collapsing it to 1 makes
-   each row hug its 18px text so the pitch matches the source's 36px (18px row
-   + 16px gap). */
+/* Source <li> is Graphik Regular 16px / line-height normal around the 18–24px
+   link, so each line box is taller than the link text: li = 20px @390 (pitch
+   36 with the 16px gap), 25px @768 (pitch 49), 20px per wrapped line in the
+   desktop row (40px for two lines, 60px for three). */
 footer .footer-links li {
-  line-height: 1;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: normal;
+  letter-spacing: normal;
 }
 
 /* Footer link typography matches source responsive bands (measured):
@@ -120,8 +137,10 @@ footer .footer-social ul {
   gap: 18px;
 }
 
+/* flex (not inline-flex): an inline box would add a line box under the icon,
+   making each item 40px tall instead of the source's 36px */
 footer .footer-social a {
-  display: inline-flex;
+  display: flex;
 }
 
 /* Icons are sized by height with auto width so each keeps its own aspect ratio
@@ -144,31 +163,16 @@ footer .footer-social img {
     box-sizing: border-box;
     max-width: 1536px;
     margin: 0 auto;
-    padding: 80px 52px 40px;
+    padding: 80px 40px 76px;
   }
 
-  /* Inner content (logo + links/social row) is a narrower centered container
-     — source insets it to ~81.6% of the section content width (1090px @1440),
-     capped at ~1170px on wide screens. */
-  footer .footer-brand,
-  footer .footer-row {
-    width: 81.6%;
-    max-width: 1170px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* form content-left 64 @768 = 52 footer gutter + 12 */
+  /* form content-left 64 @768 = 40 footer gutter + 24 */
   footer .footer-form {
-    padding: 0 12px;
+    padding: 0 24px;
   }
 
   footer .footer-content:has(> .footer-form) {
     padding-top: 12px;
-  }
-
-  footer .footer-brand {
-    margin-bottom: 66px;
   }
 
   /* tablet links (stacked): source enlarges them to 24px with a 24px column
@@ -198,17 +202,25 @@ footer .footer-social img {
    never grows past the 81.6%/1170px container and never overflows.
    Source link gap: 16px @1024–1279, 30px @>=1280 (measured). */
 @media (width >= 1024px) {
+  footer .footer-content {
+    padding-inline: 48px;
+    padding-bottom: 84px;
+  }
+
+  /* no gap: the links nav shrinks to exactly the space left of the social
+     icons (source nav = row − social, space-between) */
   footer .footer-row {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
-    gap: 40px;
+    gap: 0;
   }
 
+  /* stretch: like the source, every li takes the tallest link's height */
   footer .footer-links ul {
     flex-flow: row nowrap;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 16px;
   }
 
@@ -216,7 +228,6 @@ footer .footer-social img {
      row wider — matches the source li model (flex: 0 1 auto, text wraps). */
   footer .footer-links li {
     flex: 0 1 auto;
-    line-height: 1;
     white-space: normal;
   }
 
@@ -225,9 +236,13 @@ footer .footer-social img {
     flex: 0 0 auto;
   }
 
-  /* form content-left 80 @1024 = 52 footer gutter + 28 */
+  /* form content-left 80 @1024 = 48 footer gutter + 32 */
   footer .footer-form {
-    padding: 0 28px;
+    padding: 0 32px;
+  }
+
+  footer .footer-form + .footer-brand {
+    padding-top: 136px;
   }
 
   footer .footer-content:has(> .footer-form) {
@@ -261,6 +276,22 @@ footer .footer-social img {
     gap: 30px;
   }
 
+  footer .footer-content {
+    padding-inline: 52px;
+    padding-bottom: 100px;
+  }
+
+  /* source: footer container spans 10 of 12 columns, offset 1, plus the 12px
+     component padding (162/956 @1280 · 175/1089 @1440 · 279/1169 @1728) */
+  footer .footer-brand,
+  footer .footer-row {
+    margin-inline: calc(100% / 12 + 12px);
+  }
+
+  footer .footer-form + .footer-brand {
+    padding-top: 168px;
+  }
+
   /* form: same band as the page form at >=1280 — 112px side gutter
      (52 footer gutter + 60), growing to 1312 inside the 1536-capped footer */
   footer .footer-form {
@@ -270,11 +301,6 @@ footer .footer-social img {
   footer .footer-content:has(> .footer-form) {
     padding-top: 76px;
   }
-}
-
-/* Space between the subscribe form and the footer wordmark below it */
-footer .footer-form + .footer-brand {
-  padding-top: 168px;
 }
 
 /* An empty trailing page section (48px top + bottom padding) sits right above

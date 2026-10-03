@@ -111,11 +111,26 @@ main .section.form-container:not(.split) div.form-wrapper {
   margin: 0;
 }
 
+/* Source vertical rhythm (.v-leads, measured 375/768/1024/1280/1440/1728): the
+   form is NOT evenly gapped. Title → email label 32 (flex gap); email + zip are
+   stacked flush (each field = 24 label + 8 + 58 input = 90); the coach-type
+   group carries `margin: 32px 0` (32 above it, 32 to the legal copy); legal →
+   Subscribe is 32 on mobile and only 10 from 768 up (form gap 10px). Scoped to
+   the subscribe form so the other forms keep the shared 24px grid gap. */
+:is(main, .footer-form) .form.block form:has(> .subscribe-heading) {
+  row-gap: 0;
+}
+
+:is(main, .footer-form) .form.block form:has(> .subscribe-heading) > :is(.field-email, .field-coachtype, .subscribe-legal, .submit-wrapper) {
+  margin-top: 32px;
+}
+
 /* Title — "GET ON THE LIST." (plain-text, Style: subscribe-heading). USTA Sans
    400, white, line-height 1. Source responsive scale: 32px mobile → 40px tablet
    (>=768) → 56px desktop (>=1024). */
 :is(main, .footer-form) .form.block .subscribe-heading p {
-  margin: 0 0 8px;
+  margin: 0;
+  padding: 0 8px; /* source .v-leads__title: text starts 8px inside the band */
   text-align: center;
   font-family: var(--heading-font-family);
   font-size: 32px;
@@ -150,15 +165,15 @@ main .section.form-container:not(.split) div.form-wrapper {
 }
 
 /* Char counter ("0 / 5") for the Zip Code field — added by decorateFormCharCounters
-   in scripts.js. Source places it at the field's top-right, on the label line, in
-   the grey hairline colour. Anchor it to the (relative) zip field wrapper. */
+   in scripts.js. Source (.form-text-input__counter) is absolute at top 0 / right 0
+   of the zip field — i.e. level with the ZIP CODE label — in the hairline grey. */
 :is(main, .footer-form) .form.block .field-zipcode {
   position: relative;
 }
 
 :is(main, .footer-form) .form.block .field-zipcode .form-char-counter {
   position: absolute;
-  top: -17px;
+  top: 0;
   right: 0;
   font-family: var(--body-font-family);
   font-size: 14px;
@@ -366,6 +381,11 @@ main .section.form-container:not(.split) div.form-wrapper {
     font-size: 18px;
     letter-spacing: -0.54px;
   }
+
+  /* legal → Subscribe: source form gap is 10px from 768 up (32 on mobile) */
+  :is(main, .footer-form) .form.block form:has(> .subscribe-heading) > .submit-wrapper {
+    margin-top: 10px;
+  }
 }
 
 /* Desktop: heading grows to the source's 56px. */
@@ -373,4 +393,19 @@ main .section.form-container:not(.split) div.form-wrapper {
   :is(main, .footer-form) .form.block .subscribe-heading p {
     font-size: 56px;
   }
+}
+
+/* Subscribe-form-only box fixes (scoped so the other forms sharing these base
+   rules are untouched; kept last for stylelint's specificity ordering):
+   the coach-type title is a full-width block, and the button uses
+   line-height normal — 50px tall @16px, 53px @18px incl. the 2px border. */
+:is(main, .footer-form) .form.block form:has(> .subscribe-heading) .checkbox-group-wrapper > legend.field-label {
+  width: 100%;
+  padding: 0; /* UA legend padding-inline (2px) would shift the text right */
+}
+
+/* only line-height here, so the :hover/:focus rules above can never conflict */
+/* stylelint-disable-next-line no-descending-specificity */
+:is(main, .footer-form) .form.block form:has(> .subscribe-heading) button.button {
+  line-height: normal;
 }

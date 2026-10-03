@@ -3213,3 +3213,62 @@ row Value, or `RECAPTCHA_SITE_KEY=… node tools/forms/application-forms.mjs`; t
 `git stash` and still writes an empty key unless the env var is set).
 Test-env note: headless Playwright never sets :hover on the parent of a CROSS-origin iframe (same-origin works), so
 the slide-open can only be checked there via CDP CSS.forcePseudoState — real browsers hover normally.
+
+### 2026-10-03 — NEW `video` block (consent-gated YouTube embed) — full parity
+Source: the "Get Ahead. *Get Experienced. Get USTA* Coaching Certified." embed on
+/en/home/coaching-community/fellowship-in-coaching-and-leadership.html (AEM `text` + core `embed` with USTA's
+OneTrust consent wrapper `.usta-consent-embed`). The block sample (drafts/block-samples/video) already existed but
+`blocks/video/` did not (404 → nothing rendered). Built `blocks/video/video.{js,css}`.
+- **Authoring contract** (one cell per row): row 1 = title (italic → lime via the global `main em` rule; `<p>` or
+  heading both work); optional URL row (a cell holding only the video link — removed from output); remaining
+  rows = consent message. The video URL = the FIRST YouTube/Vimeo link anywhere in the block, so the existing
+  sample (URL on the "cookie preferences" link) works unchanged. URLs are whitelisted (youtube.com / youtu.be /
+  youtube-nocookie / vimeo) and the ID regex-validated → canonical `youtube.com/embed/<id>`.
+- **Consent (source behaviour):** placeholder shown by default; on `consent.update` with `consented: true`
+  (scripts/consent-check.js — test with `?consent=accept`) the iframe (lazy, title = block title) replaces it;
+  revoking restores it. The "cookie preferences" link opens `OneTrust.ToggleInfoDisplay()` when a CMP exists,
+  otherwise falls back to the YouTube watch page (new tab) so the control is never dead.
+- **Geometry (measured 375/768/1024/1280/1440/1728, all matched to the px):** wrapper gutter 8/28/36/52 (1536
+  cap) + 12px component padding (12px 8px mobile) → content on the shared 16/40/48/64 grid. Title USTA Sans 700,
+  line-height = size, **28 → 32 @768 → 40 @1024**, centred, 24px title→frame gap. Frame full width on mobile and
+  ≥1280, **10/12 cols offset 1 from 768–1279** (`margin-inline: calc(100% / 12)`). Player height **200 → 320 →
+  650**, radius 20px, + the source's 5px inline-iframe gap (frame 679 @desktop). Placeholder: #eef0f0, 1px
+  #c1c6c8, radius 4px, padding 32/24, flex-centred; message Graphik 14/21 #333, max-width 400; authored
+  paragraphs flow inline as ONE paragraph (source is a single `<p>` — keeps the 3-line mobile wrap).
+- **Deviations:** (1) source player steps 320→650 at **992**; we step at **1024** (992 tier excluded from
+  breakpoints.json) — 992–1023 shows 320px. (2) link colour **#3370ad** instead of source #418fde (2.96:1 on
+  #eef0f0 fails WCAG AA / axe serious) — same hue, lightest passing value (4.52:1).
+- Test env: the quality checkers' Playwright build (1187 headless shell) was missing — installed with
+  `npx playwright install chromium-headless-shell`.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (360/768/1024/1280/1920) · typography ✓ · a11y ✓ (axe 0)
+
+### 2026-10-03 — footer + footer subscribe form: pixel parity rebuild (source DevTools geometry)
+User compared source vs migrated screenshots @1728: drifts in field spacing, Subscribe→wordmark gap, link
+wrapping, and space below the footer. Measured both with one script (every element's x / y-from-title / w×h +
+type, at 375/768/1024/1280/1440/1728) and read the source's computed CSS (`.v-leads`, footer XF).
+**Source truth found** (it was NOT what the old CSS assumed):
+- **Form rhythm** (`.v-leads`, not an even 24px grid): title → email label 32; email + zip stacked FLUSH
+  (field = 24 label + 8 + 58 = 90); coach-type group `margin: 32px 0`; legal → Subscribe 32 mobile / **10**
+  ≥768. Zip counter `top: 0` (level with the ZIP CODE label). Title has `padding: 0 8px` (text starts 8px in).
+  Button `line-height: normal` → 50px @16 / 53px @18 (was 56). Legend is a full-width block with no padding.
+  → `subscribe.css`, all scoped to `form:has(> .subscribe-heading)` so the other forms keep their 24px gap.
+- **Footer container**: NOT 81.6%/1170 — the same AEM grid as sections: gutter 8/28/36/52 (1536 cap) + 12px
+  component padding (12 8 on mobile) → content at 16/40/48, and **≥1280 on 10 of 12 cols, offset 1**
+  (`margin-inline: calc(100% / 12 + 12px)` → 162/956 @1280, 175/1089 @1440, 279/1169 @1728). Footer gutters now
+  16/40/48/52, footer-form padding 24/24/32/60 (form band unchanged: 40/64/80/112).
+- **Subscribe → wordmark**: 176 (<1024) · 184 (1024–1279) · 216 (≥1280) = 48 form margin + 128/136/168.
+- **Wordmark → links** 66 everywhere (12 + 42 separator + 12).
+- **Links**: the `li` is Graphik **Regular 16px / line-height normal** around the 18/24/16/18px Semibold link →
+  20px line boxes (mobile pitch 36, tablet li 25 / pitch 49, desktop 20 per wrapped line), li `stretch`ed to the
+  tallest (40 / 60). Desktop row has **no gap** (nav = row − social, space-between) — the old 40px gap squeezed the
+  links so labels wrapped differently ("USTA Terms / of Use" vs source "USTA Terms of / Use").
+- **Social**: `a { display: flex }` — inline-flex added a line box (li 40 instead of 36), which pushed the icons
+  2px off-centre and added 4px under them.
+- **Space below** (row → page end) 68 / 76 / 84 / 100 = 12 padding + container margins (24+12 / 32+12 / 32+20 /
+  32+36) + a constant **20px line box** the source's trailing inline `<iframe>`/`<noscript>` tags add after the
+  footer — visible black space on the live site, so it is reproduced.
+Result: every element matches to ≤0.1px at all six viewports (only residue: the source `<label>` wraps its
+checkbox, so its box starts 32px earlier — text position/width identical). Pixel diff @1728 (fixed overlays
+hidden): 42,239 → 3,820 px, the remainder being sub-pixel anti-aliasing on the wordmark/button edges.
+Supersedes the 81.6%/1170px footer column described in the 2026-09-14 entries.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (/ and /es/home) · typography ✓ · a11y ✓
