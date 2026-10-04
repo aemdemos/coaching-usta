@@ -3340,3 +3340,34 @@ label** (e.g. `banner (events, blue)`). Previously blue WAS the base, so `blue` 
   `blue` appended to every banner at runtime → all switch to the blue palette; hover keeps the label colour.
 - Content impact: the 4 `banner (events, blue)` uses are unchanged; plain, `grant`, `centered` now render black.
 lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · a11y ✓ (banner, banner-events-blue, /)
+
+### 2026-10-04 — banner: 1px white outline on the black default (blue stays borderless)
+Missed in the default flip: the source's black banners are `container--border--white` (measured on the home
+"Serving Gratitude" band @375/768/1440: `1px solid #fff`, radius 20px, transparent/black fill); the blue events
+banner has NO border. `banner.css`: base `.banner.block` gains `border: 1px solid #fff`; `.banner.blue` sets
+`border: 0`. Validated every sample version: plain / grant / centered → black + white outline + lime CTA;
+info → unchanged (own outlined transparent panel); events blue (sample + home) → blue, no border; `blue`
+appended at runtime to plain/grant/centered → blue, no border, black CTA.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · a11y ✓ (banner, banner-info, banner-events-blue)
+
+### 2026-10-04 — banner: one sample page per variant, each with its `blue` version
+New block-sample pages (`content/drafts/block-samples/`), each showing the variant in its default colours and
+again with `blue` appended (block tables copied verbatim from the existing samples, only the class changed):
+`banner-default` (banner / banner blue) · `banner-grant` · `banner-centered` · `banner-info` (replaced the old
+single-banner page; original backed up) · `banner-events` (banner events / banner events blue). The existing
+`banner` (all-variants overview) and `banner-events-blue` pages are unchanged.
+- **Code:** `.banner.info.blue` added at the end of banner.css — `.banner.info` is declared after the colour
+  variants and was overriding `blue` (info stayed transparent/outlined). Info + blue = blue panel, no border,
+  black heading/labels/body.
+- Verified all 10 banners (computed panel / border / text / CTA) + visual check of info + info blue.
+- Local note: the dev server serves local `content/` files under `/content/…` (plain `/drafts/…` proxies the
+  remote preview, so new local-only pages 404 there). The pages appear on aem.page once uploaded to DA + previewed.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · a11y ✓ (all 5 pages)
+
+### 2026-10-04 — banner samples tidied
+- `banner` sample now holds ONLY the default banner and `banner blue` (grant / centered / info removed — each has
+  its own page: `banner-grant`, `banner-centered`, `banner-info`, `banner-events`). Original backed up.
+- `banner-events-blue` is no longer needed (superseded by `banner-events`, which shows events + events blue).
+  Content-folder deletion is blocked for the agent — **delete it manually** (local `content/` + DA
+  `drafts/block-samples/banner-events-blue`). `banner-default` now duplicates `banner` and can be removed the same way.
+Verified: banner (black, white outline, lime CTA) + banner blue (blue, no outline, black CTA); a11y ✓ · overflow ✓
