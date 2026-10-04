@@ -280,6 +280,9 @@ function decorateSectionMetadata(main) {
  * @param {Element} main The main element
  */
 function decorateIntroStatement(main) {
+  // homepage display statement only — a bold+italic paragraph in a news article
+  // is ordinary copy (it would otherwise be centred and enlarged)
+  if (document.body.classList.contains('news-article')) return;
   main.querySelectorAll('p').forEach((p) => {
     if (!p.querySelector('strong') || !p.querySelector('em, u')) return;
     const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);

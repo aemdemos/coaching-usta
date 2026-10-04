@@ -52,6 +52,7 @@
   font-size: 18px;
   font-weight: 400;
   line-height: 24px;
+  letter-spacing: normal; /* source: normal tracking (not the body's -0.03em) */
 }
 
 /* tablet (>=768): content column widens, quote box ~69.5vw */

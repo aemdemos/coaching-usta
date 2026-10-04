@@ -3666,3 +3666,24 @@ lint ✓ · breakpoint ✓ · typography ✓ · overflow ✓ · a11y ✓ (all th
   source; ours stack in that band only (identical below 1024 and from 1280).
 - 4 test pages re-imported (`media-right media-5` on Zina); DA samples `columns-article-media-n`
   and `columns-article-media-5` regenerated + previewed (0 `media-md` left); backups refreshed.
+- DA sample `drafts/block-samples/columns-article-media-5` deleted (user request; unpreviewed + its `.columns-article-media-5/` image removed) — media-5 is covered on `columns-article-media-n`.
+
+### 2026-10-04 (later) — typography parity: news-article template + new blocks
+- Comparator (every text run in breadcrumb, article frame, tags/share, featured tile; matched by
+  text; family/size/weight/style/line-height/letter-spacing/color/alignment/transform/line count
+  at 375/768/1024/1280/1440). Reference Zina EN + Serving Gratitude, Zina ES, Jim Loehr; then an
+  audit of 55 EN articles (scratch imports, current code): 27 fully identical.
+- Fixed (template/block level → every news page):
+  - quote attribution `letter-spacing: normal` (was inheriting the body's -0.03em);
+  - featured tile CTA label centred (source <button>);
+  - `decorateIntroStatement` skipped on news-article (a bold+italic article paragraph was being
+    centred/enlarged as the homepage statement — coaches-open-2026);
+  - lists inside columns (article) cells: 18/24 Graphik Regular, normal tracking, disc, 40px indent;
+    18px list spacing as padding (adds to the paragraph's 24px margin → 42px when the list starts
+    its own source component; 18px within one component); the importer's component-edge blank
+    above a list is hidden in cells.
+  After: Zina, emilio-sanchez-academy…, inside-the-coach-inclusion-summit… = 0 differences.
+- Out of scope by decision (page-specific content, not template/blocks): per-article link colours
+  (lime vs white is authored per article), 8/12-wide headings (Jim Loehr), card grid (advantage…),
+  coach-goal cards (coaches-reveal…), uppercase display line (wecoach), drop cap (emma-dell part 3),
+  native h3/h5 in a few articles, and the accepted 1024–1279 row stacking.

@@ -311,6 +311,7 @@ main > .section.columns-container:has(.columns.media) > div {
 
 .columns.media.dark .columns-media-content p:last-child a {
   padding: 16px 24px;
+  text-align: center; /* source CTA is a <button>: centred label */
   font-size: 24px;
   line-height: normal;
   letter-spacing: -0.03em;
@@ -1233,6 +1234,43 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
 }
 
 .columns.article .columns-article-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* lists in a cell (source: ul margin 18px 0, 40px indent, disc; items 18/24
+   Graphik Regular, normal tracking). The 18px is padding so it adds to a
+   paragraph's 24px bottom margin instead of collapsing: a list that starts its
+   own source component sits 12 + 12 + 18 = 42px below the text; within the same
+   component the paragraph drops its margin → 18px. */
+.columns.article .columns-article-content :is(ul, ol) {
+  margin: 0;
+  padding: 18px 0 18px 40px;
+}
+
+/* the importer's component-edge blank line above a list is already covered by
+   the paragraph margin in a cell */
+.columns.article .columns-article-content p.blank:has(+ :is(ul, ol)) {
+  display: none;
+}
+
+.columns.article .columns-article-content ul {
+  list-style-type: disc;
+}
+
+.columns.article .columns-article-content li {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.columns.article .columns-article-content li p {
+  margin: 0;
+}
+
+.columns.article .columns-article-content p:has(+ :is(ul, ol)) {
   margin-bottom: 0;
 }
 
