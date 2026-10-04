@@ -1,0 +1,124 @@
+/* social — "Share This Article": lime label above share icons.
+   Source (.v-social-media-sharing, news article footer) measured @375/768/1024/
+   1280/1440: component padding 12px (12px 8px mobile); label → icons gap 16px;
+   label Graphik Semibold lime, 16px (mobile) → 18px @768, line-height normal;
+   icons 36px tall (Facebook 29.69 / X 30 / LinkedIn 36 wide), 16px apart.
+   Alignment: right by default — on phones the source sits LEFT with the label
+   centred over the icons, then pins right from 768. `left` / `center` variants
+   apply at every viewport.
+   Vertical: the source share row sits in a container with `margin: 12px 0`
+   (20 @1024, 36 @1280) — inside the article's bordered frame that puts the
+   icons 33 / 41 / 57px above the frame's bottom edge. */
+.social {
+  display: flex;
+  justify-content: flex-start;
+  margin-block: 12px;
+  padding: 12px 8px;
+}
+
+.social .social-share {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+
+.social .social-title {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  color: var(--usta-lime);
+}
+
+.social .social-icons {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social .social-link {
+  display: block;
+  border-radius: 4px;
+}
+
+.social .social-link:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+.social .social-link img {
+  display: block;
+  height: 36px;
+}
+
+/* source widths: each SVG's intrinsic width at the 36px icon height */
+.social .social-facebook img {
+  width: 29.69px;
+}
+
+.social .social-x img {
+  width: 30px;
+}
+
+.social .social-linkedin img {
+  width: 36px;
+}
+
+.social .social-link:hover {
+  opacity: 0.8;
+}
+
+@media (width >= 768px) {
+  .social {
+    justify-content: flex-end;
+    padding: 12px;
+  }
+
+  .social .social-share {
+    text-align: start;
+  }
+
+  .social .social-title {
+    font-size: 18px;
+  }
+
+  .social .social-icons {
+    justify-content: flex-end;
+  }
+}
+
+@media (width >= 1024px) {
+  .social {
+    margin-block: 20px;
+  }
+}
+
+@media (width >= 1280px) {
+  .social {
+    margin-block: 36px;
+  }
+}
+
+/* ---- alignment variants (every viewport) ---- */
+.social.left,
+.social.left .social-icons {
+  justify-content: flex-start;
+}
+
+.social.left .social-share {
+  text-align: start;
+}
+
+.social.center,
+.social.center .social-icons {
+  justify-content: center;
+}
+
+.social.center .social-share {
+  text-align: center;
+}

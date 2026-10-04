@@ -3371,3 +3371,33 @@ lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · a11y ✓ (all 5 pages)
   Content-folder deletion is blocked for the agent — **delete it manually** (local `content/` + DA
   `drafts/block-samples/banner-events-blue`). `banner-default` now duplicates `banner` and can be removed the same way.
 Verified: banner (black, white outline, lime CTA) + banner blue (blue, no outline, black CTA); a11y ✓ · overflow ✓
+
+### 2026-10-04 — NEW `social` block ("Share This Article") — right default + `left` / `center`
+Source: `.v-social-media-sharing` in the news-article footer
+(/en/home/news/usta-coaching-butch-staples-award-2026-coaches-open.html). Built `blocks/social/social.{js,css}`
++ icons `icons/share-{facebook,x,linkedin}.svg` (the source's own SVG data-URIs, white; 0.7–0.8 KB each).
+- **Authoring:** `social` (+ optional `left` / `center`); row 1 = label ("Share This Article", from content —
+  no hard-coded string); optional rows `facebook` / `x` (alias `twitter`) / `linkedin` set which icons show and
+  their order (none authored = all three).
+- **Behaviour:** real `<a target=_blank rel="noopener noreferrer">` links (source used `<img role=link>` +
+  click handlers) built from the canonical URL (fallback origin+pathname) and og:title/document.title — same
+  targets as the source: `facebook.com/sharer/sharer.php?u=`, `x.com/intent/post?text=&url=`,
+  `linkedin.com/shareArticle/?url=`. `role=group` labelled by the label text; links named Facebook / X /
+  LinkedIn.
+- **Geometry (matched to the px @375/768/1024/1280/1440):** padding 12px (12px 8px mobile); label → icons 16px;
+  label Graphik Semibold `#cfff05`, 16px → 18px @768, line-height normal (h 14 / 17); icons 36px tall,
+  Facebook 29.69 / X 30 / LinkedIn 36 wide, 16px gap; right-pinned from 768 (icons R 110/64/12).
+- **Alignment:** default = source: LEFT on phones (label centred over icons), RIGHT from 768. `left` / `center`
+  apply at every viewport.
+- Sample: `content/drafts/block-samples/social` (default, center, left).
+lint ✓ (0 errors) · breakpoint ✓ · svg ✓ · overflow ✓ · typography ✓ · a11y ✓
+
+### 2026-10-04 — social: frame alignment + vertical rhythm (bordered sample)
+- The source share sits INSIDE the article's bordered frame — the existing `bordered` section style reproduces
+  that frame exactly (x/width 16/343 · 40/688 · 48/928 · 64/1152 · 64/1312 · 160/1408, 8px padding, 1px white),
+  so the block needs no width rules: in a `bordered` section the label/icons land 21px inside the frame's right
+  edge (label right x 1355 @1440, 1547 @1728) — identical to source at all six viewports. The sample page now puts
+  each variant in its own `bordered` section.
+- Vertical: added the source container's `margin-block` 12 / 20 @1024 / 36 @1280 to `.social` → icons → frame
+  bottom 33 / 33 / 41 / 57 / 57 / 57 (375 → 1728), matching source (was a flat 21).
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
