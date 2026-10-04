@@ -3,9 +3,10 @@
  * body line, and a pill CTA laid out in a row (stacked on mobile).
  *
  * Colour variants (authored as classes, e.g. `banner (events, blue)`):
- *   • blue  — blue panel, black text, black pill button (the "events" banner).
- *   • black — black panel, white text, lime-green pill button.
- * `blue` is the default when no colour class is present.
+ *   • default / black — black panel, white text, lime-green pill button.
+ *   • blue — blue panel, black text, black pill button (the "events" banner).
+ * Black is the default when no colour class is present; appending `blue` to any
+ * banner switches it to the blue palette.
  *
  * Structural variant:
  *   • info  — an INFORMATIONAL panel (no CTA, no fill): an outlined (1px white

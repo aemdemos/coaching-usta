@@ -3294,3 +3294,49 @@ lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (/ and /es/home) · typogr
     putting chips 5–13px off and the left group 3px off at ≥1440.
 - Source overflows horizontally at 768 (836px content) — deliberately NOT reproduced.
 lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓ (drafts/block-samples/columns-events)
+
+### 2026-10-03 — intro statement (`narrow` section): split-bold regression + source parity
+**Symptom:** home intro rendered as small body text with literal `**` on aem.live (and as broken lines —
+"…coaches are the" / "beating heart" / ". Discover…" — with a white "beating heart" locally).
+**Root cause (recurrence of 2026-09-15):** the DA document had the bold split into THREE `<strong>` runs, the
+first ending in a space inside the bold (`<strong>…the </strong><em><strong>beating heart</strong></em>
+<strong>. Discover…</strong>`). The DA → markdown step can't close `**… **`, so EDS serves literal `**` and
+that text is no longer bold. Separately, the CSS styled `strong` as `display:block` + white, so any split
+rendered as separate lines with the lime accent overridden.
+**Fixes:**
+- **Content (DA, previewed; `/` also published):** `/` and `/en/home` intro → ONE bold run with the full stops
+  INSIDE the accents (source parity): `<strong>If tennis … the <em>beating heart.</em> Discover … for
+  <u>coaches like you.</u></strong>`. `/es/home` was already a single run. (Local `content/` copies still hold
+  the old split markup — DA is the source of truth.) ⚠️ Authors: keep the statement ONE bold run; never end a
+  bold run with a space.
+- **CSS (styles.css):** typography moved to the `p` (32→40→56→72, line-height 1, −0.03em — mobile was 28, source
+  `.text--font-size--72px-32px` is 32); `strong` stays inline (`font-weight:700; color:inherit`) so split runs
+  can't break lines or recolour accents. Face → `"Graphik Regular Synth"`: the source's `<b>` is weight 700 on
+  a weight-normal Graphik Regular face, so Chrome SYNTHESIZES the bold — the 400–700 face rendered thinner
+  (pixel diff @1440 28,765 → 213 px; 0 px @768/1024/1728). `narrow` ≥1280 now uses the 10/12-col grid
+  (`margin-inline: calc(100%/12 + 12px)`, same as the footer) instead of 81.6%/1170.
+  Section padding from the source container (margin 12/20/36/52 + 12px text padding): 24/32/56/64 top,
+  0/16/48/80 bottom → hero→text 72/80/104/112, text→card 48/64/96/128 at 375/768/1024/1280+ (the live source
+  currently has a temporary "Serving Gratitude" banner between hero and statement — excluded).
+- **JS (scripts.js `decorateIntroStatement`):** detects a FULLY-bold paragraph (every text node inside some
+  `<strong>`) with an `<em>`/`<u>` accent — tolerates split runs and `<em><strong>` nesting.
+- **Tooling:** `typography-check.mjs` treats `"<Family> Synth"` as `<Family>` and skips `.intro-statement`
+  (display copy, like `.block`) when sampling body `p`.
+Verified on aem.live @375/1024/1440: box, line breaks and accent colours identical to source.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · typography ✓ (/, /es/home, aem.live) · a11y ✓ (aem.live)
+
+### 2026-10-04 — banner: black/lime is now the DEFAULT; `blue` is an opt-in colour variant
+Per client: the default banner = **black panel, white text, lime pill with a black label** (e.g. "The Coaches
+Open"); appending **`blue`** to ANY banner switches it to **blue panel, black text, black pill with a white
+label** (e.g. `banner (events, blue)`). Previously blue WAS the base, so `blue` did nothing and plain / `grant` /
+`centered` banners rendered blue.
+- `banner.css`: base `.banner.block` → `#000` / `#fff`; base CTA → lime / black; new `.banner.blue` (+ `.banner.blue
+  .banner-cta`) carries the blue palette. `black` kept as a harmless explicit class (= default). `info` unchanged
+  (its own outlined transparent panel).
+- Gotcha: the CTA colour must be scoped `.banner .banner-cta` (0,2,0) — bare `.banner-cta` (0,1,0) loses to the
+  global `a:any-link { color: var(--link-color) }` (0,1,1), which painted the lime pill's label white. (It only
+  "worked" before because the old default label was white too.)
+- Verified (sample pages): plain/grant/centered → black/white/lime+black; `events blue` → blue/black/black+white;
+  `blue` appended to every banner at runtime → all switch to the blue palette; hover keeps the label colour.
+- Content impact: the 4 `banner (events, blue)` uses are unchanged; plain, `grant`, `centered` now render black.
+lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · a11y ✓ (banner, banner-events-blue, /)

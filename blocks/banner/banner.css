@@ -2,8 +2,10 @@
 
 /* banner — a contained, rounded full-width promo band (heading + body + pill
    CTA). Colour variants switch the panel/text/button palette:
-     • blue  (default) — blue panel, black text, solid BLACK pill button.
-     • black           — black panel, white text, solid LIME-GREEN pill button.
+     • default (no colour class, or `black`) — black panel, white text, solid
+       LIME-GREEN pill button with a black label.
+     • blue — blue panel, black text, solid BLACK pill button with a white label
+       (append `blue` to any banner, e.g. `banner (events, blue)`).
    Source (blue "Explore workshops & events"): 20px radius; padding 36px 12px
    desktop / 12px 16px mobile; heading USTA Sans 40px (28 mobile) weight 700;
    body Graphik Semibold 18px (16 mobile); CTA a fully-rounded pill, 18px, +1px
@@ -24,7 +26,7 @@ main > .section.banner-container > div {
   padding-inline: 16px;
 }
 
-/* base = the default (blue) panel. Variants (.black, .info, …) override only
+/* base = the default (black) panel. Variants (.blue, .info, …) override only
    what they change; heading/body use `color: inherit`, so a variant that only
    recolours text needs one `color` declaration. Never add a variant to a
    `:not()` list on this rule — that's what makes the default un-scalable. */
@@ -32,8 +34,8 @@ main > .section.banner-container > div {
   box-sizing: border-box;
   border-radius: 20px;
   padding: 12px 16px; /* mobile; grows at desktop */
-  background-color: var(--usta-blue);
-  color: #000;
+  background-color: #000;
+  color: #fff;
 }
 
 .banner-inner {
@@ -97,10 +99,14 @@ main > .section.banner-container > div {
   letter-spacing: 1px;
   text-decoration: none;
   white-space: nowrap;
+}
 
-  /* default (blue panel): black pill + white label */
-  background-color: #000;
-  color: #fff;
+/* default (black panel): lime pill + black label. Scoped under `.banner` so it
+   out-ranks the global `a:any-link` / `a:hover` colour (0,1,1); `.banner.blue`
+   below still overrides it. */
+.banner .banner-cta {
+  background-color: var(--usta-lime);
+  color: #000;
 }
 
 .banner-cta:hover {
@@ -109,19 +115,21 @@ main > .section.banner-container > div {
 }
 
 /* ---- colour variants ------------------------------------------------------
-   Each variant overrides ONLY what it changes vs the blue base above. Heading
+   Each variant overrides ONLY what it changes vs the black base above. Heading
    and body text inherit the panel `color`, so a recolour is one line. Adding a
-   new fill variant here never requires touching the base rule. */
+   new fill variant here never requires touching the base rule. `black` needs
+   no rules — it is the default, kept as an explicit, harmless class. */
 
-/* black: black panel, white text, lime pill + black label */
-.banner.black {
-  background-color: #000;
-  color: #fff;
+/* blue: blue panel, black text, black pill + white label (source "Explore
+   workshops & events" banner) */
+.banner.blue {
+  background-color: var(--usta-blue);
+  color: #000;
 }
 
-.banner.black .banner-cta {
-  background-color: var(--usta-lime);
-  color: #000;
+.banner.blue .banner-cta {
+  background-color: #000;
+  color: #fff;
 }
 
 /* ---- tablet+: two-column centered row --------------------------------------

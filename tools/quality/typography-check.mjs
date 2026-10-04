@@ -69,8 +69,10 @@ function measure(tags) {
       // Only measure DEFAULT CONTENT against the global scale — headings/copy
       // inside a block (.block) are intentionally block-scoped (e.g. the pricing
       // tier h3 = 40px, course/news/profile card headings) and are verified
-      // per-block, not against the global default-content type scale.
-      return r.width > 0 && r.height > 0 && e.textContent.trim() && !e.closest('.block');
+      // per-block, not against the global default-content type scale. The same
+      // goes for the homepage `.intro-statement` display paragraph (32→72px by
+      // design, verified against its own source component).
+      return r.width > 0 && r.height > 0 && e.textContent.trim() && !e.closest('.block, .intro-statement');
     });
     if (!el) continue;
     const cs = getComputedStyle(el);
@@ -78,7 +80,10 @@ function measure(tags) {
       fontSizePx: round(cs.fontSize),
       lineHeightPx: cs.lineHeight === 'normal' ? null : round(cs.lineHeight),
       fontWeight: Number(cs.fontWeight) || cs.fontWeight,
-      fontFamily: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim().toLowerCase(),
+      // "<Family> Synth" (styles/fonts.css) is the SAME font file re-declared
+      // weight-normal so bold is synthesized like the source — treat it as <Family>
+      fontFamily: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim().toLowerCase()
+        .replace(/ synth$/, ''),
     };
   }
   return out;
