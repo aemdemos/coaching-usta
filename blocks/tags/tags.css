@@ -1,0 +1,115 @@
+/* tags — "Topic Tags:" + pill tags (source .v-tags, measured @375/768/1024/
+   1280/1440). Label Graphik Semibold lime, 16px → 18px @768, line-height normal;
+   16px label → tags; pills Graphik Regular white, 12px / 6px 12px padding →
+   14px / 8px 16px @768, 2px blue border, 24px radius, 8px apart (wrapping).
+   Same component insets + container margins as the social block it shares a
+   row with: padding 12px 8px (12px @768), margin-block 12 / 20 @1024 / 36 @1280. */
+.tags {
+  margin-block: 12px;
+  padding: 12px 8px;
+}
+
+.tags .tags-title {
+  margin: 0 0 16px;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  color: var(--usta-lime);
+}
+
+.tags .tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags .tags-list li {
+  margin: 0;
+  padding: 6px 12px;
+  border: 2px solid var(--usta-blue);
+  border-radius: 24px;
+  font-family: var(--body-font-family);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* tags + share as one row (source: a flex row, stacked on phones). On phones the
+   two components sit flush: only their 12px paddings separate them. */
+.tags-wrapper:has(+ .social-wrapper) .tags {
+  margin-bottom: 0;
+}
+
+.tags-wrapper + .social-wrapper .social {
+  margin-top: 0;
+}
+
+@media (width >= 768px) {
+  .tags {
+    padding: 12px;
+  }
+
+  .tags .tags-title {
+    font-size: 18px;
+  }
+
+  .tags .tags-list li {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  /* side by side: tags float left, the share block (a flex BFC) sits beside it
+     and keeps its own right alignment; both keep the same top margin */
+  .tags-wrapper:has(+ .social-wrapper) {
+    float: left;
+  }
+
+  .tags-wrapper + .social-wrapper {
+    display: flow-root;
+  }
+
+  /* side by side: both keep their full margins again (the flush rule above is
+     for the stacked phone layout only) */
+  .tags-wrapper:has(+ .social-wrapper) .tags {
+    margin-bottom: 12px;
+  }
+
+  .tags-wrapper + .social-wrapper .social {
+    margin-top: 12px;
+  }
+
+  /* the section contains the floated tags (its margin box sets the row height,
+     like the source's flex row) */
+  main > .section:has(> .tags-wrapper + .social-wrapper) {
+    display: flow-root;
+  }
+}
+
+@media (width >= 1024px) {
+  .tags,
+  .tags-wrapper:has(+ .social-wrapper) .tags {
+    margin-block: 20px;
+  }
+
+  .tags-wrapper + .social-wrapper .social {
+    margin-top: 20px;
+  }
+}
+
+@media (width >= 1280px) {
+  .tags,
+  .tags-wrapper:has(+ .social-wrapper) .tags {
+    margin-block: 36px;
+  }
+
+  .tags-wrapper + .social-wrapper .social {
+    margin-top: 36px;
+  }
+}

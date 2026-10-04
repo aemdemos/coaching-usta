@@ -3401,3 +3401,268 @@ lint ✓ (0 errors) · breakpoint ✓ · svg ✓ · overflow ✓ · typography �
 - Vertical: added the source container's `margin-block` 12 / 20 @1024 / 36 @1280 to `.social` → icons → frame
   bottom 33 / 33 / 41 / 57 / 57 / 57 (375 → 1728), matching source (was a flat 21).
 lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ · typography ✓ · a11y ✓
+
+## SITE SCOPE — 2026-10-04 (source of truth: `catalog/`)
+Scope run with the site-scope workflow. Artifacts: `catalog/template-catalog.json`, `catalog/block-catalog.json`,
+`catalog/summary.json`, `catalog/urls-*.json`, screenshots in `catalog/.pages/`; importer projection
+`tools/importer/page-templates.json` (the old homepage-only mappings are preserved in
+`tools/importer/page-templates.home.json`).
+- **URLs: 219** (en 109 · es 109 · plus `/es/` redirect). Discovery: sitemap lists only EN; the header / mega-menu
+  (incl. the language switcher) is JS-rendered, so ES was found by an EN↔ES path mirror check (each verified 200,
+  no redirect) + rendered-browser links + static crawl. ES mirrors EN 1:1 except one extra listing page.
+- **Analysis:** 217 / 218 pages analyzed (99%); 1 failure = `/es/errors/auth-error.html` (error page, excluded).
+  Logged errors were transient screenshot timeouts / browser-context closes on very tall pages, retried OK.
+- **14 templates · 78 block variants** (60 EDS-mapped, 18 custom/unknown):
+
+| Template | Pages | en / es | Notes |
+|---|---|---|---|
+| news-article | 116 | 58 / 58 | 112 news articles + membership-benefits ×2 + job-board ×2 share this layout |
+| account-dashboard | 32 | 16 / 16 | logged-in account app pages — confirm whether in scope |
+| landing-page | 26 | 13 / 13 | home, community, membership, courses, coach-mentorship, learning-pathway … |
+| quiz-results | 12 | 6 / 6 | `/results/*` recommendation pages |
+| listing-hub | 11 | 6 / 5 | news index, workshops, FAQs, coachtennis |
+| long-form-info | 6 | 3 / 3 | about, equivalency application … |
+| account-record-form, guided-journey, disclaimer-form, settings-page, preferences-form, unsubscribe-form | 2 each | 1 / 1 | forms / account utilities |
+| maintenance-page | 1 | 1 / 0 | standalone status page |
+| listing-hub-variant | 1 | 0 / 1 | `/es/home/news.html` (differs from the EN news index) |
+
+**Suggested import order (largest same-layout groups first):** news-article (116) → landing-page (26) →
+quiz-results (12) → listing-hub (11) → long-form-info (6) → small form/utility templates. Account-area templates
+(account-dashboard + forms/settings, ~44 pages) are authenticated app screens — decide scope with the client.
+
+### 2026-10-04 — Scope: richest / medium / leanest page per template + source selectors
+Full data: `migration-work/template-components.json` (per template: ranking of every page, richest/medium/lowest,
+minimal cover set, component list with selectors; plus a site-wide component table). Method: rendered @1440, counted
+source components inside the page body — AEM grid components (first class of each `.aem-GridColumn`) and Vue
+widget roots (outermost `.v-*`); excluded the global Join/quiz modal family (`v-wizard*`, `v-quiz*`, `v-modal`,
+`v-30day-modal`, `v-tooltip`) and child parts. Ranked by distinct component types → instances → catalog block
+variants → main-content HTML size. (The catalog's own block detection under-counts here — ~75% of blocks are
+non-standard AEM/Vue widgets — so it is only a tie-breaker.)
+
+| Template | Richest (types/inst) | Medium | Leanest | Cover set |
+|---|---|---|---|---|
+| news-article | /en/home/news/zina-garrison-star-player-to-community-builder (9/32) | …/coach-guide-to-tennis-hydration (8/15) | /es/…/10-tennis-coaching-tips… (7/9) | 5 pages |
+| landing-page | /es/home/learning-pathway (10/66) | /es/…/usta-coaches-inclusion-summit (5/81) | /en/…/coaching-membership-terms-and-conditions (1/2) | 5 |
+| quiz-results | /es/home/results/ft-pro-coach (7/37) | /es/…/college-coach (7/34) | /es/maintenance-page (2/7) | 2 |
+| listing-hub | /es/home/workshops/education-center-locations (6/245) | /es/home/coachtennis (5/115) | /en/home/about/faqs (3/6) | 3 |
+| long-form-info | /es/home/about (7/125) | /es/home/results/pt-pro-coach (7/37) | /en/errors/auth-error (2/7) | 3 |
+| disclaimer-form / preferences-form / maintenance / listing-hub-variant | single layout — 1 page covers all | | | 1 |
+| account-dashboard, account-record-form, guided-journey, settings-page, unsubscribe-form | 0 content components — client-rendered app screens | | | — |
+
+**Source component → EDS block** (pages using it): text (175) → default content / intro-statement · separator (158)
+→ spacer · image (157) → default image / columns media · tags `div.tags` (114) → ⚠ no block yet · breadcrumb
+`div.breadcrumb` (114) → ⚠ no block yet · socialmediasharing (112) → **social** · v-related-articles /
+v-news-related-tile (112 / 57) → **cards (news)** · button (42) → default CTA · v-leads (32) → **form** (subscribe)
+· accordion (20) → **accordion** · v-tiers (15) → **cards (pricing)** · embed (8) → **video** / columns (embed) ·
+v-form-container (8) → **form** · v-course-list (8) → **course-filter** · navigation `cmp-navigation__coaching` (6)
+→ ⚠ verify · iframetext (6) → ⚠ verify (iframe embed) · core-tabs (4) → **tabs** · v-search-bar /
+v-article-search-results / v-latest-articles-list (4/2/2) → ⚠ news search, no block yet · v-person-card (2) →
+**cards (profile)** · v-classification-accordion (2) → **accordion** variant · v-events-list (2) → **columns
+(events)** · v-big-cta (2) → **banner** · v-tags (2) → ⚠ no block yet.
+Layout containers (hero / columns / cards / banners / bordered frame) are styled AEM `container` components, not
+counted above — their selectors come from the per-template block mapping (see `page-templates.home.json`).
+
+### 2026-10-04 — news-article template: 5 builds + importer + test import (Zina Garrison) — parity verified
+Source: /en/home/news/zina-garrison-star-player-to-community-builder.html (richest news article). Built:
+1. **Template styles** (`styles.css`, end of file, `body.news-article`; metadata `Template: news-article`): article =
+   default content in a `bordered` section; every element gets the source component inset (12px 8px → 12px @768),
+   which reproduces the source rhythm (24px paragraph gaps from its empty <p> spacers, 66px around separators).
+   Top image: 20px radius, cover, **top-anchored** (`object-position: 50% 0`), aspect 1.25 → 1.5 @768 → 2:1 @1280
+   (+ `max-width: none` — a site-wide default-content image cap is 360px). H1 Graphik Semibold 700 centred
+   28/32/40/50, margin 0.67em. Body Graphik Regular 18/24 ls normal; italic stays white italic (source <i>), not the
+   lime accent. h3 = source `text--font-size--32px-28px` (<p><b> Graphik Regular, synthesized bold) 28 → 32 @1280;
+   h2 = `40px-28px` Semibold 28/32/40. Pull-quote: 10/12 article-grid columns offset 1 + 12px (8px phone) padding,
+   margin-block 12/20/36/52. Gap frame → featured tile 48/56/80/112.
+2. **Breadcrumb** (`blocks/breadcrumb`, auto-built in scripts.js `buildBreadcrumb` for the template, page main
+   only — never in fragments): home label/link from the locale **placeholders** sheet (`News Home`, `News Home
+   Link`, `Breadcrumb Label`; new `fetchPlaceholders()` + `localePrefix()` exports in scripts.js; local files
+   `content/placeholders.json`, `content/es/placeholders.json` — EN "News Home" → /en/home/news, ES "Noticias
+   Inicio" → /es/home/news). Current item = metadata `Breadcrumb Title` (importer copies the source breadcrumb; it
+   differs from H1/title on some articles) → H1 fallback. Graphik Semibold 18, link white (lime hover), current
+   lime, " > " separator; section padding 24 (source in-flow header placeholder) / 12. Source quirk NOT copied: its
+   nowrap row overflows phones — ours ellipsizes.
+3. **columns (article) generic image width**: `media-N` (≥1280) + optional `media-md-N` (1024–1279; 12 = stacked;
+   falls back to N, like AEM desktop-small). JS → `--media-span` / `--media-span-md` + `.split-md`; ONE CSS rule for
+   any ratio. No number = original 9/3 from 1280 (existing samples unchanged). Cells 12px 8px on phones (was 12px —
+   AEM grid-column inset). Heading after body copy in a cell: margin-top 66px (the source's in-cell separator;
+   66 because it collapses with the paragraph's 24px). h3 in cells = the smaller heading (28 → 32 @1280).
+4. **tags block** (`blocks/tags`): label row authored; tags from page `Keywords` metadata (source: meta keywords)
+   unless rows authored; removes itself when empty. Pills Graphik Regular white 12px/6px 12px → 14px/8px 16px @768,
+   2px blue border, 24px radius. Shares a row with `social` (float left ≥768, section `display: flow-root`;
+   stacked flush on phones).
+5. **columns (media, dark)**: outlined transparent card (1px white, 20px radius, 48px 24px padding), white text,
+   24px stacked gaps, copy 18/21.6 → 24/33.6 @1024 (ls normal), CTA 24px / 16px 24px; image fills the card height
+   from 1024 (cover).
+**Importer** `tools/importer/import-news-article-v1.js` (+ bundle; parsers `news-columns-article`, `news-quote`,
+`news-tags-social`, `news-featured`; reuses `coaching-usta-cleanup`). Selectors are stable AEM/Vue classes only.
+Sized bold text components → h2/h3 (generic size map); text+image sibling columns → `Columns (article,
+media-left|right, media-N[, media-md-N])` (spans read from aem-GridColumn classes); `.separator` → Spacer 42px;
+pull-quote → `Quote` (<em> for the lime); tags+share row → `Tags` + `Social`; frame → `bordered` section; featured
+tile → `Fragment` /fragments/news/featured-article. Metadata: Title, Description, Keywords, Template, Breadcrumb
+Title. **Fragment mode**: same URL + `#featured-fragment` emits only the shared tile as `Columns (media, dark)`
+(the runner writes one doc per URL). Tile CTA is a JS <button> (no href) → target in a documented title→path map
+(verified by clicking). Bundle with `--banner:js="/* eslint-disable */"`.
+**Test import**: `content/en/home/news/zina-garrison-star-player-to-community-builder.plain.html` +
+`content/fragments/news/featured-article.plain.html` (URLs: `tools/importer/urls-news-article-test.txt`).
+**Parity** (375/768/1024/1280/1440, every element measured vs source): breadcrumb, frame (h ±1px), top image,
+H1/intro, row text/heading/image, quote box, tags/share, featured tile — all within 0–0.5px. Pixel diff @1440 top
+section 547,743 → 3,390 px (breadcrumb text sub-pixel only).
+**Open / notes**:
+- Images keep absolute source URLs — this repo has no `tools/assets/` finalize pipeline yet (download to
+  `content/media-da/` before publishing).
+- Local dev server doesn't turn the Metadata block into <meta> for /content/ pages → local verification injected
+  the page's metadata (Playwright route); on aem.page this is native.
+- Placeholders sheets + fragment exist locally only → upload to DA as sheets/pages before preview.
+- Global: the source header area is 116px at 768–1023 (ours 90) → content sits 26px higher at that tier on every
+  page — header work, not done here.
+lint ✓ (0 errors) · breakpoint ✓ · svg ✓ · typography ✓ (checker skips the template's article frame, like
+.intro-statement) · overflow ✓ 360/768/1024/1280/1920 · a11y ✓ axe 0 violations (both with metadata injected)
+
+### 2026-10-04 (later) — news-article: template folder, preview fix, nbsp, header tablet tier
+User review of the Zina page in the plain preview: no template styles, no breadcrumb, no tags, the
+Metadata table rendered as content. Cause: the local content preview serves the Metadata block inside
+<main> (aem.page turns it into <head> meta); my earlier checks injected the meta tags, which hid it.
+- **scripts.js `applyInlineMetadata`**: a Metadata block still in main → applied as <meta> (+ <title>),
+  then removed — runs before `decorateTemplateAndTheme`. No-op on delivered pages. All verification
+  now runs on the plain preview, no injection.
+- **Templates folder**: `templates/news-article/news-article.{css,js}`, loaded by scripts.js
+  `loadTemplate` (TEMPLATES list, picked by metadata `Template`) before the page is decorated. The CSS
+  moved out of styles.css; the JS builds the breadcrumb (was `buildBreadcrumb` in scripts.js).
+- **Breadcrumb gap**: source = the home link ends in a space + an "  >  " ::after on its item → link
+  text gets a trailing space and the separator is `li:not(:last-child)::after` (was 4px short).
+- **Non-breaking spaces**: the source copy has "walk&nbsp; out" etc. that change line wraps; the
+  import converter turns U+00A0 into a space and collapses it (before the transform runs). Importer
+  `onLoad` swaps nbsp for a private-use sentinel in the live page and wraps `WebImporter.md2da`
+  (its exports are read-only getters → the whole global is replaced with a spread copy) to emit
+  `&nbsp;` again. Blank `<p>&nbsp;</p>` spacers are left alone so the converter still drops them.
+- **Header 768–1023** (all pages): source bar is 116px from 768 (33px padding), full 360×30 logo,
+  18px/24px-padded Join — was 90px/210px logo/12px (content sat 26px high). Phones: logo truly
+  centred (side groups `min-width: 0`) and centred vertically (brand p `display: flex`, 210×17.5).
+  Flyout: 48px above the first row and below the buttons at all tiers; external icons
+  `vertical-align: baseline`, 30×30 on tablets; language chevron 24px gap (16 desktop), centred,
+  -8px top margin, 24×24 on tablets; tablet language options 24px; option rows line-height normal.
+  Bar links: letter-spacing normal (were inheriting -0.48px), line-height normal. Source dropdown at
+  1024–1279 does NOT list Community/Education/Benefits (they're nowhere until the bar shows them at
+  1280) — matched.
+- **Nav content**: source menu now has **Shop** (external, https://ustacoachingshop.com/) between
+  News and the language switcher — must be added to the DA nav document (content, not code).
+Parity (plain preview vs source): article positions identical at 375/768/1024/1280/1440 (≤0.15px
+at 375 from image-height rounding); text identical incl. nbsp; header bar 0 differing px at 768,
+1024 and 1440; open menus identical apart from Shop. Remaining pixel noise = different JPEG
+renditions of the same images.
+lint ✓ (0 errors) · breakpoint ✓ · svg ✓ · typography ✓ (article + home) · overflow ✓ (article +
+home) · a11y ✓ (article + home)
+- **Homepage hero (video) top spacing**: source = 24px header placeholder + container margin
+  (12 / 20 / 36) + 12px text padding → section padding-top 48 / 56 @1024 / 72 @1280 (was 72
+  everywhere: title + video sat 24px low below 1024, 16px low at 1024–1279). Now identical at
+  375/768/1024/1280/1440. Known deviation: the source video grows 522 → 694px at 1289px (not one of
+  the agreed 768/1024/1280 breakpoints); ours grows at 1280, so 1280–1288 is 172px taller.
+- **Shop nav item** (2026-10-04): added to the DA nav documents and previewed (not published) — EN
+  "Shop", ES "Comercio" → https://ustacoachingshop.com/, between News/Noticias and the language
+  switcher (source position). External link → new tab + icon via header.js. Desktop dropdown rows
+  now line-height normal (17px like the source, was 17.1 → 0.6px drift by the last row; the language
+  row was 18). Open-menu parity incl. Shop: identical row boxes at 375/768/1024/1280/1440; 0
+  differing px at 768 and 1440. The local `content/nav.plain.html` copy predates the change (local
+  preview shows Shop only once that copy is refreshed from DA).
+
+### 2026-10-04 (later) — news-article: featured tile rule, paragraph model, lists, empty tags, page end
+- **Featured tile** is dynamic on the source (Vue `v-featured-article`: the news section's featured
+  story, never the current page). Rendered all 112 articles: 55 EN show the same tile ("Serving
+  Gratitude…") → shared fragment; the featured story itself shows a different one (Emma Dell Part 3,
+  CTA verified by click) → built INLINE as `Columns (media, dark)`; 56 ES render an empty tile →
+  nothing imported. `news-featured.js` decides (FRAGMENT_TILE_TITLE); the title→path map has both.
+  If the source's featured story changes, update FRAGMENT_TILE_TITLE + the fragment + the map.
+- **Paragraph model**: inside one source text component paragraphs touch (0 gap) unless the author
+  typed blank lines (<p>&nbsp;</p>, 24px each); components are 24px apart (12 + 12 padding). The
+  template pads every default-content element 12px, so the importer's `normalizeTextComponent`
+  rewrites each component: no blank → paragraphs joined with <br>; n blanks → n−1 kept;
+  leading/trailing blanks and blanks around lists kept; a list starting/ending its component gets a
+  blank line for the edge. Kept blanks carry the nbsp sentinel (the converter drops blank <p> before
+  the transform, so they're marked in `onLoad`); the template JS gives them `.blank` (padding 0 →
+  one 24px line). Scan of the 56 EN articles: 130 touching pairs (10 pages), 25 double + 1 triple
+  blanks, 48 trailing / 7 leading blanks — all covered.
+- **Lists**: source ul margin 18px 0, 40px indent, disc, items 18/24 each ending in an authored
+  blank line (`<li><p>…</p><p>&nbsp;</p></li>`, kept). Template: ul padding 6px 8px 6px 48px
+  (6px 12px 6px 52px ≥768).
+- **Empty tags**: the source renders its tags component even with no keywords (an empty 24px box
+  above Share on phones) → the importer always emits `Tags`, and the block keeps its empty box.
+- **Page end**: the source footer starts 108px below the featured tile at every breakpoint; without
+  a tile (ES) the frame sits gap + 108 = 156 / 164 / 188 / 220px above it. Template rules for
+  `.section.bordered + .section:last-child` / `.section.bordered:last-child`.
+- Subscribe form: kept in the footer on news pages too (user decision — consistent footer), although
+  the source news footer has none.
+Verified (plain preview vs source, 375/768/1024/1280/1440): Zina EN, Serving Gratitude EN (lists,
+touching paragraphs, inline tile, empty tags) and Zina ES (no tile) — frame height, share row and
+footer position identical (≤1px at 375 from image-height rounding); ES breadcrumb "Noticias Inicio".
+lint ✓ · breakpoint ✓ · typography ✓ · overflow ✓ · a11y ✓ (all three pages)
+
+### 2026-10-04 (later) — news-article: separator gaps by template rule (spacers mostly removed)
+- Source separator = 42px at every breakpoint (measured 375–1440) → 66px between content with the
+  12px component paddings. Measured the rendered gap at all 1,031 element boundaries of the 56 EN
+  articles: a type rule matches 998 — **a heading (h2/h3) right after text/list/article row, and an
+  article row right after text/list/another row, get 42px**. The other 33 are author choices
+  (identical heading classes, same neighbours), so per user decision (Option 1):
+  - CSS (templates/news-article "section gaps") applies the rule (direct neighbours only);
+  - importer `applySectionGaps` mirrors it: drops every source separator the rule reproduces, keeps
+    a 42px Spacer only where it doesn't (~18 across EN), and where the source has NO separator but
+    the rule would add one: `flush` variant on the article row (~8) / a 0px Spacer before the heading
+    (~7). Keep CSS + importer rule in sync.
+- Zina / Serving Gratitude / Zina ES now import with 0 spacers; positions vs source unchanged
+  (every heading/paragraph/image ≤0.22px at 375/768/1024/1280/1440; frame, share, footer identical).
+  Exception paths verified in a scratch import: Cardio Tennis → 1 `flush` row, Paul Annacone → 1 0px
+  Spacer, WeCOACH → 2 kept 42px Spacers (rendering of those pages not yet compared).
+- `npm run lint:css` now also covers `templates/**/*.css` (it skipped the template before).
+- **Metadata `Keywords` → `Tags`** (user decision, 2026-10-04): the importer writes the source's meta
+  keywords as `Tags`. Delivered pages turn `Tags` into one `article:tag` meta per value; the Tags
+  block reads `article:tag` → `tags` (local preview) → `keywords` (older pages). Comma-separated
+  values = one pill each (verified with 3 tags in both forms; they wrap in one flex row).
+
+### 2026-10-04 (later) — block samples (media-5, tags) + first importer backups
+- DA block samples (previewed, not published): `drafts/block-samples/columns-article-media-5`
+  (the real Zina row `columns (article, media-right, media-5)` in a bordered section, with the
+  media-N / media-md-N contract; image uploaded to DA `.columns-article-media-5/`) and
+  `drafts/block-samples/tags` (tags from page `Tags` metadata, authored tag rows, tags + social
+  footer row). Verified with the current code via the local server (aem.page still runs the pushed
+  code until this work is committed): media-5 = 5/12 image from 1024, stacked below; 3 pills each.
+  Confirmed on aem.page: metadata `Tags` → one `<meta property="article:tag">` per value.
+- **Importer backups (IMPORTING-GUIDE §11)** — first ones in this repo:
+  `tools/importer/backups/news-article/<page>/` = exact `import-news-article-v1.js` + bundle +
+  `manifest.json` (URLs incl. ES twin, output sections/blocks/variants/metadata, image hosts,
+  shared fragment, code dependencies, verification, source quirks kept, pending follow-ups,
+  script sha256). Pages: zina-garrison-star-player-to-community-builder (+ ES twin),
+  serving-gratitude-celebrating-tennis-coaches. Back up every page that passes the gate the same way.
+
+### 2026-10-04 (later) — media-N sample, span-12 images, media-left stacking order
+- **Span-12 source images are not rows**: the parser leaves them as default content (text, then a
+  full-width image); `media-12` support was added and removed again (user decision). Template rule:
+  in-article `p img` = full content width, natural ratio, square corners (source image component;
+  overrides the site-wide 360px default-content cap). Jim Loehr re-imported (0 columns blocks).
+- **media-left stacking order (parity fix, columns block)**: on the source a media-left row stacks
+  image ABOVE its text (phones, and 1024–1279 when media-md-12) — the image column comes first in
+  the source DOM. Ours always put the image below → base rule now orders media-left image first.
+- **Sample** `drafts/block-samples/columns-article-media-n` ("Columns (article) — media-N"): one real
+  row per span with its source article — media-6 black-girls-tennis-club… (×130), media-5 Zina
+  (×66), media-4 emilio-sanchez-academy… (×62), media-3 southlake-tennis-center… (×14), media-7
+  usta-coaching-butch-staples-award… (media-left, ×2). Images uploaded to DA
+  `.columns-article-media-n/`; page generated (`/tmp/fm/gen-media-n.mjs`) and verified locally with
+  the current code (6/5/4/3/7 of 12 from 1280; media-5 also at 1024; stacked below). DA page upload
+  returned 401 (permission switched off mid-session) — page not yet uploaded/previewed.
+
+### 2026-10-04 (later) — columns (article): one media option for most rows
+- User: too many options per row. New contract `columns (article[, media-left], media-N[, media-md-N])`:
+  image **right** and row **stacked at 1024–1279** are now the defaults (≈75% of source rows have
+  desktop-small 12). `media-md-N` is written only when the source row stays side by side at
+  1024–1279 (desktop-small < 12, or unset → AEM reuses N, e.g. Zina → `media-5, media-md-5`).
+  `media-right` / `media-md-12` are no longer written (an existing `media-right` is harmless).
+  Block: `media-md-N` no longer defaults to N. Parser updated; 4 test pages re-imported (Zina parity
+  unchanged at all 5 viewports); DA samples `columns-article-media-n` + `columns-article-media-5`
+  regenerated/previewed with the short form; news-article backups refreshed.
+
+### 2026-10-04 (later) — columns (article): media-md removed (max three options)
+- User decision: every article row is `columns (article, media-right|media-left, media-N)` — never
+  more. `media-md-N` support removed from the block (JS + the 1024 split CSS) and the parser; the
+  side is always written. Rows stack below 1280 and sit side by side from 1280 at N/12.
+- **Accepted deviation**: ~25% of source rows (e.g. Zina) stay side by side at 1024–1279 on the
+  source; ours stack in that band only (identical below 1024 and from 1280).
+- 4 test pages re-imported (`media-right media-5` on Zina); DA samples `columns-article-media-n`
+  and `columns-article-media-5` regenerated + previewed (0 `media-md` left); backups refreshed.

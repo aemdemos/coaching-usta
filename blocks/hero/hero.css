@@ -433,13 +433,14 @@ main > .section.hero-container:has(.hero.content) > div {
    at 0/768/1024/1289) and object-fit: cover — NOT an aspect-ratio. Source side
    gutters: 16/40/48/64. */
 
-/* Hero section vertical rhythm (measured at desktop): header bottom -> H1 top
-   = 72px, H1 -> video = 24px. The hero section carries 72px top padding and
-   zeroes the default section top margin (the body already offsets the fixed
-   header height, so the only gap below the header is this intentional 72px). */
+/* Hero section vertical rhythm: header bottom -> H1 top = the source's 24px
+   header placeholder + its container margin (12 / 20 @1024 / 36 @1280) + the
+   text component's 12px padding = 48 / 56 / 72px; H1 -> video = 24px. The
+   section zeroes the default top margin (the body already offsets the fixed
+   header height). */
 main > .section.hero-container:has(.hero.video) {
   margin-top: 0;
-  padding-top: 72px;
+  padding-top: 48px;
 }
 
 /* The hero aligns with the HEADER: same 1536px max-width centered container
@@ -560,6 +561,10 @@ main > .section.hero-container:has(.hero.video) > div {
 
 /* desktop (>=1024): 48px gutter, panel 522px tall (source) */
 @media (width >= 1024px) {
+  main > .section.hero-container:has(.hero.video) {
+    padding-top: 56px;
+  }
+
   main > .section.hero-container:has(.hero.video) > div {
     padding: 0 48px;
   }
@@ -571,6 +576,10 @@ main > .section.hero-container:has(.hero.video) > div {
 
 /* wide desktop (>=1280): 64px gutter, panel 694px tall (source @1289) */
 @media (width >= 1280px) {
+  main > .section.hero-container:has(.hero.video) {
+    padding-top: 72px;
+  }
+
   main > .section.hero-container:has(.hero.video) > div {
     padding: 0 64px;
   }

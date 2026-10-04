@@ -10,6 +10,7 @@ import {
   loadSections,
   loadCSS,
   buildBlock,
+  getMetadata,
   readBlockConfig,
   toCamelCase,
   toClassName,
@@ -74,6 +75,96 @@ function buildWidgetAutoBlocks(main) {
       link.replaceWith(widgetBlock);
     }
   });
+}
+
+/**
+ * The page locale prefix: '/es' for Spanish pages, '' for the default (English).
+ * @returns {string}
+ */
+export function localePrefix() {
+  return /(^|\/)es(\/|$)/i.test(window.location.pathname) ? '/es' : '';
+}
+
+let placeholdersPromise;
+/**
+ * Fetches the locale's placeholders sheet (Key → Text) once per page. Tries the
+ * local dev path (/content/…) first, then the delivered path, like the footer.
+ * @returns {Promise<Object<string,string>>} placeholders keyed by camel-cased Key
+ */
+export function fetchPlaceholders() {
+  if (!placeholdersPromise) {
+    const prefix = localePrefix();
+    const candidates = [`/content${prefix}/placeholders.json`, `${prefix}/placeholders.json`];
+    placeholdersPromise = (async () => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const path of candidates) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const resp = await fetch(path);
+          if (resp.ok) {
+            // eslint-disable-next-line no-await-in-loop
+            const json = await resp.json();
+            return Object.fromEntries((json.data || [])
+              .filter((row) => row.Key)
+              .map((row) => [toCamelCase(row.Key), row.Text || '']));
+          }
+        } catch { /* try next */ }
+      }
+      return {};
+    })();
+  }
+  return placeholdersPromise;
+}
+
+/**
+ * Page templates with their own code: `templates/{name}/{name}.css|js`, picked
+ * by the page metadata `Template` (aem.js already adds it as a body class).
+ */
+const TEMPLATES = ['news-article'];
+
+/**
+ * Applies a Metadata block still sitting in main as <meta> tags. Delivered
+ * pages never have one (the backend turns it into <head> meta), but local
+ * content previews serve it as-is — without this the template, keywords and
+ * breadcrumb title would be missing and the table would render as content.
+ * @param {Element} main The main element
+ */
+function applyInlineMetadata(main) {
+  const block = main.querySelector(':scope > div > div.metadata');
+  if (!block) return;
+  const config = readBlockConfig(block);
+  Object.entries(config).forEach(([key, raw]) => {
+    const value = Array.isArray(raw) ? raw.join(', ') : raw;
+    if (key === 'title') document.title = value;
+    let meta = document.head.querySelector(`meta[name="${key}"]`);
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = key;
+      document.head.append(meta);
+    }
+    meta.content = value;
+  });
+  const section = block.parentElement;
+  block.remove();
+  if (!section.children.length) section.remove();
+}
+
+/**
+ * Loads the page template's CSS and runs its JS (before the page is decorated).
+ * @param {Element} main The main element
+ */
+async function loadTemplate(main) {
+  const template = toClassName(getMetadata('template'));
+  if (!TEMPLATES.includes(template)) return;
+  try {
+    const css = loadCSS(`${window.hlx.codeBasePath}/templates/${template}/${template}.css`);
+    const mod = await import(`../templates/${template}/${template}.js`);
+    if (mod.default) await mod.default(main);
+    await css;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Loading template ${template} failed`, error);
+  }
 }
 
 /**
@@ -217,9 +308,11 @@ export function decorateMain(main) {
  */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
-  decorateTemplateAndTheme();
   const main = doc.querySelector('main');
+  if (main) applyInlineMetadata(main);
+  decorateTemplateAndTheme();
   if (main) {
+    await loadTemplate(main);
     decorateMain(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);

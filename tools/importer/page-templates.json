@@ -4,186 +4,333 @@
   },
   "templates": [
     {
-      "name": "home",
+      "name": "long-form-info",
       "urls": [
-        "https://www.ustacoaching.com/"
+        "https://www.ustacoaching.com/en/errors/auth-error.html",
+        "https://www.ustacoaching.com/en/home/about.html",
+        "https://www.ustacoaching.com/en/home/learning-pathway/usta-coaching-equivalency-application.html",
+        "https://www.ustacoaching.com/es/home/about.html",
+        "https://www.ustacoaching.com/es/home/learning-pathway/usta-coaching-equivalency-application.html",
+        "https://www.ustacoaching.com/es/home/results/pt-pro-coach.html"
       ],
-      "representativeUrl": "https://www.ustacoaching.com/",
-      "description": "USTA Coaching homepage",
-      "urlPattern": "/",
-      "blocks": [
-        {
-          "name": "hero-video",
-          "instances": [
-            ".cmp-container__video-container"
-          ]
-        },
-        {
-          "name": "columns-media",
-          "instances": [
-            ".container--top-margin--52.container--inner-full-height",
-            ".container--top-margin--36.container--bottom-margin--36.container--inner-full-height"
-          ]
-        },
-        {
-          "name": "cards-pricing",
-          "instances": [
-            ".v-tiers"
-          ]
-        },
-        {
-          "name": "cards-media",
-          "instances": [
-            ".cmp-container .aem-Grid--4"
-          ]
-        },
-        {
-          "name": "columns-cta",
-          "instances": [
-            ".container--display--flex.container--align-items--center"
-          ]
-        },
-        {
-          "name": "columns-quote",
-          "instances": [
-            ".container--border--white:not(.aem-GridColumn--mobile--hide):not(.aem-GridColumn--tablet--hide)"
-          ]
-        },
-        {
-          "name": "accordion",
-          "instances": [
-            ".accordion.panelcontainer"
-          ]
-        },
-        {
-          "name": "form",
-          "instances": [
-            ".v-leads"
-          ]
-        }
+      "coverageGaps": [],
+      "description": "Long-form information page: hero card with image, text-card grid, profile cards, logo wall, contact cards and a signup form",
+      "blocks": []
+    },
+    {
+      "name": "listing-hub",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/about/faqs.html",
+        "https://www.ustacoaching.com/en/home/coachtennis.html",
+        "https://www.ustacoaching.com/en/home/news.html",
+        "https://www.ustacoaching.com/en/home/news/search-results.html",
+        "https://www.ustacoaching.com/en/home/workshops.html",
+        "https://www.ustacoaching.com/en/home/workshops/education-center-locations.html",
+        "https://www.ustacoaching.com/es/home/about/faqs.html",
+        "https://www.ustacoaching.com/es/home/coachtennis.html",
+        "https://www.ustacoaching.com/es/home/news/search-results.html",
+        "https://www.ustacoaching.com/es/home/workshops.html",
+        "https://www.ustacoaching.com/es/home/workshops/education-center-locations.html"
       ],
-      "sections": [
-        {
-          "id": 1,
-          "name": "Hero",
-          "selector": [
-            ".cmp-container__video-container"
-          ],
-          "style": "dark",
-          "blocks": [
-            "hero-video"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 2,
-          "name": "Intro statement",
-          "selector": [
-            ".container--top-margin--52.container--bottom-margin--52"
-          ],
-          "style": "dark",
-          "blocks": [],
-          "defaultContent": [
-            ".container--top-margin--52.container--bottom-margin--52"
-          ]
-        },
-        {
-          "id": 3,
-          "name": "Quiz finder card",
-          "selector": [
-            ".container--top-margin--52.container--inner-full-height"
-          ],
-          "style": null,
-          "blocks": [
-            "columns-media"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 4,
-          "name": "Packages / pricing",
-          "selector": [
-            ".v-tiers"
-          ],
-          "style": "dark",
-          "blocks": [
-            "cards-pricing"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 5,
-          "name": "Community",
-          "selector": [
-            ".cmp-container .aem-Grid--4"
-          ],
-          "style": "dark",
-          "blocks": [
-            "cards-media"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 6,
-          "name": "Events banner",
-          "selector": [
-            ".container--display--flex.container--align-items--center"
-          ],
-          "style": "accent",
-          "blocks": [
-            "columns-cta"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 7,
-          "name": "Success stories",
-          "selector": [
-            ".container--border--white:not(.aem-GridColumn--mobile--hide):not(.aem-GridColumn--tablet--hide)"
-          ],
-          "style": "dark",
-          "blocks": [
-            "columns-quote"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 8,
-          "name": "Discover your path",
-          "selector": [
-            ".accordion.panelcontainer"
-          ],
-          "style": "dark",
-          "blocks": [
-            "accordion"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 9,
-          "name": "Safe Play",
-          "selector": [
-            ".container--top-margin--36.container--bottom-margin--36.container--inner-full-height"
-          ],
-          "style": null,
-          "blocks": [
-            "columns-media"
-          ],
-          "defaultContent": []
-        },
-        {
-          "id": 10,
-          "name": "Newsletter signup form",
-          "selector": [
-            ".v-leads"
-          ],
-          "style": "dark",
-          "blocks": [
-            "form"
-          ],
-          "defaultContent": []
-        }
-      ]
+      "coverageGaps": [],
+      "description": "Hub / listing page: display page title, featured media + text promo, search or filter bar, repeating card grids and a See More button",
+      "blocks": []
+    },
+    {
+      "name": "account-dashboard",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/account.html",
+        "https://www.ustacoaching.com/en/home/account/coach-achievements.html",
+        "https://www.ustacoaching.com/en/home/account/dashboard.html",
+        "https://www.ustacoaching.com/en/home/account/edit-profile.html",
+        "https://www.ustacoaching.com/en/home/account/learning.html",
+        "https://www.ustacoaching.com/en/home/account/mybenefits.html",
+        "https://www.ustacoaching.com/en/home/account/mylearningprogress.html",
+        "https://www.ustacoaching.com/en/home/account/mymembership.html",
+        "https://www.ustacoaching.com/en/home/account/mymembership/payment-processing.html",
+        "https://www.ustacoaching.com/en/home/account/myschools.html",
+        "https://www.ustacoaching.com/en/home/account/myschools/add/partner-registration.html",
+        "https://www.ustacoaching.com/en/home/account/myschools/add/pe-class-registration.html",
+        "https://www.ustacoaching.com/en/home/account/myschools/add/team-registration.html",
+        "https://www.ustacoaching.com/en/home/account/myschools/edit/pe-class-registration.html",
+        "https://www.ustacoaching.com/en/home/account/myschools/edit/team-registration.html",
+        "https://www.ustacoaching.com/en/home/account/notifications.html",
+        "https://www.ustacoaching.com/es/home/account.html",
+        "https://www.ustacoaching.com/es/home/account/coach-achievements.html",
+        "https://www.ustacoaching.com/es/home/account/dashboard.html",
+        "https://www.ustacoaching.com/es/home/account/edit-profile.html",
+        "https://www.ustacoaching.com/es/home/account/learning.html",
+        "https://www.ustacoaching.com/es/home/account/mybenefits.html",
+        "https://www.ustacoaching.com/es/home/account/mylearningprogress.html",
+        "https://www.ustacoaching.com/es/home/account/mymembership.html",
+        "https://www.ustacoaching.com/es/home/account/mymembership/payment-processing.html",
+        "https://www.ustacoaching.com/es/home/account/myschools.html",
+        "https://www.ustacoaching.com/es/home/account/myschools/add/partner-registration.html",
+        "https://www.ustacoaching.com/es/home/account/myschools/add/pe-class-registration.html",
+        "https://www.ustacoaching.com/es/home/account/myschools/add/team-registration.html",
+        "https://www.ustacoaching.com/es/home/account/myschools/edit/pe-class-registration.html",
+        "https://www.ustacoaching.com/es/home/account/myschools/edit/team-registration.html",
+        "https://www.ustacoaching.com/es/home/account/notifications.html"
+      ],
+      "coverageGaps": [],
+      "description": "Authenticated account area: app-style shell with dynamically rendered dashboard / profile / learning panels",
+      "blocks": []
+    },
+    {
+      "name": "landing-page",
+      "urls": [
+        "https://www.ustacoaching.com/en/home.html",
+        "https://www.ustacoaching.com/en/home/account/flag-profile.html",
+        "https://www.ustacoaching.com/en/home/coach-mentorship.html",
+        "https://www.ustacoaching.com/en/home/coaching-community.html",
+        "https://www.ustacoaching.com/en/home/coaching-community/coaching-workshops.html",
+        "https://www.ustacoaching.com/en/home/coaching-community/fellowship-in-coaching-and-leadership.html",
+        "https://www.ustacoaching.com/en/home/coaching-community/usta-coaches-inclusion-summit.html",
+        "https://www.ustacoaching.com/en/home/courses.html",
+        "https://www.ustacoaching.com/en/home/learning-pathway.html",
+        "https://www.ustacoaching.com/en/home/membership-benefits/coaching-membership-terms-and-conditions.html",
+        "https://www.ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-pro-plus.html",
+        "https://www.ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-pro.html",
+        "https://www.ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-rally.html",
+        "https://www.ustacoaching.com/es/home.html",
+        "https://www.ustacoaching.com/es/home/account/flag-profile.html",
+        "https://www.ustacoaching.com/es/home/coach-mentorship.html",
+        "https://www.ustacoaching.com/es/home/coaching-community.html",
+        "https://www.ustacoaching.com/es/home/coaching-community/coaching-workshops.html",
+        "https://www.ustacoaching.com/es/home/coaching-community/fellowship-in-coaching-and-leadership.html",
+        "https://www.ustacoaching.com/es/home/coaching-community/usta-coaches-inclusion-summit.html",
+        "https://www.ustacoaching.com/es/home/courses.html",
+        "https://www.ustacoaching.com/es/home/learning-pathway.html",
+        "https://www.ustacoaching.com/es/home/membership-benefits/coaching-membership-terms-and-conditions.html",
+        "https://www.ustacoaching.com/es/home/membership-benefits/gallagher-disclaimer-pro-plus.html",
+        "https://www.ustacoaching.com/es/home/membership-benefits/gallagher-disclaimer-pro.html",
+        "https://www.ustacoaching.com/es/home/membership-benefits/gallagher-disclaimer-rally.html"
+      ],
+      "coverageGaps": [],
+      "description": "Marketing landing page: hero (video or image), centred display statement, alternating media + text cards, card grids, promo banners and accordions",
+      "blocks": []
+    },
+    {
+      "name": "account-record-form",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/account/myschools/edit.html",
+        "https://www.ustacoaching.com/es/home/account/myschools/edit.html"
+      ],
+      "coverageGaps": [],
+      "description": "Account form page: single form for editing a saved record within the account area",
+      "blocks": []
+    },
+    {
+      "name": "guided-journey",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/account/schools-journey.html",
+        "https://www.ustacoaching.com/es/home/account/schools-journey.html"
+      ],
+      "coverageGaps": [],
+      "description": "Guided journey page: step-by-step progress layout with sequential task panels",
+      "blocks": []
+    },
+    {
+      "name": "news-article",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/job-board.html",
+        "https://www.ustacoaching.com/en/home/membership-benefits.html",
+        "https://www.ustacoaching.com/en/home/news/10-tennis-coaching-tips-for-coaches-and-parents.html",
+        "https://www.ustacoaching.com/en/home/news/advantage-coaches-celebrating-one-year-of-usta-coaching.html",
+        "https://www.ustacoaching.com/en/home/news/black-girls-tennis-club-redefining-who-belongs-on-court.html",
+        "https://www.ustacoaching.com/en/home/news/cardio-tennis-makes-business-sense-for-tennis-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/coach-guide-to-tennis-hydration.html",
+        "https://www.ustacoaching.com/en/home/news/coaches-open-2026.html",
+        "https://www.ustacoaching.com/en/home/news/coaches-reveal-their-game-changing-goals-for-2026.html",
+        "https://www.ustacoaching.com/en/home/news/coaching-promising-junior-tennis-players-troy-hahn.html",
+        "https://www.ustacoaching.com/en/home/news/coachs-journal-emma-dell-first-impressions.html",
+        "https://www.ustacoaching.com/en/home/news/coachs-journal-emma-dell-part-2-serve-your-passion.html",
+        "https://www.ustacoaching.com/en/home/news/coachs-journal-emma-dell-part-3-changing-sides-net.html",
+        "https://www.ustacoaching.com/en/home/news/dr-larry-lauer-on-mental-health-and-performance-in-tennis.html",
+        "https://www.ustacoaching.com/en/home/news/emilio-sanchez-academy-building-coaches-and-players-through-spanish-system.html",
+        "https://www.ustacoaching.com/en/home/news/from-qualifier-to-champion-tina-lee-jordan-wimbledon-triumph.html",
+        "https://www.ustacoaching.com/en/home/news/ghanaian-coachs-journey-through-coach-inclusion-summit.html",
+        "https://www.ustacoaching.com/en/home/news/gordon-reid-making-tennis-welcoming.html",
+        "https://www.ustacoaching.com/en/home/news/growth-and-success-of-wta-female-coaching-initiatives.html",
+        "https://www.ustacoaching.com/en/home/news/how-blind-tennis-builds-confidence-independence.html",
+        "https://www.ustacoaching.com/en/home/news/how-coach-developer-lois-arterberry-is-shaping-the-future-of-coaching.html",
+        "https://www.ustacoaching.com/en/home/news/how-dana-matthewson-relearned-the-game-as-a-coach.html",
+        "https://www.ustacoaching.com/en/home/news/how-one-coach-helped-change-community-through-usta-coaching-education.html",
+        "https://www.ustacoaching.com/en/home/news/how-usta-coaching-benefits-college-tennis-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/how-usta-coaching-helps-parks-recreation-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/inside-the-coach-inclusion-summit-powered-by-usta-coaching.html",
+        "https://www.ustacoaching.com/en/home/news/inspiring-story-of-brittany-odom-dennis-quaye.html",
+        "https://www.ustacoaching.com/en/home/news/jack-and-jill-usta-coaching-tennis-for-black-families.html",
+        "https://www.ustacoaching.com/en/home/news/janet-pinkett--building-opportunity-and-joy-in-youth-tennis-thro.html",
+        "https://www.ustacoaching.com/en/home/news/jim-loehr-lasting-lessons-for-tennis-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/john-wilkersons-50-year-coaching-legacy.html",
+        "https://www.ustacoaching.com/en/home/news/junior-usa-tennis-shows-true-sportsmanship-at-world-team-cup.html",
+        "https://www.ustacoaching.com/en/home/news/love-serving-autism-coaches-lead-with-acceptance-on-tennis-court.html",
+        "https://www.ustacoaching.com/en/home/news/make-tennis-more-welcoming-for-everybody.html",
+        "https://www.ustacoaching.com/en/home/news/michael-harpers-advice-for-tennis-parents-and-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/new-usta-coaching-upgrades.html",
+        "https://www.ustacoaching.com/en/home/news/paul-annacone-2026-us-open-american-stars-to-watch.html",
+        "https://www.ustacoaching.com/en/home/news/practical-strategies-and-tips-for-tennis-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/serving-gratitude-celebrating-tennis-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/southlake-tennis-center-coaching-excellence-world-class-facilities.html",
+        "https://www.ustacoaching.com/en/home/news/sportimes-playbook-for-the-modern-tennis-coach.html",
+        "https://www.ustacoaching.com/en/home/news/sportsmen-tennis-enrichment-center-njtl-leader-boston.html",
+        "https://www.ustacoaching.com/en/home/news/thomas-judd-coaching-across-continents-ncaa-recruiting-and-business-of-tennis.html",
+        "https://www.ustacoaching.com/en/home/news/usta-ceo-craig-tileys-vision-for-american-tennis.html",
+        "https://www.ustacoaching.com/en/home/news/usta-coaching-butch-staples-award-2026-coaches-open.html",
+        "https://www.ustacoaching.com/en/home/news/usta-coaching-collaborates-with-ptm-programs-to-develop-next-generation-tennis-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/usta-coaching-gives-tennis-coaches-tips-how-to-create-2026-vision-board.html",
+        "https://www.ustacoaching.com/en/home/news/usta-coaching-launches-inaugural-women-coaching-cohort.html",
+        "https://www.ustacoaching.com/en/home/news/usta-coaching-online-learning-hub-is-live.html",
+        "https://www.ustacoaching.com/en/home/news/usta-coaching-testimonials-7-coaches-share-their-experience.html",
+        "https://www.ustacoaching.com/en/home/news/usta-coaching-wecoach.html",
+        "https://www.ustacoaching.com/en/home/news/usta-dinkins-hbcu-coaching-grant-helped-2-student-athletes-become-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/usta-school-tennis-programs-guide-for-coaches.html",
+        "https://www.ustacoaching.com/en/home/news/vania-king-inclusion-culture-pathway-pro.html",
+        "https://www.ustacoaching.com/en/home/news/women-coaches-french-open-immersion-experience.html",
+        "https://www.ustacoaching.com/en/home/news/women-coaches-on-the-mentors-who-shaped-them.html",
+        "https://www.ustacoaching.com/en/home/news/women-in-coaching-advancing-female-tennis-coach-development.html",
+        "https://www.ustacoaching.com/en/home/news/zina-garrison-star-player-to-community-builder.html",
+        "https://www.ustacoaching.com/es/home/job-board.html",
+        "https://www.ustacoaching.com/es/home/membership-benefits.html",
+        "https://www.ustacoaching.com/es/home/news/10-tennis-coaching-tips-for-coaches-and-parents.html",
+        "https://www.ustacoaching.com/es/home/news/advantage-coaches-celebrating-one-year-of-usta-coaching.html",
+        "https://www.ustacoaching.com/es/home/news/black-girls-tennis-club-redefining-who-belongs-on-court.html",
+        "https://www.ustacoaching.com/es/home/news/cardio-tennis-makes-business-sense-for-tennis-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/coach-guide-to-tennis-hydration.html",
+        "https://www.ustacoaching.com/es/home/news/coaches-open-2026.html",
+        "https://www.ustacoaching.com/es/home/news/coaches-reveal-their-game-changing-goals-for-2026.html",
+        "https://www.ustacoaching.com/es/home/news/coaching-promising-junior-tennis-players-troy-hahn.html",
+        "https://www.ustacoaching.com/es/home/news/coachs-journal-emma-dell-first-impressions.html",
+        "https://www.ustacoaching.com/es/home/news/coachs-journal-emma-dell-part-2-serve-your-passion.html",
+        "https://www.ustacoaching.com/es/home/news/coachs-journal-emma-dell-part-3-changing-sides-net.html",
+        "https://www.ustacoaching.com/es/home/news/dr-larry-lauer-on-mental-health-and-performance-in-tennis.html",
+        "https://www.ustacoaching.com/es/home/news/emilio-sanchez-academy-building-coaches-and-players-through-spanish-system.html",
+        "https://www.ustacoaching.com/es/home/news/from-qualifier-to-champion-tina-lee-jordan-wimbledon-triumph.html",
+        "https://www.ustacoaching.com/es/home/news/ghanaian-coachs-journey-through-coach-inclusion-summit.html",
+        "https://www.ustacoaching.com/es/home/news/gordon-reid-making-tennis-welcoming.html",
+        "https://www.ustacoaching.com/es/home/news/growth-and-success-of-wta-female-coaching-initiatives.html",
+        "https://www.ustacoaching.com/es/home/news/how-blind-tennis-builds-confidence-independence.html",
+        "https://www.ustacoaching.com/es/home/news/how-coach-developer-lois-arterberry-is-shaping-the-future-of-coaching.html",
+        "https://www.ustacoaching.com/es/home/news/how-dana-matthewson-relearned-the-game-as-a-coach.html",
+        "https://www.ustacoaching.com/es/home/news/how-one-coach-helped-change-community-through-usta-coaching-education.html",
+        "https://www.ustacoaching.com/es/home/news/how-usta-coaching-benefits-college-tennis-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/how-usta-coaching-helps-parks-recreation-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/inside-the-coach-inclusion-summit-powered-by-usta-coaching.html",
+        "https://www.ustacoaching.com/es/home/news/inspiring-story-of-brittany-odom-dennis-quaye.html",
+        "https://www.ustacoaching.com/es/home/news/jack-and-jill-usta-coaching-tennis-for-black-families.html",
+        "https://www.ustacoaching.com/es/home/news/janet-pinkett--building-opportunity-and-joy-in-youth-tennis-thro.html",
+        "https://www.ustacoaching.com/es/home/news/jim-loehr-lasting-lessons-for-tennis-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/john-wilkersons-50-year-coaching-legacy.html",
+        "https://www.ustacoaching.com/es/home/news/junior-usa-tennis-shows-true-sportsmanship-at-world-team-cup.html",
+        "https://www.ustacoaching.com/es/home/news/love-serving-autism-coaches-lead-with-acceptance-on-tennis-court.html",
+        "https://www.ustacoaching.com/es/home/news/make-tennis-more-welcoming-for-everybody.html",
+        "https://www.ustacoaching.com/es/home/news/michael-harpers-advice-for-tennis-parents-and-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/new-usta-coaching-upgrades.html",
+        "https://www.ustacoaching.com/es/home/news/paul-annacone-2026-us-open-american-stars-to-watch.html",
+        "https://www.ustacoaching.com/es/home/news/practical-strategies-and-tips-for-tennis-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/serving-gratitude-celebrating-tennis-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/southlake-tennis-center-coaching-excellence-world-class-facilities.html",
+        "https://www.ustacoaching.com/es/home/news/sportimes-playbook-for-the-modern-tennis-coach.html",
+        "https://www.ustacoaching.com/es/home/news/sportsmen-tennis-enrichment-center-njtl-leader-boston.html",
+        "https://www.ustacoaching.com/es/home/news/thomas-judd-coaching-across-continents-ncaa-recruiting-and-business-of-tennis.html",
+        "https://www.ustacoaching.com/es/home/news/usta-ceo-craig-tileys-vision-for-american-tennis.html",
+        "https://www.ustacoaching.com/es/home/news/usta-coaching-butch-staples-award-2026-coaches-open.html",
+        "https://www.ustacoaching.com/es/home/news/usta-coaching-collaborates-with-ptm-programs-to-develop-next-generation-tennis-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/usta-coaching-gives-tennis-coaches-tips-how-to-create-2026-vision-board.html",
+        "https://www.ustacoaching.com/es/home/news/usta-coaching-launches-inaugural-women-coaching-cohort.html",
+        "https://www.ustacoaching.com/es/home/news/usta-coaching-online-learning-hub-is-live.html",
+        "https://www.ustacoaching.com/es/home/news/usta-coaching-testimonials-7-coaches-share-their-experience.html",
+        "https://www.ustacoaching.com/es/home/news/usta-coaching-wecoach.html",
+        "https://www.ustacoaching.com/es/home/news/usta-dinkins-hbcu-coaching-grant-helped-2-student-athletes-become-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/usta-school-tennis-programs-guide-for-coaches.html",
+        "https://www.ustacoaching.com/es/home/news/vania-king-inclusion-culture-pathway-pro.html",
+        "https://www.ustacoaching.com/es/home/news/women-coaches-french-open-immersion-experience.html",
+        "https://www.ustacoaching.com/es/home/news/women-coaches-on-the-mentors-who-shaped-them.html",
+        "https://www.ustacoaching.com/es/home/news/women-in-coaching-advancing-female-tennis-coach-development.html",
+        "https://www.ustacoaching.com/es/home/news/zina-garrison-star-player-to-community-builder.html"
+      ],
+      "coverageGaps": [],
+      "description": "Article page: headline and body copy inside a rounded bordered frame, inline images and pull-quotes, share-links row at the foot of the frame",
+      "blocks": []
+    },
+    {
+      "name": "disclaimer-form",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-baseline.html",
+        "https://www.ustacoaching.com/es/home/membership-benefits/gallagher-disclaimer-baseline.html"
+      ],
+      "coverageGaps": [],
+      "description": "Consent / disclaimer page: intro copy, expandable terms and a consent form with submit",
+      "blocks": []
+    },
+    {
+      "name": "quiz-results",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/results/college-coach.html",
+        "https://www.ustacoaching.com/en/home/results/ft-pro-coach.html",
+        "https://www.ustacoaching.com/en/home/results/guardian-coach.html",
+        "https://www.ustacoaching.com/en/home/results/pt-pro-coach.html",
+        "https://www.ustacoaching.com/en/home/results/school-coach.html",
+        "https://www.ustacoaching.com/en/home/results/volunteer-emerging-coach.html",
+        "https://www.ustacoaching.com/es/home/results/college-coach.html",
+        "https://www.ustacoaching.com/es/home/results/ft-pro-coach.html",
+        "https://www.ustacoaching.com/es/home/results/guardian-coach.html",
+        "https://www.ustacoaching.com/es/home/results/school-coach.html",
+        "https://www.ustacoaching.com/es/home/results/volunteer-emerging-coach.html",
+        "https://www.ustacoaching.com/es/maintenance-page.html"
+      ],
+      "coverageGaps": [],
+      "description": "Recommendation result page: result heading with recommended package / pathway cards and supporting CTAs",
+      "blocks": []
+    },
+    {
+      "name": "settings-page",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/settings.html",
+        "https://www.ustacoaching.com/es/home/settings.html"
+      ],
+      "coverageGaps": [],
+      "description": "Settings page: account preferences panel with toggles and links to sub-settings",
+      "blocks": []
+    },
+    {
+      "name": "preferences-form",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/settings/lead-interests.html",
+        "https://www.ustacoaching.com/es/home/settings/lead-interests.html"
+      ],
+      "coverageGaps": [],
+      "description": "Preferences form page: checkbox-group interest selection with submit",
+      "blocks": []
+    },
+    {
+      "name": "unsubscribe-form",
+      "urls": [
+        "https://www.ustacoaching.com/en/home/settings/unsubscribe.html",
+        "https://www.ustacoaching.com/es/home/settings/unsubscribe.html"
+      ],
+      "coverageGaps": [],
+      "description": "Unsubscribe page: short confirmation copy and a single-action form",
+      "blocks": []
+    },
+    {
+      "name": "maintenance-page",
+      "urls": [
+        "https://www.ustacoaching.com/en/maintenance-page.html"
+      ],
+      "coverageGaps": [],
+      "description": "Standalone status page: centred message with logo and no navigation content",
+      "blocks": []
+    },
+    {
+      "name": "listing-hub-variant",
+      "urls": [
+        "https://www.ustacoaching.com/es/home/news.html"
+      ],
+      "coverageGaps": [],
+      "description": "Listing hub variant: page title and card grid with a different section arrangement from the main listing hub",
+      "blocks": []
     }
   ]
 }

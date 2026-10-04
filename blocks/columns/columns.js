@@ -357,6 +357,16 @@ function decorateProfile(block) {
 function decorateArticle(block) {
   const row = block.firstElementChild;
   if (!row) return;
+  // Generic image width (12-col grid): `media-N` = the image span, side by side
+  // from 1280 (no number = the original 3/12); below 1280 the row stacks.
+  // `media-right` (default) / `media-left` = the image side.
+  const span = (re) => {
+    const m = [...block.classList].map((c) => c.match(re)).find(Boolean);
+    const n = m ? Number(m[1]) : NaN;
+    return n >= 1 && n <= 12 ? n : null;
+  };
+  const media = span(/^media-(\d+)$/);
+  if (media) block.style.setProperty('--media-span', media);
   [...row.children].forEach((cell) => {
     const pic = cell.querySelector('picture, img');
     const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p');

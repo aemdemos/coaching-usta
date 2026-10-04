@@ -1,0 +1,103 @@
+{
+  "template": "news-article",
+  "page": "serving-gratitude-celebrating-tennis-coaches",
+  "backedUpOn": "2026-10-04",
+  "script": {
+    "file": "import-news-article-v1.js",
+    "sha256": "85cbb87396956970",
+    "bundle": "import-news-article-v1.bundle.js",
+    "bundleSha256": "c3ca4af7e3bd3555",
+    "bundleCommand": "npx esbuild tools/importer/import-news-article-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-news-article-v1.bundle.js",
+    "runner": "excat-content-import run-bulk-import.js --import-script <bundle> --urls <file> --force"
+  },
+  "parsers": [
+    "parsers/news-columns-article.js",
+    "parsers/news-quote.js",
+    "parsers/news-tags-social.js",
+    "parsers/news-featured.js",
+    "transformers/coaching-usta-cleanup.js"
+  ],
+  "profile": "template importer v1 (no per-page profile; selectors are stable AEM/Vue classes)",
+  "urls": {
+    "primary": "https://www.ustacoaching.com/en/home/news/serving-gratitude-celebrating-tennis-coaches.html"
+  },
+  "output": {
+    "primary": {
+      "document": "content/en/home/news/serving-gratitude-celebrating-tennis-coaches.plain.html",
+      "sections": [
+        {
+          "style": "bordered",
+          "blocks": [
+            "tags",
+            "social"
+          ]
+        },
+        {
+          "style": null,
+          "blocks": [
+            "columns media dark",
+            "metadata"
+          ]
+        }
+      ],
+      "blockCounts": {
+        "tags": 1,
+        "social": 1,
+        "section-metadata": 1,
+        "columns": 1,
+        "metadata": 1
+      },
+      "blockVariants": [
+        "columns media dark",
+        "social",
+        "tags"
+      ],
+      "inlineImages": 2,
+      "imageHosts": [
+        "www.ustacoaching.com"
+      ],
+      "metadata": {
+        "Title": "Serving Gratitude: Celebrating Tennis Coaches | USTA Coaching",
+        "Description": "Join USTA Coaching in celebrating the coaches shaping tennis across the country this Coach Appreciation Month. Read insp",
+        "Template": "news-article",
+        "Breadcrumb Title": "Serving Gratitude: Celebrating Tennis Coaches"
+      }
+    }
+  },
+  "sharedFragment": null,
+  "codeDependencies": [
+    "templates/news-article/news-article.{css,js}",
+    "blocks/breadcrumb",
+    "blocks/tags",
+    "blocks/social",
+    "blocks/quote",
+    "blocks/columns (article, media-N / media-md-N, flush)",
+    "blocks/fragment",
+    "scripts/scripts.js (loadTemplate, applyInlineMetadata, fetchPlaceholders)",
+    "content/placeholders.json + content/es/placeholders.json (News Home, News Home Link, Breadcrumb Label)"
+  ],
+  "verification": {
+    "viewports": [
+      375,
+      768,
+      1024,
+      1280,
+      1440
+    ],
+    "method": "plain local preview vs live source: element positions, frame height, share row, footer offset",
+    "result": "identical at all five viewports (lists, touching paragraphs, inline featured tile, empty tags box)",
+    "gate": "lint 0 errors, breakpoint, typography, overflow, a11y (axe) passed",
+    "spacers": 0
+  },
+  "sourceQuirksKeptFaithful": [
+    "Featured tile differs from the other 55 EN articles (the featured story never features itself) \u2192 built inline as Columns (media, dark), CTA \u2192 Emma Dell Part 3 (verified by click)",
+    "No topic tags on the source \u2192 empty Tags box kept (24px on phones)",
+    "List items keep the source blank line (<li><p>\u2026</p><p>&nbsp;</p></li>)"
+  ],
+  "pendingFollowUps": [
+    "Images are absolute www.ustacoaching.com URLs: download to content/media-da/ (no tools/assets finalize pipeline in this repo yet) before DA upload",
+    "Page, fragment and placeholders sheets exist locally only: upload to DA + preview on request",
+    "Bulk import of the remaining news articles on hold until the user approves this page"
+  ],
+  "optionContract": "columns (article, media-right|media-left, media-N) \u2014 max three options (user decision); rows stack below 1280; the source 1024\u20131279 span is not carried (~25% of source rows stay side by side there, e.g. Zina)"
+}

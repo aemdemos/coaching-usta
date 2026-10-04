@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "url": "https://www.ustacoaching.com/en/home/news/serving-gratitude-celebrating-tennis-coaches.html",
+  "path": "en/home/news/serving-gratitude-celebrating-tennis-coaches.html",
+  "timestamp": "2026-10-04T19:59:03.094Z",
+  "error": "page.evaluate: Target page, context or browser has been closed",
+  "errorStack": "page.evaluate: Target page, context or browser has been closed\n    at processUrl (/home/node/.excat-marketplaces/excat-marketplace/excat/skills/excat-content-import/scripts/run-bulk-import.js:641:16)\n    at async main (/home/node/.excat-marketplaces/excat-marketplace/excat/skills/excat-content-import/scripts/run-bulk-import.js:956:22)"
+}

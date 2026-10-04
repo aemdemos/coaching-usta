@@ -1,0 +1,244 @@
+/* News article template — loaded by scripts.js `loadTemplate` when the page
+   metadata says `Template: news-article` (body class `news-article`).
+   Source: /en/home/news/*.html (measured on zina-garrison-… @375/768/1024/
+   1280/1440). The article body is default content inside a `bordered` section
+   (the source's outlined frame). Every source component carries a 12px inset
+   (12px 8px on phones), so each default-content element gets that padding —
+   which also reproduces the source rhythm exactly: 24px between paragraphs
+   (source empty <p> spacers), 24px heading → text, 66px around a separator
+   (12 + 42px spacer + 12).
+   - Top image: 20px radius, cover-cropped like the source renditions —
+     1.25 (<768) → 1.5 (768–1279) → 2:1 (≥1280).
+   - H1: Graphik Semibold 700, centred, 28 → 32 @768 → 40 @1024 → 50 @1280,
+     line-height 1, -0.03em, margin 0.67em 0 (source default h1 margin).
+   - Body: Graphik Regular 18/24, letter-spacing normal. Italic stays a real
+     white italic here (source <i>), not the site-wide lime accent.
+   - h3 = the source's `text--font-size--32px-28px` heading (<p><b> in Graphik
+     Regular, bold synthesized): 28 → 32 @1280. h2 = `40px-28px`: Graphik
+     Semibold 28 → 32 @768 → 40 @1280. */
+body.news-article main > .section.bordered > .default-content-wrapper > * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 12px 8px;
+}
+
+/* in-article images (source full-width image component): full content width,
+   natural proportions, square corners — not the site-wide 360px default-content cap */
+body.news-article main > .section.bordered > .default-content-wrapper > p img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper:first-child > p:first-child img {
+  display: block;
+  width: 100%;
+  max-width: none; /* the site-wide default-content image cap (360px) doesn't apply */
+  aspect-ratio: 1.25;
+  object-fit: cover;
+  object-position: 50% 0%; /* source crops from the top */
+  border-radius: 20px;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper > h1 {
+  margin: 0.67em 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-align: center;
+  color: #fff;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper p {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) :is(em, i) {
+  color: inherit;
+  font-style: italic;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper h2 {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper h3 {
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+/* pull-quote in an article: the source container's margin-block (12 / 20 / 36 /
+   52) + its text components' 12px vertical padding. Vertical only — the quote
+   block's own width model keeps the source line wrapping. */
+body.news-article main > .section.bordered .quote {
+  width: auto;
+  max-width: none;
+  margin: 12px calc(100% / 12); /* source: 10 of 12 article-grid columns, offset 1 */
+  padding: 12px 8px;
+}
+
+/* section gaps — a source separator is 42px tall at every breakpoint (66px between
+   content once the 12px component paddings are added). The template adds it where
+   the source (almost) always has one; the importer keeps a Spacer only where it
+   doesn't follow this rule and marks `flush` rows / puts a 0px Spacer before a
+   heading where the source has no gap (see applySectionGaps in the importer —
+   keep both in sync):
+   - a heading right after text, a list or an article row;
+   - an article row right after text, a list or another article row. */
+body.news-article main > .section.bordered > .default-content-wrapper > :is(p, ul, ol) + :is(h2, h3),
+body.news-article main > .section.bordered > .columns-wrapper:has(> .columns.article) + .default-content-wrapper > :is(h2, h3):first-child {
+  margin-top: 42px;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper:has(> :is(p, ul, ol):last-child) + .columns-wrapper:has(> .columns.article:not(.flush)),
+body.news-article main > .section.bordered > .columns-wrapper:has(> .columns.article) + .columns-wrapper:has(> .columns.article:not(.flush)) {
+  margin-top: 42px;
+}
+
+/* lists — source: ul margin 18px 0, 40px indent, disc; items 18/24 with each
+   item's text followed by an authored blank line. Next to a padded paragraph
+   the 18px margin is 12 + 6; where the list starts/ends its source component
+   the importer adds a blank line for the component edge (12 + 24 + 6 = 42). */
+body.news-article main > .section.bordered > .default-content-wrapper > :is(ul, ol) {
+  padding: 6px 8px 6px 48px;
+  list-style-position: outside;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper > ul {
+  list-style-type: disc;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper > :is(ul, ol) p {
+  margin: 0;
+  padding: 0;
+}
+
+/* an authored blank line is one 24px line (no component padding); in article
+   columns, whose paragraphs are spaced by a 24px bottom margin, it adds just its
+   own line */
+body.news-article .columns.article .columns-article-content p.blank,
+body.news-article .columns.article .columns-article-content p:has(+ p.blank:last-child) {
+  margin-bottom: 0;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper > p.blank {
+  padding: 0;
+}
+
+/* the featured tile below the frame: source gap 48 / 56 / 80 / 112; the source
+   footer starts 108px below the tile at every breakpoint. Without a tile (ES
+   articles) the frame keeps the same distance to the footer: gap + 108. */
+body.news-article main > .section.bordered + .section {
+  padding-top: 48px;
+}
+
+body.news-article main > .section.bordered + .section:last-child {
+  padding-bottom: 108px;
+}
+
+body.news-article main > .section.bordered:last-child {
+  margin-bottom: 156px;
+}
+
+@media (width >= 768px) {
+  body.news-article main > .section.bordered .quote {
+    margin-block: 20px;
+    padding-inline: 12px;
+  }
+
+  body.news-article main > .section.bordered + .section {
+    padding-top: 56px;
+  }
+
+  body.news-article main > .section.bordered:last-child {
+    margin-bottom: 164px;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper > * {
+    padding: 12px;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper > :is(ul, ol) {
+    padding-inline: 52px 12px;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper:first-child > p:first-child img {
+    aspect-ratio: 1.5;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper > h1 {
+    font-size: 32px;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper h2 {
+    font-size: 32px;
+  }
+}
+
+@media (width >= 1024px) {
+  body.news-article main > .section.bordered > .default-content-wrapper > h1 {
+    font-size: 40px;
+  }
+
+  body.news-article main > .section.bordered .quote {
+    margin-block: 36px;
+  }
+
+  body.news-article main > .section.bordered + .section {
+    padding-top: 80px;
+  }
+
+  body.news-article main > .section.bordered:last-child {
+    margin-bottom: 188px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.news-article main > .section.bordered > .default-content-wrapper:first-child > p:first-child img {
+    aspect-ratio: 2;
+  }
+
+  body.news-article main > .section.bordered .quote {
+    margin-block: 52px;
+  }
+
+  body.news-article main > .section.bordered + .section {
+    padding-top: 112px;
+  }
+
+  body.news-article main > .section.bordered:last-child {
+    margin-bottom: 220px;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper > h1 {
+    font-size: 50px;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper h2 {
+    font-size: 40px;
+  }
+
+  body.news-article main > .section.bordered > .default-content-wrapper h3 {
+    font-size: 32px;
+  }
+}

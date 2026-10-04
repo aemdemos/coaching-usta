@@ -1,0 +1,96 @@
+/* breadcrumb — "News Home > current page" (source .cmp-breadcrumb, measured
+   @375/768/1024/1280/1440). Graphik Semibold 18px / line-height normal; home link
+   white (lime on hover, no underline), current item lime; separator " > " white,
+   nowrap. Content sits on the shared grid: 16 / 40 / 48 / 64 from the edge
+   (8/28/36/52 container gutter + the component's 12px padding, 8px on mobile),
+   1536-capped. Source quirk NOT reproduced: its nowrap row overflows the phone
+   viewport with long titles — here the current item ends in an ellipsis. */
+
+/* 24px above = the source's in-flow header placeholder (a 24px-tall
+   experience-fragment row above the breadcrumb); 12px below = its gap to the
+   article frame */
+main > .section.breadcrumb-container {
+  padding: 24px 0 12px;
+}
+
+main > .section.breadcrumb-container > div {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+.breadcrumb {
+  padding: 12px 0;
+}
+
+/* source nav is a 20px line box around the 17px-tall items */
+.breadcrumb nav {
+  min-height: 20px;
+}
+
+.breadcrumb ol {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  white-space: nowrap;
+}
+
+.breadcrumb li {
+  flex: 0 0 auto;
+  color: #fff;
+}
+
+/* source: the home link ends in a space, then the item's "  >  " ::after */
+.breadcrumb li:not(:last-child)::after {
+  content: "\00a0\00a0>\00a0\00a0";
+  color: #fff;
+}
+
+.breadcrumb li[aria-current="page"] {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--usta-lime);
+}
+
+.breadcrumb a:any-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--usta-lime);
+  text-decoration: none;
+}
+
+.breadcrumb a:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+@media (width >= 768px) {
+  main > .section.breadcrumb-container > div {
+    padding: 0 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.breadcrumb-container > div {
+    padding: 0 48px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.breadcrumb-container > div {
+    padding: 0 64px;
+  }
+}

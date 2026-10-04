@@ -271,6 +271,74 @@ main > .section.columns-container:has(.columns.media) > div {
   }
 }
 
+/* ------------------------------------------------------------ media.dark --
+   `columns (media, dark)` — the news "featured article" tile (source
+   .v-news-related-tile--simple, measured @375/768/1024/1280/1440): the same
+   image + card row as `media`, but the card is OUTLINED on the black page
+   (transparent, 1px white border, 20px radius, 48px 24px padding) with white
+   text, content stacked from the top with 24px gaps (no pinned CTA). Title
+   32 → 40 @1024 → 64 @1280 (as `media`); copy Graphik Regular 18/21.6 → 24/33.6
+   @1024; CTA Graphik Semibold 24px, 16px 24px padding (58px tall). From 1024 the
+   image fills the card height (cover). */
+.columns.media.dark .columns-media-content {
+  gap: 24px;
+  padding: 48px 24px;
+  border: 1px solid #fff;
+  background-color: transparent;
+  color: #fff;
+}
+
+.columns.media.dark .columns-media-content > * {
+  margin: 0;
+}
+
+.columns.media.dark .columns-media-content h1,
+.columns.media.dark .columns-media-content h2,
+.columns.media.dark .columns-media-content h3 {
+  color: #fff;
+}
+
+.columns.media.dark .columns-media-content p {
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.columns.media.dark .columns-media-content p:last-child {
+  padding-top: 0;
+}
+
+.columns.media.dark .columns-media-content p:last-child a {
+  padding: 16px 24px;
+  font-size: 24px;
+  line-height: normal;
+  letter-spacing: -0.03em;
+}
+
+@media (width >= 1024px) {
+  .columns.media.dark .columns-media-content {
+    justify-content: flex-start;
+  }
+
+  .columns.media.dark .columns-media-content p {
+    font-size: 24px;
+    line-height: 1.4;
+  }
+
+  /* the media cell is stretched by the row (align-items: stretch); its picture
+     fills it so the cover image takes the card's height */
+  .columns.media.dark .columns-media-media picture {
+    display: block;
+    height: 100%;
+  }
+
+  .columns.media.dark .columns-media-media img {
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 /* (the former `cta` variant — the blue "Explore workshops & events" banner —
    is now its own reusable `banner` block with blue/black colour variants; see
    blocks/banner.) */
@@ -1105,9 +1173,10 @@ main > .section.columns-container:has(.columns.profile) > div {
 /* ================================================================ article ==
    News-article body row (news/*.html): a block of body copy (paragraphs + an
    optional section h2) beside a photo. Source-measured across 390/768/1024/1280.
-   Text ≈ 75% (9/12) + image ≈ 25% (3/12) side-by-side; mobile stacks (image
-   below text). Image side: default RIGHT (text-left); `.article.media-left`
-   puts the image on the LEFT. Images have SHARP corners (radius 0) in source.
+   Text ≈ 75% (9/12) + image ≈ 25% (3/12) side-by-side; mobile stacks in the
+   authored order (media-right: text then image; media-left: image then text, as
+   the source's floats do). Image side: default RIGHT (text-left);
+   `.article.media-left` puts the image on the LEFT. Images have SHARP corners (radius 0) in source.
    Body p: Graphik Regular 18/24 white, ls normal. Section h2: Graphik Semibold
    700, 28 (mobile) → 40 (≥768), white. */
 main > .section.columns-container:has(.columns.article):not(.bordered) > div {
@@ -1129,10 +1198,11 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   gap: 0;
 }
 
+/* cell inset = the source's .aem-GridColumn padding: 12px 8px on phones, 12px ≥768 */
 .columns.article .columns-article-media {
   order: 1;
   box-sizing: border-box;
-  padding: 12px;
+  padding: 12px 8px;
 }
 
 .columns.article .columns-article-media img {
@@ -1144,8 +1214,12 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
 .columns.article .columns-article-content {
   order: 0;
   box-sizing: border-box;
-  padding: 12px;
+  padding: 12px 8px;
 }
+
+/* media-left stacks image first (source: the image column comes first) */
+.columns.article.media-left .columns-article-content { order: 1; }
+.columns.article.media-left .columns-article-media { order: 0; }
 
 /* body copy */
 .columns.article .columns-article-content p {
@@ -1162,6 +1236,13 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   margin-bottom: 0;
 }
 
+/* a heading that follows body copy inside a cell: the source puts a 42px
+   separator there (a cell can't hold a spacer block) → 12 + 42 + 12 = 66px gap.
+   (66, not 42: it collapses with the paragraph's 24px bottom margin.) */
+.columns.article .columns-article-content :is(p, ul, ol) + :is(h2, h3) {
+  margin-top: 66px;
+}
+
 /* section heading (Graphik Semibold 700, line-height 1.0, ls normal, #fff;
    font-size 28 mobile → 32 ≥768 → 40 ≥1280 — source-measured at each breakpoint) */
 .columns.article .columns-article-content h1,
@@ -1176,14 +1257,22 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   color: #fff;
 }
 
+/* h3 = the source's smaller in-article heading (a `text--font-size--32px-28px`
+   component: <p><b> in Graphik Regular, bold synthesized): 28 → 32 @1280 only */
+.columns.article .columns-article-content h3 {
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+}
+
 /* tablet (>=768): larger gutter; STILL STACKED (source stacks the article at
    768–1279 — grid classes tablet--12 / desktop-small--12). Section h2 → 32. */
 @media (width >= 768px) {
   main > .section.columns-container:has(.columns.article):not(.bordered) > div { padding: 0 40px; }
 
+  .columns.article .columns-article-media,
+  .columns.article .columns-article-content { padding: 12px; }
+
   .columns.article .columns-article-content h1,
-  .columns.article .columns-article-content h2,
-  .columns.article .columns-article-content h3 { font-size: 32px; }
+  .columns.article .columns-article-content h2 { font-size: 32px; }
 }
 
 /* small desktop (>=1024): larger gutter; STILL STACKED (source default--3/9 only
@@ -1208,15 +1297,17 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
     gap: 0;
   }
 
+  /* image span from `media-N` (JS → --media-span); default 3/12 (the 9/3 split).
+ */
   .columns.article .columns-article-content {
-    flex: 0 0 75%;
+    flex: 0 0 calc((12 - var(--media-span, 3)) / 12 * 100%);
     min-width: 0;
     padding: 12px;
     order: 0;
   }
 
   .columns.article .columns-article-media {
-    flex: 0 0 25%;
+    flex: 0 0 calc(var(--media-span, 3) / 12 * 100%);
     min-width: 0;
     padding: 12px;
     order: 1;
@@ -1227,8 +1318,9 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   .columns.article.media-left .columns-article-media { order: 0; }
 
   .columns.article .columns-article-content h1,
-  .columns.article .columns-article-content h2,
-  .columns.article .columns-article-content h3 { font-size: 40px; }
+  .columns.article .columns-article-content h2 { font-size: 40px; }
+
+  .columns.article .columns-article-content h3 { font-size: 32px; }
 }
 
 /* =================================================================== list ==
