@@ -311,6 +311,7 @@ header nav .nav-flyout ul {
 header nav .nav-flyout .nav-flyout-links > ul > li > a,
 header nav .nav-flyout .nav-flyout-inline a {
   display: block;
+  white-space: nowrap; /* source menu links never wrap (long ES labels overflow slightly) */
 }
 
 /* Mobile flyout menu text matches source: 24px below 768, 40px in 768–899.

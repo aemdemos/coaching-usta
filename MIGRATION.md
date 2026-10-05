@@ -3687,3 +3687,13 @@ lint ✓ · breakpoint ✓ · typography ✓ · overflow ✓ · a11y ✓ (all th
   (lime vs white is authored per article), 8/12-wide headings (Jim Loehr), card grid (advantage…),
   coach-goal cards (coaches-reveal…), uppercase display line (wecoach), drop cap (emma-dell part 3),
   native h3/h5 in a few articles, and the accepted 1024–1279 row stacking.
+
+### 2026-10-04 (later) — Shop in the LOCAL nav (content/) + menu nowrap
+- The editor's Sync pushes the local `content/` folder to DA; the local nav never had Shop (it had been
+  added in DA only), so a sync removed it from DA. Shop/Comercio is now in `content/nav.plain.html` and
+  `content/es/nav.plain.html`, produced by a small importer (`tools/importer/import-nav.js`, reads the
+  current local nav, inserts the item after News/Noticias; backup in `tools/importer/backups/nav/`).
+  DA nav was also re-patched + previewed. Sync from local is now safe (same content).
+- Header: flyout links `white-space: nowrap` (source) — "Encuentra un entrenador" no longer wraps on
+  phones. Open menu EN + ES identical to source at all 5 viewports.
+- **Breadcrumb "News Home" missing on aem.live** (2026-10-05): the placeholders sheets (`/placeholders.json`, `/es/placeholders.json`) existed only in local `content/` (the editor Sync did not push them) → 404 → the breadcrumb showed the title only. Uploaded both sheets to DA + previewed: aem.page now shows "News Home > …" / "Noticias Inicio > …". aem.live needs the two sheets published.

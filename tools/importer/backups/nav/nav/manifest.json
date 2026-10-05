@@ -1,0 +1,22 @@
+{
+  "template": "nav",
+  "page": "nav (+ es/nav)",
+  "backedUpOn": "2026-10-04",
+  "script": {
+    "file": "import-nav.js",
+    "sha256": "117e3871cfe51c8d",
+    "bundle": "import-nav.bundle.js",
+    "bundleSha256": "601f886a18c45be2"
+  },
+  "urls": [
+    "http://localhost:3000/content/nav.plain.html",
+    "http://localhost:3000/content/es/nav.plain.html"
+  ],
+  "output": [
+    "content/nav.plain.html",
+    "content/es/nav.plain.html"
+  ],
+  "change": "adds Shop (EN) / Comercio (ES) \u2192 https://ustacoachingshop.com/ after News / Noticias (source header menu); idempotent",
+  "verification": "open menu vs source at 375/768/1024/1280/1440: identical item boxes (EN + ES); EN pixel-identical at 768 and 1440",
+  "notes": "md round-trip wraps that menu group's items in <p> and the logo in <picture>; header.js unwraps, rendering unchanged"
+}
