@@ -3697,3 +3697,53 @@ lint ✓ · breakpoint ✓ · typography ✓ · overflow ✓ · a11y ✓ (all th
 - Header: flyout links `white-space: nowrap` (source) — "Encuentra un entrenador" no longer wraps on
   phones. Open menu EN + ES identical to source at all 5 viewports.
 - **Breadcrumb "News Home" missing on aem.live** (2026-10-05): the placeholders sheets (`/placeholders.json`, `/es/placeholders.json`) existed only in local `content/` (the editor Sync did not push them) → 404 → the breadcrumb showed the title only. Uploaded both sheets to DA + previewed: aem.page now shows "News Home > …" / "Noticias Inicio > …". aem.live needs the two sheets published.
+- Placeholders sheets published to aem.live (2026-10-05): live breadcrumbs now "News Home > …" (EN) and "Noticias Inicio > …" (ES) on every news-article page.
+
+## News-article import — SCOPE & RUNBOOK (read this first in a new session) — 2026-10-05
+
+**Scope: 112 pages = 56 EN + 56 ES news articles** →
+`tools/importer/urls-news-article.txt` (one source URL per line, sorted).
+- Source: the site catalog's `news-article` template (catalog/template-catalog.json lists 116; the 4
+  non-articles are EXCLUDED: /en|es/home/job-board.html and /en|es/home/membership-benefits.html —
+  different templates).
+- NOT in scope: the news listing pages (/en/home/news.html, /es/home/news.html — listing-hub template).
+- Plus the shared featured tile, imported once in fragment mode:
+  `https://www.ustacoaching.com/en/home/news/zina-garrison-star-player-to-community-builder.html#featured-fragment`
+  → `/fragments/news/featured-article` (already in content/; re-run only if the source's featured story changes).
+- Already imported + verified (test pages): EN zina-garrison…, serving-gratitude…, jim-loehr… ; ES zina-garrison….
+
+**Importer**: `tools/importer/import-news-article-v1.js` (+ parsers news-columns-article, news-quote,
+news-tags-social, news-featured; transformer coaching-usta-cleanup).
+- Bundle: `npx esbuild tools/importer/import-news-article-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js="/* eslint-disable */" --outfile=tools/importer/import-news-article-v1.bundle.js`
+- Run: `node <excat-content-import>/scripts/run-bulk-import.js --import-script tools/importer/import-news-article-v1.bundle.js --urls tools/importer/urls-news-article.txt --force`
+  (writes content/<locale>/home/news/<slug>.plain.html; ~30–40 min for 112; a dry run into a scratch folder:
+  `WORKSPACE_PATH=/tmp/x node …` writes to /tmp/x/content instead).
+- Known-good backups: `tools/importer/backups/news-article/<page>/` (script + bundle + manifest). Back up
+  each page that passes the gate the same way (IMPORTING-GUIDE §11).
+
+**What the importer produces (authoring contract — do not change without the user):**
+- Section 1 = article frame (`Section Metadata: Style bordered`): top image, H1, body, headings, rows
+  `Columns (article, media-right|media-left, media-N)` (MAX 3 options; N read from the source grid span;
+  span-12 images = plain image), `Quote`, `Tags` (always, label only), `Social`. Separator gaps come from
+  the template rule; Spacer (42px) only where the rule can't infer it; `flush` / 0px Spacer = "no gap".
+- Section 2 = featured tile: `Fragment /fragments/news/featured-article` on the 55 EN articles that show the
+  shared tile; INLINE `Columns (media, dark)` on serving-gratitude… (it features Emma Dell Part 3); NONE on ES.
+- Metadata: Title, Description, **Tags** (source keywords), Template `news-article`, Breadcrumb Title, Image.
+- Breadcrumb is automatic (template) — labels from `/placeholders.json` + `/es/placeholders.json`
+  (in DA, published).
+
+**Accepted deviations (user decisions):** rows stack at 1024–1279 (no media-md); subscribe form kept in
+the footer on news pages; page-specific content not specially handled (per-article link colours, 8/12-wide
+headings e.g. jim-loehr, 3-col card grid on advantage-coaches…, coach-goal cards on coaches-reveal…,
+uppercase display line on usta-coaching-wecoach, drop cap on emma-dell part 3, native h3/h5 in a few).
+
+**Before uploading imported pages to DA (pending):**
+1. Push this session's code (template, blocks, header) — aem.page/aem.live still run older code.
+2. Images still point at www.ustacoaching.com → move them to DA media (no finalize-assets pipeline in this
+   repo yet) before upload.
+3. DA upload/publish is on the user's request only. The editor's **Sync** pushes local `content/` to DA —
+   keep local content the source of truth (e.g. the nav Shop item lives in content/nav*.plain.html).
+
+**Per-batch verification (sample, not every page):** lint · breakpoint · check:typography ·
+check:overflow · test:a11y on a few imported pages; compare with the source at 375/768/1024/1280/1440
+(frame height, share row, footer offset); spot-check typography with the comparator approach above.
