@@ -4,6 +4,44 @@
   width: 100%;
 }
 
+/* authored heights (spacer.js → custom properties), at the site's breakpoints */
+.spacer.block {
+  height: var(--spacer-mobile, auto);
+}
+
+@media (width >= 768px) {
+  .spacer.block {
+    height: var(--spacer-tablet, var(--spacer-mobile, auto));
+  }
+}
+
+@media (width >= 1280px) {
+  .spacer.block {
+    height: var(--spacer-desktop, var(--spacer-tablet, auto));
+  }
+}
+
+/* spacer (line) — the source's visible separator: a 42px band (12px component
+   padding + 8px hr margin each side) with a 2px rule (1px inset gray border) 20px
+   from its top, inset like any component (8px phones, 12px from 768) */
+.spacer.line {
+  box-sizing: border-box;
+  padding: 20px 8px;
+}
+
+.spacer.line::before {
+  content: "";
+  display: block;
+  height: 0;
+  border: 1px inset rgb(128 128 128);
+}
+
+@media (width >= 768px) {
+  .spacer.line {
+    padding-inline: 12px;
+  }
+}
+
 /* When a spacer carries a background color it is a full-bleed band: break out
    of the section's content padding so the color runs edge to edge. */
 .spacer-container .spacer-wrapper {

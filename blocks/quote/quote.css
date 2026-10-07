@@ -45,6 +45,21 @@
   margin-top: 24px;
 }
 
+/* marks: oversized quote marks (source: 64px, line-height 0.8, opening mark on the
+   top of the line, closing mark on the bottom) */
+.quote.marks .quote-mark {
+  font-size: 64px;
+  line-height: 0.8;
+}
+
+.quote.marks .quote-mark-open {
+  vertical-align: top;
+}
+
+.quote.marks .quote-mark-close {
+  vertical-align: bottom;
+}
+
 .quote .quote-attribution p {
   margin: 0;
   color: #fff;

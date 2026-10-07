@@ -3747,3 +3747,112 @@ uppercase display line on usta-coaching-wecoach, drop cap on emma-dell part 3, n
 **Per-batch verification (sample, not every page):** lint · breakpoint · check:typography ·
 check:overflow · test:a11y on a few imported pages; compare with the source at 375/768/1024/1280/1440
 (frame height, share row, footer offset); spot-check typography with the comparator approach above.
+
+### 2026-10-07 — columns (person) variant + Spacer (line) + image finalize step
+Source: /en|es/home/news/coaches-reveal-their-game-changing-goals-for-2026 (same pattern on
+usta-coaching-testimonials-7-coaches… and women-coaches-on-the-mentors-who-shaped-them; 3 EN+ES pairs).
+- **`Columns (person, media-right|left, media-N)`** — an article row (same layout/contract, JS adds
+  `.article`) whose text cell opens with a person header: name / role / location = the first three
+  paragraphs (source inline styles, identical at every breakpoint): 22/24 bold, 18/24, 16/24, all lime,
+  no gaps; location + 16px (source) + 24px component boundary = 40px before the goals (24px when the
+  header ends on the role line). Importer: a row whose text column opens with an inline
+  `font-size: 2x` paragraph → `person`; a 3rd+ header line not styled 16px joins the role paragraph.
+- **`Spacer (line)`** — the source's VISIBLE separator (`separator` without
+  `--border-color--transparent`): 42px band, 2px rule (1px inset rgb(128,128,128)) 20px from the top,
+  inset 8px (phones) / 12px (≥768). Never removed by the section-gap logic. 8 articles use visible separators.
+- Indented paragraph runs (`<p style="margin-left: 40px">`, typed "1. …" goals) → `<blockquote>`
+  (40px indent; cells + default content).
+- Blank-line fidelity: a truly empty `<p></p>` (0px on the source) is dropped; only nbsp blanks are kept.
+  In cells the importer's edge blank after a list at the cell end is hidden; the last item before
+  trailing blanks (incl. blockquote) has no margin.
+- **Image finalize** `tools/assets/fetch-page-images.mjs <path…> | --all-news`: inline source images →
+  `content/media-da/<path>/<stem>-<md5(url)[:8]>.<ext>` — the SAME naming as the team's earlier imports,
+  so re-imports re-point to existing files (EN coach page: 7/7 reused) and ES pages get local copies.
+- Verified EN + ES vs source @375/768/1024/1280/1440: identical (see backup manifest). Backup:
+  tools/importer/backups/news-article/coaches-reveal-their-game-changing-goals-for-2026/.
+- PENDING: the other 110 pages were imported before this session's importer fixes (quote blank line,
+  row-text separators as <hr>, blank-line rules, person rows, visible separators) → re-import all +
+  run fetch-page-images, then re-validate.
+- **Person rows @1024–1279** (user: match the source): the source shows the photo beside the text at
+  this size (desktop-small), the first goals beside it and the rest full width below. Block: the photo
+  is moved first in the DOM and floats right (left for media-left) at media-N/12 with a 12px gap; every
+  paragraph / indented goal / list item is a whole `flow-root` box, so it stays beside the photo or,
+  once it starts below it, runs full width; flex again from 1280. Result @1024: Tony + Eduardo rows
+  identical to source; photo size identical for 4/6 rows. Remaining by AUTHORING on the source: (1) its
+  1024 layout is a separate content copy with an author-chosen split (e.g. Larry: only goal 1 beside),
+  (2) Erin + Koua use a different photo width at 1024 than at 1280. Exact match there needs per-row data
+  (split point + 1024 photo width) — pending user decision (conflicts with the 3-option rule).
+  Bands 375/768/1280/1440 unchanged (identical). 640 step: NOT added (user decision).
+
+### 2026-10-07 — columns (person): typography parity pass + re-import of the variant pages
+Pages re-imported (EN + ES, images finalized): coaches-reveal-their-game-changing-goals-for-2026,
+usta-coaching-testimonials-7-coaches-share-their-experience, women-coaches-on-the-mentors-who-shaped-them,
+usta-coaching-wecoach. Sample: /drafts/block-samples/columns-person (Erin, Tony, Larry rows).
+- Typography per text run (family, size, weight, line-height, letter-spacing, colour, alignment,
+  wrapping) @375/768/1024/1280/1440: **0 drifts inside person rows** on all 8 pages.
+- **Photo-less person rows** (`parsePersonText`): a person header with no photo becomes
+  `Columns (person)` (full width) or `Columns (person, media-right, media-N)` with an EMPTY photo cell.
+  The block marks the row `.no-photo`: the text keeps its (12 − N)/12 width at EVERY width (phones too),
+  exactly like the source grid (Ernie James: 163px @375, 335 @768, 455 @1024, 567 @1280).
+- Kept as page-specific (not variant behaviour, documented in the backup manifests):
+  - testimonials / Celia Quintero: the source author picked a **portrait crop** for that one photo
+    (`image--aspect-ration--portrait`: 1.247:1 <768, 2:3 768–1023, 0.689:1 1024–1279, 0.834:1 ≥1280).
+    Only 2 source pages (EN + ES) use it. We show the natural ratio → page 41px shorter @375, 538px @768.
+  - women-mentors / Autumn Williams: header authored at tablet 8/12 width → role wraps to 2 lines @768
+    on the source (1 line here), −24px.
+  - testimonials ES: the import fetch got "Florencia, Carolina del Sur"; the live page now says
+    "Florence" (source edit after the import fetch's copy) — content, not code.
+  - wecoach: "Serve Your Passion. Lead the Game." is a `text--font-size--24px label-style` component
+    (24/32 Graphik Semibold, uppercase) — default content outside the person rows; 2 source pages
+    (wecoach, women-in-coaching-advancing-female-tennis-coach-development, EN + ES). Not yet modelled.
+- Backups: tools/importer/backups/news-article/{usta-coaching-testimonials-7-coaches-share-their-experience,
+  women-coaches-on-the-mentors-who-shaped-them}/.
+
+### 2026-10-07 — person rows draw their own divider (Spacer (line) removed)
+- Decision (user): spacers are for one-off exceptions only. On the source every person row
+  has the visible separator above it (46 of 48; the 2 without sit directly under the title).
+- `Columns (person, …)` now renders that divider itself (columns.css `::before`: 42px band,
+  2px inset gray rule 20px from the top, inset 8px / 12px ≥768). JS adds `no-divider` when
+  the row directly follows the h1. The importer drops a `Spacer (line)` right before a person
+  row, and person rows are outside the template's 42px gap rule (both sides kept in sync).
+- Result: 46 of 50 `Spacer (line)` gone; only wecoach keeps 3 (not before person rows).
+  Person pages re-validated EN + ES: identical to before (no new diffs). Sample
+  drafts/block-samples/columns-person re-imported without spacers.
+
+### 2026-10-07 — full-parity pass over all 112 news pages (round 2)
+Decisions (user): stacked rows always read text first (any side); narrow 7/12 in-row
+headings stay full width (author slip — also Autumn Williams' tablet header); fix the
+one-off styles; spacers only for one-off exceptions; spacer breakpoints = site's.
+Importer / blocks:
+- Row pairing: an image pairs only with a text column BESIDE it (span < its grid's
+  columns; a nested container's grid has as many columns as the container spans, and
+  the image span is rescaled to 12). Stacked photos in one photo column stay together.
+  A `container--display--flex-reset-grid` (coaches-open) lays image + text side by side
+  → media-6 row.
+- `Columns (grid[, tablet|mobile])` (new): sibling photos, plain text columns or
+  containers (cards) side by side, equal widths; split ≥1280 / ≥768 / always (from the
+  source's smallest side-by-side breakpoint). Part-empty rows get empty cells. A text
+  cell whose first line starts with an image shows it as the card icon.
+- Embedded posts (source `iframetext`, LinkedIn) → the row's photo cell holds a link to
+  the embed URL with `#WxH`; rendered at the authored size (100% up to 1023), source
+  padding 20/50px. Copies the source hides at some widths stay visible (one copy).
+- `Text Style (label|center|large|intro)` (new block): the source's text component
+  styles (label-style, alignment-center, inline 25px line, semibold 24px-16px lead-in).
+- Plain-component headings keep their own look, one level down: <h2> → h4 (Semibold
+  28 → 32), <h3> → h5 (Semibold 20 → 22 → 24), <h5> → h6 (Regular 15/24). Touching
+  same-level headings are joined with <br>; blank heading lines are kept as lines.
+- Lime links (source inline colour) → italic link; the template marks an <em> holding
+  only a link as `.lime-link` (no source link is italic otherwise).
+- `Columns (person, portrait, media-N)`: the source's portrait crop (per-breakpoint
+  ratios); `portrait` replaces the default `media-right` to stay within three options.
+- `Quote (marks)`: 64px quote marks. Quotes inside the article body no longer swallow
+  the body container (women-in-coaching had lost all text).
+- Separators keep their measured height (10px thin divider); a container's
+  `top/bottom-margin--32` → emergency Spacer (24 / 32 / 32).
+- h2 reaches 40px at 1024; a heading after an indented run gets the 42px gap; one
+  <ul> per bullet collapses to 18px; text-component icons normalised like any copy.
+Known remaining (one-off, documented): breakpoint-specific duplicate copies (other
+positions on phone/tablet), coaches-open embeds hidden at 768–1279 on the source,
+per-breakpoint image spans (wecoach logo tablet 8/12, advantage mobile 4/12), the 60%
+app screenshot (new-usta-coaching-upgrades), padded group container (college), French
+Open blank heading lines (−4/−8px), source ES copy drift ("Florence").

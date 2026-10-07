@@ -21,7 +21,7 @@
  * All block selectors are stable AEM component / Vue widget classes (no hashes).
  */
 
-import columnsArticleParser from './parsers/news-columns-article.js';
+import columnsArticleParser, { parsePersonText, parseGrid } from './parsers/news-columns-article.js';
 import quoteParser from './parsers/news-quote.js';
 import tagsSocialParser from './parsers/news-tags-social.js';
 import featuredParser, { buildFeaturedTile, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
@@ -41,9 +41,28 @@ function el(document, tag, text) {
   return e;
 }
 
-function spacer(document, px) {
+/* a source container's authored top/bottom margin (other than the pull-quote and the
+   footer row, which the template styles) → an emergency Spacer (heights per the source
+   CSS: container--top-margin--32 is 24px below 768, 32px from 768) */
+const CONTAINER_MARGINS = { 32: { desktop: 32, tablet: 32, mobile: 24 } };
+function containerMarginSpacers(frame, document) {
+  frame.querySelectorAll('.container[class*="-margin--"]').forEach((c) => {
+    if (c.querySelector('.text--font-family--graphic-semibold, .tags, .socialmediasharing')) return;
+    [['top', 'before'], ['bottom', 'after']].forEach(([side, where]) => {
+      const m = [...c.classList].map((k) => k.match(new RegExp(`^container--${side}-margin--(\\d+)$`))).find(Boolean);
+      const h = m && CONTAINER_MARGINS[m[1]];
+      if (!h) return;
+      c[where](WebImporter.Blocks.createBlock(document, {
+        name: 'Spacer',
+        cells: [['desktop', `${h.desktop}px`], ['tablet', `${h.tablet}px`], ['mobile', `${h.mobile}px`]],
+      }));
+    });
+  });
+}
+
+function spacer(document, px, variant) {
   return WebImporter.Blocks.createBlock(document, {
-    name: 'Spacer',
+    name: variant ? `Spacer (${variant})` : 'Spacer',
     cells: [['desktop', `${px}px`], ['mobile', `${px}px`]],
   });
 }
@@ -67,6 +86,76 @@ function metadata(document, frame) {
   if (crumb) cells['Breadcrumb Title'] = crumb.textContent.trim();
   Object.keys(cells).forEach((k) => { if (cells[k] === '') delete cells[k]; });
   return WebImporter.Blocks.createBlock(document, { name: 'Metadata', cells });
+}
+
+/* headings typed straight into a plain text component (no size style) keep their own
+   source look: mapped one level down (h2 → h4, h3 → h5, h5 → h6) so they never collide
+   with the sized-style h2/h3 (see news-article.css) */
+const NATIVE_HEADINGS = { H2: 'h4', H3: 'h5', H5: 'h6' };
+function convertNativeHeadings(frame, document) {
+  frame.querySelectorAll('.text:not([class*="text--font-size--"]) > .cmp-text').forEach((cmp) => {
+    const heads = [...cmp.querySelectorAll('h2, h3, h5')];
+    const before = new Map(heads.map((h) => [h, h.previousElementSibling]));
+    heads.forEach((h) => {
+      const n = document.createElement(NATIVE_HEADINGS[h.tagName]);
+      // a blank heading line (<h2><b>&nbsp;</b></h2>) is one heading-size line: kept as
+      // the nbsp sentinel; normalizeTextComponent joins it with the heading below
+      if (!h.textContent.replace(/[\s\u00a0\uE000]/g, '')) {
+        // the first blank line straight after a paragraph is the paragraph's own gap
+        const prev = before.get(h);
+        if (prev && prev.tagName === 'P' && prev.textContent.replace(/[\s\u00a0\uE000]/g, '')) { h.remove(); return; }
+        n.textContent = NBSP_MARK;
+      } else n.append(...h.childNodes);
+      h.replaceWith(n);
+    });
+  });
+}
+
+/* an inline-coloured lime link (source <a style="color: rgb(207,255,5)">) → an italic
+   link (no other article link is italic; news-article.css paints it lime) */
+const LIME = /color:\s*(rgb\(\s*207\s*,\s*255\s*,\s*[0-9]\s*\)|#cfff0[0-9])/i;
+function markLimeLinks(frame, document) {
+  frame.querySelectorAll('.cmp-text a[style]').forEach((a) => {
+    if (!LIME.test(a.getAttribute('style')) || !a.textContent.trim() || a.querySelector('em, i')) return;
+    const em = document.createElement('em');
+    em.append(...a.childNodes);
+    a.append(em);
+  });
+}
+
+/* the source's text component styles that are not headings/quotes → `Text Style (…)`:
+   label (`label-style`), intro (semibold `24px-16px`, centred lead-in), center
+   (`cmp-text--alignment-center`); and an inline 25px paragraph → `Text Style (large)` */
+function textStyleBlocks(frame, document) {
+  const variantOf = (comp) => {
+    const c = comp.classList;
+    if (c.contains('label-style')) return 'label';
+    if (c.contains('text--font-size--24px-16px') && c.contains('text--font-family--graphic-semibold')) return 'intro';
+    if (c.contains('cmp-text--alignment-center') && ![...c].some((k) => k.startsWith('text--font-'))) return 'center';
+    return null;
+  };
+  frame.querySelectorAll('.aem-GridColumn.text').forEach((comp) => {
+    const variant = variantOf(comp);
+    const cmp = comp.querySelector('.cmp-text');
+    if (!variant || !cmp) return;
+    const kids = [...cmp.children].filter((e) => !e.classList.contains('cmp-text__icon'));
+    const filled = (e) => e.textContent.replace(/[\s\u00a0\uE000]/g, '') || e.querySelector('img');
+    if (!kids.some(filled)) return;
+    // blank lines are kept (one line of the style each), as the nbsp sentinel
+    const content = kids.map((e) => {
+      if (filled(e)) return e;
+      const b = document.createElement('p');
+      b.textContent = NBSP_MARK;
+      return b;
+    });
+    comp.replaceWith(WebImporter.Blocks.createBlock(document, { name: `Text Style (${variant})`, cells: [[content]] }));
+  });
+  frame.querySelectorAll('.cmp-text p[style]').forEach((p) => {
+    if (!/font-size:\s*25(\.0)?px/i.test(p.getAttribute('style'))) return;
+    const q = document.createElement('p');
+    q.append(...p.childNodes);
+    p.replaceWith(WebImporter.Blocks.createBlock(document, { name: 'Text Style (large)', cells: [[q]] }));
+  });
 }
 
 /** convert the source's sized bold paragraphs into real headings */
@@ -104,6 +193,8 @@ function unitKind(e) {
   if (e.tagName === 'TABLE') {
     const n = blockName(e);
     if (/^Spacer/i.test(n)) return 'spacer';
+    // a person row brings its own divider band (columns.css): outside the gap rule
+    if (/^Columns \(person/i.test(n)) return 'person';
     if (/^Columns \(article/i.test(n)) return 'row';
     return 'block';
   }
@@ -123,8 +214,13 @@ function applySectionGaps(out, document) {
     return !(e.tagName === 'P' && !e.querySelector('img, picture, iframe') && !e.textContent.trim());
   });
   const kinds = units.map(unitKind);
-  const source42 = (t) => t && blockName(t).match(/^Spacer/i) && /42px/.test(t.textContent);
+  const source42 = (t) => t && /^Spacer$/i.test(blockName(t)) && /42px/.test(t.textContent);
   units.forEach((u, i) => {
+    // the source's visible separator before a person row is the row's own divider
+    if (kinds[i] === 'spacer' && /^Spacer \(line\)$/i.test(blockName(u)) && kinds[i + 1] === 'person') {
+      u.remove();
+      return;
+    }
     if (kinds[i] === 'spacer') {
       if (source42(u) && ruleGap(kinds[i - 1], kinds[i + 1])) u.remove();
       return;
@@ -186,7 +282,10 @@ const isListEl = (e) => !!e && (e.tagName === 'UL' || e.tagName === 'OL');
 const isBlankEl = (e) => e.tagName === 'P' && !e.querySelector('img, picture, iframe, video')
   && !e.textContent.replace(/[\s\u00a0\uE000]/g, '');
 
-function normalizeTextComponent(cmp, document) {
+function normalizeTextComponent(cmpEl, document) {
+  // a text component with an icon image keeps its copy one level down
+  // (.cmp-text__image-and-paragraph > [image wrapper, copy])
+  const cmp = cmpEl.querySelector(':scope > .cmp-text__image-and-paragraph > div:not(.cmp-text__image-wrapper)') || cmpEl;
   const kids = [...cmp.children].filter((e) => !e.classList.contains('cmp-text__icon'));
   const content = kids.map((e, i) => (isBlankEl(e) ? -1 : i)).filter((i) => i >= 0);
   if (!content.length) return;
@@ -201,7 +300,10 @@ function normalizeTextComponent(cmp, document) {
     if (isListEl(prev) || isListEl(next)) {
       blanks.forEach(keep);
       prev = next;
-    } else if (!blanks.length && prev.tagName === 'P' && next.tagName === 'P') {
+    } else if (!blanks.length && ((prev.tagName === 'P' && next.tagName === 'P' && !styleKey(prev) && !styleKey(next))
+      || (/^H[1-6]$/.test(prev.tagName) && prev.tagName === next.tagName))) {
+      // touching lines (no blank between) → one element, a <br> between (0 gap);
+      // two headings of the same level typed one under the other likewise
       prev.append(document.createElement('br'), ...next.childNodes);
       next.remove();
     } else {
@@ -214,6 +316,40 @@ function normalizeTextComponent(cmp, document) {
   const last = kids[content[content.length - 1]];
   if (isListEl(first) && content[0] === 0) first.before(blankLine());
   if (isListEl(last) && content[content.length - 1] === kids.length - 1) last.after(blankLine());
+  wrapIndentedRuns(cmp, document);
+}
+
+/* author inline styles that carry layout meaning: header lines (font-size) and
+   indented paragraphs (margin-left) */
+function styleKey(p) {
+  const st = (p.getAttribute && p.getAttribute('style')) || '';
+  return /font-size|margin-left/i.test(st) ? st : '';
+}
+const isIndented = (e) => !!e && e.tagName === 'P' && /margin-left:\s*[1-9]/i.test(e.getAttribute('style') || '');
+
+/* a run of indented paragraphs (source <p style="margin-left: 40px">, e.g. typed
+   "1. …" goals) → one <blockquote> (40px indent); blank lines inside the run go with it */
+function wrapIndentedRuns(cmp, document) {
+  let el = cmp.firstElementChild;
+  while (el) {
+    if (!isIndented(el)) { el = el.nextElementSibling; continue; }
+    const bq = document.createElement('blockquote');
+    el.before(bq);
+    let cur = el;
+    while (cur) {
+      const after = cur.nextElementSibling;
+      if (isIndented(cur)) { bq.append(cur); cur = after; continue; }
+      // a blank line belongs to the run only if more indented text follows it
+      let probe = cur;
+      while (probe && probe.tagName === 'P' && isBlankEl(probe) && !isIndented(probe)) probe = probe.nextElementSibling;
+      if (cur.tagName === 'P' && isBlankEl(cur) && isIndented(probe)) {
+        while (cur !== probe) { const n = cur.nextElementSibling; bq.append(cur); cur = n; }
+        continue;
+      }
+      break;
+    }
+    el = bq.nextElementSibling;
+  }
 }
 
 function restoreNbspInOutput() {
@@ -232,8 +368,20 @@ export default {
   onLoad: ({ document }) => {
     markNbsp(document.body, document);
     // the converter drops blank paragraphs before the transform runs; mark them now
-    // so normalizeTextComponent can see (and keep or drop) them
-    document.querySelectorAll('.cmp-text p').forEach((p) => { if (isBlankEl(p)) p.textContent = NBSP_MARK; });
+    // so normalizeTextComponent can see (and keep or drop) them. Only a blank holding a
+    // non-breaking space has height (one 24px line); a truly empty <p></p> renders 0px
+    // on the source, so it is removed.
+    document.querySelectorAll('.cmp-text p').forEach((p) => {
+      if (!isBlankEl(p)) return;
+      if (/[\u00a0\uE000]/.test(p.textContent) || p.querySelector('br')) p.textContent = NBSP_MARK;
+      else p.remove();
+    });
+    // separator heights (42px almost everywhere; `--vertical-paddings--4px` +
+    // `--inner-margins--none` is 10px) — measured on the live page, used by the transform
+    document.querySelectorAll('.separator').forEach((sep) => {
+      const h = Math.round(sep.getBoundingClientRect().height);
+      if (h) sep.setAttribute('data-height', String(h));
+    });
     restoreNbspInOutput();
   },
 
@@ -260,7 +408,11 @@ export default {
       || main.querySelector('.container--border--white');
     if (!frame) throw new Error('news-article frame (.container--border--white) not found');
 
+    containerMarginSpacers(frame, document);
     convertHeadings(frame, document);
+    convertNativeHeadings(frame, document);
+    markLimeLinks(frame, document);
+    textStyleBlocks(frame, document);
     frame.querySelectorAll('.text:not(.text--font-family--graphic-semibold) > .cmp-text')
       .forEach((cmp) => normalizeTextComponent(cmp, document));
 
@@ -268,9 +420,20 @@ export default {
     [...frame.querySelectorAll('.text.text--font-family--graphic-semibold')].forEach((q) => quoteParser(q, { document }));
     // text + image rows (skip the top image: the first image component in the frame)
     const images = [...frame.querySelectorAll('.aem-GridColumn.image')].filter((i) => i.querySelector('img'));
-    images.slice(1).forEach((i) => columnsArticleParser(i, { document }));
+    images.slice(1).forEach((i) => { if (i.parentElement) columnsArticleParser(i, { document }); });
+    // embedded posts beside text (same row contract; the photo cell holds the embed link)
+    [...frame.querySelectorAll('.aem-GridColumn.iframetext')].forEach((i) => columnsArticleParser(i, { document }));
+    // side-by-side grids: photos (galleries) and plain text columns (cards) without a partner
+    images.slice(1).forEach((i) => { if (i.parentElement) parseGrid(i, { document }); });
+    [...frame.querySelectorAll('.aem-GridColumn.text')].forEach((t) => { if (t.parentElement) parseGrid(t, { document }); });
+    [...frame.querySelectorAll('.aem-GridColumn.container')].forEach((c) => { if (c.isConnected && c.parentElement) parseGrid(c, { document }); });
+    // person headers without a photo (still plain text components after the rows step)
+    [...frame.querySelectorAll('.aem-GridColumn.text')].forEach((t) => parsePersonText(t, { document }));
     // separators → 42px spacers (source .separator is 42px tall at every breakpoint)
-    frame.querySelectorAll('.separator').forEach((s) => s.replaceWith(spacer(document, 42)));
+    // (a separator without the transparent border modifier draws a visible rule → Spacer (line))
+    frame.querySelectorAll('.separator').forEach((s) => s.replaceWith(spacer(document,
+      Number(s.getAttribute('data-height')) || 42,
+      s.classList.contains('separator--border-color--transparent') ? null : 'line')));
     // tags + share row
     const footerRow = frame.querySelector('.tags')?.closest('.container') || frame.querySelector('.socialmediasharing')?.closest('.container');
     if (footerRow) tagsSocialParser(footerRow, { document });

@@ -12,6 +12,12 @@ export default function decorate(main) {
   main.querySelectorAll('p').forEach((p) => {
     if (!p.textContent.trim() && !p.querySelector('img, picture, a, iframe')) p.classList.add('blank');
   });
+  // a lime link (source: an inline-coloured link) is authored as an italic link — an
+  // <em> holding nothing but the link; italic copy that merely contains a link stays as is
+  main.querySelectorAll('em').forEach((em) => {
+    const a = em.querySelector(':scope > a');
+    if (a && em.children.length === 1 && em.textContent.trim() === a.textContent.trim()) em.classList.add('lime-link');
+  });
   if (main.querySelector('.breadcrumb')) return;
   const section = document.createElement('div');
   section.append(buildBlock('breadcrumb', ''));

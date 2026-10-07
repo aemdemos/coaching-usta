@@ -1,0 +1,38 @@
+{
+  "template": "news-article",
+  "page": "coaches-reveal-their-game-changing-goals-for-2026",
+  "backedUpOn": "2026-10-07",
+  "script": {
+    "file": "import-news-article-v1.js",
+    "sha256": "3fa591b4692723ab",
+    "bundleSha256": "93ebcae35fcb925a",
+    "parsersCopied": [
+      "news-columns-article.js",
+      "news-quote.js"
+    ]
+  },
+  "urls": {
+    "primary": "https://www.ustacoaching.com/en/home/news/coaches-reveal-their-game-changing-goals-for-2026.html",
+    "twin": "https://www.ustacoaching.com/es/home/news/coaches-reveal-their-game-changing-goals-for-2026.html"
+  },
+  "finalize": "node tools/assets/fetch-page-images.mjs en/home/news/<slug> es/home/news/<slug>  (images \u2192 content/media-da/<path>/<stem>-<md5(url)[:8]>.<ext>)",
+  "output": {
+    "blocks": "Columns (person, media-right, media-3|4|5|6) \u00d76, Spacer (line) \u00d76 before each person row",
+    "contract": "person = article row; first 3 paragraphs = name / role / location; indented \"1. \u2026\" runs = blockquote"
+  },
+  "verification": {
+    "viewports": [
+      375,
+      768,
+      1024,
+      1280,
+      1440
+    ],
+    "result": "EN + ES: every text run, divider rule, header styles, list/indent and photo identical to source at 375/768/1280/1440 (1px rounding once @768); frame/share/footer identical; typography 0 diffs; 1024 = accepted stacking band"
+  },
+  "sourceQuirksKeptFaithful": [
+    "Larry/Eduardo: location styled like the role (18px, no 16px gap) \u2192 joined to the role paragraph",
+    "truly empty <p></p> (0px) dropped; nbsp blank lines kept",
+    "source blank line after the last indented goal kept"
+  ]
+}

@@ -6,9 +6,10 @@ import { readBlockConfig } from '../../scripts/aem.js';
  * Authors set a height per breakpoint and, optionally, a background color.
  * Multiple spacers can be stacked to build banded separators (e.g. a colored
  * strip followed by a white gap). Config keys (from the block's key/value rows):
- *   - desktop : height at >= 1200px  (e.g. "17px")
- *   - tablet  : height at >= 992px   (falls back to mobile when omitted)
- *   - mobile  : height below 992px
+ *   - desktop : height at >= 1280px  (e.g. "17px")
+ *   - tablet  : height at 768–1279px (falls back to mobile when omitted)
+ *   - mobile  : height below 768px
+ * (the site's breakpoints, tools/quality/breakpoints.json — applied in spacer.css)
  *   - color   : background color. Accepts a raw CSS color ("#e2f7ff",
  *               "rgb(...)"), a full custom-property ref ("var(--x)"), or a
  *               design-token NAME with or without the leading dashes
@@ -40,20 +41,15 @@ export default async function decorate(block) {
   const cfg = readBlockConfig(block);
   block.textContent = '';
 
-  const setHeight = () => {
-    if (window.innerWidth >= 1200) {
-      block.style.height = cfg.desktop || cfg.tablet || cfg.mobile || '';
-    } else if (window.innerWidth >= 992) {
-      block.style.height = cfg.tablet || cfg.mobile || cfg.desktop || '';
-    } else {
-      block.style.height = cfg.mobile || cfg.tablet || cfg.desktop || '';
-    }
-  };
+  // heights per breakpoint → custom properties; spacer.css switches them at 768 / 1280
+  const mobile = cfg.mobile || cfg.tablet || cfg.desktop || '';
+  const tablet = cfg.tablet || cfg.mobile || cfg.desktop || '';
+  const desktop = cfg.desktop || cfg.tablet || cfg.mobile || '';
+  if (mobile) block.style.setProperty('--spacer-mobile', mobile);
+  if (tablet) block.style.setProperty('--spacer-tablet', tablet);
+  if (desktop) block.style.setProperty('--spacer-desktop', desktop);
 
   if (cfg.color) {
     block.style.backgroundColor = resolveColor(cfg.color);
   }
-
-  setHeight();
-  window.addEventListener('resize', setHeight);
 }

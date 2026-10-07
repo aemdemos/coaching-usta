@@ -15,7 +15,7 @@
      white italic here (source <i>), not the site-wide lime accent.
    - h3 = the source's `text--font-size--32px-28px` heading (<p><b> in Graphik
      Regular, bold synthesized): 28 → 32 @1280. h2 = `40px-28px`: Graphik
-     Semibold 28 → 32 @768 → 40 @1280. */
+     Semibold 28 → 32 @768 → 40 @1024. */
 body.news-article main > .section.bordered > .default-content-wrapper > * {
   box-sizing: border-box;
   margin: 0;
@@ -83,6 +83,51 @@ body.news-article main > .section.bordered > .default-content-wrapper h3 {
   color: #fff;
 }
 
+/* a lime link (source: an inline-coloured link; authored as an italic link — an
+   <em> holding only the link, marked .lime-link by news-article.js): lime, upright */
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) em.lime-link {
+  font-style: normal;
+}
+
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) em.lime-link > a {
+  color: var(--usta-lime);
+}
+
+/* headings typed straight into a plain source text component (no size style)
+   keep the source's own heading look; the importer maps them one level down so
+   they never collide with the sized-style h2/h3:
+   - h4 = source <h2>: Graphik Semibold 28 → 32 @1280
+   - h5 = source <h3>: Graphik Semibold 20 → 22 @1024 → 24 @1280
+   - h6 = source <h5>: Graphik Regular 15/24 bold, 1.67em (24.95px) above and below:
+     24.95px above (it follows an authored blank line), 0.95px + the element spacing
+     below */
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) :is(h4, h5, h6) {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) h4 {
+  font-size: 28px;
+}
+
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) h5 {
+  font-size: 20px;
+}
+
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) h6 {
+  margin-block: 24.95px 0.95px;
+  font-family: var(--body-font-family);
+  font-size: 14.94px;
+  line-height: 24px;
+}
+
+body.news-article main > .section.bordered .columns-article-content :is(h4, h5) {
+  margin: 0 0 24px;
+}
+
 /* pull-quote in an article: the source container's margin-block (12 / 20 / 36 /
    52) + its text components' 12px vertical padding. Vertical only — the quote
    block's own width model keeps the source line wrapping. */
@@ -99,15 +144,16 @@ body.news-article main > .section.bordered .quote {
    doesn't follow this rule and marks `flush` rows / puts a 0px Spacer before a
    heading where the source has no gap (see applySectionGaps in the importer —
    keep both in sync):
-   - a heading right after text, a list or an article row;
-   - an article row right after text, a list or another article row. */
-body.news-article main > .section.bordered > .default-content-wrapper > :is(p, ul, ol) + :is(h2, h3),
-body.news-article main > .section.bordered > .columns-wrapper:has(> .columns.article) + .default-content-wrapper > :is(h2, h3):first-child {
+   - a heading right after text (incl. an indented run), a list or an article row;
+   - an article row right after text, a list or another article row.
+   Person rows are not part of it: they bring their own 42px divider band (columns.css). */
+body.news-article main > .section.bordered > .default-content-wrapper > :is(p, ul, ol, blockquote) + :is(h2, h3),
+body.news-article main > .section.bordered > .columns-wrapper:has(> .columns.article:not(.person)) + .default-content-wrapper > :is(h2, h3):first-child {
   margin-top: 42px;
 }
 
-body.news-article main > .section.bordered > .default-content-wrapper:has(> :is(p, ul, ol):last-child) + .columns-wrapper:has(> .columns.article:not(.flush)),
-body.news-article main > .section.bordered > .columns-wrapper:has(> .columns.article) + .columns-wrapper:has(> .columns.article:not(.flush)) {
+body.news-article main > .section.bordered > .default-content-wrapper:has(> :is(p, ul, ol, blockquote):last-child) + .columns-wrapper:has(> .columns.article:not(.flush, .person)),
+body.news-article main > .section.bordered > .columns-wrapper:has(> .columns.article:not(.person)) + .columns-wrapper:has(> .columns.article:not(.flush, .person)) {
   margin-top: 42px;
 }
 
@@ -128,18 +174,34 @@ body.news-article main > .section.bordered > .default-content-wrapper > ul {
   list-style-type: disc;
 }
 
+/* one list per item (source: a <ul> per bullet): their 18px margins collapse to one */
+body.news-article main > .section.bordered > .default-content-wrapper > :is(ul, ol) + :is(ul, ol) {
+  margin-top: 6px;
+}
+
 body.news-article main > .section.bordered > .default-content-wrapper > :is(ul, ol) p {
   margin: 0;
   padding: 0;
 }
 
-/* an authored blank line is one 24px line (no component padding); in article
-   columns, whose paragraphs are spaced by a 24px bottom margin, it adds just its
-   own line */
-body.news-article .columns.article .columns-article-content p.blank,
-body.news-article .columns.article .columns-article-content p:has(+ p.blank:last-child) {
+/* an indented paragraph run (source <p style="margin-left: 40px">) = blockquote:
+   the component inset plus 40px on the left; its paragraphs 24px apart */
+body.news-article main > .section.bordered > .default-content-wrapper > blockquote {
+  padding-left: 48px;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper > blockquote p {
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+body.news-article main > .section.bordered > .default-content-wrapper > blockquote > :last-child {
   margin-bottom: 0;
 }
+
+/* an authored blank line is one 24px line (no component padding); article-row cells
+   handle their own blank lines (columns.css) */
+
 
 body.news-article main > .section.bordered > .default-content-wrapper > p.blank {
   padding: 0;
@@ -182,6 +244,10 @@ body.news-article main > .section.bordered:last-child {
     padding-inline: 52px 12px;
   }
 
+  body.news-article main > .section.bordered > .default-content-wrapper > blockquote {
+    padding-left: 52px;
+  }
+
   body.news-article main > .section.bordered > .default-content-wrapper:first-child > p:first-child img {
     aspect-ratio: 1.5;
   }
@@ -198,6 +264,15 @@ body.news-article main > .section.bordered:last-child {
 @media (width >= 1024px) {
   body.news-article main > .section.bordered > .default-content-wrapper > h1 {
     font-size: 40px;
+  }
+
+  /* h2 (`40px-28px` style) reaches 40 at 1024 on the source */
+  body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) h2 {
+    font-size: 40px;
+  }
+
+  body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) h5 {
+    font-size: 22px;
   }
 
   body.news-article main > .section.bordered .quote {
@@ -234,11 +309,15 @@ body.news-article main > .section.bordered:last-child {
     font-size: 50px;
   }
 
-  body.news-article main > .section.bordered > .default-content-wrapper h2 {
-    font-size: 40px;
-  }
-
   body.news-article main > .section.bordered > .default-content-wrapper h3 {
     font-size: 32px;
+  }
+
+  body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) h4 {
+    font-size: 32px;
+  }
+
+  body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) h5 {
+    font-size: 24px;
   }
 }

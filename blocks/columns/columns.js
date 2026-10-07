@@ -341,6 +341,19 @@ function decorateProfile(block) {
   }
 }
 
+/* a LinkedIn post URL (embed, urn or activity link) → its embed URL; null otherwise */
+function linkedInEmbedSrc(href) {
+  if (!href) return null;
+  // already an embed URL
+  if (/linkedin\.com\/embed\//i.test(href)) return href;
+  // urn:li:ugcPost / activity id anywhere in the URL
+  const urn = href.match(/urn:li:(?:ugcPost|activity|share):\d+/i);
+  if (urn) return `https://www.linkedin.com/embed/feed/update/${urn[0]}`;
+  const act = href.match(/(?:activity[-:])(\d{6,})/i);
+  if (act) return `https://www.linkedin.com/embed/feed/update/urn:li:activity:${act[1]}`;
+  return null;
+}
+
 /*
  * article (news article body) — a two-column row from a long-form article: a
  * block of body copy (paragraphs + optional section heading) beside a photo.
@@ -352,7 +365,8 @@ function decorateProfile(block) {
  * Authoring model (two cells in one row):
  *   - one cell: the body copy (h2 section heading + paragraphs)
  *   - other cell: the photo (picture)
- * The cell order in the source authors the visual order; `media-left` flips it.
+ * Stacked, the text always comes first; `media-left` puts the photo on the left once
+ * the row splits. A photo cell may instead hold a link to an embedded post.
  */
 function decorateArticle(block) {
   const row = block.firstElementChild;
@@ -368,16 +382,85 @@ function decorateArticle(block) {
   const media = span(/^media-(\d+)$/);
   if (media) block.style.setProperty('--media-span', media);
   [...row.children].forEach((cell) => {
+    // an embedded post: the cell is just a link to the embed URL (`#WxH` = the size)
+    const link = cell.querySelector('a[href]');
+    const embedSrc = link && !cell.querySelector('picture, img, h1, h2, h3, h4, h5, h6, ul, ol')
+      && cell.textContent.trim() === link.textContent.trim() ? linkedInEmbedSrc(link.getAttribute('href')) : null;
+    if (embedSrc) {
+      const url = new URL(embedSrc);
+      const size = url.hash.match(/^#(\d+)x(\d+)$/);
+      url.hash = '';
+      const frame = document.createElement('iframe');
+      frame.src = url.href;
+      frame.title = link.textContent.trim() || 'Embedded post';
+      frame.loading = 'lazy';
+      frame.setAttribute('frameborder', '0');
+      frame.setAttribute('allowfullscreen', '');
+      if (size) {
+        frame.style.setProperty('--embed-width', `${size[1]}px`);
+        frame.style.height = `${size[2]}px`;
+      }
+      cell.classList.add('columns-article-media', 'columns-article-embed');
+      cell.replaceChildren(frame);
+      return;
+    }
     const pic = cell.querySelector('picture, img');
-    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p');
-    if (pic && !hasText) {
+    // text = headings, lists or a paragraph with words (photos come wrapped in <p>)
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, ul, ol')
+      || [...cell.querySelectorAll('p')].some((p) => p.textContent.trim());
+    // a cell with a picture, or an empty cell (a person row whose photo is missing on the
+    // source — it keeps the photo's column so the text keeps its width)
+    if (!hasText && (pic || !cell.textContent.trim())) {
       cell.classList.add('columns-article-media');
-      const img = cell.querySelector('img');
-      if (img) img.closest('picture')?.replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+      // one or more photos (stacked in the photo column)
+      cell.querySelectorAll('img').forEach((img) => {
+        img.closest('picture')?.replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+      });
     } else {
       cell.classList.add('columns-article-content');
+      // authored blank lines (<p>&nbsp;</p>) are plain 24px lines — see columns.css
+      cell.querySelectorAll('p').forEach((p) => {
+        if (!p.textContent.trim() && !p.querySelector('img, picture, a')) p.classList.add('blank');
+      });
     }
   });
+}
+
+/*
+ * person (news article "coach" row, e.g. coaches-reveal-their-game-changing-goals…)
+ * — an article row (same media-N / media-left|right contract and layout) whose text
+ * cell starts with a person header: the first three paragraphs are the name, the
+ * role and the location (source: lime 22px bold / 18px / 16px lines). A list or
+ * paragraphs follow.
+ *
+ *   | Columns (person, media-right, media-3) |                     |
+ *   | Erin Wilson / Tennis Professional… / Las Vegas, Nevada / … | photo |
+ */
+function decoratePerson(block) {
+  block.classList.add('article');
+  decorateArticle(block);
+  const cell = block.querySelector('.columns-article-content');
+  if (!cell) return;
+  const header = [];
+  for (let el = cell.firstElementChild; el && el.tagName === 'P' && el.textContent.trim() && header.length < 3;
+    el = el.nextElementSibling) header.push(el);
+  ['columns-person-name', 'columns-person-role', 'columns-person-location']
+    .forEach((cls, i) => header[i]?.classList.add(cls));
+  header[header.length - 1]?.classList.add('columns-person-header-end');
+  // media-12 = the photo spans the whole row (above/below the text) at every width
+  if (block.classList.contains('media-12')) block.classList.add('stacked');
+  // every person row opens with the source's visible divider (columns.css) — except
+  // directly under the article title, where the source has none
+  const prev = block.parentElement?.previousElementSibling;
+  if (prev && prev.lastElementChild?.tagName === 'H1') block.classList.add('no-divider');
+  // an empty photo cell (photo missing on the source): the source keeps the text at its
+  // column width at every width, phones included
+  const mediaCell = block.querySelector('.columns-article-media');
+  if (mediaCell && !mediaCell.querySelector('img, picture')) block.classList.add('no-photo');
+  // the photo comes first in the DOM so it can float beside the text at 1024–1279
+  // (visual order elsewhere is set by CSS `order`, as for article rows)
+  const media = block.querySelector('.columns-article-media');
+  if (media && media.nextElementSibling === null) cell.before(media);
 }
 
 /*
@@ -449,17 +532,6 @@ function decorateList(block) {
  *   - other cell: the text (paragraphs, bullet list, headings).
  * A pre-built <iframe> is also accepted as-is.
  */
-function linkedInEmbedSrc(href) {
-  if (!href) return null;
-  // already an embed URL
-  if (/linkedin\.com\/embed\//i.test(href)) return href;
-  // urn:li:ugcPost / activity id anywhere in the URL
-  const urn = href.match(/urn:li:(?:ugcPost|activity|share):\d+/i);
-  if (urn) return `https://www.linkedin.com/embed/feed/update/${urn[0]}`;
-  const act = href.match(/(?:activity[-:])(\d{6,})/i);
-  if (act) return `https://www.linkedin.com/embed/feed/update/urn:li:activity:${act[1]}`;
-  return null;
-}
 
 function decorateEmbed(block) {
   const row = block.firstElementChild;
@@ -657,6 +729,53 @@ function decoratePromo(block) {
   });
 }
 
+/*
+ * grid (news article side-by-side row) — two or more photos or text columns side by
+ * side, one per cell, equal widths. Stacked below the split width; side by side from
+ * 1280 (default), from 768 (`tablet`) or at every width (`mobile`). An image at the
+ * start of a text cell's first line (the source text component's icon) is shown beside
+ * the copy; a paragraph holding only an image is a photo.
+ *
+ *   | Columns (grid, tablet) |         |
+ *   | photo                  | photo   |
+ */
+function decorateGrid(block) {
+  [...block.firstElementChild.children].forEach((cell) => {
+    cell.classList.add('columns-grid-item');
+    cell.querySelectorAll('img').forEach((img) => {
+      img.closest('picture')?.replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
+    });
+    // an empty cell keeps an empty column's width once the row splits
+    if (!cell.textContent.trim() && !cell.querySelector('picture, img')) {
+      cell.classList.add('columns-grid-empty');
+      return;
+    }
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, ul, ol')
+      || [...cell.querySelectorAll('p')].some((p) => p.textContent.trim());
+    if (!hasText) return; // a photo cell
+    // an image at the start of the first text line = the card's icon (shown beside the copy)
+    const first = cell.firstElementChild;
+    const lead = first && first.tagName === 'P' && first.firstElementChild?.tagName === 'PICTURE'
+      && first.textContent.trim() ? first.firstElementChild : null;
+    const copy = document.createElement('div');
+    copy.className = 'columns-article-content';
+    copy.append(...cell.children);
+    if (lead) {
+      const icon = document.createElement('div');
+      icon.className = 'columns-grid-icon';
+      icon.append(lead);
+      cell.append(icon);
+      copy.classList.add('columns-grid-copy');
+      cell.classList.add('has-icon');
+    }
+    cell.append(copy);
+    // authored blank lines (<p>&nbsp;</p>) are plain 24px lines, as in article rows
+    copy.querySelectorAll('p').forEach((p) => {
+      if (!p.textContent.trim() && !p.querySelector('img, picture, a')) p.classList.add('blank');
+    });
+  });
+}
+
 function decorateDefault(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
@@ -682,10 +801,12 @@ export default function decorate(block) {
   else if (block.classList.contains('quote')) decorateQuote(block);
   else if (block.classList.contains('events')) decorateEvents(block);
   else if (block.classList.contains('profile')) decorateProfile(block);
+  else if (block.classList.contains('person')) decoratePerson(block);
   else if (block.classList.contains('article')) decorateArticle(block);
   else if (block.classList.contains('list')) decorateList(block);
   else if (block.classList.contains('embed')) decorateEmbed(block);
   else if (block.classList.contains('text')) decorateText(block);
   else if (block.classList.contains('promo')) decoratePromo(block);
+  else if (block.classList.contains('grid')) decorateGrid(block);
   else decorateDefault(block);
 }

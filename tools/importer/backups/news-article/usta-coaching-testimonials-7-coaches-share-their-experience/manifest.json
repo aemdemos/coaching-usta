@@ -1,0 +1,33 @@
+{
+  "template": "news-article",
+  "page": "usta-coaching-testimonials-7-coaches-share-their-experience",
+  "backedUpOn": "2026-10-07",
+  "script": {
+    "file": "import-news-article-v1.js",
+    "sha256": "9364822bd9f3eb06",
+    "bundleSha256": "6b52b4491bf8fa05",
+    "parsersCopied": [
+      "news-columns-article.js",
+      "news-quote.js"
+    ]
+  },
+  "urls": {
+    "primary": "https://www.ustacoaching.com/en/home/news/usta-coaching-testimonials-7-coaches-share-their-experience.html",
+    "twin": "https://www.ustacoaching.com/es/home/news/usta-coaching-testimonials-7-coaches-share-their-experience.html"
+  },
+  "finalize": "node tools/assets/fetch-page-images.mjs en/home/news/<slug> es/home/news/<slug>  (images → content/media-da/<path>/<stem>-<md5(url)[:8]>.<ext>)",
+  "output": {
+    "blocks": "Columns (person, media-right, media-6) ×7 (Ernie: photo missing on the source → empty photo cell, rendered .no-photo), Spacer (line) before each person row",
+    "contract": "person = article row; first 3 paragraphs = name / role / location; empty photo cell = photo missing on source"
+  },
+  "verification": {
+    "viewports": [
+      375,
+      768,
+      1024,
+      1280,
+      1440
+    ],
+    "result": "EN + ES: every text run identical to source at 375/768/1024/1280/1440 incl. Ernie half-width text at all widths; remaining: Celia photo uses the source's author-chosen portrait crop (image--aspect-ration--portrait) → our photo is natural ratio, page 41px shorter @375 / 538px @768; ES \"Florence\" vs imported \"Florencia\" (importer fetch saw an older copy of the source)"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "url": "https://www.ustacoaching.com/en/home/news/sportimes-playbook-for-the-modern-tennis-coach.html",
+  "path": "en/home/news/sportimes-playbook-for-the-modern-tennis-coach.html",
+  "timestamp": "2026-10-07T20:26:44.494Z",
+  "error": "page.evaluate: Error: Failed to import page: no /^Columns \\(grid, mobile\\)$/ block in sportimes-playbook-for-the-modern-tennis-coach: Columns (article, Media Right, Media 3, flush) | Quote | Spacer | Columns (article, Media Right, Media 5) | Columns (article, Media Left, Media 6) | Columns (article, Media Right, Media 4) | Columns (grid, Mobile) | Tags | Social | Section Metadata | Fragment | Metadata\n    at eval (eval at evaluate (:290:30), <anonymous>:29:15)\n    at async <anonymous>:316:30",
+  "errorStack": "page.evaluate: Error: Failed to import page: no /^Columns \\(grid, mobile\\)$/ block in sportimes-playbook-for-the-modern-tennis-coach: Columns (article, Media Right, Media 3, flush) | Quote | Spacer | Columns (article, Media Right, Media 5) | Columns (article, Media Left, Media 6) | Columns (article, Media Right, Media 4) | Columns (grid, Mobile) | Tags | Social | Section Metadata | Fragment | Metadata\n    at eval (eval at evaluate (:290:30), <anonymous>:29:15)\n    at async <anonymous>:316:30\n    at processUrl (/home/node/.excat-marketplaces/excat-marketplace/excat/skills/excat-content-import/scripts/run-bulk-import.js:693:31)\n    at async main (/home/node/.excat-marketplaces/excat-marketplace/excat/skills/excat-content-import/scripts/run-bulk-import.js:956:22)"
+}

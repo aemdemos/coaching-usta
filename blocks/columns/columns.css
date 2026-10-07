@@ -10,39 +10,40 @@
    • article (news-article body copy beside a photo; `media-left` flips sides)
    • list    (news search-result tile: thumbnail + card with "Read Article" CTA)
    • embed   (LinkedIn post embed beside a text column)
+   • grid    (news-article photos or text cards side by side; `tablet` / `mobile` split earlier)
    Each variant is authored as `columns (variant)`; selectors below are scoped
    by the variant class so they never leak across variants. */
 
 /* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) img {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) img {
   width: 100%;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > div {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > div {
   order: 1;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > .columns-img-col {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > .columns-img-col {
   order: 0;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > .columns-img-col img {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > .columns-img-col img {
   display: block;
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div {
     align-items: center;
     flex-direction: unset;
     gap: 24px;
   }
 
-  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo) > div > div {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > div {
     flex: 1;
     order: unset;
   }
@@ -1175,8 +1176,7 @@ main > .section.columns-container:has(.columns.profile) > div {
    News-article body row (news/*.html): a block of body copy (paragraphs + an
    optional section h2) beside a photo. Source-measured across 390/768/1024/1280.
    Text ≈ 75% (9/12) + image ≈ 25% (3/12) side-by-side; mobile stacks in the
-   authored order (media-right: text then image; media-left: image then text, as
-   the source's floats do). Image side: default RIGHT (text-left);
+   reading order (text, then image — both options). Image side: default RIGHT (text-left);
    `.article.media-left` puts the image on the LEFT. Images have SHARP corners (radius 0) in source.
    Body p: Graphik Regular 18/24 white, ls normal. Section h2: Graphik Semibold
    700, 28 (mobile) → 40 (≥768), white. */
@@ -1212,18 +1212,64 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   height: auto;
 }
 
+/* an embedded post in the photo cell (source iframetext: 20px padding, the post at
+   its authored size — full cell width up to 768 — then a 30px spacer; the iframe's
+   inline line box adds 5px). A wider-than-column post overflows, as on the source. */
+.columns.article .columns-article-media.columns-article-embed {
+  padding-top: 32px;
+  padding-bottom: 67px;
+}
+
+.columns.article .columns-article-embed iframe {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  border: 0;
+}
+
+@media (width >= 1024px) {
+  .columns.article .columns-article-embed iframe {
+    width: var(--embed-width, 100%);
+  }
+}
+
+/* `portrait` = the source image's portrait crop (image--aspect-ration--portrait):
+   cover-cropped from the top at the source's per-breakpoint ratios */
+.columns.article.portrait .columns-article-media img {
+  aspect-ratio: 1.247;
+  object-fit: cover;
+  object-position: center top;
+}
+
+@media (width >= 768px) {
+  .columns.article.portrait .columns-article-media img { aspect-ratio: 0.6667; }
+}
+
+@media (width >= 1024px) {
+  .columns.article.portrait .columns-article-media img { aspect-ratio: 0.6892; }
+}
+
+@media (width >= 1280px) {
+  .columns.article.portrait .columns-article-media img { aspect-ratio: 0.834; }
+}
+
+/* photos stacked in one photo column: the source's 12 + 12px component insets */
+.columns.article .columns-article-media > * + * {
+  margin-top: 24px;
+}
+
 .columns.article .columns-article-content {
   order: 0;
   box-sizing: border-box;
   padding: 12px 8px;
 }
 
-/* media-left stacks image first (source: the image column comes first) */
-.columns.article.media-left .columns-article-content { order: 1; }
-.columns.article.media-left .columns-article-media { order: 0; }
+/* stacked rows always read text first, then the photo — `media-left|right` only
+   picks the photo's side once the row splits (decision 2026-10-07: the source's
+   phone/tablet copies of left-side photos sit below the text) */
 
 /* body copy */
-.columns.article .columns-article-content p {
+:is(.columns.article, .columns.grid) .columns-article-content p {
   margin: 0 0 24px;
   font-family: var(--body-font-family);
   font-size: 18px;
@@ -1233,7 +1279,177 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   color: #fff;
 }
 
-.columns.article .columns-article-content p:last-child {
+/* an authored blank line (<p>&nbsp;</p>, JS marks it .blank) is one 24px line; the
+   paragraphs' 24px bottom margin already spaces items, so a blank adds just its own line,
+   and trailing blank lines follow the last item directly */
+:is(.columns.article, .columns.grid) .columns-article-content p.blank,
+:is(.columns.article, .columns.grid) .columns-article-content :is(p, h2, h3, blockquote):not(.blank, :has(~ :not(p.blank))) {
+  margin-bottom: 0;
+}
+
+/* the cell's last item never adds space (its padding is the source component inset) */
+:is(.columns.article, .columns.grid) .columns-article-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* person row header (source inline styles, the same at every breakpoint): name
+   22/24 bold, role 18/24, location 16/24, all lime, no gaps between the lines;
+   16px below the header (source) + 24px for the source component boundary. */
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-name,
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-role,
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-location {
+  margin: 0;
+  font-family: "Graphik Regular Synth", "Graphik Regular", tahoma, arial, sans-serif;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: var(--usta-lime);
+}
+
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-name {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-role {
+  font-size: 18px;
+}
+
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-location {
+  font-size: 16px;
+}
+
+/* after the header: the source's 16px under the location line + the 24px component
+   boundary; a header that ends on the role line (no location style) has just the 24px */
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-header-end {
+  margin-bottom: 24px;
+}
+
+:is(.columns.article, .columns.grid) .columns-article-content p.columns-person-location.columns-person-header-end {
+  margin-bottom: 40px;
+}
+
+/* an indented paragraph run (source: <p style="margin-left: 40px">, e.g. typed
+   "1. …" goals) is imported as a blockquote: 40px indent, paragraphs spaced as usual */
+:is(.columns.article, .columns.grid) .columns-article-content blockquote {
+  margin: 0 0 24px 40px;
+  padding: 0;
+}
+
+:is(.columns.article, .columns.grid) .columns-article-content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* person rows open with the source's visible divider (its separator component): a 42px
+   band with a 2px inset gray rule 20px from the top, inset like the cells (8px on
+   phones, 12px ≥768) — not under the article title (`no-divider`, set by the JS) */
+.columns.article.person:not(.no-divider) {
+  display: flow-root; /* keeps the divider's margins inside the row */
+}
+
+.columns.article.person:not(.no-divider)::before {
+  content: "";
+  display: block;
+  height: 0;
+  margin: 20px 8px;
+  border: 1px inset rgb(128 128 128);
+}
+
+@media (width >= 768px) {
+  .columns.article.person:not(.no-divider)::before {
+    margin-inline: 12px;
+  }
+}
+
+/* person row whose photo is missing on the source (empty photo cell): the text keeps
+   its (12 − N)/12 column width at every width, as the source's grid does */
+.columns.article.person.no-photo > div {
+  display: flex;
+  flex-direction: row;
+}
+
+.columns.article.person.no-photo .columns-article-content {
+  flex: 0 0 calc((12 - var(--media-span, 3)) / 12 * 100%);
+  min-width: 0;
+}
+
+.columns.article.person.no-photo .columns-article-media {
+  display: none;
+}
+
+/* person rows at 1024–1279 (source desktop-small): the photo sits beside the text at
+   its N/12 width and the text flows around it — each item (paragraph, goal, list item)
+   stays whole beside the photo or, once it starts below the photo, runs full width */
+@media (width >= 1024px) {
+  .columns.article.person > div {
+    display: flow-root;
+  }
+
+  /* the photo's 12px left margin keeps the text cell's right padding beside it
+     (text column = row − photo, both with their 12px insets, as on the source) */
+  .columns.article.person .columns-article-media {
+    float: right;
+    width: calc(var(--media-span, 3) / 12 * 100%);
+    margin-left: 12px;
+  }
+
+  .columns.article.person.media-left .columns-article-media {
+    float: left;
+    margin: 0 12px 0 0;
+  }
+
+  .columns.article.person.stacked .columns-article-media {
+    float: none;
+    width: auto;
+    margin: 0;
+  }
+
+  .columns.article.person .columns-article-content > :is(p, hr),
+  .columns.article.person .columns-article-content blockquote > p {
+    display: flow-root;
+  }
+
+  .columns.article.person .columns-article-content li {
+    display: list-item flow-root;
+  }
+}
+
+@media (width >= 1280px) {
+  .columns.article.person > div {
+    display: flex;
+  }
+
+  /* media-12 person rows stay stacked (photo spans the row) */
+  .columns.article.person.stacked > div {
+    flex-direction: column;
+  }
+
+  .columns.article.person.stacked :is(.columns-article-content, .columns-article-media) {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .columns.article.person .columns-article-media {
+    float: none;
+    width: auto;
+    margin: 0;
+  }
+}
+
+/* an <hr> in a cell = the source's transparent separator: an invisible 42px gap.
+   Paragraph → hr has no extra margin; hr → next item 24px (the source's 12 + 12
+   component paddings around a separator: 12 + 42 + 12 = 66 − the 24 below). */
+:is(.columns.article, .columns.grid) .columns-article-content hr {
+  height: 42px;
+  margin: 0 0 24px;
+  border: 0;
+  background: none;
+}
+
+:is(.columns.article, .columns.grid) .columns-article-content hr:last-child {
+  margin-bottom: 0;
+}
+
+:is(.columns.article, .columns.grid) .columns-article-content :is(p, ul, ol):has(+ hr) {
   margin-bottom: 0;
 }
 
@@ -1242,22 +1458,28 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
    paragraph's 24px bottom margin instead of collapsing: a list that starts its
    own source component sits 12 + 12 + 18 = 42px below the text; within the same
    component the paragraph drops its margin → 18px. */
-.columns.article .columns-article-content :is(ul, ol) {
+:is(.columns.article, .columns.grid) .columns-article-content :is(ul, ol) {
   margin: 0;
   padding: 18px 0 18px 40px;
 }
 
-/* the importer's component-edge blank line above a list is already covered by
-   the paragraph margin in a cell */
-.columns.article .columns-article-content p.blank:has(+ :is(ul, ol)) {
+/* one list per item (source: a <ul> per bullet) — the 18px margins collapse to one */
+:is(.columns.article, .columns.grid) .columns-article-content :is(ul, ol) + :is(ul, ol) {
+  padding-top: 0;
+}
+
+/* the importer's component-edge blank lines around a list are already covered in
+   a cell: above it by the paragraph margin, at the end of the cell by its padding */
+:is(.columns.article, .columns.grid) .columns-article-content p.blank:has(+ :is(ul, ol)),
+:is(.columns.article, .columns.grid) .columns-article-content :is(ul, ol) + p.blank:last-child {
   display: none;
 }
 
-.columns.article .columns-article-content ul {
+:is(.columns.article, .columns.grid) .columns-article-content ul {
   list-style-type: disc;
 }
 
-.columns.article .columns-article-content li {
+:is(.columns.article, .columns.grid) .columns-article-content li {
   font-family: var(--body-font-family);
   font-size: 18px;
   line-height: 24px;
@@ -1266,26 +1488,19 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   color: #fff;
 }
 
-.columns.article .columns-article-content li p {
+:is(.columns.article, .columns.grid) .columns-article-content li p {
   margin: 0;
 }
 
-.columns.article .columns-article-content p:has(+ :is(ul, ol)) {
+:is(.columns.article, .columns.grid) .columns-article-content p:has(+ :is(ul, ol)) {
   margin-bottom: 0;
-}
-
-/* a heading that follows body copy inside a cell: the source puts a 42px
-   separator there (a cell can't hold a spacer block) → 12 + 42 + 12 = 66px gap.
-   (66, not 42: it collapses with the paragraph's 24px bottom margin.) */
-.columns.article .columns-article-content :is(p, ul, ol) + :is(h2, h3) {
-  margin-top: 66px;
 }
 
 /* section heading (Graphik Semibold 700, line-height 1.0, ls normal, #fff;
    font-size 28 mobile → 32 ≥768 → 40 ≥1280 — source-measured at each breakpoint) */
-.columns.article .columns-article-content h1,
-.columns.article .columns-article-content h2,
-.columns.article .columns-article-content h3 {
+:is(.columns.article, .columns.grid) .columns-article-content h1,
+:is(.columns.article, .columns.grid) .columns-article-content h2,
+:is(.columns.article, .columns.grid) .columns-article-content h3 {
   margin: 0 0 24px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 28px;
@@ -1297,7 +1512,7 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
 
 /* h3 = the source's smaller in-article heading (a `text--font-size--32px-28px`
    component: <p><b> in Graphik Regular, bold synthesized): 28 → 32 @1280 only */
-.columns.article .columns-article-content h3 {
+:is(.columns.article, .columns.grid) .columns-article-content h3 {
   font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
 }
 
@@ -1309,8 +1524,8 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   .columns.article .columns-article-media,
   .columns.article .columns-article-content { padding: 12px; }
 
-  .columns.article .columns-article-content h1,
-  .columns.article .columns-article-content h2 { font-size: 32px; }
+  :is(.columns.article, .columns.grid) .columns-article-content h1,
+  :is(.columns.article, .columns.grid) .columns-article-content h2 { font-size: 32px; }
 }
 
 /* small desktop (>=1024): larger gutter; STILL STACKED (source default--3/9 only
@@ -1344,6 +1559,11 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
     order: 0;
   }
 
+  /* a single-cell row (person header without a photo) spans the full row */
+  .columns.article:not(:has(.columns-article-media)) .columns-article-content {
+    flex: 1 1 auto;
+  }
+
   .columns.article .columns-article-media {
     flex: 0 0 calc(var(--media-span, 3) / 12 * 100%);
     min-width: 0;
@@ -1355,10 +1575,10 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
   .columns.article.media-left .columns-article-content { order: 1; }
   .columns.article.media-left .columns-article-media { order: 0; }
 
-  .columns.article .columns-article-content h1,
-  .columns.article .columns-article-content h2 { font-size: 40px; }
+  :is(.columns.article, .columns.grid) .columns-article-content h1,
+  :is(.columns.article, .columns.grid) .columns-article-content h2 { font-size: 40px; }
 
-  .columns.article .columns-article-content h3 { font-size: 32px; }
+  :is(.columns.article, .columns.grid) .columns-article-content h3 { font-size: 32px; }
 }
 
 /* =================================================================== list ==
@@ -2001,4 +2221,99 @@ main > .section.columns-container:has(.columns.promo) > div {
   .columns.promo .columns-promo-title { font-size: 32px; }
 
   .columns.promo .columns-promo-detail { font-size: 18px; }
+}
+
+/* =================================================================== grid ==
+   News-article side-by-side row: 2–3 photos (source: sibling image components,
+   e.g. 3 × 4/12 or 2 × 6/12) or text cards (sibling text components), equal
+   widths, each with the source's 12px component inset (12px 8px on phones).
+   Stacked below the split width: 1280 by default, 768 with `tablet`, never with
+   `mobile`. Photos keep their own height (top-aligned). Text cells use the article
+   copy styles (.columns-article-content); a card with an icon (the source text
+   component image) shows it at its own size, 10px left of the copy. */
+.columns.grid > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns.grid .columns-grid-item {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 12px 8px;
+}
+
+.columns.grid .columns-grid-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.columns.grid .columns-grid-item.has-icon {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.columns.grid .columns-grid-icon {
+  flex: none;
+  margin: 0;
+  padding-top: 5px;
+}
+
+.columns.grid .columns-grid-icon img {
+  width: auto;
+  max-width: none;
+}
+
+.columns.grid .columns-grid-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* an empty column takes no space while the row is stacked */
+.columns.grid:not(.mobile) .columns-grid-empty {
+  display: none;
+}
+
+.columns.grid.mobile > div {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.columns.grid.mobile .columns-grid-item {
+  flex: 1 1 0;
+}
+
+@media (width >= 768px) {
+  .columns.grid .columns-grid-item {
+    padding: 12px;
+  }
+
+  .columns.grid.tablet > div {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .columns.grid.tablet .columns-grid-item {
+    flex: 1 1 0;
+  }
+
+  .columns.grid.tablet:not(.mobile) .columns-grid-empty {
+    display: block;
+  }
+}
+
+@media (width >= 1280px) {
+  .columns.grid > div {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .columns.grid .columns-grid-item {
+    flex: 1 1 0;
+  }
+
+  .columns.grid:not(.mobile) .columns-grid-empty {
+    display: block;
+  }
 }
