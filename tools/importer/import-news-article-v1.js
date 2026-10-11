@@ -41,20 +41,32 @@ function el(document, tag, text) {
   return e;
 }
 
-/* a source container's authored top/bottom margin (other than the pull-quote and the
-   footer row, which the template styles) → an emergency Spacer (heights per the source
-   CSS: container--top-margin--32 is 24px below 768, 32px from 768) */
-const CONTAINER_MARGINS = { 32: { desktop: 32, tablet: 32, mobile: 24 } };
+/* a source container's authored top/bottom margin and vertical padding (other than a
+   pull-quote's own container and the footer row, which the template styles) → an
+   emergency Spacer. Heights per the source CSS (phone / tablet / desktop):
+   container--top-margin--32 24 / 32 / 32, --52 12 / 20 / 52; container--padding--12px-4px
+   0 / 4 / 12 above and below. */
+const CONTAINER_MARGINS = { 32: [24, 32, 32], 52: [12, 20, 52] };
+const CONTAINER_PADDINGS = { '12px-4px': [0, 4, 12] };
 function containerMarginSpacers(frame, document) {
-  frame.querySelectorAll('.container[class*="-margin--"]').forEach((c) => {
-    if (c.querySelector('.text--font-family--graphic-semibold, .tags, .socialmediasharing')) return;
+  frame.querySelectorAll('.container[class*="-margin--"], .container[class*="container--padding--"]').forEach((c) => {
+    if (c.querySelector('.tags, .socialmediasharing')) return;
+    // a column of a side-by-side flex row: the row block owns the spacing
+    if (c.parentElement && c.parentElement.closest('.container--display--flex-reset-grid')) return;
+    // a pull-quote's own container (quote + attribution only): the quote block's margins
+    const cols = c.querySelectorAll('.aem-GridColumn');
+    if (c.querySelector('.text--font-family--graphic-semibold') && cols.length <= 2 && !c.querySelector('.container')) return;
+    const pad = [...c.classList].map((k) => k.match(/^container--padding--(.+)$/)).find(Boolean);
+    const p = (pad && CONTAINER_PADDINGS[pad[1]]) || [0, 0, 0];
     [['top', 'before'], ['bottom', 'after']].forEach(([side, where]) => {
       const m = [...c.classList].map((k) => k.match(new RegExp(`^container--${side}-margin--(\\d+)$`))).find(Boolean);
-      const h = m && CONTAINER_MARGINS[m[1]];
-      if (!h) return;
+      const mg = (m && CONTAINER_MARGINS[m[1]]) || null;
+      if (!mg && !pad) return;
+      const h = [0, 1, 2].map((i) => (mg ? mg[i] : 0) + p[i]);
+      if (!h.some(Boolean)) return;
       c[where](WebImporter.Blocks.createBlock(document, {
         name: 'Spacer',
-        cells: [['desktop', `${h.desktop}px`], ['tablet', `${h.tablet}px`], ['mobile', `${h.mobile}px`]],
+        cells: [['desktop', `${h[2]}px`], ['tablet', `${h[1]}px`], ['mobile', `${h[0]}px`]],
       }));
     });
   });
@@ -154,7 +166,11 @@ function textStyleBlocks(frame, document) {
     if (!/font-size:\s*25(\.0)?px/i.test(p.getAttribute('style'))) return;
     const q = document.createElement('p');
     q.append(...p.childNodes);
-    p.replaceWith(WebImporter.Blocks.createBlock(document, { name: 'Text Style (large)', cells: [[q]] }));
+    // copy typed directly under the large line (no blank line between) touches it on the
+    // source: it goes into the block as body copy
+    const touching = [];
+    for (let n = p.nextElementSibling; n && n.tagName === 'P' && !isBlankEl(n) && !styleKey(n); n = n.nextElementSibling) touching.push(n);
+    p.replaceWith(WebImporter.Blocks.createBlock(document, { name: 'Text Style (large)', cells: [[[q, ...touching]]] }));
   });
 }
 
@@ -373,8 +389,16 @@ export default {
     // on the source, so it is removed.
     document.querySelectorAll('.cmp-text p').forEach((p) => {
       if (!isBlankEl(p)) return;
-      if (/[\u00a0\uE000]/.test(p.textContent) || p.querySelector('br')) p.textContent = NBSP_MARK;
-      else p.remove();
+      // <p><br><br></p> is two blank lines: one blank paragraph per line break
+      const lines = p.querySelectorAll('br').length;
+      if (/[\u00a0\uE000]/.test(p.textContent) || lines) {
+        p.textContent = NBSP_MARK;
+        for (let i = 1; i < lines; i += 1) {
+          const extra = document.createElement('p');
+          extra.textContent = NBSP_MARK;
+          p.after(extra);
+        }
+      } else p.remove();
     });
     // separator heights (42px almost everywhere; `--vertical-paddings--4px` +
     // `--inner-margins--none` is 10px) — measured on the live page, used by the transform

@@ -83,13 +83,14 @@ body.news-article main > .section.bordered > .default-content-wrapper h3 {
   color: #fff;
 }
 
-/* a lime link (source: an inline-coloured link; authored as an italic link — an
-   <em> holding only the link, marked .lime-link by news-article.js): lime, upright */
-body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) em.lime-link {
-  font-style: normal;
+/* in-copy links are underlined on the source (and must not rely on colour alone) */
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content, .text-style-content) a:not(.button) {
+  text-decoration: underline;
 }
 
-body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) em.lime-link > a {
+/* a lime link (source: an inline-coloured link; authored as an italic link — an
+   <em> holding only the link, turned into a.lime-link by news-article.js) */
+body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) a.lime-link {
   color: var(--usta-lime);
 }
 

@@ -13,10 +13,13 @@ export default function decorate(main) {
     if (!p.textContent.trim() && !p.querySelector('img, picture, a, iframe')) p.classList.add('blank');
   });
   // a lime link (source: an inline-coloured link) is authored as an italic link — an
-  // <em> holding nothing but the link; italic copy that merely contains a link stays as is
+  // <em> holding nothing but the link. It becomes a plain link marked .lime-link (so it is
+  // never turned into a button); italic copy that merely contains a link stays as is
   main.querySelectorAll('em').forEach((em) => {
     const a = em.querySelector(':scope > a');
-    if (a && em.children.length === 1 && em.textContent.trim() === a.textContent.trim()) em.classList.add('lime-link');
+    if (!a || em.children.length !== 1 || em.textContent.trim() !== a.textContent.trim()) return;
+    a.classList.add('lime-link');
+    em.replaceWith(a);
   });
   if (main.querySelector('.breadcrumb')) return;
   const section = document.createElement('div');

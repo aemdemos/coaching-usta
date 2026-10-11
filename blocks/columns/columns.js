@@ -391,9 +391,9 @@ function decorateArticle(block) {
       const size = url.hash.match(/^#(\d+)x(\d+)$/);
       url.hash = '';
       const frame = document.createElement('iframe');
-      frame.src = url.href;
+      frame.loading = 'lazy'; // before src, so the post only loads near the viewport
       frame.title = link.textContent.trim() || 'Embedded post';
-      frame.loading = 'lazy';
+      frame.src = url.href;
       frame.setAttribute('frameborder', '0');
       frame.setAttribute('allowfullscreen', '');
       if (size) {
@@ -551,9 +551,9 @@ function decorateEmbed(block) {
       cell.classList.add('columns-embed-media');
       cell.textContent = '';
       const frame = document.createElement('iframe');
-      frame.src = embedSrc;
+      frame.setAttribute('loading', 'lazy'); // before src: load near the viewport only
       frame.title = 'LinkedIn post';
-      frame.setAttribute('loading', 'lazy');
+      frame.src = embedSrc;
       frame.setAttribute('frameborder', '0');
       frame.setAttribute('allowfullscreen', '');
       cell.append(frame);

@@ -3856,3 +3856,36 @@ positions on phone/tablet), coaches-open embeds hidden at 768–1279 on the sour
 per-breakpoint image spans (wecoach logo tablet 8/12, advantage mobile 4/12), the 60%
 app screenshot (new-usta-coaching-upgrades), padded group container (college), French
 Open blank heading lines (−4/−8px), source ES copy drift ("Florence").
+
+### 2026-10-08 — full validation, all 112 news pages (EN + ES) @375/768/1024/1280/1440
+Final importer re-run on all 112 pages + image finalize, then per-run text/typography/
+geometry comparison against the live source (validator frame = the source's inner
+`.container--border--white > .cmp-container`).
+- Fully matching at 375/768/1280/1440: **66 / 112**. Per width: 375 74, 768 66, 1024 55,
+  1280 91, 1440 92 (1024 = the accepted stacking band for article rows).
+- Typography (family/size/weight/line-height/letter-spacing/colour/alignment): differs on
+  2 pages only — the women-cohort lime link is rgb(207,255,4) on the source (ours 5).
+- Fixes this round: in-copy links are underlined (source does; also a11y link-in-text-block);
+  lime links become plain `a.lime-link` (never a button); `<p><br><br></p>` = 2 blank lines;
+  `Text Style` styles the cell itself (single-paragraph cells have no <p>) and `large`
+  keeps touching copy inside the block; padded/margined group containers → emergency
+  Spacers (college); embeds are lazy (loading set before src).
+- Remaining, by cause (documented, not variant bugs):
+  - author slips accepted by decision: narrow in-row headings/text (jim-loehr, practical,
+    vania-king, southlake, sportimes ES, advantage tablet header, Harper mobile 6/12 text,
+    women-mentors Autumn header);
+  - breakpoint-specific duplicate copies on the source (parks-rec, dinkins, butch-staples
+    tablet photos, learning-hub text copies, jack-and-jill / learning-hub embed heights,
+    coaches-open embeds hidden at 768–1279);
+  - per-breakpoint image spans / sizes: advantage mobile 4/12 photo, wecoach tablet logo
+    8/12, upgrades 60% app screenshot, Harper image offset 1;
+  - text-node split artifacts (equivalent text): coaches-reveal "3.", emma part 3,
+    sportsmen, butch ES;
+  - source/content drift: ES "Florence" (imported "Florencia"), ES emma part 3 "Lee"
+    (imported "Sotavento"); ES emma part 3 shows an unrelated pricing modal inline;
+  - French Open blank heading lines −4/−8px; college 4px side padding (−72 @375).
+- a11y: axe clean on the checked pages; coaches-open's LinkedIn post iframes contain a
+  third-party aria-hidden-focus issue (inside LinkedIn's frame). The project a11y test waits
+  for networkidle, which pages with LinkedIn embeds never reach (use a load-based run).
+- Backup: tools/importer/backups/news-article/all-news-pages/ (importer, bundle, parsers,
+  sample importer, manifest with the per-width results and the 66 matching pages).

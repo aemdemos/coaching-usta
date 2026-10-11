@@ -343,17 +343,25 @@ var CustomImportScript = (() => {
     if (text != null) e.textContent = text;
     return e;
   }
-  var CONTAINER_MARGINS = { 32: { desktop: 32, tablet: 32, mobile: 24 } };
+  var CONTAINER_MARGINS = { 32: [24, 32, 32], 52: [12, 20, 52] };
+  var CONTAINER_PADDINGS = { "12px-4px": [0, 4, 12] };
   function containerMarginSpacers(frame, document) {
-    frame.querySelectorAll('.container[class*="-margin--"]').forEach((c) => {
-      if (c.querySelector(".text--font-family--graphic-semibold, .tags, .socialmediasharing")) return;
+    frame.querySelectorAll('.container[class*="-margin--"], .container[class*="container--padding--"]').forEach((c) => {
+      if (c.querySelector(".tags, .socialmediasharing")) return;
+      if (c.parentElement && c.parentElement.closest(".container--display--flex-reset-grid")) return;
+      const cols = c.querySelectorAll(".aem-GridColumn");
+      if (c.querySelector(".text--font-family--graphic-semibold") && cols.length <= 2 && !c.querySelector(".container")) return;
+      const pad = [...c.classList].map((k) => k.match(/^container--padding--(.+)$/)).find(Boolean);
+      const p = pad && CONTAINER_PADDINGS[pad[1]] || [0, 0, 0];
       [["top", "before"], ["bottom", "after"]].forEach(([side, where]) => {
         const m = [...c.classList].map((k) => k.match(new RegExp(`^container--${side}-margin--(\\d+)$`))).find(Boolean);
-        const h = m && CONTAINER_MARGINS[m[1]];
-        if (!h) return;
+        const mg = m && CONTAINER_MARGINS[m[1]] || null;
+        if (!mg && !pad) return;
+        const h = [0, 1, 2].map((i) => (mg ? mg[i] : 0) + p[i]);
+        if (!h.some(Boolean)) return;
         c[where](WebImporter.Blocks.createBlock(document, {
           name: "Spacer",
-          cells: [["desktop", `${h.desktop}px`], ["tablet", `${h.tablet}px`], ["mobile", `${h.mobile}px`]]
+          cells: [["desktop", `${h[2]}px`], ["tablet", `${h[1]}px`], ["mobile", `${h[0]}px`]]
         }));
       });
     });
@@ -441,7 +449,9 @@ var CustomImportScript = (() => {
       if (!/font-size:\s*25(\.0)?px/i.test(p.getAttribute("style"))) return;
       const q = document.createElement("p");
       q.append(...p.childNodes);
-      p.replaceWith(WebImporter.Blocks.createBlock(document, { name: "Text Style (large)", cells: [[q]] }));
+      const touching = [];
+      for (let n = p.nextElementSibling; n && n.tagName === "P" && !isBlankEl(n) && !styleKey(n); n = n.nextElementSibling) touching.push(n);
+      p.replaceWith(WebImporter.Blocks.createBlock(document, { name: "Text Style (large)", cells: [[[q, ...touching]]] }));
     });
   }
   function convertHeadings(frame, document) {
@@ -610,8 +620,15 @@ var CustomImportScript = (() => {
       markNbsp(document.body, document);
       document.querySelectorAll(".cmp-text p").forEach((p) => {
         if (!isBlankEl(p)) return;
-        if (/[\u00a0\uE000]/.test(p.textContent) || p.querySelector("br")) p.textContent = NBSP_MARK2;
-        else p.remove();
+        const lines = p.querySelectorAll("br").length;
+        if (/[\u00a0\uE000]/.test(p.textContent) || lines) {
+          p.textContent = NBSP_MARK2;
+          for (let i = 1; i < lines; i += 1) {
+            const extra = document.createElement("p");
+            extra.textContent = NBSP_MARK2;
+            p.after(extra);
+          }
+        } else p.remove();
       });
       document.querySelectorAll(".separator").forEach((sep) => {
         const h = Math.round(sep.getBoundingClientRect().height);

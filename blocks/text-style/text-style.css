@@ -4,10 +4,6 @@
 .text-style.block .text-style-content {
   box-sizing: border-box;
   padding: 12px 8px;
-}
-
-.text-style.block p {
-  margin: 0;
   font-family: var(--body-font-family);
   font-size: 18px;
   line-height: 24px;
@@ -15,8 +11,12 @@
   color: #fff;
 }
 
+.text-style.block p {
+  margin: 0;
+}
+
 /* label: Graphik Semibold 24/32, regular weight, uppercase */
-.text-style.label p {
+.text-style.label .text-style-content {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 24px;
   line-height: 32px;
@@ -25,13 +25,8 @@
 }
 
 /* center: body copy centred */
-.text-style.center p {
+.text-style.center .text-style-content {
   text-align: center;
-}
-
-/* large: a 25px line (source inline size), body line-height */
-.text-style.large p {
-  font-size: 25px;
 }
 
 /* intro: centred lime lead-in on 10 of 12 columns (offset 1) */
@@ -39,7 +34,7 @@
   margin-inline: calc(100% / 12);
 }
 
-.text-style.intro p {
+.text-style.intro .text-style-content {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
@@ -59,13 +54,20 @@
 }
 
 @media (width >= 1024px) {
-  .text-style.intro p {
+  .text-style.intro .text-style-content {
     font-size: 18px;
   }
 }
 
 @media (width >= 1280px) {
-  .text-style.intro p {
+  .text-style.intro .text-style-content {
     font-size: 24px;
   }
+}
+
+/* large: a 25px line (source inline size), body line-height; copy typed right under
+   it (further paragraphs) stays body size */
+.text-style.large .text-style-content > :first-child,
+.text-style.large .text-style-content:not(:has(> p)) {
+  font-size: 25px;
 }
