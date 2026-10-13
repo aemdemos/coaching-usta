@@ -670,8 +670,14 @@ export default async function decorate(block) {
   let formDef;
   let pathname;
   if (container) {
-    ({ pathname } = new URL(container.href));
-    formDef = await fetchForm(container.href);
+    // Authoring can rewrite a `/forms/x.json` link href to `/forms/x-json` (404)
+    // while the link text keeps the real path — prefer the text when it is a .json path.
+    const text = container.textContent.trim();
+    const href = text.startsWith('/') && text.endsWith('.json')
+      ? new URL(text, window.location.origin).href
+      : container.href;
+    ({ pathname } = new URL(href));
+    formDef = await fetchForm(href);
   } else {
     ({ container, formDef } = extractFormDefinition(block));
   }
