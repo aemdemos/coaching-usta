@@ -132,7 +132,8 @@ function createImage(fd) {
   field.id = fd?.id;
   const imagePath = fd.value || fd.properties['fd:repoPath'] || '';
   const altText = fd.altText || fd.name;
-  field.append(createOptimizedPicture(imagePath, altText));
+  // the site's breakpoints (aem.js defaults to 600px)
+  field.append(createOptimizedPicture(imagePath, altText, false, [{ media: '(width >= 768px)', width: '2000' }, { width: '750' }]));
   return field;
 }
 

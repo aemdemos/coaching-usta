@@ -1798,3 +1798,20 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 @media (width >= 1280px) {
   .cards-container:has(.cards.quote) { padding-inline: 64px; }
 }
+
+/* every cards variant gives its SECTION the site gutter (16/40/48/64): the section's
+   default content (heading, intro) sits on that same box — no second gutter or cap.
+   (course drops the section gutter at >=1280 for its narrow centred column — its
+   default content follows that column, see below) */
+main > .section.cards-container > .default-content-wrapper {
+  max-width: none;
+  padding-inline: 0;
+}
+
+@media (width >= 1280px) {
+  main > .section.cards-container:has(.cards.course) > .default-content-wrapper {
+    box-sizing: border-box;
+    width: clamp(960px, calc(960px + (100vw - 1280px) * 0.831), 1173px);
+    margin-inline: auto;
+  }
+}

@@ -3889,3 +3889,48 @@ geometry comparison against the live source (validator frame = the source's inne
   for networkidle, which pages with LinkedIn embeds never reach (use a load-based run).
 - Backup: tools/importer/backups/news-article/all-news-pages/ (importer, bundle, parsers,
   sample importer, manifest with the per-width results and the 66 matching pages).
+
+### 2026-10-18 — customer breakpoints + 1536 content max-width confirmed
+Customer spec: mobile ≤767, tablet 768–1023, desktop-small 1024–1279, desktop ≥1280
+(default); content max-width 1536px everywhere. Our `breakpoints.json` 768/1024/1280
+(min-width, mobile-first) is the same four bands — no change.
+- Content cap: header, breadcrumb, news frame, featured tile and footer already capped at
+  1536 with the site gutters 16/40/48/64 (measured = source at 375/768/1024/1280/1536/1920/2560).
+- Fixed: the boilerplate default section container was still 1200px (24/32px gutters) —
+  now 1536px with 16/40/48/64 (styles.css). Cards sections own the gutter, so their
+  default content no longer adds a second one (cards.css). Home "PACKAGES FOR EVERY KIND
+  OF TENNIS COACH" now matches the source box at every width (1 line @1920, was 2).
+  Only the home pages (EN/ES/index) and draft samples used the old default; news pages
+  unaffected (re-validated).
+
+### 2026-10-18 — breakpoint audit of all blocks + templates (CSS and JS)
+- CSS (blocks/, templates/, styles/): 175 media queries, all `width >= 768 | 1024 | 1280`
+  (+3 prefers-reduced-motion) — no max-width, no mixing.
+- The checker now also covers templates/ CSS and JS viewport breakpoints (matchMedia,
+  picture `media:` strings, `window.innerWidth` comparisons) in blocks/, templates/,
+  scripts/ (not aem.js) and widgets/. It found and we fixed:
+  - course-filter.js `matchMedia('(width < 768px)')` (max-width) → `!matchMedia('(width >= 768px)')`;
+  - scripts.js eager-fonts threshold `innerWidth >= 900` → `>= 1024`;
+  - form images (form.js, rules/index.js) relied on aem.js's default 600px picture
+    breakpoint → explicit `(width >= 768px)`.
+- Kept by design: form/flag-profile.css `@container (width >= 641px)` — a container query
+  on the embedded Formstack form's own width (its layout switch), not a viewport breakpoint.
+- Not ours: aem.js (untouchable) and the EDS-rendered default-content <picture> markup
+  carry the platform's 600px image-source breakpoint (image selection only, not layout).
+
+### 2026-10-18 — migration scope: what's done, what's next (from the site catalog)
+Source: the site-scope catalog (catalog/template-catalog.json, run 2026-10-04 — 219 pages,
+14 templates, EN + ES). Status against local content:
+| Template | Pages (EN+ES) | Migrated | Notes |
+|---|---|---|---|
+| news-article | 116 | 112 | done; catalog also groups job-board + membership-benefits here, but they have no share row / featured tile — treat as their own pages |
+| landing-page | 26 | 2 (home EN/ES) | **next**: coach-mentorship, coaching-community (+ coaching-workshops, fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit), courses, learning-pathway, membership terms, gallagher-disclaimer pro / pro-plus / rally, account/flag-profile — 12 EN + 12 ES |
+| quiz-results | 12 | 0 | results/{college-coach, ft-pro-coach, guardian-coach, pt-pro-coach, school-coach, volunteer-emerging-coach}; es/maintenance-page misfiled here |
+| listing-hub (+variant) | 12 | 0 | news index, news search-results, faqs, coachtennis, workshops, education-center-locations — mixed layouts, dynamic lists |
+| long-form-info | 6 | 0 | about, usta-coaching-equivalency-application, auth-error |
+| account-dashboard / record-form / guided-journey / settings / preferences / unsubscribe | 42 | 0 | authenticated app pages — need the app/API, not a content import |
+| disclaimer-form | 2 | 0 | gallagher-disclaimer-baseline (form built in drafts) |
+| maintenance-page | 1 | 0 | standalone |
+Blocks already built for landing pages: hero (video / content), columns (media, quote, feature,
+promo, text), cards (pricing, media, text, profile, comparison, course, logos, news, quote),
+accordion, banner, course-filter, form (subscribe, flag profile, gallagher disclaimer), tabs.

@@ -376,10 +376,14 @@ main > .section {
   color: #fff;
 }
 
+/* the source's content container: capped at 1536px (all breakpoints) with the
+   site gutters 16 / 40 (≥768) / 48 (≥1024) / 64 (≥1280) — the same box as the header,
+   breadcrumb, article frame and footer */
 main > .section > div {
-  max-width: 1200px;
+  box-sizing: border-box;
+  max-width: 1536px;
   margin: auto;
-  padding: 0 24px;
+  padding: 0 16px;
 }
 
 main > .section:first-of-type {
@@ -395,9 +399,21 @@ main > .section > .full-width {
   padding: 0;
 }
 
+@media (width >= 768px) {
+  main > .section > div:not(.full-width) {
+    padding: 0 40px;
+  }
+}
+
 @media (width >= 1024px) {
   main > .section > div:not(.full-width) {
-    padding: 0 32px;
+    padding: 0 48px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section > div:not(.full-width) {
+    padding: 0 64px;
   }
 }
 

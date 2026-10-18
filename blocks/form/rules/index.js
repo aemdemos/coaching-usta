@@ -156,7 +156,7 @@ export async function fieldChanged(payload, form, generateFormRendition) {
           field.innerHTML = valueToSet;
         } else if (fieldType === 'image') {
           const altText = field?.querySelector('img')?.alt || '';
-          field.querySelector('picture')?.replaceWith(createOptimizedPicture(valueToSet, altText));
+          field.querySelector('picture')?.replaceWith(createOptimizedPicture(valueToSet, altText, false, [{ media: '(width >= 768px)', width: '2000' }, { width: '750' }]));
         } else if (field.type !== 'file') {
           field.value = valueToSet;
         }

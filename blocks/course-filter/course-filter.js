@@ -279,7 +279,7 @@ function clampDescription(card) {
   if (!desc) return;
   desc.querySelector('.course-filter-card-description-ellipsis')?.remove();
   // Source only clamps at tablet+ (>=768). Below that the inline copy is hidden.
-  if (window.matchMedia('(width < 768px)').matches) {
+  if (!window.matchMedia('(width >= 768px)').matches) {
     desc.classList.remove('is-clamped');
     return;
   }
