@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { unwrapCellParagraph } from '../../scripts/scripts.js';
 
 /**
  * columns — a two-column layout. Several variants share this block:
@@ -37,6 +38,12 @@ function decorateMedia(block) {
   block.querySelectorAll('.columns-media-media img').forEach((img) => {
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '900' }]));
   });
+
+  // a light card whose lead line is a paragraph (no real heading — the quiz card): the
+  // source shows that section from 768 only (columns.css)
+  if (!block.classList.contains('dark') && !block.querySelector('.columns-media-content :is(h1, h2, h3)')) {
+    block.classList.add('columns-media-lead');
+  }
 }
 
 /*
@@ -54,6 +61,7 @@ function decorateQuote(block) {
   if (!row) return;
 
   const cells = [...row.children];
+  cells.forEach(unwrapCellParagraph);
 
   // classify cells: a picture-only cell is the headshot photo; the cell that also
   // has text is the quote card.
@@ -371,6 +379,7 @@ function linkedInEmbedSrc(href) {
 function decorateArticle(block) {
   const row = block.firstElementChild;
   if (!row) return;
+  [...row.children].forEach(unwrapCellParagraph);
   // Generic image width (12-col grid): `media-N` = the image span, side by side
   // from 1280 (no number = the original 3/12); below 1280 the row stacks.
   // `media-right` (default) / `media-left` = the image side.

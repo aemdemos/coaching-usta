@@ -85,6 +85,21 @@ export function localePrefix() {
   return /(^|\/)es(\/|$)/i.test(window.location.pathname) ? '/es' : '';
 }
 
+/**
+ * aem.js wrapTextNodes wraps a block cell that STARTS with a picture and has more
+ * content (picture + paragraphs/headings/lists, or two pictures) into one outer
+ * <p> — a <p> holding <p>s. Puts the cell's own children back so each paragraph,
+ * heading or picture is a direct child of the cell again.
+ * @param {Element} cell a block cell
+ */
+export function unwrapCellParagraph(cell) {
+  const only = cell.children.length === 1 ? cell.firstElementChild : null;
+  if (only && only.tagName === 'P' && only.firstElementChild?.tagName === 'PICTURE'
+    && only.querySelector(':scope > :is(p, h1, h2, h3, h4, h5, h6, ul, ol), :scope > picture ~ picture')) {
+    only.replaceWith(...only.childNodes);
+  }
+}
+
 let placeholdersPromise;
 /**
  * Fetches the locale's placeholders sheet (Key → Text) once per page. Tries the

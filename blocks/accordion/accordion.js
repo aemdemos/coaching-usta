@@ -1,3 +1,5 @@
+import { unwrapCellParagraph } from '../../scripts/scripts.js';
+
 /*
  * Accordion Block.
  *
@@ -152,8 +154,10 @@ function buildPanelHeader(cell) {
   meta.className = 'accordion-timeline-meta';
   let column = null;
 
+  // a cell that starts with a bare picture arrives wrapped in one <p> (aem.js)
+  unwrapCellParagraph(cell);
   [...cell.children].forEach((node) => {
-    const img = node.tagName === 'P' && node.querySelector('img');
+    const img = (node.tagName === 'P' || node.tagName === 'PICTURE') && node.querySelector('img');
     if (img) {
       // badge logo
       const logo = document.createElement('div');
@@ -186,12 +190,7 @@ function buildPanelHeader(cell) {
   // so the chevron centres on the META block, not the whole badge+intro header
   const info = document.createElement('div');
   info.className = 'accordion-timeline-panel-info';
-  if (meta.children.length) {
-    // the last meta column absorbs the remaining width (source: What To Expect /
-    // Minimum Req. are content-sized, Industry Equivalent fills the rest and wraps)
-    meta.lastElementChild.classList.add('accordion-timeline-meta-col-grow');
-    info.append(meta);
-  }
+  if (meta.children.length) info.append(meta);
   body.append(info);
   head.append(body);
   // the chevron is appended into `info` by the caller so it sits beside the meta grid
@@ -507,10 +506,7 @@ function decoratePathway(block) {
 
   const info = document.createElement('div');
   info.className = 'accordion-timeline-panel-info';
-  if (meta.children.length) {
-    meta.lastElementChild.classList.add('accordion-timeline-meta-col-grow');
-    info.append(meta);
-  }
+  if (meta.children.length) info.append(meta);
   body.append(info);
   head.append(body);
   header.append(head);

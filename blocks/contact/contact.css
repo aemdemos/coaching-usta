@@ -24,7 +24,10 @@
   background-color: var(--usta-lime);
   color: #000;
   border-radius: 20px;
-  padding: 12px 16px 35px;
+
+  /* source: 12px panel padding (36px from 1280); the cards column ends with a
+     22px (18 @768, 22 @1024, 27 @1280) bottom margin → 34 / 30 / 34 / 63 */
+  padding: 12px 16px 34px;
 }
 
 /* -------------------------------------------------------------------- intro */
@@ -45,7 +48,7 @@
 }
 
 .contact .contact-subtitle {
-  margin: 22px 0 0;
+  margin: 24px 0 0; /* source: the two text columns' 12px paddings */
   font-family: var(--body-font-family);
   font-weight: 400;
   font-size: 14px;
@@ -62,7 +65,7 @@
   padding: 8px 0;
   display: flex;
   flex-direction: column;
-  gap: 43px;
+  gap: 42px; /* source: 8px card insets + a 26px separator */
 }
 
 .contact .contact-card {
@@ -90,7 +93,7 @@
   font-weight: 400;
   font-size: 12px;
   line-height: 14.4px;
-  letter-spacing: -0.03em;
+  letter-spacing: normal;
   color: #000;
   text-align: left;
 }
@@ -133,7 +136,7 @@
 @media (width >= 768px) {
   .contact.block {
     width: calc(100% - 2 * 40px);
-    padding: 36px 12px 60px;
+    padding: 12px 12px 30px;
   }
 
   .contact .contact-intro {
@@ -151,7 +154,6 @@
   }
 
   .contact .contact-cards {
-    gap: 40px;
     padding: 8px 12px;
   }
 
@@ -171,9 +173,9 @@
     line-height: 19.2px;
   }
 
-  /* Source keeps a generous body→arrow gap (~48px). */
+  /* source: 12px column padding + a 26px separator + 12px → 50px body → arrow */
   .contact .contact-card-link {
-    margin-top: 48px;
+    margin-top: 50px;
   }
 }
 
@@ -181,6 +183,7 @@
 @media (width >= 1024px) {
   .contact.block {
     width: calc(100% - 2 * 48px);
+    padding-bottom: 34px; /* source: 22px column margin @1024 */
   }
 
   .contact .contact-title {
@@ -193,6 +196,7 @@
 @media (width >= 1280px) {
   .contact.block {
     width: calc(100% - 2 * 64px);
+    padding: 36px 12px 63px;
     display: grid;
 
     /* Source columns butt together (no gap) — intro 537 / cards 751 of the

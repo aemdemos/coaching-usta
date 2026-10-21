@@ -291,7 +291,8 @@ function markNbsp(root, document) {
  *   - n blanks between paragraphs      → n - 1 kept (the padding supplies one);
  *   - leading/trailing blanks, blanks around a list → all kept;
  *   - a list that starts/ends its component → a blank line for the component edge
- *     (the list itself only carries its 18px margin; see news-article.css).
+ *     (the list itself only carries its 18px margin; see news-article.css) — none
+ *     after a list followed by a separator (the separator's gap covers that edge).
  * Kept blanks hold the nbsp sentinel so the converter doesn't drop them.
  */
 const isListEl = (e) => !!e && (e.tagName === 'UL' || e.tagName === 'OL');
@@ -331,7 +332,10 @@ function normalizeTextComponent(cmpEl, document) {
   const first = kids[content[0]];
   const last = kids[content[content.length - 1]];
   if (isListEl(first) && content[0] === 0) first.before(blankLine());
-  if (isListEl(last) && content[content.length - 1] === kids.length - 1) last.after(blankLine());
+  // …but not before a separator: its 12 + 42 + 12 already holds that component edge
+  const nextCmp = cmpEl.closest('.text')?.nextElementSibling;
+  if (isListEl(last) && content[content.length - 1] === kids.length - 1
+    && !nextCmp?.classList.contains('separator')) last.after(blankLine());
   wrapIndentedRuns(cmp, document);
 }
 

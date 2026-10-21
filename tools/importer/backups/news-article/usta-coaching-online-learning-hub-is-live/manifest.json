@@ -1,0 +1,8 @@
+{
+  "page": "usta-coaching-online-learning-hub-is-live",
+  "locales": ["en", "es"],
+  "date": "2026-10-19",
+  "importer": "import-news-article-v1.js",
+  "change": "no edge blank line after a list whose text component is followed by a separator (separator's 12+42+12 covers the edge)",
+  "verified": "list → 'The Coach's Edge' 84px = source @1024/1280/1440; images finalized via tools/assets/fetch-page-images.mjs (6 reused)"
+}

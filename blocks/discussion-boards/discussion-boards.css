@@ -76,14 +76,14 @@
   width: 280px;
   max-width: 100%;
   height: 56px; /* source CTA is 56px tall (14+14 padding + 28 content box) */
-  border: none;
+  border: 2px solid transparent;
   border-radius: 12px;
   padding: 14px 24px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 18px;
   font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 1px;
+  line-height: 18px;
+  letter-spacing: normal; /* source: the 1px sits on the button box; its text span resets it */
   text-align: center;
   background-color: var(--usta-lime);
   color: #000;
@@ -92,12 +92,14 @@
 /* ---- Cards ----
    Source cards column has 8px top padding; combined with the intro column's
    12px bottom padding this yields the 20px intro→first-card gap (NOT a margin).
-   Cards are separated by a 42px gap. */
+   Cards are separated by a 42px gap. The column ends with the source's bottom
+   margin: 24px (32px from 768). */
 .discussion-boards .discussion-boards-cards {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 42px;
+  margin-bottom: 24px;
   padding: 8px 0;
 }
 
@@ -136,12 +138,13 @@
   }
 
   /* Source column paddings at tablet: intro 12px, cards 8px 12px (h2 inset 24,
-     card h3 inset 16 = 12 col pad + 4 card pad). */
+     card text inset 16 = 4 card pad + 12 text-column pad). */
   .discussion-boards .discussion-boards-intro {
     padding: 12px;
   }
 
   .discussion-boards .discussion-boards-cards {
+    margin-bottom: 32px;
     padding: 8px 12px;
   }
 
@@ -151,11 +154,13 @@
   }
 
   .discussion-boards .discussion-boards-intro a.button {
-    width: fit-content; /* source CTA hugs its text at >=768 (≈120px), not full column */
+    width: fit-content; /* source CTA hugs its text at >=768, not full column … */
+    min-width: 120px; /* … but never narrower than 120 */
   }
 
+  /* bottom: the card's 16px + the source's 26px separator under the description */
   .discussion-boards .discussion-boards-card {
-    padding: 16px 4px;
+    padding: 16px 16px 42px; /* source: 4px card + 12px text-column insets */
   }
 
   .discussion-boards .discussion-boards-card h3 {
@@ -201,7 +206,7 @@
 
   .discussion-boards .discussion-boards-intro {
     flex: 0 0 41.667%; /* source left column 5/12 */
-    padding: 0 12px;
+    padding: 12px;
   }
 
   .discussion-boards .discussion-boards-intro p {
@@ -211,7 +216,7 @@
   .discussion-boards .discussion-boards-cards {
     flex: 0 0 58.333%; /* source right column 7/12 */
     margin-top: 0;
-    padding: 0 12px;
+    padding: 8px 12px; /* source: each card column's 8px 12px */
   }
 
   .discussion-boards .discussion-boards-card {

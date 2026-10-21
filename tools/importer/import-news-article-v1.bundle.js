@@ -565,7 +565,8 @@ var CustomImportScript = (() => {
     const first = kids[content[0]];
     const last = kids[content[content.length - 1]];
     if (isListEl(first) && content[0] === 0) first.before(blankLine());
-    if (isListEl(last) && content[content.length - 1] === kids.length - 1) last.after(blankLine());
+    const nextCmp = cmpEl.closest(".text")?.nextElementSibling;
+    if (isListEl(last) && content[content.length - 1] === kids.length - 1 && !nextCmp?.classList.contains("separator")) last.after(blankLine());
     wrapIndentedRuns(cmp, document);
   }
   function styleKey(p) {

@@ -14,6 +14,16 @@ main > .section.accordion-container > div {
   padding-inline: 16px;
 }
 
+/* the section heading sits 36px above the accordion at every width (source: the
+   heading component's 12px inset + a 24px gap) */
+main > .section.accordion-container > .default-content-wrapper:has(+ .accordion-wrapper) > :last-child {
+  margin-bottom: 0;
+}
+
+main > .section.accordion-container > .default-content-wrapper + .accordion-wrapper {
+  margin-top: 36px;
+}
+
 /* stack of pill cards, 24px apart */
 .accordion.block {
   display: flex;
@@ -21,21 +31,26 @@ main > .section.accordion-container > div {
   gap: 24px;
 }
 
-/* each item is a rounded card */
+/* default variant (source .cmp-accordion, measured 2026-10-19): items 36px apart on
+   phones (16px gap + 20px item margin), 16px from 768, 24px from 1280 */
+.accordion.accordion-default {
+  gap: 36px;
+}
+
+/* each item is a rounded card: content 24px in (1px border + 23px) */
 .accordion.accordion-default .accordion-item {
   box-sizing: border-box;
   border: 1px solid #fff;
   border-radius: 20px;
   background-color: #000;
-  padding: 24px;
+  padding: 23px;
 }
 
-/* open item: lime background, black text, no border (compensate the 1px with an
-   extra 1px padding so the content doesn't shift) */
+/* open item: lime background, black text, no visible border (the transparent 1px
+   keeps the content where it is) */
 .accordion.accordion-default .accordion-item[open] {
   border-color: transparent;
   background-color: var(--usta-lime);
-  padding: 25px;
 }
 
 .accordion.accordion-default .accordion-item[open] .accordion-item-label,
@@ -43,16 +58,17 @@ main > .section.accordion-container > div {
   color: #000;
 }
 
-/* label row */
+/* label row: a 48px row with the title centred (source header button) */
 .accordion.accordion-default .accordion-item-label {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 44px 0 0;
+  min-height: 48px;
+  padding: 0 48px 0 0; /* source: the title box stops 48px short of the row end */
   cursor: pointer;
   list-style: none;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-weight: 900;
+  font-weight: 400;
   font-size: 24px;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -61,6 +77,10 @@ main > .section.accordion-container > div {
 
 .accordion.accordion-default .accordion-item-label::-webkit-details-marker {
   display: none;
+}
+
+.accordion.accordion-default .accordion-item-label p {
+  margin: 0;
 }
 
 /* +/- toggle: horizontal bar always, vertical bar only when closed */
@@ -89,7 +109,7 @@ main > .section.accordion-container > div {
    the FULL card width (no toggle-column reserve) so the text flows below the
    +/- glyph — matching the source. */
 .accordion.accordion-default .accordion-item-body {
-  padding: 16px 0 0;
+  padding: 10px 0 0; /* source: copy 10px under the 48px header row */
 }
 
 .accordion.accordion-default .accordion-item-body p {
@@ -123,9 +143,11 @@ main > .section.accordion-container > div {
 
 /* panel header wrapper: holds the head (badge + text/meta). The chevron is NOT
    here — it lives in the `__info` row beside the meta grid (see below) so it
-   centres on the META block, matching the source, not the whole tall header. */
+   centres on the META block, matching the source, not the whole tall header.
+   Inset = the source `.v-classification-accordion-content`: 0 8px 32px on phones,
+   0 12px 32px on tablet, 0 12px 12px once the badge sits beside the text (≥1024). */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-label {
-  padding: 0 8px 16px;
+  padding: 0 8px 32px;
   cursor: pointer;
   list-style: none;
 }
@@ -142,7 +164,7 @@ main > .section.accordion-container > div {
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-info {
   display: flex;
   align-items: flex-end;
-  gap: 16px;
+  gap: 0; /* source: the chevron sits flush beside the meta (12px at 768–1023) */
 }
 
 /* header content: badge logo stacked + CENTRED above the text below 1024 (source
@@ -154,7 +176,7 @@ main > .section.accordion-container > div {
   flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 21px; /* source phones: the badge's inline box (156 + 5) + 16px margin */
   min-width: 0;
 }
 
@@ -210,11 +232,10 @@ main > .section.accordion-container > div {
   min-width: 0;
 }
 
-/* the first two columns size to their content (short values stay one line);
-   the last column (Industry Equivalent) absorbs the remaining width and wraps
-   its long lines — matching the source grid proportions (~116/142/rest). */
+/* source: every column is content-sized and none grows (flex: 0 1 auto) — when
+   the values don't fit the row, the columns shrink in proportion and wrap */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-meta-col {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   min-width: 0;
 }
 
@@ -751,14 +772,26 @@ main > .section.accordion-container > div {
     font-size: 28px;
   }
 
-  /* timeline panel padding */
-  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel {
-    padding: 32px 12px 20px;
+  .accordion.accordion-default {
+    gap: 16px;
   }
 
-  /* right pad trimmed so the chevron sits ~17px from the panel edge (source) */
+  /* timeline panel padding — source: 16 4 4 (768) → 24 4 12 (1024) → 32 12 20 (1280) */
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel {
+    padding: 16px 4px 4px;
+  }
+
   :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-label {
-    padding: 0 4px 12px 12px;
+    padding: 0 12px 32px;
+  }
+
+  /* tablet: the text column starts right under the badge (source) */
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-head {
+    gap: 0;
+  }
+
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-info {
+    gap: 12px;
   }
 
   /* intro steps up to 18px */
@@ -770,10 +803,6 @@ main > .section.accordion-container > div {
   :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-meta {
     flex-direction: row;
     gap: 24px; /* source column gap */
-  }
-
-  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-meta-col-grow {
-    flex: 1 1 auto;
   }
 
   /* course cards line up equal-height with the always-visible description */
@@ -882,10 +911,6 @@ main > .section.accordion-container > div {
     padding-inline: 48px;
   }
 
-  /* accordion-default body copy steps up to 18px */
-  .accordion.accordion-default .accordion-item-body p {
-    font-size: 18px;
-  }
 
   /* meta grid runs flush to the chevron (no gap) so the meta keeps its full width
      and the Industry column is wide enough to hold "USTA Play Facilitator Workshop"
@@ -898,9 +923,18 @@ main > .section.accordion-container > div {
   /* header switches to badge-left / text-right (row). No gap between badge and
      text (the badge PNG carries its own internal padding); a gap here steals width
      from the meta grid and forces the Industry column to wrap early. */
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel {
+    padding: 24px 4px 12px;
+  }
+
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-label {
+    padding: 0 12px 12px;
+  }
+
+  /* badge vertically centred beside the text column (source align-items: center) */
   :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-head {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     gap: 0;
   }
 
@@ -947,9 +981,26 @@ main > .section.accordion-container > div {
     font-size: 32px;
   }
 
-  /* source widens the panel right gap to ~25px at the largest tier */
-  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-label {
-    padding: 12px;
+  .accordion.accordion-default {
+    gap: 24px;
+  }
+
+  /* accordion-default body copy steps up to 18px (source: from 1280) */
+  .accordion.accordion-default .accordion-item-body p {
+    font-size: 18px;
+  }
+
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel {
+    padding: 32px 12px 20px;
+  }
+
+  /* intro → meta 32px and 40px between the meta columns (source) */
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-intro {
+    margin-bottom: 32px;
+  }
+
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-meta {
+    gap: 40px;
   }
 
   /* badge widens from 300px to 365px */

@@ -94,6 +94,22 @@
   padding: 0;
 }
 
+/* default pills (source .cmp-navigation): on phones the row is a full-bleed
+   scroll strip (viewport edge to edge, first pill 24px in, 24px after the last);
+   from 768 the track sits in its column's 12px inset. Labels carry 10px of extra
+   right padding (source title span) and normal tracking; pills ≥120px on phones. */
+.tabs:not(.application) .tabs-list {
+  width: auto;
+  margin-inline: -16px;
+  padding-inline: 24px;
+}
+
+.tabs:not(.application) .tabs-list a.tabs-tab {
+  min-width: 120px;
+  padding: 19px 30px 19px 20px;
+  letter-spacing: normal;
+}
+
 .tabs .tabs-panel[aria-hidden='true'] {
   display: none;
 }
@@ -113,6 +129,13 @@
     flex: 1 1 0;
     background-color: transparent;
   }
+
+  .tabs:not(.application) .tabs-list {
+    margin-inline: 12px;
+    padding-inline: 0;
+  }
+
+  .tabs:not(.application) .tabs-list a.tabs-tab { min-width: 0; }
 }
 
 /* Application variant — "Tabs (application)": the 2-tab pill toggle over the

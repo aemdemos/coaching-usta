@@ -3934,3 +3934,107 @@ Source: the site-scope catalog (catalog/template-catalog.json, run 2026-10-04 �
 Blocks already built for landing pages: hero (video / content), columns (media, quote, feature,
 promo, text), cards (pricing, media, text, profile, comparison, course, logos, news, quote),
 accordion, banner, course-filter, form (subscribe, flag profile, gallagher disclaimer), tabs.
+
+### 2026-10-19 — heading / text / button spacing parity, block by block (all samples vs source)
+Customer ask: heading→text and above/below-button gaps must match the source at every
+breakpoint. Each block sample was measured against its live source page (text line boxes,
+CTA boxes, card/panel boxes) at 375/768/1024/1280/1440 and fixed to the source's own model
+(component paddings, separators, column insets) — not by nudging margins.
+- **IMPORTANT — measure in standards mode.** The local dev server serves pages WITHOUT a
+  `<!DOCTYPE html>` (document.compatMode = BackCompat); aem.page/aem.live add it. Quirks
+  mode drops the line-box strut for inline-only lines (e.g. the events "In-Person · address"
+  line measured 14px locally vs 20px published). All results below were re-verified with the
+  doctype injected (Playwright route); results unchanged except the events meta line,
+  which matches only in standards mode. Use the same injection for any future parity tooling.
+- **Source CTA text tracking is NORMAL**: the source's `letter-spacing: 1px` sits on the
+  button box; its inner `.button-core__text-content` resets it. Fixed (letter-spacing normal):
+  hero default + content, columns events "View More", columns text/promo "Register Now",
+  discussion-boards "Access". CTA sizes from source: hero-content min-width 280, 14px pad,
+  2px transparent border, text 14/16/18 (→768/1280); events View More 56px tall, 16/18/24
+  (→1024/1280), no caps; promo / text CTAs 14|16 → 16 → 18 or 24; Access min-width 120.
+- cards (profile): name letter-spacing normal + 24px right pad; role in a 50px row,
+  bottom-aligned (source) → bio starts at the same height in every card.
+- cards (comparison): panel at the component inset (24/52/60/76), panel padding 12px 8px
+  (12px ≥768) with 24px card gaps; 1024 columns 192/192/211/211 (source auto sizes); PER
+  YEAR pill 1px black border (20px); module rows fixed 24px (wrapped item overflows, as
+  source); coming-soon card rebuilt (bars 30% wide 52px under title, flame then band directly
+  under on phones, centred both axes in tall rows); equivalency strip 1px #a0a0a0 border,
+  18/24 normal tracking. All panel/card boxes now identical at every width.
+- cards (quote): cards 8px past the page gutter on phones; text columns 12px 8px (12 ≥768);
+  2px inset #808080 rule in a 4px separator; bottom pad 36/44/60 (source card = column
+  height + its own top margin). Sample lists Marc before Marti — source order is Miyako,
+  Marti, Marc (hand-made sample; the real page's importer keeps DOM order).
+- columns (profile): row inset 8/12px, photo = its 5/4/3-of-12 span − 24px; card padding
+  20px (16px sides on phones); name 32 until 1024; tags gap 8, padding 12 (12px 16px +
+  14px ≥1024); role/bio/tags pinned to the card bottom. The source's Andrea Perez row alone
+  is 12–32px taller (its grid sizing; Ian/Nancy rows have none) — not reproduced.
+- columns (text): heading → columns 66 (42px separator + paddings) at all widths, 24px
+  between stacked columns, columns → CTA 66; MENTOR/MENTEE 32px only from 1280.
+- columns (promo): panel inset 8/12px, content inset 24 (48px 24px ≥1280), title→CTA 24 on
+  phones, header row → details 24, meta → description two lines (38.4 / 43.2 ≥1280). The
+  source's 280px pill overflows its 3/12 column at 768–1279 (off-panel); ours stays inside.
+- columns (article, learning-hub): importer no longer adds the list-edge blank line when the
+  list's component is followed by a separator (list → "The Coach's Edge" 108 → 84 = source);
+  EN + ES re-imported, images finalized, backup tools/importer/backups/news-article/
+  usta-coaching-online-learning-hub-is-live/.
+- banner: NEW `centered` variant (source membership-benefits "More questions? Visit Coach
+  Care."): panel past the gutter by the column inset, padding 12px 16px → 12 → 36px 12px;
+  heading in the middle 2/3, Graphik Semibold 28 → 32 (1280); 56px CTA full-width on phones,
+  280 centred ≥768, text 14/16/18. Exact at all widths except 768 (source pill overflows its
+  1/3 column, 37px off-centre). `grant` variant still has no styles and its source is gone
+  (deadline passed; not on any page) — needs a reference before building.
+- hero (default): panel is content-height (no min-height): separators 8px (phones +18 above
+  heading and CTA) → 84 (1024) → 96 (1280) above / between / below; tablet hero 142px.
+- accordion (pathway + timeline, same source component): panel padding 16 8 8 → 16 4 4
+  (768) → 24 4 12 (1024) → 32 12 20 (1280); content inset 0 8 32 / 0 12 32 / 0 12 12; badge
+  centred beside the text ≥1024; intro → meta 32 at 1280; meta columns `flex: 0 1 auto`
+  (shrink together, none grows), gap 24 → 40 (1280); chevron flush (12px at 768).
+  Timeline sample rendered an EMPTY header (aem.js wrapped the picture-first cell in one
+  <p>): `unwrapCellParagraph` moved to scripts.js (shared by columns + accordion, now also
+  h4–h6/ol). The pathway sample's intro uses plain spaces where the source has &nbsp;
+  (wraps one line less at 1280) — sample content.
+- contact: subtitle 24 below the title, card body tracking normal, 42 between cards, body →
+  arrow 50 (≥768), panel 12px top (36 ≥1280) and bottom 34 / 30 / 34 / 63.
+- discussion-boards: card text inset 16 (≥768), card bottom +26 separator at 768–1279,
+  cards column 8px 12px at 1280 + bottom margin 24/32, intro 12px padding at 1280.
+- course-filter: block inset 8/12px; tab title→description 0 gap, line-height normal;
+  toggles 15|25 + label + 35|45; chip 46 (36 ≥768); card min-height 250/333/347 (source,
+  per load width), bottom pad +1 gap (empty buttons row), expand 40 on phones; description
+  18/21.6 ≥768 clamped at 150.72px; eyebrow 18px only ≥1280; Spanish courses "N módulos"
+  (LMS `language`). Card positions now identical at 375/768/1280. Not reproduced: the
+  source's uneven 457/435 columns at 1024 (auto-sized).
+- Verified unchanged/clean: cards-news + columns-events (source feeds changed — compared
+  by structure), home (0 gap drifts 768–1440 in standards mode).
+Gates: lint ✓ (0 errors; 8 pre-existing console warnings) · breakpoint ✓ · overflow ✓ (16
+pages, learning-hub passes on retry — LinkedIn iframe) · typography ✓ · a11y ✓ except the
+known intentional #0373F3 contrast finding on cards-comparison.
+
+### 2026-10-20 — full re-sweep of all 28 block samples (standards mode) + in-card check
+Re-ran the gap check on every block sample at 375/768/1024/1280/1440 with the local page in
+standards mode, then a new in-card check (each text's position/size relative to its own card,
+or to the block's first text where the source has no card box) — this catches panel/inset
+differences the gap check cannot see. Fixed (all now match the source at every width unless
+noted):
+- **Component inset pattern** (source panels/grids span their column incl. the column's own
+  8px / 12px-from-768 inset): columns text (panel margin −8/−12, padding 36 24 → 48 36 ≥768),
+  banner info (margin −8/−12; heading text cell padded 12px ≥768), columns feature (rebuilt on
+  the source model: panel −8/−12 with 24 16 / 36 24 padding, image + card columns 12px 8px /
+  12px, phone photo 311×249, card text inset 38·12·80 → 42·16·84 (≥768) → 50·16·92 (≥1280),
+  min-height hack removed), cards logos (grid −8/−12, 12px cells from 768), columns list (tiles
+  inset 8/12, 30 / 50px apart), tabs (phones: full-bleed scroll strip, first pill 24px in;
+  ≥768 track inset 12; labels +10px right padding, normal tracking, ≥120px on phones).
+- hero content: registration → "*Must be…" note is 18px at every width (source copy changed;
+  the old 66/42 included space that no longer exists).
+- columns list "Read Article": 2px solid black border, 50px tall.
+- course-filter: description paragraphs one blank line apart (1lh).
+- columns embed (samples only): list → heading 84px from 1024 (source separator).
+Not changed (verified artifacts or content): cards comparison / news / quote / events /
+profile / default hero (different cards paired, live feeds); course-filter card-to-card gaps
+(the source keeps its load-width min-height when resized); cards-course "2 Days" pill sits
+lower on the source because its description ends with one blank line (two in the tablet copy)
+— hand-made sample lacks it, the landing-page importer must keep blank lines; columns-text
+phone label 3 lines (source half-width label one-off); columns-list thumbnail width (source
+square flex-shrinks with title length, 211–231px); video consent link 4px narrower (source
+uses a button). No imported (non-draft) page uses any block changed today.
+Gates: lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (9 changed samples; embed passes on
+retry) · typography ✓ · a11y ✓.

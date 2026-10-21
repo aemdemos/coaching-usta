@@ -134,9 +134,14 @@ const FILTER_GROUPS = [
 
 const CHEVRON = '<svg viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.98542 4.74346L2.62146 11.1074L0.500141 8.9861L8.98542 0.500819L17.4707 8.9861L15.3494 11.1074L8.98542 4.74346Z" fill="currentColor"/></svg>';
 
-/** Module label suffix: "N modules" / "1 module" / "0 modules". */
-function moduleLabel(n) {
-  return `${n} ${n === 1 ? 'module' : 'modules'}`;
+// module-count label words by the course's language (LMS API `language`); the
+// source labels Spanish courses "N módulos"
+const MODULE_WORDS = { English: ['module', 'modules'], Spanish: ['módulo', 'módulos'] };
+
+/** Module label: "N modules" / "1 module" (Spanish courses: "N módulos"). */
+function moduleLabel(n, language) {
+  const [one, many] = MODULE_WORDS[language] || MODULE_WORDS.English;
+  return `${n} ${n === 1 ? one : many}`;
 }
 
 const clean = (arr) => (arr || []).filter((v) => v !== null && v !== undefined);
@@ -312,7 +317,7 @@ function buildCard(course) {
   // avoids a skipped heading level under the page's single <h1>.
   const eyebrow = document.createElement('span');
   eyebrow.className = 'course-filter-card-eyebrow';
-  eyebrow.textContent = moduleLabel(course.moduleCount);
+  eyebrow.textContent = moduleLabel(course.moduleCount, course.language);
 
   const name = document.createElement('span');
   name.className = 'course-filter-card-name';

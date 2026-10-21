@@ -1,0 +1,493 @@
+/* eslint-disable */
+/* global WebImporter */
+
+/**
+ * Importer — template `news-article` (catalog: 116 pages, en + es).
+ * Source: https://www.ustacoaching.com/{en,es}/home/news/*.html
+ *
+ * Output document:
+ *   section 1 (style: bordered) — the article frame: top image, H1, body copy,
+ *     text+image rows (Columns article, media-N), section headings, pull-quotes,
+ *     separators (Spacer 42px), Tags + Social row
+ *   section 2 — the featured tile: Fragment → /fragments/news/featured-article (the
+ *     shared tile), or the tile inline when it differs (the featured story); none on ES
+ *   Metadata — Title, Description, Tags (from the source meta keywords), Template: news-article,
+ *     Breadcrumb Title
+ * Not authored: the breadcrumb (auto-built from Breadcrumb Title + placeholders).
+ *
+ * Fragment mode: the same article URL with `#featured-fragment` emits ONLY the
+ * shared featured tile as `Columns (media, dark)` at /fragments/news/featured-article.
+ *
+ * All block selectors are stable AEM component / Vue widget classes (no hashes).
+ */
+
+import columnsArticleParser, { parsePersonText, parseGrid } from './parsers/news-columns-article.js';
+import quoteParser from './parsers/news-quote.js';
+import tagsSocialParser from './parsers/news-tags-social.js';
+import featuredParser, { buildFeaturedTile, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
+import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
+
+const TEMPLATE = 'news-article';
+
+/** in-article heading size classes → heading level (generic; see columns.css/styles.css) */
+const HEADING_SIZES = [
+  { re: /text--font-size--(40|48|56|64)px-/, tag: 'h2' },
+  { re: /text--font-size--32px-/, tag: 'h3' },
+];
+
+function el(document, tag, text) {
+  const e = document.createElement(tag);
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+/* a source container's authored top/bottom margin and vertical padding (other than a
+   pull-quote's own container and the footer row, which the template styles) → an
+   emergency Spacer. Heights per the source CSS (phone / tablet / desktop):
+   container--top-margin--32 24 / 32 / 32, --52 12 / 20 / 52; container--padding--12px-4px
+   0 / 4 / 12 above and below. */
+const CONTAINER_MARGINS = { 32: [24, 32, 32], 52: [12, 20, 52] };
+const CONTAINER_PADDINGS = { '12px-4px': [0, 4, 12] };
+function containerMarginSpacers(frame, document) {
+  frame.querySelectorAll('.container[class*="-margin--"], .container[class*="container--padding--"]').forEach((c) => {
+    if (c.querySelector('.tags, .socialmediasharing')) return;
+    // a column of a side-by-side flex row: the row block owns the spacing
+    if (c.parentElement && c.parentElement.closest('.container--display--flex-reset-grid')) return;
+    // a pull-quote's own container (quote + attribution only): the quote block's margins
+    const cols = c.querySelectorAll('.aem-GridColumn');
+    if (c.querySelector('.text--font-family--graphic-semibold') && cols.length <= 2 && !c.querySelector('.container')) return;
+    const pad = [...c.classList].map((k) => k.match(/^container--padding--(.+)$/)).find(Boolean);
+    const p = (pad && CONTAINER_PADDINGS[pad[1]]) || [0, 0, 0];
+    [['top', 'before'], ['bottom', 'after']].forEach(([side, where]) => {
+      const m = [...c.classList].map((k) => k.match(new RegExp(`^container--${side}-margin--(\\d+)$`))).find(Boolean);
+      const mg = (m && CONTAINER_MARGINS[m[1]]) || null;
+      if (!mg && !pad) return;
+      const h = [0, 1, 2].map((i) => (mg ? mg[i] : 0) + p[i]);
+      if (!h.some(Boolean)) return;
+      c[where](WebImporter.Blocks.createBlock(document, {
+        name: 'Spacer',
+        cells: [['desktop', `${h[2]}px`], ['tablet', `${h[1]}px`], ['mobile', `${h[0]}px`]],
+      }));
+    });
+  });
+}
+
+function spacer(document, px, variant) {
+  return WebImporter.Blocks.createBlock(document, {
+    name: variant ? `Spacer (${variant})` : 'Spacer',
+    cells: [['desktop', `${px}px`], ['mobile', `${px}px`]],
+  });
+}
+
+function metadata(document, frame) {
+  const meta = (sel) => document.querySelector(sel)?.getAttribute('content') || '';
+  const crumb = document.querySelector('.cmp-breadcrumb__item--active');
+  const cells = {
+    Title: document.title,
+    Description: meta('meta[name="description"]'),
+    // the source's meta keywords are its topic tags (shown by the Tags block)
+    Tags: meta('meta[name="keywords"]'),
+    Template: TEMPLATE,
+  };
+  const ogImage = meta('meta[property="og:image"]');
+  if (ogImage) {
+    const img = el(document, 'img');
+    img.src = ogImage;
+    cells.Image = img;
+  }
+  if (crumb) cells['Breadcrumb Title'] = crumb.textContent.trim();
+  Object.keys(cells).forEach((k) => { if (cells[k] === '') delete cells[k]; });
+  return WebImporter.Blocks.createBlock(document, { name: 'Metadata', cells });
+}
+
+/* headings typed straight into a plain text component (no size style) keep their own
+   source look: mapped one level down (h2 → h4, h3 → h5, h5 → h6) so they never collide
+   with the sized-style h2/h3 (see news-article.css) */
+const NATIVE_HEADINGS = { H2: 'h4', H3: 'h5', H5: 'h6' };
+function convertNativeHeadings(frame, document) {
+  frame.querySelectorAll('.text:not([class*="text--font-size--"]) > .cmp-text').forEach((cmp) => {
+    const heads = [...cmp.querySelectorAll('h2, h3, h5')];
+    const before = new Map(heads.map((h) => [h, h.previousElementSibling]));
+    heads.forEach((h) => {
+      const n = document.createElement(NATIVE_HEADINGS[h.tagName]);
+      // a blank heading line (<h2><b>&nbsp;</b></h2>) is one heading-size line: kept as
+      // the nbsp sentinel; normalizeTextComponent joins it with the heading below
+      if (!h.textContent.replace(/[\s\u00a0\uE000]/g, '')) {
+        // the first blank line straight after a paragraph is the paragraph's own gap
+        const prev = before.get(h);
+        if (prev && prev.tagName === 'P' && prev.textContent.replace(/[\s\u00a0\uE000]/g, '')) { h.remove(); return; }
+        n.textContent = NBSP_MARK;
+      } else n.append(...h.childNodes);
+      h.replaceWith(n);
+    });
+  });
+}
+
+/* an inline-coloured lime link (source <a style="color: rgb(207,255,5)">) → an italic
+   link (no other article link is italic; news-article.css paints it lime) */
+const LIME = /color:\s*(rgb\(\s*207\s*,\s*255\s*,\s*[0-9]\s*\)|#cfff0[0-9])/i;
+function markLimeLinks(frame, document) {
+  frame.querySelectorAll('.cmp-text a[style]').forEach((a) => {
+    if (!LIME.test(a.getAttribute('style')) || !a.textContent.trim() || a.querySelector('em, i')) return;
+    const em = document.createElement('em');
+    em.append(...a.childNodes);
+    a.append(em);
+  });
+}
+
+/* the source's text component styles that are not headings/quotes → `Text Style (…)`:
+   label (`label-style`), intro (semibold `24px-16px`, centred lead-in), center
+   (`cmp-text--alignment-center`); and an inline 25px paragraph → `Text Style (large)` */
+function textStyleBlocks(frame, document) {
+  const variantOf = (comp) => {
+    const c = comp.classList;
+    if (c.contains('label-style')) return 'label';
+    if (c.contains('text--font-size--24px-16px') && c.contains('text--font-family--graphic-semibold')) return 'intro';
+    if (c.contains('cmp-text--alignment-center') && ![...c].some((k) => k.startsWith('text--font-'))) return 'center';
+    return null;
+  };
+  frame.querySelectorAll('.aem-GridColumn.text').forEach((comp) => {
+    const variant = variantOf(comp);
+    const cmp = comp.querySelector('.cmp-text');
+    if (!variant || !cmp) return;
+    const kids = [...cmp.children].filter((e) => !e.classList.contains('cmp-text__icon'));
+    const filled = (e) => e.textContent.replace(/[\s\u00a0\uE000]/g, '') || e.querySelector('img');
+    if (!kids.some(filled)) return;
+    // blank lines are kept (one line of the style each), as the nbsp sentinel
+    const content = kids.map((e) => {
+      if (filled(e)) return e;
+      const b = document.createElement('p');
+      b.textContent = NBSP_MARK;
+      return b;
+    });
+    comp.replaceWith(WebImporter.Blocks.createBlock(document, { name: `Text Style (${variant})`, cells: [[content]] }));
+  });
+  frame.querySelectorAll('.cmp-text p[style]').forEach((p) => {
+    if (!/font-size:\s*25(\.0)?px/i.test(p.getAttribute('style'))) return;
+    const q = document.createElement('p');
+    q.append(...p.childNodes);
+    // copy typed directly under the large line (no blank line between) touches it on the
+    // source: it goes into the block as body copy
+    const touching = [];
+    for (let n = p.nextElementSibling; n && n.tagName === 'P' && !isBlankEl(n) && !styleKey(n); n = n.nextElementSibling) touching.push(n);
+    p.replaceWith(WebImporter.Blocks.createBlock(document, { name: 'Text Style (large)', cells: [[[q, ...touching]]] }));
+  });
+}
+
+/** convert the source's sized bold paragraphs into real headings */
+function convertHeadings(frame, document) {
+  frame.querySelectorAll('.text[class*="text--font-size--"]').forEach((comp) => {
+    if (comp.classList.contains('text--font-family--graphic-semibold')) return; // pull-quote
+    const level = HEADING_SIZES.find((h) => h.re.test(comp.className));
+    if (!level) return;
+    comp.querySelectorAll('p').forEach((p) => {
+      const text = p.textContent.trim();
+      if (!text) { p.remove(); return; }
+      const h = el(document, level.tag, text);
+      p.replaceWith(h);
+    });
+  });
+}
+
+/*
+ * Separator spacing. A source separator is 42px tall at every breakpoint (66px between
+ * content with the components' 12px paddings). The template adds that 42px itself where
+ * the source almost always has a separator (news-article.css, "section gaps"):
+ *   - a heading (h2/h3) right after text (p), a list or an article row;
+ *   - an article row right after text, a list or another article row.
+ * Measured on all 56 EN articles that rule matches 998 of 1,031 boundaries, so the
+ * importer only keeps what the rule can't infer:
+ *   - a separator where the rule already gives the gap → dropped;
+ *   - a separator the rule doesn't cover → kept as a 42px Spacer;
+ *   - no separator where the rule WOULD add a gap → an article row gets the `flush`
+ *     variant; a heading gets a 0px Spacer in front (the rule only fires on direct
+ *     neighbours).
+ * This mirrors the CSS rule exactly; keep both in sync.
+ */
+const blockName = (t) => (t.querySelector('tr > th, tr > td')?.textContent || '').trim();
+function unitKind(e) {
+  if (e.tagName === 'TABLE') {
+    const n = blockName(e);
+    if (/^Spacer/i.test(n)) return 'spacer';
+    // a person row brings its own divider band (columns.css): outside the gap rule
+    if (/^Columns \(person/i.test(n)) return 'person';
+    if (/^Columns \(article/i.test(n)) return 'row';
+    return 'block';
+  }
+  if (/^H[23]$/.test(e.tagName)) return 'heading';
+  if (e.tagName === 'UL' || e.tagName === 'OL') return 'list';
+  if (e.tagName === 'P' || e.tagName === 'IMG') return 'p';
+  return 'other';
+}
+const ruleGap = (prev, next) => !!prev && !!next
+  && (next === 'heading' || next === 'row') && ['p', 'list', 'row'].includes(prev);
+
+function applySectionGaps(out, document) {
+  // the frame's content in output order (nested layout divs are flattened by the converter)
+  const units = [...out.querySelectorAll('table, p, h1, h2, h3, h4, h5, h6, ul, ol, img')].filter((e) => {
+    if (e.parentElement.closest('table, p, ul, ol, h1, h2, h3, h4, h5, h6')) return false;
+    // paragraphs the converter drops (blank, unkept) are not neighbours
+    return !(e.tagName === 'P' && !e.querySelector('img, picture, iframe') && !e.textContent.trim());
+  });
+  const kinds = units.map(unitKind);
+  const source42 = (t) => t && /^Spacer$/i.test(blockName(t)) && /42px/.test(t.textContent);
+  units.forEach((u, i) => {
+    // the source's visible separator before a person row is the row's own divider
+    if (kinds[i] === 'spacer' && /^Spacer \(line\)$/i.test(blockName(u)) && kinds[i + 1] === 'person') {
+      u.remove();
+      return;
+    }
+    if (kinds[i] === 'spacer') {
+      if (source42(u) && ruleGap(kinds[i - 1], kinds[i + 1])) u.remove();
+      return;
+    }
+    if (i === 0 || kinds[i - 1] === 'spacer' || !ruleGap(kinds[i - 1], kinds[i])) return;
+    // no source separator here, but the rule would add one
+    if (kinds[i] === 'row') {
+      const th = u.querySelector('tr > th, tr > td');
+      th.textContent = th.textContent.trim().replace(/\)$/, ', flush)');
+    } else {
+      u.before(spacer(document, 0));
+    }
+  });
+}
+
+function pathOf(url) {
+  const raw = new URL(url).pathname.replace(/\/$/, '').replace(/\.html?$/, '');
+  return WebImporter.FileUtils.sanitizePath(raw === '' ? '/index' : raw);
+}
+
+/*
+ * Non-breaking spaces. The source copy uses them ("walk&nbsp; out", "done
+ * something.&nbsp; ”") and they change where lines wrap, but the converter's
+ * pipeline turns U+00A0 into a plain space (before the transform even runs) and
+ * then collapses it. So every nbsp is swapped for a private-use sentinel in the
+ * live page (onLoad), and the sentinel is swapped back to &nbsp; in the
+ * converter's HTML output (md2da).
+ */
+const NBSP_MARK = '\uE000';
+
+function markNbsp(root, document) {
+  const walker = document.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    // blank paragraphs (<p>&nbsp;</p>) stay blank here — normalizeTextComponent decides
+    // which survive — except inside list items: the source writes
+    // <li><p>text</p><p>&nbsp;</p></li> and that blank line is the item spacing
+    const block = n.parentElement && n.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6, div');
+    const keepBlank = !!block && block.tagName === 'P' && block.parentElement?.tagName === 'LI';
+    if (n.nodeValue.includes('\u00a0') && block && (block.textContent.trim() || keepBlank)) {
+      n.nodeValue = n.nodeValue.replace(/\u00a0/g, NBSP_MARK);
+    }
+  }
+}
+
+/*
+ * Paragraph spacing. In the source, paragraphs inside one text component touch
+ * (0 gap) unless the author typed blank lines (<p>&nbsp;</p>, 24px each), and the
+ * components' 12px paddings put 24px between components. The template pads every
+ * default-content element 12px instead (consecutive paragraphs 24px apart), so each
+ * component is rewritten to give the same result:
+ *   - no blank between two paragraphs → joined with a <br> (0 gap);
+ *   - n blanks between paragraphs      → n - 1 kept (the padding supplies one);
+ *   - leading/trailing blanks, blanks around a list → all kept;
+ *   - a list that starts/ends its component → a blank line for the component edge
+ *     (the list itself only carries its 18px margin; see news-article.css) — none
+ *     after a list followed by a separator (the separator's gap covers that edge).
+ * Kept blanks hold the nbsp sentinel so the converter doesn't drop them.
+ */
+const isListEl = (e) => !!e && (e.tagName === 'UL' || e.tagName === 'OL');
+const isBlankEl = (e) => e.tagName === 'P' && !e.querySelector('img, picture, iframe, video')
+  && !e.textContent.replace(/[\s\u00a0\uE000]/g, '');
+
+function normalizeTextComponent(cmpEl, document) {
+  // a text component with an icon image keeps its copy one level down
+  // (.cmp-text__image-and-paragraph > [image wrapper, copy])
+  const cmp = cmpEl.querySelector(':scope > .cmp-text__image-and-paragraph > div:not(.cmp-text__image-wrapper)') || cmpEl;
+  const kids = [...cmp.children].filter((e) => !e.classList.contains('cmp-text__icon'));
+  const content = kids.map((e, i) => (isBlankEl(e) ? -1 : i)).filter((i) => i >= 0);
+  if (!content.length) return;
+  const keep = (b) => { b.textContent = NBSP_MARK; };
+  const blankLine = () => { const b = document.createElement('p'); keep(b); return b; };
+  kids.slice(0, content[0]).forEach(keep);
+  kids.slice(content[content.length - 1] + 1).forEach(keep);
+  let prev = kids[content[0]];
+  for (let c = 1; c < content.length; c += 1) {
+    const next = kids[content[c]];
+    const blanks = kids.slice(content[c - 1] + 1, content[c]);
+    if (isListEl(prev) || isListEl(next)) {
+      blanks.forEach(keep);
+      prev = next;
+    } else if (!blanks.length && ((prev.tagName === 'P' && next.tagName === 'P' && !styleKey(prev) && !styleKey(next))
+      || (/^H[1-6]$/.test(prev.tagName) && prev.tagName === next.tagName))) {
+      // touching lines (no blank between) → one element, a <br> between (0 gap);
+      // two headings of the same level typed one under the other likewise
+      prev.append(document.createElement('br'), ...next.childNodes);
+      next.remove();
+    } else {
+      blanks.shift()?.remove();
+      blanks.forEach(keep);
+      prev = next;
+    }
+  }
+  const first = kids[content[0]];
+  const last = kids[content[content.length - 1]];
+  if (isListEl(first) && content[0] === 0) first.before(blankLine());
+  // …but not before a separator: its 12 + 42 + 12 already holds that component edge
+  const nextCmp = cmpEl.closest('.text')?.nextElementSibling;
+  if (isListEl(last) && content[content.length - 1] === kids.length - 1
+    && !nextCmp?.classList.contains('separator')) last.after(blankLine());
+  wrapIndentedRuns(cmp, document);
+}
+
+/* author inline styles that carry layout meaning: header lines (font-size) and
+   indented paragraphs (margin-left) */
+function styleKey(p) {
+  const st = (p.getAttribute && p.getAttribute('style')) || '';
+  return /font-size|margin-left/i.test(st) ? st : '';
+}
+const isIndented = (e) => !!e && e.tagName === 'P' && /margin-left:\s*[1-9]/i.test(e.getAttribute('style') || '');
+
+/* a run of indented paragraphs (source <p style="margin-left: 40px">, e.g. typed
+   "1. …" goals) → one <blockquote> (40px indent); blank lines inside the run go with it */
+function wrapIndentedRuns(cmp, document) {
+  let el = cmp.firstElementChild;
+  while (el) {
+    if (!isIndented(el)) { el = el.nextElementSibling; continue; }
+    const bq = document.createElement('blockquote');
+    el.before(bq);
+    let cur = el;
+    while (cur) {
+      const after = cur.nextElementSibling;
+      if (isIndented(cur)) { bq.append(cur); cur = after; continue; }
+      // a blank line belongs to the run only if more indented text follows it
+      let probe = cur;
+      while (probe && probe.tagName === 'P' && isBlankEl(probe) && !isIndented(probe)) probe = probe.nextElementSibling;
+      if (cur.tagName === 'P' && isBlankEl(cur) && isIndented(probe)) {
+        while (cur !== probe) { const n = cur.nextElementSibling; bq.append(cur); cur = n; }
+        continue;
+      }
+      break;
+    }
+    el = bq.nextElementSibling;
+  }
+}
+
+function restoreNbspInOutput() {
+  const W = window.WebImporter;
+  if (!W || typeof W.md2da !== 'function' || W.restoresNbsp) return;
+  // the library's exports are read-only getters, so wrap the whole global
+  const { md2da } = W;
+  window.WebImporter = {
+    ...W,
+    restoresNbsp: true,
+    md2da: (md, ...rest) => md2da(md, ...rest).split(NBSP_MARK).join('&nbsp;'),
+  };
+}
+
+export default {
+  onLoad: ({ document }) => {
+    markNbsp(document.body, document);
+    // the converter drops blank paragraphs before the transform runs; mark them now
+    // so normalizeTextComponent can see (and keep or drop) them. Only a blank holding a
+    // non-breaking space has height (one 24px line); a truly empty <p></p> renders 0px
+    // on the source, so it is removed.
+    document.querySelectorAll('.cmp-text p').forEach((p) => {
+      if (!isBlankEl(p)) return;
+      // <p><br><br></p> is two blank lines: one blank paragraph per line break
+      const lines = p.querySelectorAll('br').length;
+      if (/[\u00a0\uE000]/.test(p.textContent) || lines) {
+        p.textContent = NBSP_MARK;
+        for (let i = 1; i < lines; i += 1) {
+          const extra = document.createElement('p');
+          extra.textContent = NBSP_MARK;
+          p.after(extra);
+        }
+      } else p.remove();
+    });
+    // separator heights (42px almost everywhere; `--vertical-paddings--4px` +
+    // `--inner-margins--none` is 10px) — measured on the live page, used by the transform
+    document.querySelectorAll('.separator').forEach((sep) => {
+      const h = Math.round(sep.getBoundingClientRect().height);
+      if (h) sep.setAttribute('data-height', String(h));
+    });
+    restoreNbspInOutput();
+  },
+
+  transform: (payload) => {
+    const { document, params } = payload;
+    const url = params.originalURL;
+    const main = document.body;
+
+    cleanupTransformer('beforeTransform', main, payload);
+    // desktop-hidden responsive duplicates (import viewport is desktop)
+    main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
+
+    // ---- fragment mode: the shared featured tile only ----
+    if (new URL(url).hash === '#featured-fragment') {
+      const tile = main.querySelector('.aem-featured-article');
+      const out = document.createElement('div');
+      const block = tile && buildFeaturedTile(tile, document);
+      if (block) out.append(block);
+      WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
+      return [{ element: out, path: FEATURED_FRAGMENT_PATH, report: { template: `${TEMPLATE}:fragment` } }];
+    }
+
+    const frame = main.querySelector('.container.container--border--white > .cmp-container')
+      || main.querySelector('.container--border--white');
+    if (!frame) throw new Error('news-article frame (.container--border--white) not found');
+
+    containerMarginSpacers(frame, document);
+    convertHeadings(frame, document);
+    convertNativeHeadings(frame, document);
+    markLimeLinks(frame, document);
+    textStyleBlocks(frame, document);
+    frame.querySelectorAll('.text:not(.text--font-family--graphic-semibold) > .cmp-text')
+      .forEach((cmp) => normalizeTextComponent(cmp, document));
+
+    // pull-quotes (before rows, so a quote never becomes a column's text cell)
+    [...frame.querySelectorAll('.text.text--font-family--graphic-semibold')].forEach((q) => quoteParser(q, { document }));
+    // text + image rows (skip the top image: the first image component in the frame)
+    const images = [...frame.querySelectorAll('.aem-GridColumn.image')].filter((i) => i.querySelector('img'));
+    images.slice(1).forEach((i) => { if (i.parentElement) columnsArticleParser(i, { document }); });
+    // embedded posts beside text (same row contract; the photo cell holds the embed link)
+    [...frame.querySelectorAll('.aem-GridColumn.iframetext')].forEach((i) => columnsArticleParser(i, { document }));
+    // side-by-side grids: photos (galleries) and plain text columns (cards) without a partner
+    images.slice(1).forEach((i) => { if (i.parentElement) parseGrid(i, { document }); });
+    [...frame.querySelectorAll('.aem-GridColumn.text')].forEach((t) => { if (t.parentElement) parseGrid(t, { document }); });
+    [...frame.querySelectorAll('.aem-GridColumn.container')].forEach((c) => { if (c.isConnected && c.parentElement) parseGrid(c, { document }); });
+    // person headers without a photo (still plain text components after the rows step)
+    [...frame.querySelectorAll('.aem-GridColumn.text')].forEach((t) => parsePersonText(t, { document }));
+    // separators → 42px spacers (source .separator is 42px tall at every breakpoint)
+    // (a separator without the transparent border modifier draws a visible rule → Spacer (line))
+    frame.querySelectorAll('.separator').forEach((s) => s.replaceWith(spacer(document,
+      Number(s.getAttribute('data-height')) || 42,
+      s.classList.contains('separator--border-color--transparent') ? null : 'line')));
+    // tags + share row
+    const footerRow = frame.querySelector('.tags')?.closest('.container') || frame.querySelector('.socialmediasharing')?.closest('.container');
+    if (footerRow) tagsSocialParser(footerRow, { document });
+
+    // ---- assemble the document ----
+    const out = document.createElement('div');
+    out.append(...frame.childNodes);
+    applySectionGaps(out, document);
+    out.append(WebImporter.Blocks.createBlock(document, { name: 'Section Metadata', cells: { Style: 'bordered' } }));
+
+    // featured tile: shared fragment, inline tile, or nothing (see news-featured.js)
+    const featured = main.querySelector('.aem-featured-article');
+    if (featured) {
+      const holder = document.createElement('div');
+      holder.append(featured);
+      if (featuredParser(featured, { document })) out.append(document.createElement('hr'), holder);
+    }
+
+    out.append(metadata(document, frame));
+    cleanupTransformer('afterTransform', out, payload);
+    WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
+
+    return [{
+      element: out,
+      path: pathOf(url),
+      report: { title: document.title, template: TEMPLATE },
+    }];
+  },
+};

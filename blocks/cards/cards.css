@@ -63,10 +63,12 @@
   padding: 0;
 }
 
+/* each card sits 8px (12px from 768) inside its grid column — the source
+   components' inset — so cards are 24px apart and inset from the gutter */
 .cards.course > ul {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 8px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
@@ -98,7 +100,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 21px 21px 48px; /* source: 21px sides/top, larger bottom breathing room */
+  padding: 24px 16px 56px; /* source: text 30px under the photo, 17px / 21px in */
 }
 
 .cards.course .cards-course-body h1,
@@ -124,14 +126,14 @@
   color: #fff;
 }
 
-/* the blue duration pill — content-width, centered under the description.
-   Source: blue (#0373f3) fill, WHITE text, generous horizontal padding so the
-   pill reads ~150px for "3.5 Hours" (not hugging the text). */
+/* the blue duration pill, centered under the description: 8px padding, at least
+   4 of the card's 12 inner columns wide (source). */
 .cards.course .cards-course-body p.cards-course-duration {
   align-self: center;
   width: fit-content; /* pill sizes to text + padding, centered */
-  margin: 46px auto 0; /* desc→pill 46px; auto-inline centers the pill */
-  padding: 10px 42px;
+  min-width: calc((100% + 16px) / 3); /* source: 4 of the card's 12 inner columns */
+  margin: 38px auto 0; /* description → pill label 49px (source, no blank lines) */
+  padding: 8px;
   border-radius: 20px;
   background-color: var(--usta-blue-aa); /* AA-safe blue for white text (see styles.css) */
   color: #fff; /* source: white pill text */
@@ -147,7 +149,14 @@
 @media (width >= 768px) {
   .cards-container:has(.cards.course) { padding-inline: 40px; }
 
-  .cards.course > ul { grid-template-columns: repeat(2, 1fr); }
+  .cards.course > ul {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 12px;
+  }
+
+  .cards.course .cards-course-body { padding-inline: 20px; }
+
+  .cards.course .cards-course-body p.cards-course-duration { min-width: calc((100% + 24px) / 3); }
 }
 
 @media (width >= 1024px) {
@@ -491,18 +500,25 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.profile .cards-profile-name {
   margin: 0 0 24px;
   min-height: 53px;
+  padding-right: 24px; /* source: keeps the name clear of the + */
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 1;
+  letter-spacing: normal;
   color: #fff;
   transition: color 0.3s ease-in-out;
 }
 
 /* role / title — source: Graphik SEMIBOLD (weight 400), 16px (<=1023) -> 18px
    (>=1024), line-height 1.3, lime resting, mb 8; black on open. letter-spacing
-   normal (NOT the global -0.03em body tracking). */
+   normal (NOT the global -0.03em body tracking). The source sets the role in a
+   50px-tall row with the text at its bottom, so a one-line role sits 29px
+   lower than a two-line one and the bio starts at the same height in every card. */
 .cards.profile .cards-profile-role {
+  display: flex;
+  align-items: flex-end;
+  min-height: 50px;
   margin: 0 0 8px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
@@ -642,12 +658,13 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    "PER YEAR" pill + a 28px price, a checkmarked included-modules list, workshop
    cost lines, and a highlighted blue (#0373F3) TOTAL footer bar flush to the
    card's bottom edge. Coming-soon cards render a dimmed/disabled state. Below
-   1024 the row stacks to 1-up. Section gutters 16/40/48/64. */
+   1024 the row stacks to 1-up. Section gutters 16/40/48/64 plus the source
+   component's own 8px (12px from 768) inset → panel at 24/52/60/76. */
 .cards-container:has(.cards.comparison) {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
-  padding-inline: 16px;
+  padding-inline: 24px;
 }
 
 .cards-container:has(.cards.comparison) > .cards-wrapper {
@@ -663,7 +680,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   border: 1px solid #a0a0a0; /* source: grey panel has a 1px #a0a0a0 outline */
   border-radius: 20px;
   background-color: #2c2c2c;
-  padding: 12px;
+  padding: 12px 8px; /* source: each grid column's 12px 8px (12px from 768) inset */
 }
 
 .cards.comparison > ul {
@@ -786,12 +803,13 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
 /* blue "PER YEAR" pill (scoped under the body to outrank the generic p rule)
    source: 12px Graphik Regular, line-height 12px (1.0), letter-spacing -0.36px,
-   uppercase, pad 3px 9px, radius 20 */
+   uppercase, pad 3px 9px, 1px black border (20px tall), radius 20 */
 .cards.comparison .cards-comparison-body p.cards-comparison-peryear {
   align-self: flex-start;
   width: fit-content;
   margin: 0 0 16px; /* pill sits above the price inside the price-row */
   padding: 3px 9px;
+  border: 1px solid #000;
   border-radius: 20px;
   background-color: var(--usta-blue); /* source #0373F3 */
   color: #fff;
@@ -842,7 +860,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   display: flex;
   align-items: center;
   column-gap: 16px;
-  min-height: 24px;
+  height: 24px; /* source: fixed — a wrapped item (narrow 1024 cards) overflows its row, the list doesn't grow */
   padding: 0;
   font-size: 14px;
   line-height: 1.2;
@@ -923,7 +941,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   letter-spacing: -0.42px;
 }
 
-/* skeleton loader bars — the source draws 5 grey pill bars (74/248/248/248/74)
+/* skeleton loader bars — the source draws 5 grey pill bars (30%/full/full/full/30%)
    BELOW the "COMING" heading and ABOVE the flame. Attach them as the flame
    element's ::before so the flex order is heading → skeleton → flame (matching
    source), rather than a body::before which would sit above the heading. */
@@ -931,8 +949,6 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   content: "";
   display: block;
   height: 120px; /* source: 5 bars × 16 + 4 × 10 gaps (26px pitch) */
-  margin-top: 60px; /* source: 60px gap from the "COMING" heading to the skeleton */
-  margin-bottom: 180px; /* source: 180px gap from skeleton down to the flame graphic */
   background-image:
     linear-gradient(#484848 16px, transparent 0),
     linear-gradient(#484848 16px, transparent 0),
@@ -941,19 +957,27 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
     linear-gradient(#484848 16px, transparent 0);
   background-repeat: no-repeat;
 
-  /* source: bars 1 & 5 are 74px (bar 1 left, bar 5 RIGHT-aligned), bars 2-4 full width */
-  background-size: 74px 16px, 100% 16px, 100% 16px, 100% 16px, 74px 16px;
+  /* source: bars 1 & 5 are 30% wide (bar 1 left, bar 5 RIGHT-aligned), bars 2-4 full width */
+  background-size: 30% 16px, 100% 16px, 100% 16px, 100% 16px, 30% 16px;
   background-position: left 0, left 26px, left 52px, left 78px, right 104px;
   border-radius: 30px;
 }
 
-/* the flame graphic — source: CENTERED horizontally, sits in the mid-lower area
-   (the bottom band is what pins to the card bottom). Source dims the whole
-   coming-soon flame to ~0.2 opacity, so the lime reads as a muted olive. */
-.cards.comparison .cards-comparison-flame {
-  margin: 0 auto; /* centre the 161px flame in the card (source x≈77 each side) */
+/* the flame graphic — source: bars 52px under the title (price row 22 + 30),
+   the flame straight under the bars and the band straight under the flame when
+   the card is stacked; in a row of taller cards the flame centres (both axes)
+   in the space between the bars and the band. Source dims the whole coming-soon
+   flame to ~0.2 opacity, so the lime reads as a muted olive. */
+.cards.comparison .cards-comparison-body p.cards-comparison-flame {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  margin: 52px 0 0;
   line-height: 0;
-  text-align: center;
+}
+
+.cards.comparison .cards-comparison-flame picture {
+  margin: auto;
 }
 
 .cards.comparison .cards-comparison-flame img {
@@ -976,7 +1000,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   align-items: center;
   justify-content: center;
   min-height: 70px;
-  margin: auto -24px 0; /* auto top pins to the TOTAL-bar row; bleed sides; 24px below */
+  margin: 0 -24px; /* the flame above grows to pin this to the TOTAL-bar row; bleed sides */
   border: 1px solid #fff; /* source: full 1px white border (dimmed by the 0.2 opacity below) */
   background-color: #000; /* source: black band */
   opacity: 0.2; /* source: whole band dimmed to 20% → faint border + faint text */
@@ -998,8 +1022,9 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   align-items: center;
   justify-content: center;
   min-height: 74px;
-  margin: 12px -12px -12px;
+  margin: 12px -8px -12px;
   padding: 24px;
+  border: 1px solid #a0a0a0; /* source: the strip repeats the panel's outline */
   border-radius: 0 0 20px 20px;
   background-color: #545454;
   text-align: center;
@@ -1008,7 +1033,8 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.comparison .cards-comparison-equivalency p {
   margin: 0;
   font-size: 18px;
-  line-height: 1.3;
+  line-height: 24px;
+  letter-spacing: normal;
   color: #fff;
 }
 
@@ -1029,31 +1055,30 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   color: #fff;
 }
 
-/* tablet: 2×2. Source lays the pair on a 12-col grid where each card column
-   carries a 12px inner gutter on every edge, so the card content is 307px (not
-   the full half-panel). Reproduce that gutter with 12px ul padding-inline so the
-   cards wrap identically to source (→ active cards ~911px, not a wider ~875px). */
+/* tablet: 2×2. Source lays the cards on a grid whose columns carry a 12px
+   inset on every edge — 12px panel padding + 24px between cards. */
 @media (width >= 768px) {
-  .cards-container:has(.cards.comparison) { padding-inline: 40px; }
+  .cards-container:has(.cards.comparison) { padding-inline: 52px; }
 
-  .cards.comparison > ul {
-    grid-template-columns: repeat(2, 1fr);
-    padding-inline: 12px;
-  }
+  .cards.comparison { padding: 12px; }
+
+  .cards.comparison .cards-comparison-equivalency { margin-inline: -12px; }
+
+  .cards.comparison > ul { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* desktop: 4-up (columns fill the panel — drop the tablet gutter) */
+/* desktop: 4-up. At 1024–1279 the source's auto-sized columns come out
+   216/216/235/235 (the coming-soon pair is wider); equal from 1280. */
 @media (width >= 1024px) {
-  .cards-container:has(.cards.comparison) { padding-inline: 48px; }
+  .cards-container:has(.cards.comparison) { padding-inline: 60px; }
 
-  .cards.comparison > ul {
-    grid-template-columns: repeat(4, 1fr);
-    padding-inline: 0;
-  }
+  .cards.comparison > ul { grid-template-columns: 192fr 192fr 211fr 211fr; }
 }
 
 @media (width >= 1280px) {
-  .cards-container:has(.cards.comparison) { padding-inline: 64px; }
+  .cards-container:has(.cards.comparison) { padding-inline: 76px; }
+
+  .cards.comparison > ul { grid-template-columns: repeat(4, 1fr); }
 }
 
 /* ------------------------------------------------------------------- news --
@@ -1197,9 +1222,12 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* the "JOIN THE COMMUNITY" feature cards on the black section. Authored as ONE
    `cards (media)` block with three rows, so the three cards are the <li>s of the
    block's own <ul> — grid the <ul> to lay them out. Source layout by viewport:
-     - mobile  (<768): STACKED — image on top, text below.
-     - tablet  (768-1023): HORIZONTAL — image left (~213px), text right.
-     - desktop (>=1024): 3-up row, image on top, text below.
+     - mobile  (<768): STACKED — image on top (1.247:1), text below.
+     - tablet + small desktop (768-1279): HORIZONTAL — image left (213x223, then
+       293x257 from 1024), text right, top-aligned, 24px apart.
+     - desktop (>=1280): 3-up row, image on top, text below.
+   The text sits 12px in from its column on every side (the source text
+   components' inset) — source-measured 2026-10-19.
    Image: rounded 20px, object-fit cover at a FIXED ~1.42 aspect so all three
    images are the same height across the row (source: 421x297 desktop). Heading
    32px desktop / 28px tablet+mobile Graphik Semibold white; body 16/19.2 white.
@@ -1210,7 +1238,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 36px; /* phones: the text's 12px inset below + 24px (source); 24px from 768 */
   align-items: start;
 }
 
@@ -1227,7 +1255,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   width: 100%;
   height: auto;
   display: block;
-  aspect-ratio: 421 / 297; /* source ~1.42 — keeps all 3 images equal height */
+  aspect-ratio: 1.247; /* source phones; ~1.42 from 1280 — all 3 images equal height */
   object-fit: cover;
   object-position: 50% 0%; /* source crops from the TOP (not center) */
   border-radius: 20px;
@@ -1249,6 +1277,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   color: #fff;
   font-size: 16px;
   line-height: 1.2;
+}
+
+.cards.media .cards-media-body {
+  padding-inline: 12px;
 }
 
 /* the media block sits in a 1536-capped centered container with the site
@@ -1275,10 +1307,14 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
     padding-inline: 40px;
   }
 
+  .cards.media > ul {
+    gap: 24px;
+  }
+
   .cards.media .cards-media-card {
     flex-direction: row;
-    align-items: center;
-    gap: 36px;
+    align-items: flex-start;
+    gap: 24px;
   }
 
   .cards.media .cards-media-image {
@@ -1291,6 +1327,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
   .cards.media .cards-media-body {
     flex: 1;
+    padding: 12px;
   }
 
   .cards.media .cards-media-card h3 {
@@ -1298,12 +1335,22 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   }
 }
 
-/* desktop (>=1024): a 3-up row of stacked (image-top) cards. */
 @media (width >= 1024px) {
   .cards-container:has(.cards.media) {
     padding-inline: 48px;
   }
 
+  .cards.media .cards-media-image {
+    flex-basis: 293px;
+  }
+
+  .cards.media .cards-media-image img {
+    aspect-ratio: 293 / 257; /* source small-desktop image box */
+  }
+}
+
+/* desktop (>=1280): a 3-up row of stacked (image-top) cards. */
+@media (width >= 1280px) {
   .cards.media > ul {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -1322,13 +1369,15 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
     aspect-ratio: 421 / 297;
   }
 
+  .cards.media .cards-media-body {
+    padding: 0 12px;
+  }
+
   .cards.media .cards-media-card h3 {
     margin: 36px 0 0;
     font-size: 32px; /* desktop heading */
   }
-}
 
-@media (width >= 1280px) {
   .cards-container:has(.cards.media) {
     padding-inline: 64px;
   }
@@ -1412,14 +1461,15 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
 }
 
-/* the price line (Free / $49/year) — larger Graphik Semibold, with the source's
-   15px gap above (from the intro) and 27px below (to the list). Scoped under the
-   card so it outranks the generic `.cards-pricing-card p` (16px) rule. */
+/* the price line (Free / $49/year) — larger Graphik Semibold on a `normal` line
+   (source: a 28px line box of 26px), 12px below the intro and 24px above the list
+   (source-measured @375–1440). Scoped under the card so it outranks the generic
+   `.cards-pricing-card p` (16px) rule. */
 .cards.pricing .cards-pricing-card p.cards-pricing-price {
-  margin: 15px 0 27px;
+  margin: 12px 0 24px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 28px;
-  line-height: 1;
+  line-height: normal;
 }
 
 .cards.pricing .cards-pricing-features {
@@ -1461,6 +1511,8 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   margin-top: auto;
 }
 
+/* source button: 16px 24px padding on a `normal` line — 16px label (50px tall) on
+   phones, 18px (53px) from 768 */
 .cards.pricing .cards-pricing-cta a {
   display: inline-flex;
   align-items: center;
@@ -1469,9 +1521,9 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   padding: 16px 24px;
   border-radius: 12px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1;
+  line-height: 18px;
   letter-spacing: -0.03em;
   text-decoration: none;
   background-color: var(--usta-lime);
@@ -1561,6 +1613,11 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
     width: auto; /* content-width pill on tablet/desktop */
   }
 
+  .cards.pricing .cards-pricing-cta a {
+    font-size: 18px;
+    line-height: 21px;
+  }
+
   .cards-container:has(.cards.pricing) {
     padding-inline: 40px;
   }
@@ -1619,7 +1676,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
 .cards.logos > ul {
   list-style: none;
-  margin: 0;
+  margin: 0 -8px; /* source: the grid spans its column incl. the 8px (12px ≥768) inset */
   padding: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1665,6 +1722,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   .cards-container:has(.cards.logos) {
     padding-inline: 40px;
   }
+
+  .cards.logos > ul { margin-inline: -12px; }
+
+  .cards.logos .cards-logo-card { padding: 12px; }
 }
 
 @media (width >= 1024px) {
@@ -1672,12 +1733,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
     padding-inline: 48px;
   }
 
-  /* at desktop the source shrinks the logo square to 65% of its cell, with
-     12px cell padding */
-  .cards.logos .cards-logo-card {
-    padding: 12px;
-  }
-
+  /* at desktop the source shrinks the logo square to 65% of its cell */
   .cards.logos .cards-logo-card > a,
   .cards.logos .cards-logo-card > picture {
     width: 65%;
@@ -1709,9 +1765,11 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   padding: 0;
 }
 
+/* phones: the source's "small outer gutter" cards sit 8px from the viewport
+   (not the 16px page gutter) */
 .cards.quote > ul {
   list-style: none;
-  margin: 0;
+  margin: 0 -8px;
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
@@ -1725,20 +1783,21 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   flex-direction: column;
   box-sizing: border-box;
 
-  /* 24px top/sides; the source card reserves extra space below the attribution
-     (its grid row stretches ~32px past the content), so bottom is 56px */
-  padding: 24px 24px 56px;
+  /* 24px all round, but the source card is its column's full height PLUS its
+     own top margin (12 / 20 @1024 / 36 @1280), so that much extra space shows
+     below the attribution */
+  padding: 24px 24px 36px;
   border: 1px solid #a0a0a0;
   border-radius: 20px;
   background: #2a2a2a;
 }
 
-/* the source nests the text inside an inner wrapper with 12px side padding, so
-   the quote + attribution sit inset 12px from the card content box while the
+/* the source nests each text in a grid column padded 12px 8px (12px from 768),
+   so the quote + attribution sit inset from the card content box while the
    divider spans full width. Reproduce that inset on the text blocks only. */
 .cards.quote .cards-quote-text,
 .cards.quote .cards-quote-attribution {
-  padding-inline: 12px;
+  padding: 12px 8px;
 }
 
 /* quote — Graphik Regular 16/24 white, ITALIC (source wraps the quote in an <i>,
@@ -1754,13 +1813,14 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   color: #fff;
 }
 
-/* full-width divider (spans the card content box), 16px above and below (source) */
+/* full-width divider (spans the card content box) — source: a 2px inset grey
+   rule (the browser-default <hr> look) in a separator with 4px vertical padding */
 .cards.quote .cards-quote-divider {
   width: 100%;
   height: 0;
-  margin: 16px 0;
+  margin: 4px 0;
   border: 0;
-  border-top: 1px solid #808080;
+  border-block: 1px inset #808080;
 }
 
 /* attribution: name (white) directly above role/org (light blue) — 16/24 */
@@ -1788,15 +1848,23 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   .cards.quote > ul {
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+    margin-inline: 0;
   }
+
+  .cards.quote .cards-quote-text,
+  .cards.quote .cards-quote-attribution { padding: 12px; }
 }
 
 @media (width >= 1024px) {
   .cards-container:has(.cards.quote) { padding-inline: 48px; }
+
+  .cards.quote .cards-quote-card { padding-bottom: 44px; }
 }
 
 @media (width >= 1280px) {
   .cards-container:has(.cards.quote) { padding-inline: 64px; }
+
+  .cards.quote .cards-quote-card { padding-bottom: 60px; }
 }
 
 /* every cards variant gives its SECTION the site gutter (16/40/48/64): the section's

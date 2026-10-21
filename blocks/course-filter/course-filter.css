@@ -12,10 +12,12 @@
 
 /* stylelint-disable no-descending-specificity */
 
+/* the source list sits in its grid column's inset: 8px (12px from 768) */
 .course-filter {
   --cf-dark-panel: var(--usta-dark-panel);
 
   display: block;
+  margin-inline: 8px;
 }
 
 /* Section container: align to the site content grid (1536 cap, gutters). */
@@ -72,14 +74,14 @@ main > .section.course-filter-container > div {
   font-family: "Graphik Regular", tahoma, sans-serif;
   font-weight: 700;
   font-size: 14px;
-  line-height: 1.2;
+  line-height: normal;
 }
 
 .course-filter-tab-description {
   font-family: "Graphik Regular", tahoma, sans-serif;
   font-weight: 400;
   font-size: 12px;
-  line-height: 1.2;
+  line-height: normal;
   display: none;
 }
 
@@ -100,11 +102,14 @@ main > .section.course-filter-container > div {
   position: relative;
 }
 
+/* phones (source): the toggle row keeps 8px below it and the chip row 8px + 3px
+   above it, so the chips start 35px under the toggles */
 .course-filter-bar-left,
 .course-filter-bar-right {
   flex: 0 1 auto;
   display: flex;
   align-items: center;
+  margin-bottom: 8px;
 }
 
 .course-filter-chips {
@@ -114,14 +119,18 @@ main > .section.course-filter-container > div {
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
+  margin-top: 8px;
+  padding-top: 3px;
 }
 
+/* source: label text, then the chevron 12px after it; the sort value follows
+   its label after a plain space */
 .course-filter-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 0;
   height: 40px;
-  padding: 0 15px;
+  padding: 0 9px 0 15px; /* source: 15 + label + 35 (chevron incl.) */
   border: 0;
   border-radius: 12px;
   background: #fff;
@@ -134,8 +143,11 @@ main > .section.course-filter-container > div {
 .course-filter-toggle svg {
   width: 14px;
   height: 10px;
+  margin-left: 12px;
   transition: transform 0.2s ease;
 }
+
+.course-filter-sort-value { margin-left: 0.25em; }
 
 /* Filter By chevron points up (open affordance); Sort points down. */
 .course-filter-toggle-filter svg { transform: rotate(0deg); }
@@ -156,9 +168,11 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-chip {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  height: 46px; /* source: 46 on phones, 36 from 768 */
   padding: 12px 16px;
   border: 1px solid #fff;
   border-radius: 12px;
@@ -329,10 +343,14 @@ main > .section.course-filter-container > div {
   gap: 16px; /* source: 16px at every breakpoint */
 }
 
+/* card min-height (source): none on phones, 250 (768) → 333 (1024) → 347 (1280).
+   The source card ends with an (empty) buttons row, so one more card gap sits
+   below the content: bottom padding 16 + 16 (24 + 24 from 768). */
 .course-filter-card {
+  box-sizing: border-box;
   background: #fff;
   border-radius: 20px;
-  padding: 16px;
+  padding: 16px 16px 32px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -416,7 +434,7 @@ main > .section.course-filter-container > div {
    the last line in half. 8 lines ≈ the source's measured height. */
 .course-filter-card-description.is-clamped {
   position: relative;
-  max-height: 8lh;
+  max-height: 150.72px; /* source cap: 7 lines of 18/21.6 (incl. the 20px top pad) */
   overflow: hidden;
 }
 
@@ -433,7 +451,7 @@ main > .section.course-filter-container > div {
   padding-left: 8px;
 }
 
-.course-filter-card-description p { margin: 0 0 8px; }
+.course-filter-card-description p { margin: 0 0 1lh; } /* source: one blank line between paragraphs */
 .course-filter-card-description p:last-child { margin-bottom: 0; }
 
 /* Description links render slightly LARGER than the body copy (source quirk):
@@ -447,8 +465,8 @@ main > .section.course-filter-container > div {
 
 .course-filter-card-expand {
   flex: 0 0 auto;
-  width: 48px;
-  height: 48px;
+  width: 40px; /* source: 40 on phones, 48 from 768 */
+  height: 40px;
   padding: 0;
   border: 2px solid #000;
   border-radius: 12px;
@@ -579,15 +597,17 @@ main > .section.course-filter-container > div {
 
   .course-filter-tabs-row { gap: 16px; }
 
+  .course-filter { margin-inline: 12px; }
+
   .course-filter-tab {
     height: 100px;
-    gap: 8px;
+    gap: 0;
   }
 
   .course-filter-tab-title { font-size: 12px; }
   .course-filter-tab-description { display: block; }
 
-  .course-filter-toggle { padding: 0 25px; }
+  .course-filter-toggle { padding: 0 19px 0 25px; } /* source: 25 + label + 45 (chevron incl.) */
 
   /* Chips become the flexible inline middle so all three groups share one row. */
   .course-filter-bar { flex-wrap: nowrap; }
@@ -595,12 +615,24 @@ main > .section.course-filter-container > div {
   .course-filter-chips {
     order: 0;
     flex: 1 1 0;
+    margin-top: 0;
   }
 
   .course-filter-card {
-    padding: 24px;
+    min-height: 250px;
+    padding: 24px 24px 48px;
     gap: 24px;
   }
+
+  .course-filter-card-expand {
+    width: 48px;
+    height: 48px;
+  }
+
+  .course-filter-bar-left,
+  .course-filter-bar-right { margin-bottom: 0; }
+
+  .course-filter-chip { height: 36px; }
 
   .course-filter-card-content { gap: 24px; }
 
@@ -615,9 +647,12 @@ main > .section.course-filter-container > div {
     letter-spacing: -0.84px;
   }
 
-  /* At tablet+ the INLINE copy is always visible (beside the badge) at 16px; the
-     mobile full-width copy is hidden. */
-  .course-filter-card-description { font-size: 16px; }
+  /* At tablet+ the INLINE copy is always visible (beside the badge) at 18/21.6;
+     the mobile full-width copy is hidden. */
+  .course-filter-card-description {
+    font-size: 18px;
+    line-height: 21.6px;
+  }
 
   .course-filter-card-description-inline,
   .course-filter-card.is-expanded .course-filter-card-description-inline {
@@ -663,10 +698,7 @@ main > .section.course-filter-container > div {
 
   .course-filter-tab-title { font-size: 16px; }
 
-  .course-filter-card-eyebrow {
-    font-size: 18px;
-    letter-spacing: -0.54px;
-  }
+  .course-filter-card { min-height: 333px; }
 }
 
 @media (width >= 1280px) {
@@ -674,6 +706,13 @@ main > .section.course-filter-container > div {
 
   /* Full-size dark panel spacing at wide desktop (source: 100px). */
   .course-filter-tabs { margin-bottom: 100px; }
+
+  .course-filter-card { min-height: 347px; }
+
+  .course-filter-card-eyebrow {
+    font-size: 18px;
+    letter-spacing: -0.54px;
+  }
 
   /* Course name grows to 32px only at wide desktop (source: 28px @768–1279). */
   .course-filter-card-name {
