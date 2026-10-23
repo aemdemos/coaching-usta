@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/coach-mentorship.html",
+  "path": "en/home/coach-mentorship",
+  "timestamp": "2026-10-23T07:55:06.846Z",
+  "title": "Coach Mentorship",
+  "template": "landing-page",
+  "sections": "hero-content | columns-media-row | cards-media | heading | cards-icon | columns-text-plain | columns-text-panel | heading | columns-cta | heading | accordion | banner-centered"
+}

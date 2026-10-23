@@ -604,8 +604,30 @@ function decorateDefault(block) {
   block.replaceChildren(ul);
 }
 
+/**
+ * icons — small-icon feature cards on the landing pages ("Benefits of Becoming a USTA
+ * Tennis Coaching Mentor", "Summit Benefits & Highlights"): dark rounded cards, each =
+ * a small icon, a bold title and a short description. One authored row per card, one
+ * cell: icon paragraph, title heading, description paragraph(s).
+ * @param {Element} block the cards block
+ */
+function decorateIcons(block) {
+  const ul = document.createElement('ul');
+  [...block.children].forEach((row) => {
+    const li = document.createElement('li');
+    li.className = 'cards-icons-card';
+    const cell = row.firstElementChild || row;
+    li.append(...cell.childNodes);
+    const iconP = [...li.children].find((e) => e.tagName === 'P' && e.querySelector('img, picture') && !e.textContent.trim());
+    if (iconP) iconP.className = 'cards-icons-image';
+    ul.append(li);
+  });
+  block.replaceChildren(ul);
+}
+
 export default function decorate(block) {
-  if (block.classList.contains('media')) decorateMedia(block);
+  if (block.classList.contains('icons')) decorateIcons(block);
+  else if (block.classList.contains('media')) decorateMedia(block);
   else if (block.classList.contains('logos')) decorateLogos(block);
   else if (block.classList.contains('pricing')) decoratePricing(block);
   else if (block.classList.contains('course')) decorateCourse(block);

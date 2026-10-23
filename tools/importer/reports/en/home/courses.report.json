@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/courses.html",
+  "path": "en/home/courses",
+  "timestamp": "2026-10-21T05:44:20.538Z",
+  "title": "Courses",
+  "template": "landing-page",
+  "sections": "columns-media-row | default | default | default | default"
+}

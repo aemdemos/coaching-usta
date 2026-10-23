@@ -1,0 +1,9 @@
+{
+  "page": "coach-mentorship",
+  "locales": ["en", "es"],
+  "date": "2026-10-21",
+  "importer": "import-landing-page-v1.js",
+  "blocks": "Hero (content) · Columns (media row) · Text Style (lead/subhead, center) · Cards (media, stacked) · Cards (icons) · Columns (checklist) · Columns (text) · Columns (cta) · Accordion (closed) · Banner (spotlight)",
+  "sectionStyles": "center · inset · inset-small · heading-narrow · bottom-27/32/36",
+  "verified": "text-anchor parity vs source at 375/768/1024/1280/1440: x positions and fonts match; residual vertical drift <= 12px (icon-card stack, media-row bottom); button-label gaps differ only by the source's inner span offset"
+}

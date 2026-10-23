@@ -1,0 +1,120 @@
+/* landing-page template (metadata `Template: landing-page`) — the source landing pages'
+   own component type styles (measured on coach-mentorship, coaching-community, …):
+   - section headings = the `text--font-size--40px-28px` USTA Sans style: 28 → 32 (768)
+     → 40 (1024), line-height 1 (h2);
+   - body copy = the plain text component: Graphik Regular 18/24, normal tracking, at
+     every width (not the home page's 16/19.2). */
+body.landing-page main :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) {
+  font-size: 28px;
+  line-height: 1;
+  overflow-wrap: break-word; /* a long Spanish word in a narrow heading wraps rather than overflowing at 360 */
+}
+
+body.landing-page main :is(.default-content-wrapper, .columns.cta, .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .photos)) p {
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+/* default content = a run of source text components, each padded 12px top and bottom:
+   24px between items, 12px above the first and below the last */
+body.landing-page main .default-content-wrapper {
+  padding-bottom: 12px;
+}
+
+body.landing-page main .default-content-wrapper > * {
+  margin: 24px 0 0;
+}
+
+body.landing-page main .default-content-wrapper > :first-child {
+  margin-top: 12px;
+}
+
+body.landing-page main .default-content-wrapper p.blank {
+  height: 24px;
+  margin: 0;
+}
+
+@media (width >= 768px) {
+  body.landing-page main :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) { font-size: 32px; }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) { font-size: 40px; }
+}
+
+/* section rhythm: the source's section containers (`container--top-margin--52` /
+   `--bottom-margin--52`) are 12 → 20 (768) → 36 (1024) → 52px (1280) above and below */
+body.landing-page main > .section { padding: 12px 0; }
+
+@media (width >= 768px) {
+  body.landing-page main > .section { padding: 20px 0; }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section { padding: 36px 0; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section { padding: 52px 0; }
+}
+
+/* the FAQ accordion is a component with the usual 12px inset above and below */
+body.landing-page main .accordion.accordion-default {
+  padding-block: 12px;
+}
+
+/* the hero sits right under the header's 24px nav strip (source) and the next section
+   follows the panel directly */
+body.landing-page main > .section:first-child {
+  padding: 24px 0 0;
+}
+
+/* text-style intros are text components: they span the column insets like the blocks */
+body.landing-page main .text-style.block {
+  margin-inline: -8px;
+}
+
+body.landing-page main > .section.cards-container > .text-style-wrapper {
+  max-width: none;
+  padding-inline: 0;
+}
+
+@media (width >= 768px) {
+  body.landing-page main .text-style.block { margin-inline: -12px; }
+}
+
+/* the source puts a 42px separator between a section's heading/intro and the block
+   that follows, and between a block and the copy/CTA after it (text-style intros sit
+   right under the heading, no separator; icon cards carry their own column spacing
+   instead) */
+body.landing-page main > .section > :is(.default-content-wrapper, .text-style-wrapper) + div:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons)),
+body.landing-page main > .section > div:not(.default-content-wrapper, .text-style-wrapper) + .default-content-wrapper {
+  margin-top: 42px;
+}
+
+/* the landing FAQ's item headers carry a 10px top margin after the first item (the
+   home page's don't) */
+body.landing-page .accordion.accordion-default .accordion-item + .accordion-item .accordion-item-label {
+  margin-top: 10px;
+}
+
+/* a narrow heading section (narrow-N, default content only) introduces the section
+   after it — on the source they are one section: no section gap between them, and the
+   usual 42px separator before the next block (not before a text-style intro or icon
+   cards, as within a section) */
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))):has(+ .section) {
+  padding-bottom: 0;
+}
+
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section {
+  padding-top: 0;
+}
+
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > :first-child:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons)) {
+  margin-top: 42px;
+}
+
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > .default-content-wrapper:first-child > :first-child {
+  margin-top: 24px;
+}

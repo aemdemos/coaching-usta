@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/es/home/coaching-community.html",
+  "path": "es/home/coaching-community",
+  "timestamp": "2026-10-23T07:55:31.496Z",
+  "title": "Comunidad de entrenadores | Entrenamiento de la USTA",
+  "template": "landing-page",
+  "sections": "hero-content | heading | columns-photos | columns-feature | columns-feature | columns-feature | heading | columns-photos | discussion-boards | heading | cards-quote | banner-centered"
+}

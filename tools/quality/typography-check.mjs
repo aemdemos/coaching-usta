@@ -97,13 +97,18 @@ const drifts = [];
 
 for (const u of urls) {
   for (const w of widths) {
-    const want = scale[w];
-    if (!want) continue;
+    if (!scale[w]) continue;
+    let want = scale[w];
     const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
     const page = await ctx.newPage();
     try {
       await page.goto(toUrl(u), { waitUntil: 'networkidle', timeout: 25000 });
       await page.waitForTimeout(300);
+      // a page template with its own source-measured scale (typography.json
+      // `templates.<body class>.scale`) overrides the site scale tag by tag
+      const bodyClasses = await page.evaluate(() => [...document.body.classList]);
+      const tpl = bodyClasses.find((c) => record.templates?.[c]);
+      if (tpl) want = { ...want, ...(record.templates[tpl].scale?.[w] || {}) };
       const got = await page.evaluate(measure, TAGS);
       for (const tag of TAGS) {
         if (!want[tag] || !got[tag]) continue;

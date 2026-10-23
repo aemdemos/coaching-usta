@@ -49,8 +49,8 @@ function decorateDefault(block) {
     // decorate accordion item
     const details = document.createElement('details');
     details.className = 'accordion-item';
-    // the first item is open by default (source)
-    if (i === 0) details.open = true;
+    // the first item is open by default (source) — `closed` opens none (FAQ lists)
+    if (i === 0 && !block.classList.contains('closed')) details.open = true;
     details.append(summary);
     if (body) details.append(body);
     row.replaceWith(details);

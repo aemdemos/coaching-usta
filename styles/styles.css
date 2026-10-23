@@ -267,20 +267,43 @@ button.button:disabled {
   pointer-events: none;
 }
 
+/* source CTAs (authored **bold** link = primary, *italic* link = secondary): a 56px
+   pill, 14px 24px padding, ≥280px wide, Graphik Semibold 16 → 18 (1024) → 24 (1280);
+   primary = lime with a black outline, secondary = white outline on the dark page */
+a.button.primary,
+a.button.secondary,
+button.button.primary,
+button.button.secondary {
+  min-width: 280px;
+  height: 56px;
+  padding: 14px 24px;
+  font-size: 16px;
+}
+
 a.button.primary,
 button.button.primary {
-  border-color: var(--text-color);
-  background-color: var(--text-color);
-  color: var(--background-color);
+  border-color: #000;
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+/* the source's lime CTAs (`button--width--padding-16-24`) only hold the 280px
+   minimum on phones; from 768 they fit their label. Secondary (outlined,
+   `button-core--large`) CTAs keep 280px at every width. */
+@media (width >= 768px) {
+  a.button.primary,
+  button.button.primary {
+    min-width: 0;
+  }
 }
 
 a.button.primary:hover,
 a.button.primary:focus-visible,
 button.button.primary:hover,
 button.button.primary:focus-visible {
-  border-color: var(--dark-color);
-  background-color: var(--dark-color);
-  color: var(--light-color);
+  border-color: #fff;
+  background-color: #fff;
+  color: #000;
 }
 
 a.button.primary[aria-disabled="true"],
@@ -296,9 +319,9 @@ button.button.primary:disabled:focus-visible {
 
 a.button.secondary,
 button.button.secondary {
-  border-color: var(--text-color);
+  border-color: #fff;
   background-color: transparent;
-  color: var(--text-color);
+  color: #fff;
 }
 
 a.button.secondary:hover,
@@ -752,4 +775,52 @@ main > .section.intro-text > .default-content-wrapper p:last-child {
   main > .section.intro-text > .default-content-wrapper p {
     font-size: 24px;
   }
+}
+
+/* source CTA type scale: 16 → 18 (1024) → 24 (1280) */
+@media (width >= 1024px) {
+  a.button.primary,
+  a.button.secondary,
+  button.button.primary,
+  button.button.secondary { font-size: 18px; }
+}
+
+@media (width >= 1280px) {
+  a.button.primary,
+  a.button.secondary,
+  button.button.primary,
+  button.button.secondary { font-size: 24px; }
+}
+
+/* ---- Narrow-N section (section-metadata style: narrow-N, N = 1…12) ----
+   Everything in the section sits on N of the 12 grid columns, centred, at EVERY width
+   (like Columns `media-N`). The grid spans the content box plus the 8px / 12px (768+)
+   column insets, so the content box is (grid × N / 12 − 2 insets), centred in the
+   1536px-capped container. scripts.js turns `narrow-N` into `--section-span: N` +
+   `.narrow-cols`. (Plain `narrow` is the home intro's desktop-only 10/12 — unchanged.)
+   Note: sections whose blocks pad the section itself (cards rows) keep their own width;
+   use it on heading/intro sections. */
+main > .section.narrow-cols {
+  --section-gutter: 16px;
+  --section-inset: 8px;
+}
+
+/* stylelint-disable-next-line no-descending-specificity -- unrelated to split's id-weighted reset */
+main > .section.narrow-cols > div:not(.full-width) {
+  padding-inline: calc(var(--section-gutter) + (min(100%, 1536px) - 2 * var(--section-gutter) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
+}
+
+@media (width >= 768px) {
+  main > .section.narrow-cols {
+    --section-gutter: 40px;
+    --section-inset: 12px;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.narrow-cols { --section-gutter: 48px; }
+}
+
+@media (width >= 1280px) {
+  main > .section.narrow-cols { --section-gutter: 64px; }
 }

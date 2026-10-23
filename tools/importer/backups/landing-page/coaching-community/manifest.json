@@ -1,0 +1,8 @@
+{
+  "page": "coaching-community",
+  "locales": ["en", "es"],
+  "date": "2026-10-21",
+  "importer": "import-landing-page-v1.js",
+  "blocks": "Hero (content, title) · Columns (feature, unframed) x2 · Columns (feature) · Columns (photos) x2 · Discussion Boards · Cards (quote, testimonial) · Banner (spotlight, narrow)",
+  "verified": "text-anchor parity at 375/768/1024/1280; residual: per-card separator variance in the testimonial cards (source authors each card differently, up to ~60px at 375)"
+}

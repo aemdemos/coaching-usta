@@ -135,7 +135,7 @@ export function fetchPlaceholders() {
  * Page templates with their own code: `templates/{name}/{name}.css|js`, picked
  * by the page metadata `Template` (aem.js already adds it as a body class).
  */
-const TEMPLATES = ['news-article'];
+const TEMPLATES = ['news-article', 'landing-page'];
 
 /**
  * Applies a Metadata block still sitting in main as <meta> tags. Delivered
@@ -169,8 +169,10 @@ function applyInlineMetadata(main) {
  * @param {Element} main The main element
  */
 async function loadTemplate(main) {
-  const template = toClassName(getMetadata('template'));
+  // the local preview can serve the authored key as-is ("Template"); aem.live lowercases it
+  const template = toClassName(getMetadata('template') || getMetadata('Template'));
   if (!TEMPLATES.includes(template)) return;
+  document.body.classList.add(template); // aem.js only adds it for the lowercase key
   try {
     const css = loadCSS(`${window.hlx.codeBasePath}/templates/${template}/${template}.css`);
     const mod = await import(`../templates/${template}/${template}.js`);
@@ -272,7 +274,15 @@ function decorateSectionMetadata(main) {
       if (!value) return;
       if (key === 'style') {
         value.split(',').map((s) => toClassName(s.trim())).filter(Boolean)
-          .forEach((s) => section.classList.add(s));
+          .forEach((s) => {
+            section.classList.add(s);
+            // `narrow-N`: the section's content on N of 12 grid columns (styles.css)
+            const span = Number((s.match(/^narrow-(\d+)$/) || [])[1]);
+            if (span >= 1 && span <= 12) {
+              section.style.setProperty('--section-span', span);
+              section.classList.add('narrow-cols');
+            }
+          });
       } else {
         section.dataset[toCamelCase(key)] = value;
       }

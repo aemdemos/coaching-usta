@@ -748,6 +748,36 @@ function decoratePromo(block) {
  *   | Columns (grid, tablet) |         |
  *   | photo                  | photo   |
  */
+/**
+ * checklist — rows of side-by-side diamond-bullet items ("How the Program Works").
+ * One authored row per visual row, one cell per item (a bold lead-in + copy); the
+ * diamond marker is CSS. Rows keep their alignment across the columns.
+ * @param {Element} block the columns block
+ */
+function decorateChecklist(block) {
+  [...block.children].forEach((row) => {
+    row.classList.add('columns-checklist-row');
+    [...row.children].forEach((cell) => cell.classList.add('columns-checklist-item'));
+  });
+}
+
+/**
+ * cta — two mirrored call-to-action columns ("Join the USTA Coaching Network today"):
+ * each cell = a title heading, a line of copy and a button. The first column is
+ * right-aligned (it faces the second), the second left-aligned; stacked on phones.
+ * @param {Element} block the columns block
+ */
+function decorateCta(block) {
+  [...block.children].forEach((row) => {
+    row.classList.add('columns-cta-row');
+    const cells = [...row.children];
+    cells.forEach((cell, i) => {
+      cell.classList.add('columns-cta-cell');
+      if (cells.length > 1 && i === 0) cell.classList.add('columns-cta-cell-end');
+    });
+  });
+}
+
 function decorateGrid(block) {
   [...block.firstElementChild.children].forEach((cell) => {
     cell.classList.add('columns-grid-item');
@@ -817,5 +847,7 @@ export default function decorate(block) {
   else if (block.classList.contains('text')) decorateText(block);
   else if (block.classList.contains('promo')) decoratePromo(block);
   else if (block.classList.contains('grid')) decorateGrid(block);
+  else if (block.classList.contains('checklist')) decorateChecklist(block);
+  else if (block.classList.contains('cta')) decorateCta(block);
   else decorateDefault(block);
 }

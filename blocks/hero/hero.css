@@ -272,6 +272,7 @@ main > .section.hero-container:has(.hero.content) > div {
    NOT uppercased in CSS (source text is authored in caps; tt:none). */
 .hero.content .hero-content h1 {
   margin: 0;
+  overflow-wrap: anywhere; /* a word longer than a phone line ("ENTRENADORES") wraps instead of running past the panel (the source clips it) */
   font-family: var(--heading-font-family);
   font-weight: 700;
   font-size: 32px;
@@ -314,15 +315,15 @@ main > .section.hero-container:has(.hero.content) > div {
    ("*Must be…") and the H1 are WIDER (right inset ~0). These widths drive the
    source's line wrapping, so match them per group. */
 .hero.content .hero-content h2,
-.hero.content .hero-content p:nth-of-type(1),
-.hero.content .hero-content p:nth-of-type(2) {
+.hero.content .hero-content > p:nth-of-type(1),
+.hero.content .hero-content > p:nth-of-type(2) {
   max-width: 81.5%;
 }
 
 /* Vertical rhythm: registration lines sit 24px below the intro; the eligibility
    note 66px below that (source @mobile, incl. its blank spacer line); CTA 36px. */
-.hero.content .hero-content p:nth-of-type(2) { margin-top: 24px; }
-.hero.content .hero-content p:nth-of-type(3) { margin-top: 18px; } /* registration → *must note: 18 at every width (source) */
+.hero.content .hero-content > p:nth-of-type(2) { margin-top: 24px; }
+.hero.content .hero-content > p:nth-of-type(3) { margin-top: 18px; } /* registration → *must note: 18 at every width (source) */
 
 .hero.content .hero-content .hero-cta-wrapper {
   display: flex;
@@ -336,7 +337,7 @@ main > .section.hero-container:has(.hero.content) > div {
    2px transparent border, at least 280px wide (source: 280×46 @mobile, 280×48
    @768, 285×50 @1280 where the text outgrows 280). Text 14/14 → 16/16 (768) →
    18/18 (1280), normal tracking. */
-.hero.content a.hero-cta:any-link {
+.hero.content :is(a.hero-cta, a.hero-cta-secondary):any-link {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -366,26 +367,56 @@ main > .section.hero-container:has(.hero.content) > div {
   outline-offset: 2px;
 }
 
-/* Secondary link (used when a page authors a 2nd CTA, e.g. "Find a Mentor"):
-   white underlined text. Kept for the block's authoring contract even though the
-   current live copy shows only the single primary CTA. */
+/* Secondary CTA (coach-mentorship "Current Participants Access Mentorship Platform
+   Here"): the same button outlined — black fill, 2px white border, white label.
+   Source: stacked 18px under the primary below 1024; from 1024 beside it, starting
+   on the panel's 5th grid column (4th from 1280). */
 .hero.content a.hero-cta-secondary:any-link {
+  border-color: #fff;
+  background: #000;
   color: #fff;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 20px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 .hero.content a.hero-cta-secondary:hover {
-  color: var(--usta-lime);
+  background: #fff;
+  color: #000;
 }
 
 .hero.content a.hero-cta-secondary:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
+}
+
+.hero.content .hero-content .hero-ctas {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch; /* the full content box, so the desktop column slot is a share of it */
+  align-items: flex-start;
+  gap: 18px;
+  margin: 36px 0 0;
+}
+
+.hero.content .hero-content .hero-ctas > .hero-cta-wrapper {
+  margin: 0;
+}
+
+@media (width >= 1024px) {
+  .hero.content .hero-content .hero-ctas {
+    flex-direction: row;
+    gap: 0;
+  }
+
+  /* the primary's slot runs to the 5th column: (5 − 1) / 12 of the panel, as a share
+     of the content box (11 / 12 of the panel) */
+  .hero.content .hero-content .hero-ctas > .hero-cta-wrapper:first-child {
+    flex: 0 0 calc(100% * 4 / 11);
+  }
+}
+
+@media (width >= 1280px) {
+  .hero.content .hero-content .hero-ctas > .hero-cta-wrapper:first-child {
+    flex-basis: calc(100% * 3 / 11);
+  }
 }
 
 /* tablet (>=768): gutter 28, top 9. Inline inset stays 8.3% of panel. */
@@ -401,7 +432,7 @@ main > .section.hero-container:has(.hero.content) > div {
   .hero.content .hero-content h2 { margin-top: 18px; }
 
 
-  .hero.content a.hero-cta:any-link {
+  .hero.content :is(a.hero-cta, a.hero-cta-secondary):any-link {
     font-size: 16px;
     line-height: 16px;
   }
@@ -432,10 +463,41 @@ main > .section.hero-container:has(.hero.content) > div {
 
   .hero.content .hero-content h2 { font-size: 32px; }
 
-  .hero.content a.hero-cta:any-link {
+  .hero.content :is(a.hero-cta, a.hero-cta-secondary):any-link {
     font-size: 18px;
     line-height: 18px;
   }
+}
+
+/* title: the content hero with just a title and an intro line, no CTA (landing
+   "COMMUNITY"). Source: the intro is a USTA Sans line at line-height 1 (28 → 32 @1280),
+   54px under the H1 on phones/tablets (36px from 1024), and the panel runs on
+   16px (phones/tablets) → 168px (1024) → 192px (1280) below it; the top inset is 26px
+   up to 1023 (the 1px frame adds 1). */
+.hero.content.title {
+  padding-bottom: 17px;
+}
+
+.hero.content.title .hero-content h2 {
+  margin-top: 54px;
+  max-width: 81.5%;
+  line-height: 1;
+}
+
+@media (width >= 768px) {
+  .hero.content.title { padding-block: 27px 17px; }
+
+  .hero.content.title .hero-content h2 { margin-top: 54px; }
+}
+
+@media (width >= 1024px) {
+  .hero.content.title { padding-block: 85px 169px; }
+
+  .hero.content.title .hero-content h2 { margin-top: 36px; }
+}
+
+@media (width >= 1280px) {
+  .hero.content.title { padding-block: 97px 193px; }
 }
 
 /* ------------------------------------------------------------------ video -- */

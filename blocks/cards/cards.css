@@ -11,7 +11,7 @@
    variant, so those variants never inherit the bordered base styles. */
 
 /* ---------------------------------------------------------------- default -- */
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote) > ul {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote, .icons) > ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -20,7 +20,7 @@
   gap: 24px;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote) > ul > li {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote, .icons) > ul > li {
   border: 1px solid #dadada;
   background-color: var(--background-color);
 }
@@ -33,7 +33,7 @@
   line-height: 0;
 }
 
-.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote) > ul > li img {
+.cards.block:not(.media, .pricing, .course, .text, .profile, .comparison, .news, .logos, .quote, .icons) > ul > li img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
@@ -1383,6 +1383,72 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   }
 }
 
+/* stacked: the landing pages' media cards (coach-mentorship "Benefits of the USTA
+   Coaching Network"): image-top cards, 1-up on phones and 3-up from 768 (no
+   horizontal tablet layout). Source: each card is a 4/12 column whose image, title
+   and copy components are padded 12px 8px (12px from 768), so the row spans the
+   column insets; image 20px radius at 287/230 (phones) → 3/2 (768–1279) → 2/1
+   (1280); title Graphik Semibold 28/28 → 32/32 (1280); copy Graphik Regular 18/24. */
+.cards.media.stacked > ul {
+  margin-inline: -8px;
+  gap: 0;
+}
+
+.cards.media.stacked .cards-media-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.cards.media.stacked .cards-media-image {
+  flex: none;
+  padding: 12px 8px;
+}
+
+.cards.media.stacked .cards-media-image img {
+  aspect-ratio: 287 / 230;
+  object-position: 50% 50%;
+}
+
+.cards.media.stacked .cards-media-body {
+  flex: none;
+  padding: 12px 8px;
+}
+
+.cards.media.stacked .cards-media-card h3 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 28px;
+  letter-spacing: normal;
+}
+
+.cards.media.stacked .cards-media-card p {
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+@media (width >= 768px) {
+  .cards.media.stacked > ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-inline: -12px;
+  }
+
+  .cards.media.stacked .cards-media-image,
+  .cards.media.stacked .cards-media-body { padding: 12px; }
+
+  .cards.media.stacked .cards-media-image img { aspect-ratio: 3 / 2; }
+}
+
+@media (width >= 1280px) {
+  .cards.media.stacked .cards-media-image img { aspect-ratio: 2 / 1; }
+
+  .cards.media.stacked .cards-media-card h3 {
+    font-size: 32px;
+    line-height: 32px;
+  }
+}
+
 /* ---------------------------------------------------------------- pricing -- */
 
 /* USTA membership tiers on the dark "PACKAGES" section. Source: black rounded
@@ -1867,6 +1933,47 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   .cards.quote .cards-quote-card { padding-bottom: 60px; }
 }
 
+/* testimonial: the landing "What Others Are Saying" cards (coaching-community).
+   Source: no border, Graphik Regular 18/24 italic quote; a tall gap (42 + 26px
+   separators plus a 96-type spacer: 8px → 84px @1024 → 96px @1280) before a 1px
+   #979797 rule inset like the text (8px / 12px from 768); then the name (bold) and
+   the role, both white 18/24. */
+.cards.quote.testimonial .cards-quote-card {
+  border: 0;
+}
+
+.cards.quote.testimonial .cards-quote-text p,
+.cards.quote.testimonial .cards-quote-attribution p {
+  font-size: 18px;
+}
+
+.cards.quote.testimonial .cards-quote-divider {
+  width: auto;
+  margin: 96px 8px 0;
+  border: 0;
+  border-top: 1px solid #979797;
+}
+
+.cards.quote.testimonial .cards-quote-name {
+  font-weight: 700;
+}
+
+.cards.quote.testimonial .cards-quote-role {
+  color: #fff;
+}
+
+@media (width >= 768px) {
+  .cards.quote.testimonial .cards-quote-divider { margin-inline: 12px; }
+}
+
+@media (width >= 1024px) {
+  .cards.quote.testimonial .cards-quote-divider { margin-top: 180px; }
+}
+
+@media (width >= 1280px) {
+  .cards.quote.testimonial .cards-quote-divider { margin-top: 200px; }
+}
+
 /* every cards variant gives its SECTION the site gutter (16/40/48/64): the section's
    default content (heading, intro) sits on that same box — no second gutter or cap.
    (course drops the section gutter at >=1280 for its narrow centred column — its
@@ -1882,4 +1989,115 @@ main > .section.cards-container > .default-content-wrapper {
     width: clamp(960px, calc(960px + (100vw - 1280px) * 0.831), 1173px);
     margin-inline: auto;
   }
+}
+
+/* ------------------------------------------------------------------ icons --
+   small-icon feature cards (landing pages: "Benefits of Becoming a USTA Tennis
+   Coaching Mentor", "Summit Benefits & Highlights"). Source: each card sits in a
+   column padded 8px 0 on phones (8px 12px from 768) → cards 24px apart, 1-up on
+   phones, 3-up from 768; the card is #2a2a2a, radius 20, padding 24, 12px top margin
+   (20 @1024, 36 @1280); inside, an icon (55px on phones → 49px (768) → 28px (1280)) in
+   a 12px 8px cell, then the copy cell (12px 8px): bold title + one blank line +
+   description, Graphik Regular 18/24. Cards in a row share the tallest height, and
+   (source quirk) each card is taller than its content by its own top margin, hanging
+   that far past its column — so the extra goes into the bottom padding and comes back
+   off the bottom margin. */
+
+/* the section gets the site gutter (16/40/48/64), like the other cards variants */
+.cards-container:has(.cards.icons) {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+.cards-container:has(.cards.icons) > .cards-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* phones: the cards span the column insets (8px past the content edges) */
+.cards.icons > ul {
+  list-style: none;
+  margin: 0 -8px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 24px;
+}
+
+.cards.icons .cards-icons-card {
+  box-sizing: border-box;
+  margin: 20px 0 -4px; /* column 8px + card 12px margin above; column 8px − 12px below */
+  border-radius: 20px;
+  background: #2a2a2a;
+  padding: 24px 24px 48px; /* 24 + the copy cell's 12px + the 12px top-margin quirk */
+  color: #fff;
+}
+
+.cards.icons .cards-icons-image {
+  margin: 0;
+  padding: 12px 8px;
+  line-height: 0;
+}
+
+.cards.icons .cards-icons-image img {
+  width: 55px;
+  height: auto;
+}
+
+.cards.icons .cards-icons-card :is(h2, h3, h4) {
+  margin: 0;
+  padding: 12px 8px 0;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.cards.icons .cards-icons-card p:not(.cards-icons-image) {
+  margin: 24px 0 0; /* the source's blank line between title and description */
+  padding: 0 8px;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+@media (width >= 768px) {
+  .cards-container:has(.cards.icons) { padding-inline: 40px; }
+
+  .cards.icons > ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-inline: 0;
+  }
+
+  .cards.icons .cards-icons-image,
+  .cards.icons .cards-icons-card :is(h2, h3, h4),
+  .cards.icons .cards-icons-card p:not(.cards-icons-image) { padding-inline: 12px; }
+
+  .cards.icons .cards-icons-image img { width: 49px; }
+}
+
+@media (width >= 1024px) {
+  .cards-container:has(.cards.icons) { padding-inline: 48px; }
+
+  .cards.icons .cards-icons-card {
+    margin: 28px 0 -12px;
+    padding-bottom: 56px;
+  }
+}
+
+@media (width >= 1280px) {
+  .cards-container:has(.cards.icons) { padding-inline: 64px; }
+
+  .cards.icons .cards-icons-card {
+    margin: 44px 0 -28px;
+    padding-bottom: 72px;
+  }
+
+  .cards.icons .cards-icons-image img { width: 28px; }
 }

@@ -14,39 +14,67 @@
    Each variant is authored as `columns (variant)`; selectors below are scoped
    by the variant class so they never leak across variants. */
 
-/* ---------------------------------------------------------------- default -- */
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div {
+/* ---------------------------------------------------------------- default --
+   a text column beside an image (landing "Why Tennis Coach Mentorship Matters").
+   Source: the row's grid sits 8px (12px from 768) past the content edges; the text
+   column is padded 4px (12px 4px from 1280) around 12px 8px components (12px from
+   768) — heading, a 42px separator, copy — and the image column 12px 8px (12px).
+   Stacked text-first on phones/tablets; side by side from 1024 (text 50% − 6px, image
+   50% + 6px, 20px radius), both vertically centred (source `container--align-items--center`). */
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) {
+  margin-inline: -8px;
+}
+
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div {
   display: flex;
   flex-direction: column;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) img {
-  width: 100%;
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div {
+  box-sizing: border-box;
+  padding: 12px;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > div {
-  order: 1;
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col {
+  padding: 12px 8px;
 }
 
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > .columns-img-col {
-  order: 0;
-}
-
-.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > .columns-img-col img {
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) img {
   display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div > :is(h2, h3) {
+  margin: 0 0 66px; /* 12px + 42px separator + 12px */
+}
+
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div > p {
+  margin: 0;
+}
+
+@media (width >= 768px) {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) { margin-inline: -12px; }
+
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div { padding: 16px; }
+
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col { padding: 12px; }
 }
 
 @media (width >= 1024px) {
-  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div {
+    flex-direction: row;
     align-items: center;
-    flex-direction: unset;
-    gap: 24px;
   }
 
-  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid) > div > div {
-    flex: 1;
-    order: unset;
-  }
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div { flex: 0 0 calc(50% - 6px); }
+
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col { flex: 0 0 calc(50% + 6px); }
+}
+
+@media (width >= 1280px) {
+  .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div { padding: 24px 16px; }
 }
 
 /* ------------------------------------------------------------------ media -- */
@@ -720,6 +748,33 @@ main > .section.columns-container:has(.columns.feature) > div {
   .columns.feature .columns-feature-card {
     padding: 50px 16px 92px;
   }
+}
+
+/* unframed: the same image + bordered card row with no dark panel around it
+   (landing "Serving All", "Aspiring Coaches"): the row spans the column insets, and
+   from 1024 the image sits vertically centred beside the card (source). */
+.columns.feature.unframed {
+  margin-inline: -8px;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+}
+
+.columns.feature.unframed .columns-feature-media {
+  padding: 12px 8px;
+}
+
+@media (width >= 768px) {
+  .columns.feature.unframed {
+    margin-inline: -12px;
+    padding: 0;
+  }
+
+  .columns.feature.unframed .columns-feature-media { padding: 12px; }
+}
+
+@media (width >= 1024px) {
+  .columns.feature.unframed .columns-feature-media { align-self: center; }
 }
 
 /* ------------------------------------------------------------------ quote -- */
@@ -2541,4 +2596,167 @@ main > .section.columns-container:has(.columns.promo) > div {
   .columns.grid:not(.mobile) .columns-grid-empty {
     display: block;
   }
+}
+
+/* -------------------------------------------------------------- checklist --
+   rows of side-by-side diamond-bullet items (landing "How the Program Works").
+   Source: each item is a 6/12 column padded 12px 8px (12px from 768) — two items
+   per row at every width — rows 10px apart (a 4px-padded separator); the item is a
+   17px green diamond (5px down, 10px gap) beside Graphik Regular 18/24 copy with a
+   bold lead-in (source marker: a #a4ee90 diamond). The columns span their insets, so
+   the block pulls out by them. */
+.columns.checklist {
+  margin-inline: -8px;
+}
+
+.columns.checklist .columns-checklist-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.columns.checklist .columns-checklist-row + .columns-checklist-row {
+  margin-top: 10px;
+}
+
+.columns.checklist .columns-checklist-item {
+  position: relative;
+  padding: 12px 8px 12px 35px; /* 8px inset + 17px diamond + 10px gap */
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+  text-align: left;
+}
+
+.columns.checklist .columns-checklist-item::before {
+  content: "";
+  position: absolute;
+  top: 17px; /* 12px inset + 5px */
+  left: 8px;
+  width: 17px;
+  height: 17px;
+  background: url("/icons/diamond-green.svg") center / contain no-repeat;
+}
+
+.columns.checklist .columns-checklist-item p { margin: 0; }
+
+@media (width >= 768px) {
+  .columns.checklist { margin-inline: -12px; }
+
+  .columns.checklist .columns-checklist-item { padding: 12px 12px 12px 39px; }
+
+  .columns.checklist .columns-checklist-item::before { left: 12px; }
+}
+
+/* -------------------------------------------------------------------- cta --
+   two mirrored call-to-action columns (landing "Join the USTA Coaching Network
+   today"). Source: each column is a 6/12 container padded 12px 8px (12px from 768)
+   holding three components padded the same — a Graphik Semibold title 28/28 →
+   32/32 (1280) on 4 of 6 columns, Graphik Regular 18/24 copy on 5 of 6, and the
+   56px pill. Stacked on phones (full-width title/copy); side by side from 768.
+   The first column hugs its right edge (right-aligned text and button). */
+.columns.cta {
+  margin-inline: -8px;
+}
+
+.columns.cta .columns-cta-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns.cta .columns-cta-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px 16px;
+  text-align: left;
+}
+
+.columns.cta .columns-cta-cell-end {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.columns.cta .columns-cta-cell > * { margin: 0; }
+
+.columns.cta .columns-cta-cell :is(h2, h3, h4) {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 28px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.columns.cta .columns-cta-cell p {
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+.columns.cta .columns-cta-cell .button-container {
+  display: flex;
+  max-width: 100%;
+}
+
+@media (width >= 768px) {
+  .columns.cta { margin-inline: -12px; }
+
+  .columns.cta .columns-cta-row { flex-direction: row; }
+
+  .columns.cta .columns-cta-cell {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 24px;
+  }
+
+  .columns.cta .columns-cta-cell :is(h2, h3, h4) { width: calc(100% * 4 / 6); }
+
+  .columns.cta .columns-cta-cell p:not(.button-container) { width: calc(100% * 5 / 6); }
+}
+
+@media (width >= 1280px) {
+  .columns.cta .columns-cta-cell :is(h2, h3, h4) {
+    font-size: 32px;
+    line-height: 32px;
+  }
+}
+
+/* ----------------------------------------------------------------- photos --
+   two photos side by side (landing "USTA Coaching Network" / "Fellowship Program"):
+   each a 6/12 column padded 12px 8px (12px from 768) — side by side at every width,
+   spanning the column insets — 20px radius at 5/4 (phones) → 3/2 (768) → 2/1 (1280). */
+.columns.photos {
+  margin-inline: -8px;
+}
+
+.columns.photos > div {
+  display: flex;
+}
+
+.columns.photos > div > div {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px 8px;
+}
+
+.columns.photos img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+@media (width >= 768px) {
+  .columns.photos { margin-inline: -12px; }
+
+  .columns.photos > div > div { padding: 12px; }
+
+  .columns.photos img { aspect-ratio: 3 / 2; }
+}
+
+@media (width >= 1280px) {
+  .columns.photos img { aspect-ratio: 2 / 1; }
 }

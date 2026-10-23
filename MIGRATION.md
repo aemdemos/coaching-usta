@@ -4038,3 +4038,129 @@ square flex-shrinks with title length, 211–231px); video consent link 4px narr
 uses a button). No imported (non-draft) page uses any block changed today.
 Gates: lint ✓ (0 errors) · breakpoint ✓ · overflow ✓ (9 changed samples; embed passes on
 retry) · typography ✓ · a11y ✓.
+
+### 2026-10-21 — banner-centered sample regenerated from its real source
+The sample's "Source: home.html" was stale: the "More questions? Visit Coach Care." band is on
+membership-benefits and learning-pathway (EN + ES) only (scan of all 218 catalogued source
+URLs); the home page has none. New importer `tools/importer/import-sample-banner-centered.js`
+(+ bundle; backup tools/importer/backups/block-sample/banner-centered/) reads the heading,
+CTA label and link from membership-benefits → the sample now carries the source content
+("GET HELP" → https://coachcare.usta.com/hc/en-us; was "Get Help" → membership-benefits) and
+notes that the source uses the blue colourway. Blue instance verified = source at all widths.
+lint ✓ (0 errors) · overflow ✓ · a11y ✓.
+
+### 2026-10-21 — next page sets (EN = ES verified)
+Structural fingerprint (ordered AEM component list inside <main>) of every EN page vs its ES twin
+for landing-page, quiz-results, long-form-info, listing-hub and disclaimer-form: **all EN/ES pairs
+are structurally identical**. Same-layout groups (pairwise sequence similarity):
+- **Results pages** (quiz-results): college-coach, ft-pro-coach, guardian-coach, pt-pro-coach,
+  school-coach, volunteer-emerging-coach — 6 EN + 6 ES = 12 pages, 85–98% alike (one importer).
+  Catalog misfiles: es/pt-pro-coach sits under long-form-info, es/maintenance-page under quiz-results.
+- **Gallagher disclaimers**: baseline, rally, pro, pro-plus — 4 EN + 4 ES = 8 pages, 98–100%
+  alike (baseline+rally identical, pro+pro-plus identical; catalog splits baseline into
+  disclaimer-form).
+- Remaining landing pages (coach-mentorship, coaching-community, coaching-workshops, fellowship,
+  inclusion-summit, courses, learning-pathway, membership terms, flag-profile) — 9 EN + 9 ES,
+  each a unique layout (per-page mapping on a shared landing importer).
+
+### 2026-10-21 — landing-page template: section → block map (all pages; EN = ES)
+Source: live section inventory (top-level containers in <main>) + per-section captures + the
+reference variant report. Existing = block/variant already built (sample in drafts/block-samples).
+| Page | Sections → block |
+|---|---|
+| coach-mentorship | Hero (content) · text+image row [NEW: plain media row] · Cards (media) ×3 · icon cards ×3 + CTA + note [NEW: cards text + icon] · Columns (text) bullets, no panel [NEW option] · Columns (text) Eligibility panel · two CTA columns [NEW] · Accordion (FAQ) · Banner (centered, blue) + body copy [NEW: body] |
+| coaching-community | Hero (content, no CTA) · Columns (feature) unframed ×2 [NEW option] + framed ×1 · 2-image row + CTA ×2 [NEW] · Discussion boards · Cards (quote) · Banner (centered, blue) + body · Form (subscribe) |
+| coaching-workshops | Hero · Columns (events) list · Tabs (Upcoming / Recorded webinars) · Columns (promo) |
+| fellowship | heading + photo + intro (default) · 3×2 feature cards (cards media, some text-only) · details text + links (default) · Banner (events, blue) "Important dates" · date rows [NEW] · qualifications list + CTA (default) · Video · Columns (quote) |
+| inclusion-summit | Hero (centered title) · text+image row · video+text row · icon cards ×3 · lime "Education grants" banner [NEW colour] · Cards (quote) · Banner (centered, blue) |
+| courses | Tabs · intro + pathway infographic (default) · Course filter · Cards (comparison) · … |
+| learning-pathway | Accordion (pathway) ×4 · Cards (comparison) · Banner (centered, blue) |
+| membership terms | heading + long rich text (default content) |
+| flag-profile | heading + intro + Form (report) |
+Plan: one profile-driven `import-landing-page-v1.js` (registry + B.* + per-page profiles), proven
+on coach-mentorship first, then the rest; new block options added only where marked NEW.
+
+### 2026-10-21 — landing-page import: coach-mentorship + coaching-community (EN + ES)
+Importer `tools/importer/import-landing-page-v1.js` (+ bundle) — section kinds, matched in order:
+hero-content → `Hero (content)` / `Hero (content, title)` (no CTA) · accordion → `Accordion (closed)` ·
+columns-text-panel → `Columns (text)` · columns-text-plain → **`Columns (checklist)`** · banner-centered →
+`Banner (centered[, blue])` or **`Banner (spotlight[, narrow])`** (blue panel + h2 + copy + lime CTA) ·
+cards-media → **`Cards (media, stacked)`** · cards-icon → **`Cards (icons)`** · columns-cta → **`Columns (cta)`** ·
+columns-feature → `Columns (feature)` / **`Columns (feature, unframed)`** · columns-photos → **`Columns (photos)`** ·
+discussion-boards → `Discussion Boards` · cards-quote → `Cards (quote)` / **`Cards (quote, testimonial)`** ·
+columns-media-row → `Columns` (default: text + image row) · else default content. Bold = new this round.
+- **Section styles (new, generic, styles.css):** `inset` (source `container--padding--24px`: 28px in, 24px above/below),
+  `inset-small` (`container--padding--12px-4px`: 4px in, 4px/12px above/below from 768/1280), `heading-narrow`
+  (section heading on 10/12 cols, offset 1). Insets are drawn as a transparent section **border** so they compose with
+  whatever padding the section's blocks set (children-margin insets lost to blocks' own negative margins).
+- **Template `landing-page`** (templates/landing-page): type scale h2 28→32→40, body 18/24; section rhythm
+  12/20/36/52 above + below, `bottom-27/32/36` section styles for the source's tighter bottoms; default content =
+  stacked text components (12px above first, 24px between, 12px below last); 42px separator between a heading/intro
+  and the next block and between a block and the copy after it (not before icon cards); first section (hero) sits
+  24px under the header (the source's nav strip) with no bottom padding; FAQ accordion item headers +10px after the
+  first; text-style intros span the column insets.
+- **Fixes found on the way:** the local preview serves the metadata key as `Template` (capitalised) — loadTemplate now
+  also reads it and adds the body class itself; `Cards (icon)` collided with the global `.icon` (24×24 inline-block) →
+  variant is `icons`; authored blank lines (`<p>&nbsp;</p>`) are dropped by the importer's HTML cleanup → onLoad marks
+  them (`[[blank-line]]`) so paragraph grouping still sees the gap; the source's button labels are mixed case (the
+  computed `uppercase` on `a.cmp-button` is undone by the inner span); lime CTAs (`button--width--padding-16-24`)
+  keep the 280px minimum only on phones, outlined (`button-core--large`) everywhere; icon / quote cards are taller
+  than their content by their own top margin (source quirk) — reproduced via bottom padding + negative margin.
+- **Quality:** typography.json gained `templates.landing-page.scale` (the checker now applies a template's own
+  source-measured scale by body class, like the news-article exemption). Long Spanish words in hero/section headings
+  wrap (`overflow-wrap`) instead of overflowing at 360 — the source clips them.
+- **Parity (text-anchor compare vs source at 375/768/1024/1280/1440):** x positions and fonts match; residual vertical
+  drift ≤ 12px on coach-mentorship; coaching-community testimonial cards differ up to ~60px at 375 because the source
+  authors each card with different separators. Source quirk not copied: coach-mentorship's "Why Tennis Coach
+  Mentorship Matters" row is hidden at 768–1023 on the source (both responsive copies) — we show it.
+- Backups: tools/importer/backups/landing-page/{coach-mentorship,coaching-community}/.
+- **Next (not yet mapped — dry-run completeness 10–60%):** coaching-workshops (events list, tabs, promo), fellowship
+  (date rows, video, quote), inclusion-summit (video row, lime grants banner, outlined quote cards), courses (tabs +
+  course filter + comparison), learning-pathway (pathway accordions + comparison), membership terms (long text —
+  content root not found), Gallagher disclaimers ×3 (form), flag-profile (form).
+
+### 2026-10-23 — section-style samples + hero second CTA + media-row centring
+- **Section samples** (drafts/section-samples/): `section-inset`, `section-inset-small`, `section-heading-narrow`,
+  `section-bottom` (bottom-27 / -32 / -36). Each shows a real coach-mentorship section twice — WITH the style and
+  WITHOUT it — emitted by the landing importer itself. New importer `tools/importer/import-sample-landing-sections.js`
+  (pick a sample with `?sample=inset|inset-small|heading-narrow|bottom` on the source URL); backup
+  tools/importer/backups/section-sample/landing-sections/. The landing importer now exports `emitSection` /
+  `finalizeOutput` (one section → content + styles), verified to produce identical page output.
+  Note: emitting moves source nodes, so a section emitted twice must be cloned first.
+- bottom-NN measured in the sample: 1280 → 27/32/36 vs the standard 52; 375 → 22/24/12 vs 12 (bottom-36 = standard
+  on phones). Kept for now (user decision 2026-10-23, review after the samples).
+- **Hero (content):** the source added a second CTA ("Current Participants Access Mentorship Platform Here") — the
+  second link is now an outlined button (black, 2px white border), stacked 18px under the primary below 1024 and
+  beside it from 1024 starting on the panel's 5th column (4th from 1280); matches the source at 768–1440. Phones show
+  the full label (the source's shorter phone-only copy is dropped, desktop copy kept). Hero paragraph rules now
+  target direct-child paragraphs only (they were shrinking the CTA paragraphs).
+- **Columns (default, text + image):** both columns vertically centred (source `container--align-items--center`);
+  matches the source at 1024/1280.
+
+### 2026-10-23 — section styles consolidated: `narrow-N` replaces inset / inset-small / heading-narrow / bottom-NN
+User decision: consistency over 4–28px parity — **removed** `inset`, `inset-small`, `heading-narrow` and
+`bottom-27/32/36` (CSS in styles.css / landing-page.css and the importer no longer emits them).
+- **New generic section style `narrow-N`** (N = 1…12, like Columns `media-N`): EVERYTHING in the section on N of the
+  12 grid columns, centred, at every width (grid = content box + 8px / 12px column insets). scripts.js turns the class
+  into `--section-span: N` + `.narrow-cols`; styles.css pads the section wrappers by
+  `gutter + (min(100%, 1536px) − 2·gutter + 2·inset) × (12 − N) / 24`. Limitation: sections whose blocks pad the
+  section itself (cards rows) keep their own width — use it on heading / intro sections. Plain `narrow` (home intro,
+  desktop-only 10/12) unchanged. Future widths: more N values, no new names.
+- **Importer:** a leading centred heading on fewer than 12 columns (`default--N` + `offset--default--(12−N)/2`) now
+  becomes its OWN section (`center, narrow-N`) placed right before the section it introduces. landing-page.css joins
+  such a heading-only narrow section to the next one (no section gap between them; the usual 42px separator before the
+  next block, not before a text-style intro or icon cards) — so the page rhythm is unchanged.
+- Re-imported coach-mentorship + coaching-community (EN + ES). coaching-community's source was re-ordered by its
+  authors ("USTA Coaching Network" now directly under the hero) — the import follows the live page.
+- **Samples** (all generated by importers from the real source sections):
+  - drafts/section-samples/`section-narrow-n` (`import-sample-landing-sections.js`, `?sample=narrow-n`): the same
+    heading at narrow-10 / 8 / 6 / full width, and a whole section (heading + intro + block) at narrow-10 / 8 / full.
+  - drafts/block-samples/ (`import-sample-landing-blocks.js`, `?sample=<key>`): hero-content (regenerated with the
+    two CTAs; previous copy backed up in tools/importer/backups/block-sample/hero-content/), hero-content-title,
+    columns-text-image, columns-feature-unframed, columns-photos, columns-checklist, columns-cta, cards-media-stacked,
+    cards-icons, cards-quote-testimonial, accordion-closed, banner-spotlight, banner-spotlight-narrow,
+    text-style-lead-subhead.
+  - The four earlier section samples (section-inset, -inset-small, -heading-narrow, -bottom) are obsolete; content
+    can't be deleted from here — remove them in the editor/DA.
+- Gates: lint 0 errors · breakpoints ✓ · svg ✓ · overflow ✓ (4 pages, home, 15 samples) · typography ✓ (4 pages,
+  home) · a11y ✓ (4 pages, 15 samples).

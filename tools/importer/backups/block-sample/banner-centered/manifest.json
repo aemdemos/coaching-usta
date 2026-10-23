@@ -1,0 +1,7 @@
+{
+  "page": "drafts/block-samples/banner-centered",
+  "date": "2026-10-21",
+  "importer": "import-sample-banner-centered.js",
+  "source": "https://www.ustacoaching.com/en/home/membership-benefits.html",
+  "verified": "blue instance = source at 375/768/1024/1280/1440 (768 CTA centred; source pill overflows its column)"
+}

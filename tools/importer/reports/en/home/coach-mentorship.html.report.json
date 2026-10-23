@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "url": "https://www.ustacoaching.com/en/home/coach-mentorship.html?sample=bottom",
+  "path": "en/home/coach-mentorship.html",
+  "timestamp": "2026-10-23T07:58:08.104Z",
+  "error": "page.evaluate: Error: Failed to import page: unknown sample \"bottom\" (use ?sample=narrow-n)\n    at eval (eval at evaluate (:290:30), <anonymous>:29:15)\n    at async <anonymous>:316:30",
+  "errorStack": "page.evaluate: Error: Failed to import page: unknown sample \"bottom\" (use ?sample=narrow-n)\n    at eval (eval at evaluate (:290:30), <anonymous>:29:15)\n    at async <anonymous>:316:30\n    at processUrl (/home/node/.excat-marketplaces/excat-marketplace/excat/skills/excat-content-import/scripts/run-bulk-import.js:694:31)\n    at async main (/home/node/.excat-marketplaces/excat-marketplace/excat/skills/excat-content-import/scripts/run-bulk-import.js:957:22)"
+}

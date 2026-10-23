@@ -265,13 +265,12 @@ function decorateDefault(block) {
 /*
  * content hero (USTA "Coaching Network" pattern): a full-bleed background photo
  * with a dark overlay and LEFT-aligned content — a big display H1, a smaller
- * uppercase H2 subheading, body paragraphs, then a lime primary CTA beside a
- * white underlined secondary text link.
+ * uppercase H2 subheading, body paragraphs, then a lime primary CTA and an
+ * optional outlined secondary CTA.
  * Content model (from the DA table):
  *   - row 1: a <picture>/<img> (or image link) for the background photo.
  *   - row 2: the copy — H1, H2, one or more <p>, and up to two links. The first
- *     non-image link becomes the lime pill CTA; the second becomes the
- *     underlined text link.
+ *     non-image link becomes the lime pill CTA; the second the outlined one.
  */
 function decorateContent(block) {
   const bg = document.createElement('div');
@@ -305,7 +304,7 @@ function decorateContent(block) {
     content.append(el);
   });
 
-  // CTAs: first non-image link → lime pill; second → underlined text link.
+  // CTAs: first non-image link → lime pill; second → outlined button.
   const links = [...content.querySelectorAll('a[href]')].filter((a) => !isImageHref(a.getAttribute('href')));
   if (links[0]) {
     links[0].classList.add('hero-cta');
@@ -315,7 +314,14 @@ function decorateContent(block) {
     links[1].classList.add('hero-cta-secondary');
     links[1].closest('p')?.classList.add('hero-cta-wrapper');
   }
-  // If both CTAs are in the same <p>, that wrapper groups them side by side.
+  // two CTA paragraphs → one actions group (stacked on phones, side by side at desktop)
+  const ctaWraps = [...new Set(links.slice(0, 2).map((a) => a.closest('p')).filter(Boolean))];
+  if (ctaWraps.length === 2) {
+    const group = document.createElement('div');
+    group.className = 'hero-ctas';
+    ctaWraps[0].before(group);
+    group.append(...ctaWraps);
+  }
 
   block.textContent = '';
   block.append(bg);

@@ -561,3 +561,101 @@ main > .section.banner-container > div {
     line-height: 18px;
   }
 }
+
+/* ---- spotlight variant ------------------------------------------------------
+   Source: the landing pages' closing contact band ("Questions About the USTA
+   Coaching Network?"): a blue 32px-radius panel, padding 24px 16px → 36px 24px
+   (768), one centred column framed by two 42px separators — a USTA Sans display
+   heading 28/28 → 32/32 (768) → 40/40 (1024), Graphik Regular 18/24 copy (with an
+   underlined mailto link) and a content-width lime pill (280px min on phones),
+   all black text. Each component is padded 12px 8px (12px from 768). The panel
+   sits 8px (4px from 768) past the content edges. */
+.banner.spotlight {
+  margin-inline: -8px;
+  border: 0;
+  border-radius: 32px;
+  padding: 54px 24px; /* 24px 16px + separator 30px + 12px 8px component */
+  background-color: var(--usta-blue);
+  color: #000;
+}
+
+.banner.spotlight .banner-inner {
+  align-items: stretch;
+  gap: 24px;
+  text-align: center;
+}
+
+.banner.spotlight .banner-heading {
+  font-size: 28px;
+  line-height: 28px;
+  text-transform: none;
+}
+
+.banner.spotlight .banner-content {
+  flex-direction: column;
+  align-items: center;
+}
+
+/* narrow: the copy sits on 10 of the 12 columns, offset 1 (coaching-community
+   "Professional Career Consulting") */
+.banner.spotlight.narrow .banner-body {
+  box-sizing: border-box;
+  width: calc(100% * 10 / 12);
+}
+
+.banner.spotlight .banner-body p {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+.banner.spotlight .banner-body a:any-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.banner.spotlight .banner-cta {
+  width: auto;
+  min-width: 280px;
+  height: 56px;
+  padding: 14px 24px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background-color: var(--usta-lime);
+  color: #000;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+@media (width >= 768px) {
+  .banner.spotlight {
+    margin-inline: -4px;
+    padding: 66px 36px; /* 36px 24px + separator 30px + 12px component */
+  }
+
+  .banner.spotlight .banner-inner { flex-direction: column; }
+
+  .banner.spotlight .banner-heading {
+    flex: none;
+    font-size: 32px;
+    line-height: 32px;
+  }
+
+  .banner.spotlight .banner-cta { min-width: 0; }
+}
+
+@media (width >= 1024px) {
+  .banner.spotlight .banner-heading {
+    font-size: 40px;
+    line-height: 40px;
+  }
+
+  .banner.spotlight .banner-cta { font-size: 18px; }
+}
+
+@media (width >= 1280px) {
+  .banner.spotlight .banner-cta { font-size: 24px; }
+}
