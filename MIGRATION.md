@@ -4164,3 +4164,76 @@ User decision: consistency over 4–28px parity — **removed** `inset`, `inset-
     can't be deleted from here — remove them in the editor/DA.
 - Gates: lint 0 errors · breakpoints ✓ · svg ✓ · overflow ✓ (4 pages, home, 15 samples) · typography ✓ (4 pages,
   home) · a11y ✓ (4 pages, 15 samples).
+### 2026-11-05 — accordion (courses): new `courses` variant
+Source: "Recommended Learning Pathway" course list on results/school-coach.html (`.v-course-list`). Authored
+`accordion (courses)`: a standalone single-column stack of the SAME white course cards as `accordion (pathway)`,
+with no outer panel. Contract: one row per course = [badge img, optional and may be EMPTY] [eyebrow "N modules"
+<p>, <h3> title, description <p>(s), <ol>/<ul> modules]. A single-cell course row is read as content-only (no
+badge). A trailing single-cell row holding only a link is the centred lime CTA ("View Course Catalog").
+JS: new `decorateCourses()` reuses `buildPathwayCard` / `measureClampOverflow`, so the importer can share the
+pathway course-row parser. CSS: card internals reuse the shared rules (`.accordion.courses` added to the existing
+`:is(.accordion.timeline, .accordion.pathway)` lists, which keeps specificity identical). Deltas are in a
+`.accordion.courses` section at the end of the file.
+Measured (375/800/1024/1440): cards 16px apart, full content width (16/40/48/64 gutters); pad 16 -> 24;
+min-height 250 (768) -> 305 (1024); badge 80 -> 120 -> 148 (1280; pathway steps at 1024); collapsed mobile
+card 88 (no badge) / 128; >=768 bottom pad 48 (source flex gap above an empty buttons row); open card modules
++64px below the header (1440 open = 788, identical to source); CTA 44px below the last card.
+Gotcha: the source's 20px desc top pad is applied as a wrapper margin, not clamp padding. On the clamp it
+inflated `scrollHeight` and flagged a "…" on a description that fits exactly 6 lines.
+Mobile differs from pathway: the description is hidden until the chevron opens the card, and is never clamped.
+Regression: computed-style and DOM fingerprints for accordion, accordion-closed, accordion-grid and
+accordion-timeline at 375/800/1440 (closed and open) are identical before and after.
+Sample: content/drafts/block-samples/accordion-courses.plain.html (local preview at /content/drafts/…; the
+/drafts/… path serves the DA-previewed copy, so it 404s until the sample is previewed in DA).
+lint ✓ · breakpoint ✓
+
+### 2026-11-05 — NEW `results` template (5 coach-type results pages) — imported
+Pages: `/en/home/results/{volunteer-emerging-coach, college-coach, school-coach, pt-pro-coach, ft-pro-coach}`
+(The importer files below are kept in the local workspace only, not committed.)
+(representative: college-coach). Importer: `tools/importer/import-results.js` (+ `.bundle.js`), template
+`results` in `page-templates.json`, URLs in `tools/importer/urls-results.txt`. Content: `content/en/home/results/*.plain.html`.
+**Sections / blocks** (all existing library blocks, plus `accordion (courses)` logged above; `cards (media, stacked)` is the existing modifier already on main):
+1. Welcome: `columns (media, media-right)` (H1 card + photo on the right). No section style.
+2. "What USTA Coaching Has To Offer" (`center`): H2, then `cards (media, stacked)`. School-coach adds an
+   H2 "Why provide tennis in your school?" + `cards (icons)` (6 dark cards, no icons) + a Join CTA.
+3. "Recommended Learning Pathway" (`center`): H2 + intro, then one of:
+   `accordion (pathway)` (college, ft-pro: professional certification, 2 course groups) ·
+   `accordion (timeline)` (volunteer, pt-pro: development badge, 1 group) ·
+   `accordion (courses)` (school-coach: standalone course list).
+4. "Find a Package" (`center`): H2 + "See all benefits" CTA + `cards (pricing)`.
+**Selector decisions (hash-free):** blocks match stable AEM container/Vue classes. Sections use `:has()` on
+their content (`…--top-margin--52.…--bottom-margin--52:has(.v-tiers)` etc.), not `:nth-of-type`. One selector,
+`.v-classification-accordion`, covers both pathway accordions; the `accordion-pathway` parser emits
+`pathway` when there are ≥2 `.v-course-list` groups and `timeline` when there is 1.
+**Gotchas:**
+- The source renders responsive duplicates marked `aem-GridColumn--default--hide` (split headings, a mobile-only
+  welcome photo). Parsers take the visible copy and fall back to a hidden one only when no visible copy exists.
+  This is not done in cleanup, because columns-media relies on hidden image copies.
+- The body "Get on the list" subscribe form is NOT imported. The same form is authored in the footer
+  (every page), so importing it would render it twice. This uses the template-level `removeSelectors` in
+  page-templates.json, which the cleanup transformer honours. Spacing `.separator` components and the
+  package-required modal XF are removed in cleanup.
+- Parsers now emit consolidated block names (`Columns (media)`, `Cards (pricing)`, `Accordion`, …). They are
+  shared with the home importer, so a home re-import would also emit `columns (media, media-right)` for the
+  quiz card (photo after the content). The current home content is unaffected until it is re-imported.
+- Completeness scores are 61–77%, but a text diff against the live source finds no missing visible copy. The
+  "missing" text is the intentionally dropped form plus the hidden modal/duplicates.
+**Open (design pass):** the welcome card renders white, not lime. The school-coach `cards (icons)` cards
+are bordered instead of filled #2a2a2a, and their Join CTA is a plain link. (The footer subscribe form, broken on the old
+base via its `/forms/subscribe-json` link, renders correctly on current main after rebasing.)
+lint ✓ · breakpoint ✓ · overflow ✓ (360–1920, all 5 pages) · typography ✓ (college, school) ·
+a11y: page content clean (the one finding was the footer form link on the old base, since fixed on main).
+Note: the repo's Playwright expects chromium build 1187, but only 1208 is installed here. The checks were run via
+a wrapper that passes `executablePath`; the checkers themselves are unchanged.
+
+### 2026-11-05 — results pages uploaded to DA + previewed (PR #50)
+Uploaded the 5 results pages + `drafts/block-samples/accordion-courses` to DA and previewed them on main
+(not published live). The DA source matches each local `.plain.html` except for the image URL mapping below.
+- **Images:** hotlinked source images were localized into `content/media-da/<page-path>/` (68 files). In DA
+  they live in the page's dot-folder (`en/home/results/.college-coach/…`), and the DA document references
+  `https://content.da.live/aemdemos/coaching-usta/<dir>/.<page>/<file>`, the same convention as
+  `en/.home/`. Gotcha: a root-relative `/media-da/…` src in a DA doc becomes `about:error` on preview, and
+  content.da.live URLs return 401 without auth, so local files keep `/media-da/…` (the dev-server mirror).
+- **SVG > 40KB rejected by preview:** html2md fails the whole page with 409 `Image N failed validation: SVG is
+  larger than 40KB`. `delivering-competition` (91KB badge, college + ft-pro) was rasterized to a 2x PNG
+  (600px, transparent; displayed ≤148px) and the two pages now reference the PNG (svg-assets rule).
