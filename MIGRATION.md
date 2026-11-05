@@ -4225,3 +4225,15 @@ lint ✓ · breakpoint ✓ · overflow ✓ (360–1920, all 5 pages) · typograp
 a11y: page content clean (the one finding was the footer form link on the old base, since fixed on main).
 Note: the repo's Playwright expects chromium build 1187, but only 1208 is installed here. The checks were run via
 a wrapper that passes `executablePath`; the checkers themselves are unchanged.
+
+### 2026-11-05 — results pages uploaded to DA + previewed (PR #50)
+Uploaded the 5 results pages + `drafts/block-samples/accordion-courses` to DA and previewed them on main
+(not published live). The DA source matches each local `.plain.html` except for the image URL mapping below.
+- **Images:** hotlinked source images were localized into `content/media-da/<page-path>/` (68 files). In DA
+  they live in the page's dot-folder (`en/home/results/.college-coach/…`), and the DA document references
+  `https://content.da.live/aemdemos/coaching-usta/<dir>/.<page>/<file>`, the same convention as
+  `en/.home/`. Gotcha: a root-relative `/media-da/…` src in a DA doc becomes `about:error` on preview, and
+  content.da.live URLs return 401 without auth, so local files keep `/media-da/…` (the dev-server mirror).
+- **SVG > 40KB rejected by preview:** html2md fails the whole page with 409 `Image N failed validation: SVG is
+  larger than 40KB`. `delivering-competition` (91KB badge, college + ft-pro) was rasterized to a 2x PNG
+  (600px, transparent; displayed ≤148px) and the two pages now reference the PNG (svg-assets rule).
