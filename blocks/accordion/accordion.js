@@ -584,6 +584,69 @@ function decoratePathway(block) {
   window.addEventListener('resize', remeasure);
 }
 
+/*
+ * COURSES variant (`accordion courses`) — the standalone "Recommended Learning
+ * Pathway" course list from ustacoaching.com/…/results/school-coach.html. No outer
+ * panel: just a single-column stack of the SAME white course cards the PATHWAY
+ * variant renders (built by buildPathwayCard, so the importer can share the row
+ * model), ending in a centred lime "View Course Catalog" pill.
+ *
+ * Authoring model (each authored row = a table row of cells):
+ *   course row: [badge <img> — optional/empty] [eyebrow "N modules" <p>, <h3> title,
+ *               description <p>(s), <ol>/<ul> module list]
+ *               (a single-cell row is read as the content cell with no badge)
+ *   footer row: a trailing single cell whose only content is a link → CTA
+ */
+function decorateCourses(block) {
+  const rows = [...block.children];
+
+  const isFooterRow = (row) => row.children.length === 1
+    && !row.children[0].querySelector('img, ol, ul, h3')
+    && row.children[0].querySelector('a');
+  const footerRow = rows.length && isFooterRow(rows[rows.length - 1]) ? rows.pop() : null;
+
+  const list = document.createElement('div');
+  list.className = 'accordion-timeline-courses';
+  rows.forEach((row) => {
+    const cells = [...row.children];
+    // the content cell is always the LAST cell; a preceding cell (possibly empty —
+    // the first source course has no badge) is the badge cell
+    const contentCell = cells[cells.length - 1];
+    if (!contentCell) return;
+    const badgeCell = cells.length > 1 ? cells[0] : null;
+    list.append(buildPathwayCard(badgeCell, contentCell));
+  });
+
+  if (footerRow) {
+    const footer = document.createElement('div');
+    footer.className = 'accordion-timeline-footer';
+    const cta = footerRow.children[0].querySelector('a');
+    cta.className = 'accordion-timeline-viewall';
+    footer.append(cta);
+    list.append(footer);
+  }
+
+  block.replaceChildren(list);
+
+  // the list is visible on load (no panel toggle), but its section is still hidden
+  // while it loads — so measure the clamp whenever the list's width actually changes
+  // (hidden → shown, viewport resize) and again once the web font swaps in.
+  const remeasure = () => measureClampOverflow(list);
+  let lastWidth = 0;
+  if (window.ResizeObserver) {
+    new ResizeObserver(([entry]) => {
+      const width = Math.round(entry.contentRect.width);
+      if (width && width !== lastWidth) {
+        lastWidth = width;
+        remeasure();
+      }
+    }).observe(list);
+  } else {
+    window.addEventListener('resize', remeasure);
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+}
+
 /**
  * loads and decorates the block
  * @param {Element} block The block element
@@ -595,6 +658,10 @@ export default function decorate(block) {
   }
   if (block.classList.contains('pathway')) {
     decoratePathway(block);
+    return;
+  }
+  if (block.classList.contains('courses')) {
+    decorateCourses(block);
     return;
   }
   decorateDefault(block);
