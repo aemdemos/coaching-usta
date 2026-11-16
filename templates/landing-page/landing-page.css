@@ -119,3 +119,18 @@ body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-w
 body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > .default-content-wrapper:first-child > :first-child {
   margin-top: 24px;
 }
+
+/* the outlined Banner (stacked) band (source `container--top-margin--32 …bottom-margin--32`,
+   right under the hero on coaching-community): measured vs source — 25px (33 from 768)
+   under the hero, and the next section's heading 45 / 65 / 81 / 105px (768 / 1024 /
+   1280) below the band, i.e. a bottom padding of 24 / 36 / 36 / 44 before the next
+   section's own top padding */
+body.landing-page main > .section.banner-container:has(.banner.stacked) { padding: 25px 0 24px; }
+
+@media (width >= 768px) {
+  body.landing-page main > .section.banner-container:has(.banner.stacked) { padding: 33px 0 36px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.banner-container:has(.banner.stacked) { padding-bottom: 44px; }
+}

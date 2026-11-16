@@ -8,6 +8,10 @@
  * Black is the default when no colour class is present; appending `blue` to any
  * banner switches it to the blue palette.
  *
+ * Layout variant:
+ *   • stacked — heading and copy stacked in one column, the CTA alone in a right
+ *     column (under the copy on phones); same authoring as the base banner.
+ *
  * Structural variant:
  *   • info  — an INFORMATIONAL panel (no CTA, no fill): an outlined (1px white
  *     border, 20px radius) transparent panel with a CENTERED heading followed by

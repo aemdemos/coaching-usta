@@ -292,6 +292,15 @@ function decorateSectionMetadata(main) {
       section.classList.add('narrow-cols');
     }
   });
+  // `inset-N`: the whole section N px further in on each side (styles.css), N = 1…64
+  main.querySelectorAll(':scope > div[class*="inset-"]').forEach((section) => {
+    const cls = [...section.classList].find((c) => /^inset-\d+$/.test(c));
+    const px = cls ? Number(cls.slice(6)) : 0;
+    if (px >= 1 && px <= 64) {
+      section.style.setProperty('--section-pad', `${px}px`);
+      section.classList.add('inset-px');
+    }
+  });
 }
 
 /**

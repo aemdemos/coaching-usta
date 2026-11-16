@@ -2,8 +2,9 @@
   "status": "success",
   "url": "https://www.ustacoaching.com/en/home/coach-mentorship.html",
   "path": "en/home/coach-mentorship",
-  "timestamp": "2026-10-23T07:55:06.846Z",
+  "timestamp": "2026-11-16T09:44:55.468Z",
   "title": "Coach Mentorship",
   "template": "landing-page",
-  "sections": "hero-content | columns-media-row | cards-media | heading | cards-icon | columns-text-plain | columns-text-panel | heading | columns-cta | heading | accordion | banner-centered"
+  "sections": "hero-content | columns-media-row | cards-media | heading | cards-icon | columns-text-plain | columns-text-panel | heading | columns-cta | heading | accordion | banner-centered",
+  "importScript": "b0a7ac9072d9"
 }

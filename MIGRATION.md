@@ -42,6 +42,10 @@ cards-media, cards-pricing, columns, columns-cta, columns-media, columns-quote, 
 header, hero, hero-video, widget. _Document each block's authoring contract + variants here as you touch them._
 
 ## 6. Open items / TODO
+- [ ] **Dynamic / login-dependent content** (Join wizard, quiz, Package Required + other pop-ups, gated buttons,
+      account area): analysis + client questions in the section "DYNAMIC & LOGIN-DEPENDENT CONTENT — analysis
+      2026-11-16" near the end of this file. Needed before results / courses / learning-pathway / workshops /
+      account pages are finished.
 - [ ] Confirm Graphik (and USTA Sans) licensing before publishing.
 - [~] Quality gate run on the migrated homepage (2026-09-14): **a11y ✓ passes**; **typography ✗ 8 drifts**
       (cards-pricing h3), **overflow ✗ 2 tiers** (columns-cta @360, footer @768). See the log entry below
@@ -4204,3 +4208,248 @@ Result: heading on 10/12 and gaps 24 / 66 / 66 = source at all 6 widths; intro /
   with `executablePath` pointed at the installed build (temporary wrapper, removed).
 Gates: lint 0 errors (8 pre-existing console warnings) · breakpoints ✓ · overflow ✓ (coaching-community,
 coach-mentorship @360–1920) · typography ✓ (both) · a11y ✓ (both).
+
+### 2026-11-16 — landing importer validated + re-import of coach-mentorship / coaching-community into drafts/meet
+Re-imported both EN pages with `import-landing-page-v1.js` into **`drafts/meet/{coach-mentorship,coaching-community}`**
+(scratch run, then copied; the current `en/home/*` pages were NOT overwritten). Diffed section by section against the
+current pages and measured against the live source at 375/768/1024/1280/1440/1600/1920.
+- **Validation result:** coach-mentorship re-imported byte-identical to the current page. coaching-community differed only
+  by (a) a NEW source section at the top, "Career Center is Live" (authors added it after 10-23), (b) internal links kept
+  `.html` (the current page had been fixed by hand), (c) "Book Now" now links to calendly.com (source change — followed).
+- **Importer fixes:** new kind `banner-stacked` (outlined `container--border--white` panel: heading + copy in one column,
+  one CTA beside it) → `Banner (stacked)`; `finalizeOutput` rewrites links to the site's own pages
+  (`/en|es/…html`, absolute or root-relative) to root-relative EDS paths without `.html`; **`inset-4`** emitted when the
+  SECTION's own container (the section or a lone wrapper — not a column inside it) has `container--padding--*-4px`.
+  Emits it on 3 coaching-community + 5 coach-mentorship sections (and their split-off narrow heading sections).
+  Gotcha: coach-mentorship "Why Tennis Coach Mentorship Matters" has the 4px on its TEXT COLUMN, already modelled by
+  plain Columns — matching any nested padded container double-counted it (fixed by the lone-wrapper walk).
+- **4px inset: REVERSES the decision logged earlier today** (user, 2026-11-16): the source's 4px section padding is now
+  reproduced — `inset-4` section style back in styles.css (composes with narrow-N via `--section-pad`; cards sections
+  excluded from the wrapper rule because they pad the section themselves — quote / icon cards add the 4px in cards.css).
+  It was visible: at ≥1536 the Fellowship intro wrapped one word differently (1408 vs 1400px box).
+- **NEW `Banner (stacked)` variant** (banner.css; sample drafts/block-samples/banner-stacked from
+  `import-sample-landing-blocks.js?sample=banner-stacked`): panel −8 / −12px past the content, padding 24 18 → 36 28
+  (768) → 44 36 (1024); heading 28/32/40; copy Graphik 18/24; CTA 56px, radius 12, label 16/18/24, NORMAL tracking,
+  width = its column (6/12 under the copy on phones, 3/12 at 768, 2/12 from 1024) with min-width max-content.
+  Landing template: the band's section 25 → 33px (768) under the hero, bottom 24 / 36 / 44 (1280).
+- **Cards (quote, testimonial) dividers aligned:** the source authors extra transparent separators into the shorter
+  cards so the rules roughly line up (±15px). We now use a subgrid from 768 (each card spans 3 shared rows: quote |
+  rule | attribution) → every rule sits under the row's tallest quote, exactly aligned. Gaps re-measured on the
+  tallest-quote card (the only one without extra spacers): quote → rule 38 / 119 (1024) / 148 (1280); rule → name
+  31 / 34 / 42; last line → card bottom 39 / 42 / 50. The old CSS (96/180/200 + 36/44/60) had been fitted to the
+  padded short card. Residual: 1440 rules 4–9px lower and cards 18px taller (no 1440 breakpoint); 768 / 1280 cards
+  ~24px taller (card 1's 3-line attribution under the aligned rule); phones use the base gap for every card (source
+  varies per card).
+- **Images:** `fetch-page-images.mjs` names files `<stem>-<md5>` while the existing landing images carry a second
+  hash suffix, so it re-downloaded 16 byte-identical copies — removed; the drafts point at the existing files.
+- Verified (= source, every width listed): headings / intros / photos of all inset sections, quote + icon card x/width
+  and wrap, band panel + CTA + spacing. Gates: lint 0 errors · breakpoints ✓ · overflow ✓ · typography ✓ · a11y ✓
+  (drafts/meet ×2, banner-stacked + cards-quote-testimonial samples, en/home/coaching-community).
+- Backup: tools/importer/backups/landing-page/meet-reimport-2026-11-16/ (importer, bundle, cleanup, sample importer,
+  manifest).
+- Open: the current `en/home/coach-mentorship` + `coaching-community` pages still lack `inset-4` / the Career Center
+  band — replace them with the drafts/meet versions (or re-import over them) when approved.
+
+### 2026-11-16 — `inset-4` section sample + first-pass import of the other 10 EN landing pages (drafts/meet)
+- **Section sample** `drafts/section-samples/section-inset-4` (importer `import-sample-landing-sections.js
+  ?sample=inset-4` on coaching-community — the sample importer gained a `toggle` mode: each scenario WITH and WITHOUT
+  one style, keeping the landing importer's own section split). Scenarios: (1) heading + lead intro + photos + CTA
+  (narrow heading section + the section it introduces), (2) a narrow heading alone (`narrow-10, inset-4`), (3) a cards
+  section (quote cards — the section pads itself). Verified: every WITH copy sits 4px further in each side than its
+  WITHOUT copy at 375 / 1440 / 1600.
+- **Importer fix — loose components:** membership terms and flag-profile put their text / embed components straight in
+  the content grid (no section containers), so every "section" was a bare component and produced nothing (terms page
+  376 bytes). A run of loose components now becomes one section → terms imports in full (42 KB, completeness 91%).
+  coach-mentorship / coaching-community re-imports unchanged (byte-identical).
+- **First pass, imported to drafts/meet/<source path>** (EN only; nothing overwritten): coaching-community/
+  {coaching-workshops, fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit}, courses, learning-pathway,
+  membership-benefits/{coaching-membership-terms-and-conditions, gallagher-disclaimer-pro, -pro-plus, -rally},
+  account/flag-profile. 15 new images downloaded (fellowship 9, inclusion-summit 5, courses 1) into
+  media-da/en/home/<page>/; the rest reused. **These pages are NOT parity-checked yet** — most of their sections have
+  no importer kind and come in as default content:
+
+| Page | Mapped | Missing (falls to default content / dropped) |
+|---|---|---|
+| coaching-workshops | – | events list (Vue `v-events-list` → Columns (events)), Tabs (upcoming / recorded webinars), Columns (promo) — page is 2 KB |
+| fellowship | 2 media rows | 3×2 feature cards, Banner (events, blue) "Important dates", date rows, Video, Columns (quote) |
+| inclusion-summit | Hero (content, title), media row, Cards (icons) | video + text row, lime "Education grants" banner, Cards (quote) outlined, Banner (centered, blue) |
+| courses | 1 media row | Tabs, pathway infographic, Course filter, Cards (comparison) |
+| learning-pathway | Accordion (plain) | Accordion (pathway) ×4, Cards (comparison), Banner (centered, blue) |
+| membership terms | heading (narrow-8) + full text | – (long default content, as on the current page) |
+| gallagher pro / pro-plus / rally | intro + disclaimers accordion | agreed authoring is `Form` → `/forms/gallagher-disclaimer-<tier>.json` (DA sheet) in a `split, intro-text` section, NOT a plain accordion — needs a mapping to the sheet |
+| flag-profile | heading + intro | the Formstack embed (→ `Form` /forms/flag-form.json, see drafts/shivani) |
+
+- Gates on the 10 drafts + sample: lint 0 errors · breakpoints ✓ · typography ✓ (all) · a11y ✓ except learning-pathway
+  (contrast of a "Learn more" link inside the unmapped pathway accordion) · overflow ✓ except fellowship + courses
+  (1024 / 1280: an unmapped multi-image section falls into the catch-all media row) and learning-pathway (360). All
+  three are symptoms of the unmapped sections — fix with the mappings, not by patching the drafts.
+- Backups updated: tools/importer/backups/landing-page/meet-reimport-2026-11-16/ and
+  tools/importer/backups/section-sample/landing-sections/.
+
+### 2026-11-16 — `inset-4` → generic `inset-N`; source investigation: it is an author-picked preset (importer-only)
+- **Source check** (clientlibs CSS): `container--padding--12px-4px` is ONE of ~10 author-selectable padding presets of
+  the AEM container component (`default-outer`, `default-inner`, `small`, `medium`, `8px`, `24px`, `12px-4px`, `12px`,
+  `8px-0`); a container without a preset has 0 padding — the 4px is NOT built into the component. `12px-4px` =
+  12px 4px ≥1280, 4px all round 768–1279, 0 4px <768 → the SIDE padding is always 4px.
+- **Usage survey** (top-level sections @1440, EN landing + about + membership-benefits): only 11 sections on 3 pages —
+  coach-mentorship 5, coaching-community 3, inclusion-summit 3. home, fellowship, courses, learning-pathway, about,
+  membership-benefits, terms, Gallagher, flag-profile: 0. Same-looking centred heading sections have it on some pages
+  and not on others (even within inclusion-summit) → an authoring quirk, not a design rule. Baking it into the template
+  or blocks would make every other page 4px too narrow.
+- **Decision (user, 2026-11-16): keep it, IMPORTER-ONLY.** The default stays "no inset" (= most of the site); the
+  landing importer sets `inset-N` on exactly the sections whose own container has the preset; authors never need it.
+- **`inset-N` (N = 1…64 px), like `narrow-N`:** scripts.js turns the class into `--section-pad: Npx` + `.inset-px`;
+  styles.css pads non-cards sections `calc(--section-gutter + --section-pad)` (one rule, gutter 16/40/48/64 as a
+  variable) and the narrow-N formula takes the grid inside the inset; cards.css does the same for the quote / icon
+  card sections (they pad the section themselves; other cards variants would need the same one line). The fixed
+  20/44/52/68 values are gone. Importer: `container--padding--<v>px-<N>px` on the section's own container → `inset-N`
+  (only 12px-4px → `inset-4` exists on this site — output unchanged, verified byte-identical).
+- **Sample** `drafts/section-samples/section-inset-n` (`import-sample-landing-sections.js?sample=inset-n`, `prefix`
+  mode = several N values per scenario, null = without): as imported (inset-4 / none), larger N (12, 24), narrow heading
+  alone (4 / none), quote cards (4 / 24 / none). Verified: each sits exactly N px further in than "none" at
+  375 / 1024 / 1440. It replaces `section-inset-4` (created earlier today).
+- Verified: drafts/meet coach-mentorship + coaching-community still = source (boxes, line counts, ink) at
+  375 / 768 / 1024 / 1440 / 1600. Gates: lint 0 errors · breakpoints ✓ · overflow ✓ · typography ✓ · a11y ✓ (inset-n
+  sample, drafts/meet ×2, cards-quote-testimonial + cards-icons samples, en/home coaching-community + coach-mentorship).
+
+### 2026-11-16 — obsolete section samples removed (local)
+Removed drafts/section-samples/{section-inset, section-inset-small, section-heading-narrow, section-bottom} (styles retired 2026-10-23; inset-small is now inset-4 → see section-inset-n). Remaining: section-narrow-n, section-inset-n, section-bordered, section-split. Copies previously uploaded to DA (if any) are untouched — remove them in DA.
+
+## DYNAMIC & LOGIN-DEPENDENT CONTENT — analysis 2026-11-16 (read before migrating results / courses / learning-pathway / workshops / account pages)
+Inputs: the client's "Coaching Site XFs Overview and Usage Details" document (screenshots shared in chat) + live
+inspection of www.ustacoaching.com (logged out) — DOM, clientlibs JS, button actions. Nothing changed in code or
+content for this analysis. EN only (ES = Smartling later).
+
+### 1. The source's dynamic components (XFs) vs what we have
+| XF / component | Purpose (per document) | Used on | EDS today |
+|---|---|---|---|
+| Header, Footer | global | all pages | ✅ `header`, `footer` (Join / Sign In link to placeholder paths — not wired) |
+| Coaching Modals: **Wizard** | Join flow (personal info → choose package → payment) | all (Join buttons) | ❌ |
+| Coaching Modals: **Safe Play Approved** | first login after Safe Play approval | all | ❌ |
+| Coaching Modals: **Safe Play Required** | action that needs Safe Play (e.g. Wizard → Rally) | all | ❌ |
+| Coaching Modals: **Quiz** | "what's your coach type" quiz → `/results/*` | all (Start the Quiz) | ❌ (our "Start the Quiz" → `/`) |
+| Coaching Modals: **Oops something went wrong** | generic error | all | ❌ |
+| Benefits Banners (green) | by user state | account/mybenefits, account/dashboard | ❌ |
+| Account Navigation | account pages nav | dashboard, mymembership, mylearningprogress, mybenefits | ❌ |
+| Comparison Matrix | membership options table | dashboard, mybenefits, **home** | ❌ not built — check where it shows on home |
+| Tiers — General / Homepage | membership options (pricing) | results ×6, account/mymembership, job-board, learning-pathway, membership-benefits(-rebuild), courses / home | ✅ `cards (pricing)` (static copy per page) |
+| Coaching Workshops banner (blue) | link to Events | courses, dashboard, learning-pathway, home | ✅ `banner (events, blue)` |
+| Complete Safe Play Banners | Safe Play prompts | mylearningprogress, learning | ❌ |
+| Professional Certification / Development Badge / Associate Badge / Specialist / Master Certification — **v1 "with text info"** | accordion with the courses | learning-pathway, results (ft-pro, college, pt-pro, volunteer) | ✅ `accordion (pathway)` / `accordion (timeline)` (static); `accordion (courses)` on school-coach has NO code |
+| same — **v2 "with progress bar"** | + the user's progress | account/mylearningprogress | ❌ needs LMS progress data |
+| **Package Required Modal** v1 General + v2–v8 (Achievements, Edit Profile, Schools Partner / Teams / PE, Learning, **Mentorship** = Rally or above) | prompts purchase | see §2 | ❌ |
+| Community Forum Modal | "Coach type required" on some links | account/learning, coaching-community | ❌ |
+| Cost Table | certification costs | learning-pathway, courses | ✅ `cards (comparison)` |
+| Safe Play Required Modal (standalone) | — | "currently not used" | — |
+| Achievements | badges / profile achievements | account/edit-profile, coach-achievements | ❌ |
+| Achievements Modals | congratulation pop-up after a new badge | mylearningprogress, dashboard | ❌ |
+Note: tiers / cost table / certifications are copied statically per page; the source keeps ONE XF each. Consider
+EDS fragments so a price / course change is edited once.
+
+### 2. Gated pages (Package Required / Community Forum pop-up) — 23 EN pages
+**11 public:**
+1. https://www.ustacoaching.com/en/home/results/college-coach.html
+2. https://www.ustacoaching.com/en/home/results/ft-pro-coach.html
+3. https://www.ustacoaching.com/en/home/results/pt-pro-coach.html
+4. https://www.ustacoaching.com/en/home/results/school-coach.html
+5. https://www.ustacoaching.com/en/home/results/guardian-coach.html
+6. https://www.ustacoaching.com/en/home/results/volunteer-emerging-coach.html
+7. https://www.ustacoaching.com/en/home/courses.html
+8. https://www.ustacoaching.com/en/home/learning-pathway.html
+9. https://www.ustacoaching.com/en/home/coaching-community/coaching-workshops.html
+10. https://www.ustacoaching.com/en/home/coach-mentorship.html (Mentorship version: Rally or above)
+11. https://www.ustacoaching.com/en/home/coaching-community.html (Community Forum pop-up on the discussion-boards "Access")
+
+**12 account (need a login):** account/mylearningprogress, account/learning, account/coach-achievements,
+account/edit-profile, account/myschools, account/myschools/add/partner-registration,
+account/myschools/{add,edit,renew}/team-registration, account/myschools/{add,edit,renew}/pe-class-registration
+(all under https://www.ustacoaching.com/en/home/…html). The two `renew/*` pages come from the document only —
+NOT in our site catalog (probably reachable only when logged in) → add to scope.
+**Personalised only (no gate):** account/dashboard, account/mybenefits, account/mymembership.
+Also in the document but not in our catalog: `/en/home/membership-benefits-rebuild.html` (ask the client).
+
+### 3. "Package" = the USTA Coaching membership plan (not software)
+From the Terms page: **Baseline** (free, 13+), **Rally**, **Pro**, **Pro Plus** (paid yearly; 18+ and Safe Play
+approved = criminal background check + SafeSport course + agreement to the abuse-prevention policies).
+
+### 4. How the source gates — verified live (logged out)
+- The gate is NOT on the page: the full content always shows. It sits on BUTTONS carrying
+  `data-button-action="check-paid-package:packageRequiredModal"`, handled by one delegated click handler
+  (clientlib-base). On coach-mentorship: "Register Now" ×3, "Apply to Become a Mentor", "Find Your Mentor",
+  "Current Participant(s) Access" ×2. Clicking one logged out shows **"RALLY OR ABOVE PACKAGE REQUIRED —
+  Participants must have an active USTA Coaching Rally, Pro, or Pro Plus package. [Join]"** (verified).
+- Results / courses / learning-pathway / workshops carry the hidden pop-up **"USTA Coaching Package Required — You
+  need an active membership to view Learning Progress and access the USTA Coaching Online Learning Hub."** but no
+  gated buttons: logged out, a course link opens the LMS (ustacoaching.csod.com) → USTA sign-in in a new tab, no
+  pop-up. So it most likely shows for a logged-in user without an active package (inside the course / LMS
+  widgets) — confirm with a test login. Unclear whether Baseline counts as "active membership".
+- Other button actions seen: `community_forum` (coaching-community "Access"), `wizard` (Join / Get Started for
+  Free — results ×6, coaching-workshops), `quiz` (membership-benefits, coachtennis), `check-vendor-profile`,
+  `toggle-visibility`.
+
+### 5. How the source knows the user's package (all client-side)
+- **Login:** Sign In / Join → USTA central login (`https://account.usta.com/authorize`) → back to
+  `https://ustacoaching.com/{locale}/login.html`. The browser stores an **access token** and an **ID token**
+  (JWT; holds the USTA account id `uaid`) in localStorage (`access_token_<clientId>`, `id_token_<clientId>`).
+  `coaching.auth.isUserLoggedIn()` = tokens present and valid. The client id is public config (no secret).
+- **Check on click:** not logged in → pop-up straight away. Logged in →
+  `GET https://services.ustacoaching.com/v1/profile/lightweight` with `Authorization: Bearer <access token>` →
+  `data.membership` {status, packageCode}. **Allowed only if** status ∈ {ACTIVE, PENDING_EXPIRATION, SUSPENDED}
+  **and** packageCode ∈ {RALLY, PRO, PRO_PLUS} → the link opens; otherwise the pop-up. Result cached in
+  localStorage per user. (SUSPENDED counting as allowed looks odd — confirm with the client.)
+- **Other user APIs in the site config** (same service, `services.ustacoaching.com/v1` and
+  `services.usta.com/v1`): `/customers/me/membership` (status, type), `/customers/me/safeplay/status`,
+  `/profile/me/lms` (learning progress), `/profile/coach-types`, `/profile/me/onboarding`, wizard endpoints
+  (pii, shipping-address, business-info, referral), wallet; quiz on a separate AWS API (recommended package).
+
+### 6. What changes after login on PUBLIC pages (scan of 22 public pages, logged out)
+| Where | What changes | Kind |
+|---|---|---|
+| Header (all pages) | Join / Sign In → user menu (My Membership …) | shared component behaviour |
+| coaching-workshops | section "Unlock On-Demand Workshops…" = `data-authentication-check="nonLogged"` → shown ONLY to logged-out users | **the only conditional section found** |
+| coach-mentorship | 5 buttons check the paid package | button behaviour, same content |
+| coaching-community | "Access" checks coach type (Community Forum pop-up) | button behaviour |
+| results ×6, coaching-workshops | Join / Get Started for Free → Join wizard | button behaviour |
+| membership-benefits, coachtennis | Start / Take the Quiz → quiz | button behaviour |
+| learning-pathway, results, courses (likely) | certification accordions / course list may show the user's badges / progress | API data — NOT yet verified (needs a test login) |
+Account pages: almost everything personal (membership, progress, achievements, benefits) — all from the API.
+**Conclusion: the source does NOT author content per package.** A conditional section is authored ONCE with a
+display rule (logged-out / logged-in / API condition: `data-authentication-check`, `data-conditions`,
+`data-api-url`, `data-logical-operator`); personal data is filled in by widgets.
+
+### 7. EDS approach (proposed — not built)
+1. **Conditional sections:** author once + a section setting, e.g. `Audience: logged-out` or
+   `Audience: rally, pro, pro-plus`; one shared script checks the status once per page (same `profile/lightweight`
+   call) and shows / hides the marked sections. Today: 1 section on 1 public page. NO duplicate content per package.
+2. **Personal data** (progress, badges, benefits, membership, account nav): blocks that fetch from the API and
+   render it — no per-package authoring.
+3. **Gated buttons:** a button option like the source's `check-paid-package` (+ `community_forum`, `wizard`,
+   `quiz`), with the pop-up content authored ONCE as a fragment (`/modals/...`).
+4. **One shared modal block** (fragment content; opened by a link / button or automatically — first login, new
+   badge, missing package); accessible (focus trap, Esc, focus return).
+5. **Gating rule sheet** (DA): page → required package + pop-up version.
+6. **Quiz:** authored question sheet + a stepper block → the matching `/results/*` page. **Join wizard** (incl.
+   payment): link to the existing flow unless the client wants it rebuilt.
+7. **Architecture decision with the client:** (A) rebuild the account area as EDS blocks on the USTA APIs, or
+   (B) keep the account / app screens (dashboard, my-*, edit-profile, schools, Join wizard, payment) on the
+   existing platform and link to them — far cheaper for a lift-and-shift.
+- Watch: search engines and first load see the logged-out version; logged-in-only sections start hidden (no
+  flicker). On `*.aem.page` / `*.aem.live` there is no USTA session — USTA must add those origins to the login's
+  allowed return URLs and to the API's allowed origins (CORS) for testing; on `www.ustacoaching.com` the existing
+  setup should just work. Never put secrets in client code (none are needed).
+
+### 8. Open questions for the client
+- [ ] Test accounts: no package, Baseline, a paid package (Rally / Pro / Pro Plus), Safe Play pending vs approved,
+      each coach type, with and without learning progress.
+- [ ] API docs + allowed origins for `services.ustacoaching.com` / `services.usta.com` / the quiz API; login
+      return URLs for the EDS hosts.
+- [ ] Scope of the account area (option A vs B above) and of the Join wizard / payment.
+- [ ] Does Baseline count as "active membership" for the Package Required pop-up? Is SUSPENDED meant to pass?
+- [ ] Exact triggers of the Package Required pop-up on results / courses / learning-pathway / workshops.
+- [ ] `myschools/renew/*` and `membership-benefits-rebuild` pages — in scope?
+- [ ] Modal / banner texts (or export of the XF content) to import into fragments.
+
+### 9. Already-migrated pages affected
+- home: Join / Sign In / Start the Quiz not wired; Comparison Matrix not built.
+- coach-mentorship: the 5 gated buttons link straight through (no package check).
+- coaching-community: discussion-boards "Access" has no Community Forum check.

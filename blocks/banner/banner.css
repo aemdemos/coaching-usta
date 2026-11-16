@@ -659,3 +659,105 @@ main > .section.banner-container > div {
 @media (width >= 1280px) {
   .banner.spotlight .banner-cta { font-size: 24px; }
 }
+
+/* ---- stacked variant --------------------------------------------------------
+   Source: coaching-community "Career Center is Live" (`container--border--white`
+   panel): the heading and copy STACKED in one column, the CTA alone in a right
+   column. Outlined black panel (1px white, 20px radius) 8px (12px from 768) past
+   the content edges; panel padding 12px 10px → 24px 16px (768) → 32px 24px (1024)
+   plus the components' 12px 8px (12px from 768) inset. Heading USTA Sans 28 → 32
+   (768) → 40 (1024), line-height 1; copy Graphik Regular 18/24. CTA: a 56px lime
+   button, 12px radius, label 16 → 18 (1024) → 24 (1280); it fills its column
+   (6 of 12 on phones, under the copy; 3 of 12 at 768; 2 of 12 from 1024) but never
+   squeezes its label (it then runs past the column, as the source does). */
+.banner.stacked {
+  margin-inline: -8px;
+  padding: 24px 18px;
+}
+
+.banner.stacked .banner-inner {
+  display: grid;
+  grid-template-columns: 100%;
+  align-items: start;
+  gap: 24px;
+}
+
+.banner.stacked .banner-content { display: contents; }
+
+.banner.stacked .banner-heading {
+  font-size: 28px;
+  line-height: 28px;
+  text-transform: none;
+}
+
+.banner.stacked .banner-body p {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+.banner.stacked .banner-action {
+  place-self: start;
+  width: calc((100% - 16px) / 2);
+}
+
+.banner.stacked .banner-cta {
+  width: 100%;
+  min-width: max-content;
+  max-width: none;
+  height: 56px;
+  padding: 14px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: normal;
+}
+
+@media (width >= 768px) {
+  .banner.stacked {
+    margin-inline: -12px;
+    padding: 36px 28px;
+  }
+
+  /* text column = 9 of the panel's 12 columns (incl. the 12px column insets),
+     CTA column = the rest */
+  .banner.stacked .banner-inner {
+    grid-template-columns: calc((100% + 24px) * 9 / 12 - 24px) minmax(0, 1fr);
+    grid-template-areas: "heading action" "body action";
+    gap: 24px;
+  }
+
+  .banner.stacked .banner-heading {
+    grid-area: heading;
+    font-size: 32px;
+    line-height: 32px;
+  }
+
+  .banner.stacked .banner-body { grid-area: body; }
+
+  .banner.stacked .banner-action {
+    grid-area: action;
+    width: 100%;
+  }
+}
+
+@media (width >= 1024px) {
+  .banner.stacked { padding: 44px 36px; }
+
+  .banner.stacked .banner-inner {
+    grid-template-columns: calc((100% + 24px) * 10 / 12 - 24px) minmax(0, 1fr);
+  }
+
+  .banner.stacked .banner-heading {
+    font-size: 40px;
+    line-height: 40px;
+  }
+
+  .banner.stacked .banner-cta { font-size: 18px; }
+}
+
+@media (width >= 1280px) {
+  .banner.stacked .banner-cta { font-size: 24px; }
+}

@@ -264,6 +264,18 @@ var CustomImportScript = (() => {
   function emitSection(s, { document, pagePath }) {
     const out = [];
     const lead = [];
+    let wrap = s;
+    let padded = null;
+    for (let guard = 0; guard < 6 && wrap; guard += 1) {
+      if (/container--padding--/.test(wrap.className || "")) {
+        padded = wrap;
+        break;
+      }
+      const list = components(wrap);
+      wrap = list.length === 1 && isContainer(list[0]) ? list[0] : null;
+    }
+    const insetPx = Number((padded && padded.className.match(/\bcontainer--padding--\d+px-(\d+)px\b/) || [])[1] || 0);
+    const inset = insetPx >= 1 && insetPx <= 64 ? [`inset-${insetPx}`] : [];
     for (const c of comps(s)) {
       if (isText(c) && centredSpan(c)) lead.push(c);
       else break;
@@ -276,7 +288,7 @@ var CustomImportScript = (() => {
         nodes2.push(...textEls(c, document));
         c.remove();
       });
-      const styles2 = [...cls(lead[0], "cmp-text--alignment-center") ? ["center"] : [], `narrow-${n}`];
+      const styles2 = [...cls(lead[0], "cmp-text--alignment-center") ? ["center"] : [], `narrow-${n}`, ...inset];
       out.push({ name: "heading", nodes: nodes2, styles: styles2 });
     }
     const k = KINDS.find((kd) => {
@@ -291,6 +303,7 @@ var CustomImportScript = (() => {
     const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
     const styles = [];
     if (centred && !(k && /^(hero|banner)/.test(k.name))) styles.push("center");
+    styles.push(...inset);
     out.push({ name: k ? k.name : "default", nodes, styles });
     return out;
   }
@@ -405,6 +418,24 @@ var CustomImportScript = (() => {
         const narrowBody = list.filter(isText).slice(1).some((c) => /aem-GridColumn--default--10\b/.test(c.className));
         const name = s.getAttribute("data-bg") === "blue" && lime && text[0]?.tagName === "H2" ? `Banner (spotlight${narrowBody ? ", narrow" : ""})` : `Banner (centered${s.getAttribute("data-bg") === "blue" ? ", blue" : ""})`;
         return [block(document, name, [[text, b ? b.querySelector("a") : ""]])];
+      }
+    },
+    {
+      // an outlined (`container--border--white`) rounded panel: heading + copy stacked in
+      // one column, a single CTA in its own column at the right ("Career Center is Live")
+      name: "banner-stacked",
+      match: (s) => {
+        if (!/container--border--white/.test(s.className) || deep(s).some(isImage)) return false;
+        const d = comps(s);
+        const textCol = d.filter((c) => isContainer(c) && components(c).filter(isText).length >= 2 && !deep(c).some((k) => isButton(k) || isImage(k)));
+        return d.filter(isButton).length === 1 && textCol.length === 1 && d.every((c) => isButton(c) || textCol.includes(c) || kind(c) === "separator");
+      },
+      emit: (s, { document, pagePath }) => {
+        const d = comps(s);
+        const text = [];
+        components(d.find(isContainer)).filter(isText).forEach((c, i) => text.push(...textEls(c, document, { headingLevel: i === 0 ? 2 : 0 })));
+        const b = buttonEl(d.find(isButton), document, pagePath);
+        return [block(document, "Banner (stacked)", [[text, b ? b.querySelector("a") : ""]])];
       }
     },
     {
@@ -650,6 +681,19 @@ var CustomImportScript = (() => {
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       if (!root) throw new Error("landing-page content grid not found");
+      const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags)\b/.test(k.className || "");
+      [...root.children].forEach((k) => {
+        if (!loose(k)) return;
+        const prev = k.previousElementSibling;
+        if (prev && prev.hasAttribute("data-loose-run")) {
+          prev.append(k);
+          return;
+        }
+        const run = document.createElement("div");
+        run.setAttribute("data-loose-run", "");
+        k.replaceWith(run);
+        run.append(k);
+      });
       const out = document.createElement("div");
       const report = [];
       let first = true;
@@ -690,6 +734,10 @@ var CustomImportScript = (() => {
         q.textContent = q.textContent.replace(BLANK, "");
         if (!norm(q.textContent) && !q.querySelector("img")) q.remove();
       }
+    });
+    out.querySelectorAll("a[href]").forEach((a) => {
+      const m = a.getAttribute("href").match(/^(?:https?:\/\/(?:www\.)?ustacoaching\.com)?(\/(?:en|es)(?:\/[^?#]*)?)\.html([?#].*)?$/);
+      if (m) a.setAttribute("href", m[1] + (m[2] || ""));
     });
   }
 
@@ -774,6 +822,12 @@ var CustomImportScript = (() => {
       title: "Banner (Spotlight, Narrow)",
       intro: 'The spotlight banner with its copy on 10 of the 12 columns (<code>banner (spotlight, narrow)</code>), as on the coaching-community "Professional Career Consulting" band.',
       examples: [{ anchor: "Professional Career Consulting" }]
+    },
+    "banner-stacked": {
+      page: CC,
+      title: "Banner (Stacked)",
+      intro: "An outlined promo band (<code>banner (stacked)</code>; one row: a cell with the H2 heading + copy, a cell with the CTA link \u2014 the same authoring as the base banner): black panel, 1px white outline, 20px radius; the USTA Sans heading (28 \u2192 32 \u2192 40) STACKED over Graphik 18/24 copy in one column, and the lime 56px button (12px radius, label 16 \u2192 18 \u2192 24) alone in a right column \u2014 3 of 12 columns at 768, 2 of 12 from 1024; under the copy on phones. The button fills its column but never squeezes its label.",
+      examples: [{ anchor: "Career Center is Live" }]
     },
     "text-style-lead-subhead": {
       page: CM,

@@ -1934,11 +1934,17 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 /* testimonial: the landing "What Others Are Saying" cards (coaching-community).
-   Source: no border, Graphik Regular 18/24 italic quote; a tall gap (42 + 26px
-   separators plus a 96-type spacer: 8px → 84px @1024 → 96px @1280) before a 1px
-   #979797 rule inset like the text (8px / 12px from 768); then the name (bold) and
-   the role, both white 18/24. */
+   Source: no border, Graphik Regular 18/24 italic quote; a 1px #979797 rule inset
+   like the text (8px / 12px from 768); then the name (bold) and the role, both white
+   18/24. Measured on the card with the tallest quote (its only spacer is the
+   96-type separator): quote → rule 38 → 119 (1024) → 148px (1280); rule → name
+   line 31 → 34 → 42px; last line → card bottom 39 → 42 → 50px. The source authors
+   extra spacers into the shorter cards so all the rules of a row line up; from 768
+   the cards share their rows (subgrid), so every rule sits under the row's tallest
+   quote — exactly aligned, whatever the quotes. Phones (one card per row): the
+   base gaps. */
 .cards.quote.testimonial .cards-quote-card {
+  padding-bottom: 27px;
   border: 0;
 }
 
@@ -1949,7 +1955,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
 .cards.quote.testimonial .cards-quote-divider {
   width: auto;
-  margin: 96px 8px 0;
+  margin: 26px 8px 16px;
   border: 0;
   border-top: 1px solid #979797;
 }
@@ -1963,15 +1969,29 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 @media (width >= 768px) {
+  .cards.quote.testimonial > ul { row-gap: 0; }
+
+  /* each card spans the list's three shared rows: quote | rule | attribution */
+  .cards.quote.testimonial .cards-quote-card {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+
   .cards.quote.testimonial .cards-quote-divider { margin-inline: 12px; }
 }
 
 @media (width >= 1024px) {
-  .cards.quote.testimonial .cards-quote-divider { margin-top: 180px; }
+  .cards.quote.testimonial .cards-quote-card { padding-bottom: 30px; }
+
+  .cards.quote.testimonial .cards-quote-divider { margin-block: 107px 19px; }
 }
 
 @media (width >= 1280px) {
-  .cards.quote.testimonial .cards-quote-divider { margin-top: 200px; }
+  .cards.quote.testimonial .cards-quote-card { padding-bottom: 38px; }
+
+  .cards.quote.testimonial .cards-quote-divider { margin-block: 136px 27px; }
 }
 
 /* every cards variant gives its SECTION the site gutter (16/40/48/64): the section's
@@ -2100,4 +2120,11 @@ main > .section.cards-container > .default-content-wrapper {
   }
 
   .cards.icons .cards-icons-image img { width: 28px; }
+}
+
+/* `inset-N` section style (styles.css: --section-gutter + --section-pad): the quote /
+   icon card sections pad the section themselves, so they add the inset here. Other
+   cards variants keep their own section padding (they need the same line to follow). */
+.cards-container.inset-px:has(.cards.quote, .cards.icons) {
+  padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
 }

@@ -95,6 +95,12 @@ const SAMPLES = {
     intro: 'The spotlight banner with its copy on 10 of the 12 columns (<code>banner (spotlight, narrow)</code>), as on the coaching-community "Professional Career Consulting" band.',
     examples: [{ anchor: 'Professional Career Consulting' }],
   },
+  'banner-stacked': {
+    page: CC,
+    title: 'Banner (Stacked)',
+    intro: 'An outlined promo band (<code>banner (stacked)</code>; one row: a cell with the H2 heading + copy, a cell with the CTA link — the same authoring as the base banner): black panel, 1px white outline, 20px radius; the USTA Sans heading (28 → 32 → 40) STACKED over Graphik 18/24 copy in one column, and the lime 56px button (12px radius, label 16 → 18 → 24) alone in a right column — 3 of 12 columns at 768, 2 of 12 from 1024; under the copy on phones. The button fills its column but never squeezes its label.',
+    examples: [{ anchor: 'Career Center is Live' }],
+  },
   'text-style-lead-subhead': {
     page: CM,
     title: 'Text Style (Lead / Subhead)',
