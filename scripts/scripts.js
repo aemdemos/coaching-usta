@@ -274,20 +274,23 @@ function decorateSectionMetadata(main) {
       if (!value) return;
       if (key === 'style') {
         value.split(',').map((s) => toClassName(s.trim())).filter(Boolean)
-          .forEach((s) => {
-            section.classList.add(s);
-            // `narrow-N`: the section's content on N of 12 grid columns (styles.css)
-            const span = Number((s.match(/^narrow-(\d+)$/) || [])[1]);
-            if (span >= 1 && span <= 12) {
-              section.style.setProperty('--section-span', span);
-              section.classList.add('narrow-cols');
-            }
-          });
+          .forEach((s) => section.classList.add(s));
       } else {
         section.dataset[toCamelCase(key)] = value;
       }
     });
     meta.remove();
+  });
+  // `narrow-N`: the section's content on N of 12 grid columns (styles.css). The
+  // delivery pipeline already turns section-metadata styles into classes on the
+  // section div, so read the class from every section, not just from metadata.
+  main.querySelectorAll(':scope > div[class*="narrow-"]').forEach((section) => {
+    const cls = [...section.classList].find((c) => /^narrow-\d+$/.test(c));
+    const span = cls ? Number(cls.slice(7)) : 0;
+    if (span >= 1 && span <= 12) {
+      section.style.setProperty('--section-span', span);
+      section.classList.add('narrow-cols');
+    }
   });
 }
 

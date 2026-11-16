@@ -4164,3 +4164,43 @@ User decision: consistency over 4–28px parity — **removed** `inset`, `inset-
     can't be deleted from here — remove them in the editor/DA.
 - Gates: lint 0 errors · breakpoints ✓ · svg ✓ · overflow ✓ (4 pages, home, 15 samples) · typography ✓ (4 pages,
   home) · a11y ✓ (4 pages, 15 samples).
+
+### 2026-11-16 — SCOPE DECISION: Spanish (ES) pages are OUT of scope
+Customer decision: the `/es/` page set is **not** migrated here — it will be produced later by a Smartling
+translation of the EN pages. Migrate **EN only** from now on. ES pages already in content/ (home, coach-mentorship,
+coaching-community, membership terms, 56 news articles) stay as-is; no new ES imports.
+- Landing-page template, EN status (catalog: 13 EN pages):
+  - Imported with `import-landing-page-v1.js` + verified (log 10-21 / 10-23): home, coach-mentorship, coaching-community.
+  - Present in content/ + on aem.page but NOT built by our importer / not logged (no Template metadata, no backup,
+    origin unknown — likely authored in DA): membership terms-and-conditions, gallagher-disclaimer pro / pro-plus /
+    rally (and baseline, catalog template disclaimer-form). Need a parity check vs source before counting as done.
+  - Pending (dry-run reports only, 10-21, completeness 10–60%; 404 on aem.page): coaching-workshops,
+    fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit, courses, learning-pathway, account/flag-profile.
+
+### 2026-11-16 — coaching-community "Fellowship Program": width + spacing parity (3 fixes)
+Measured vs source at 375/768/1024/1280/1440/1920 (heading, intro, both photos, Learn More CTA).
+1. **`narrow-N` was silently a no-op on every page (global bug).** The delivery pipeline (aem.page AND the local
+   server) now turns section-metadata `Style` into classes on the section div *before* our JS runs, so
+   `decorateSectionMetadata` never saw `narrow-10` → no `--section-span` / `.narrow-cols`. Result: narrow headings were
+   full width, and the landing-page "join heading section to the next section" rules never fired (heading→intro gap
+   48 → 128px vs source 24). Fix (scripts.js): after the metadata pass, every `main > div` with a `narrow-N` class
+   gets `--section-span` + `.narrow-cols`, whatever the class came from. Affects all narrow-N sections (coach-mentorship,
+   coaching-community, section samples) — now 24px heading→intro as on the source.
+2. **Block → copy gap lost 12px (landing template).** The copy's first-item 12px margin collapsed into the 42px
+   separator (42 instead of 54). `.default-content-wrapper` is now `display: flow-root` (landing-page.css). Photos →
+   Learn More 54 → 66 (= source); also fixed coaching-community "USTA Coaching Network" Learn More (66 = source) and
+   coach-mentorship "Register Now" (98 = source) — the only other block→copy spots on the landing pages.
+3. **4px side inset NOT reproduced (user decision 2026-11-16, keeps the 10-23 "consistency over 4px" rule).** The
+   source wraps this section in `container--padding--12px-4px` (section + grid 4px further in each side); an
+   `inset-4` section style was tried, matched exactly, and was then removed at the user's request. Same container on
+   the source (also not reproduced): coaching-community "USTA Coaching Network", "What Others Are Saying";
+   coach-mentorship "Why Tennis Coach Mentorship Matters", "Benefits of Becoming…", "How the Program Works", "Join
+   the USTA Coaching Network Today", "FAQ's".
+Result: heading on 10/12 and gaps 24 / 66 / 66 = source at all 6 widths; intro / photos / CTA 4px wider each side
+(accepted).
+- Gotcha: `localhost:3000/<path>` serves the PUBLISHED content (proxied from aem.page) with local code; the local
+  content/ copy is at `localhost:3000/content/<path>`. Measure local content edits there.
+- Gotcha: the repo's Playwright wants chromium_headless_shell-1187; only 1254 is installed here — checkers were run
+  with `executablePath` pointed at the installed build (temporary wrapper, removed).
+Gates: lint 0 errors (8 pre-existing console warnings) · breakpoints ✓ · overflow ✓ (coaching-community,
+coach-mentorship @360–1920) · typography ✓ (both) · a11y ✓ (both).

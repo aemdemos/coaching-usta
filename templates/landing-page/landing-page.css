@@ -19,6 +19,7 @@ body.landing-page main :is(.default-content-wrapper, .columns.cta, .columns.bloc
 /* default content = a run of source text components, each padded 12px top and bottom:
    24px between items, 12px above the first and below the last */
 body.landing-page main .default-content-wrapper {
+  display: flow-root; /* the first item's 12px stays inside: after a block it adds to the 42px separator (source 54) instead of collapsing into it */
   padding-bottom: 12px;
 }
 
