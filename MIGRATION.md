@@ -42,6 +42,9 @@ cards-media, cards-pricing, columns, columns-cta, columns-media, columns-quote, 
 header, hero, hero-video, widget. _Document each block's authoring contract + variants here as you touch them._
 
 ## 6. Open items / TODO
+- [ ] **MIGRATION ROADMAP (agreed 2026-11-17): Phase 1 = import every in-scope page as-is (logged-out view);
+      Phase 2 = dynamic / login-dependent features.** Page status table, Phase 2 inventory and build order in the
+      section "MIGRATION ROADMAP — Phase 1 … → Phase 2 …" at the end of this file.
 - [ ] **Dynamic / login-dependent content** (Join wizard, quiz, Package Required + other pop-ups, gated buttons,
       account area): analysis + client questions in the section "DYNAMIC & LOGIN-DEPENDENT CONTENT — analysis
       2026-11-16" near the end of this file. Needed before results / courses / learning-pathway / workshops /
@@ -4453,3 +4456,108 @@ display rule (logged-out / logged-in / API condition: `data-authentication-check
 - home: Join / Sign In / Start the Quiz not wired; Comparison Matrix not built.
 - coach-mentorship: the 5 gated buttons link straight through (no package check).
 - coaching-community: discussion-boards "Access" has no Community Forum check.
+
+## MIGRATION ROADMAP — Phase 1: static import as-is → Phase 2: dynamic & login-dependent features (agreed 2026-11-17)
+**Decision (user, 2026-11-17):** first import every in-scope page **as-is** (what a logged-out visitor sees);
+only when that is done, build the dynamic / content-changing items on top. EN only (ES = Smartling later).
+The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT — analysis 2026-11-16" above.
+
+### Phase 1 — static import (as-is)
+**What "as-is" means**
+- Import the page as a LOGGED-OUT visitor sees it, with the profile-driven importer per template (no
+  hand-built pages), then the usual verify loop (parity at every breakpoint, quality gate, backup, log).
+- **Gated buttons** (`data-button-action` = check-paid-package / community_forum / wizard / quiz) are imported as
+  normal links / buttons with their source href (no check yet). Where the source button has no real href (Join
+  wizard, quiz), keep the label and link it to the closest real page; list it for Phase 2.
+- **Pop-ups** (Package Required, Safe Play, Wizard, Quiz, Oops, Community Forum, Achievements) are NOT imported.
+- **Conditional sections** (e.g. coaching-workshops "Unlock On-Demand Workshops", `nonLogged`) are imported as
+  normal content (logged-out = what the source shows); they get their audience setting in Phase 2.
+- **Data widgets:** public data stays live as today (course-filter → LMS); user-specific parts (badges, progress)
+  are imported in their logged-out state.
+- **Record every dynamic hook while importing** (button action, conditional section, data widget — page +
+  section) in this section's "Phase 2 inventory" below, so Phase 2 starts from a complete list.
+
+**Phase 1 pages (EN) and status**
+| Status | Pages |
+|---|---|
+| ✅ Done + verified | home (`import-home`); news articles ×56 (`import-news-article-v1`) |
+| ✅ Re-imported + verified (`en/home` replaced 2026-11-17; old versions in `drafts/meet/backup/`) | coach-mentorship, coaching-community |
+| 🟡 First pass in `drafts/meet` — mapping still needed | coaching-community/{coaching-workshops, fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit}, courses, learning-pathway, membership terms (complete text), gallagher-disclaimer {pro, pro-plus, rally} (form sheet mapping), account/flag-profile (Formstack form) — gap list in the 2026-11-16 first-pass log entry |
+| 🟠 In content but never imported / parity-checked (authored in DA) | results ×5 (college, ft-pro, pt-pro, school, volunteer-emerging), about/faqs, gallagher-disclaimer-baseline, settings/lead-interests, settings/unsubscribe |
+| ⬜ Not started | results/guardian-coach (+ the results set via an importer); listing-hub: news index, news search results, coachtennis, workshops, workshops/education-center-locations; about; learning-pathway/usta-coaching-equivalency-application; job-board; membership-benefits; maintenance-page |
+| ⛔ Not Phase 1 | account area (dashboard, my-*, edit-profile, coach-achievements, learning, myschools/* incl. renew/*) — client-rendered app screens; decision A/B in Phase 2. auth-error pages. |
+
+**Phase 1 exit criteria:** every page above imported by an importer, parity-checked at 375 / 768 / 1024 / 1280 /
+1440 (+ wide), quality gate green, backups + log entries done, Phase 2 inventory complete.
+
+### Phase 2 inventory (dynamic hooks found so far — extend during Phase 1)
+| Page | Hook | Phase 2 work |
+|---|---|---|
+| all pages (header) | Join / Sign In; user menu after login | login + session script; Join → wizard (or link) |
+| home | Join / Sign In / "Start the Quiz"; Comparison Matrix | quiz; matrix block (static part can be Phase 1 if confirmed) |
+| coach-mentorship | 5 buttons `check-paid-package` (Rally or above) | gated-button option + "Rally or above" pop-up |
+| coaching-community | discussion-boards "Access" `community_forum` (coach type) | Community Forum pop-up |
+| coaching-workshops | section "Unlock On-Demand Workshops" `nonLogged`; Join `wizard` | audience setting; wizard |
+| results ×6 | Join / Get Started for Free `wizard`; Package Required pop-up (logged-in, no package); certification accordions (badges / progress?) | wizard; pop-up; verify personal data with a test login |
+| courses, learning-pathway | Package Required pop-up; course list → LMS; certification accordions | pop-up; verify personal data |
+| membership-benefits, coachtennis | "Start the Quiz" / "Take the Quiz" `quiz` | quiz |
+| account area (12 gated + 3 personalised) | everything personal; Package Required v2–v7; Achievements modals | decision A (rebuild) / B (link to existing platform) |
+
+### Phase 2 — dynamic & login-dependent features (after Phase 1)
+Build order (each step reusable site-wide):
+1. **Login / session script:** USTA sign-in (account.usta.com) round trip; read the login tokens; one cached
+   `profile/lightweight` call per page → membership status + package (+ Safe Play, coach type when needed).
+2. **Audience setting for sections** (`Audience: logged-out | logged-in | rally, pro, pro-plus …`): content
+   authored ONCE; the script shows / hides; logged-in-only sections start hidden (no flicker; crawlers see the
+   logged-out page).
+3. **Modal block** with fragment content (`/modals/...`), opened by links / buttons or automatically
+   (first login, new badge, missing package); accessible (focus trap, Esc, focus return).
+4. **Gated-button options** like the source (`check-paid-package`, `community_forum`, `wizard`, `quiz`) + a
+   **gating rule sheet** in DA (page / button → required package → pop-up version).
+5. **Quiz:** question sheet + stepper block → the matching `/results/*` page.
+6. **Join wizard + payment:** link to the existing flow (recommended) or rebuild — client decision.
+7. **Personal-data blocks:** progress bars, badges / achievements, benefits banners, Safe Play banners, account
+   navigation — fetched from the USTA APIs, no per-package authoring.
+8. **Account area:** per the A / B decision.
+9. Optional: tiers / cost table / certifications as shared fragments (one copy, like the source XFs).
+
+**Phase 2 prerequisites (asks to the customer):** test accounts (no package, Baseline, paid, Safe Play pending /
+approved, each coach type, with / without progress); API docs + allowed origins for the EDS hosts
+(`*.aem.page`, `*.aem.live`) and login return URLs; account-area scope (A / B) and Join wizard / payment scope;
+pop-up and banner texts (or XF export); the gating list (which page / button needs which package); go-live on
+www.ustacoaching.com; answers on Baseline = "active membership"?, SUSPENDED allowed?, exact Package Required
+triggers, `myschools/renew/*` + `membership-benefits-rebuild` in scope?
+
+### 2026-11-17 — en/home coach-mentorship + coaching-community replaced with the drafts/meet re-imports
+- Backup of the previous pages first: `drafts/meet/backup/{coach-mentorship,coaching-community}` (byte-identical
+  copies of the old `en/home` pages = what the EDS preview still shows until uploaded).
+- `en/home/coach-mentorship` ← `drafts/meet/coach-mentorship`: same content; adds `inset-4` on 7 sections
+  (Benefits of Becoming… heading + icon cards, How the Program Works, Join… heading + CTA columns, FAQ's heading +
+  accordion).
+- `en/home/coaching-community` ← `drafts/meet/coaching-community`: adds the "Career Center is Live" band
+  (`Banner (stacked)`), `inset-4` on 6 sections (USTA Coaching Network, Fellowship Program, What Others Are Saying
+  — heading + content each), "Book Now" → https://calendly.com/kk-w-consulting (live source).
+- Before the swap: the published preview (aem.page) = the old local `en/home` pages (content identical).
+- Verified vs live source @375/768/1024/1440/1600 (line counts + text extents of every inset / new section): all
+  match except a 1px sub-pixel at 768 and coach-mentorship "Why Tennis Coach Mentorship Matters", which the source
+  hides at 768–1023 (known source quirk, logged 10-21). Gates: overflow ✓ · typography ✓ · a11y ✓ (both pages).
+- LOCAL only: not uploaded to DA, not previewed / published — the aem.page URLs still show the old versions.
+
+### 2026-11-17 — coach-mentorship FAQ accordion: answer panel, email link and +/− icon = source (source CSS extracted)
+Measured the open item "What if my tennis coaching mentor match isn't right?" on source vs ours at
+375 / 768 / 1024 / 1280 / 1440, and read the source's matched CSS rules. Card, question and their spacing already
+matched; fixed:
+- **Answer = a TEXT COMPONENT in the panel** (source `.cmp-accordion__panel { padding-top: 10px; font-size: 18px;
+  line-height: 24px }` + `.aem-GridColumn { padding: 12px }` / `12px 8px` <768; `p { margin: 0 }`). Landing FAQ
+  only (landing-page.css; the HOME accordion's panel holds plain text — 16/19.2 → 18/21.6 ≥1280 — unchanged):
+  body padding 22px 8px 12px (12px sides ≥768), p 18/24, letter-spacing normal at every width.
+- **Email link:** `.cmp-text--colored a { color: inherit }` + `.cmp-text a { text-decoration: underline }` →
+  black + underlined on the open (lime) card (was white, no underline).
+- **+/− icon** (accordion.css, all default accordions incl. home): source = 48×48 plus.svg / minus.svg at the row
+  end, a 20.4px line, stroke 3.5, square caps → bars 24 × 3.5, 12px in from the row end (were 22 × 2 at the
+  edge). Verified centre position = source on coach-mentorship and home (375 / 1440).
+- Result: open card box, answer box (x / width / height), question → answer 28 / 28 / 38 / 37 / 37, answer → card
+  bottom 38, left 32 / 36, link style — all identical to source at all 5 widths; side-by-side crops @1440 match.
+- Gates: lint 0 errors · breakpoints ✓ · overflow ✓ · typography ✓ · a11y ✓ (en/home/coach-mentorship, en/home,
+  accordion-closed sample). Pre-existing, unrelated: the old `accordion` sample fails a11y contrast on the
+  `timeline` variant's meta headings (What To Expect / Minimum Req. Package / Industry Equivalent) — not touched.

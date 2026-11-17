@@ -83,15 +83,17 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
   margin: 0;
 }
 
-/* +/- toggle: horizontal bar always, vertical bar only when closed */
+/* +/- toggle: horizontal bar always, vertical bar only when closed. Source: a 48×48
+   SVG at the row end (plus.svg / minus.svg) — a 20.4px line, stroke 3.5, square caps
+   (→ 24 × 3.5 bars), centred in the box, i.e. 12px in from the row end */
 .accordion.accordion-default .accordion-item-label::before,
 .accordion.accordion-default .accordion-item-label::after {
   content: '';
   position: absolute;
   top: 50%;
-  right: 0;
-  width: 22px;
-  height: 2px;
+  right: 12px;
+  width: 24px;
+  height: 3.5px;
   background-color: currentcolor;
   transform: translateY(-50%);
   transition: opacity 0.2s;

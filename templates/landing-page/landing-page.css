@@ -100,6 +100,29 @@ body.landing-page .accordion.accordion-default .accordion-item + .accordion-item
   margin-top: 10px;
 }
 
+/* the landing FAQ answer is a TEXT COMPONENT inside the panel (source coach-mentorship;
+   the home accordion's panel holds plain text instead): panel 10px top + the component's
+   12px 8px (12px from 768) padding; Graphik Regular 18/24, normal tracking, at every
+   width; links inherit the text colour and are underlined (`.cmp-text--colored a`) */
+body.landing-page .accordion.accordion-default .accordion-item-body {
+  padding: 22px 8px 12px;
+}
+
+body.landing-page .accordion.accordion-default .accordion-item-body p {
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+body.landing-page .accordion.accordion-default .accordion-item-body a:any-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (width >= 768px) {
+  body.landing-page .accordion.accordion-default .accordion-item-body { padding-inline: 12px; }
+}
+
 /* a narrow heading section (narrow-N, default content only) introduces the section
    after it — on the source they are one section: no section gap between them, and the
    usual 42px separator before the next block (not before a text-style intro or icon
