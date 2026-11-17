@@ -1,0 +1,105 @@
+/* toc — the source's coaching tab strip (`core-tabs__coaching`, coaching-workshops
+   "ONLINE WEBINARS"), measured @375 / 768 / 1024 / 1280 / 1440:
+   - the strip sits in a component padded 12px 8px (12px from 768);
+   - phones: no track; tabs as wide as their label (flex 1 1 max-content), 8px apart with
+     an 8px margin, 68px tall, 0 12px padding, 20px radius; inactive #2d2d2d;
+   - from 768: a #2d2d2d track, 20px radius; tabs share the width (flex 1 1 120px) 16px
+     apart with an 8px margin, 101px tall (106px at 1024), 0 20px padding; inactive
+     transparent; the active tab is lime with black text everywhere;
+   - label Graphik Semibold (700), line-height 22px: 14px → 12px (768) → 14px (1024) →
+     16px (1280), centred;
+   - the target section starts 20px under the strip. */
+.toc.block {
+  padding: 12px 8px 20px;
+}
+
+.toc .toc-list {
+  display: flex;
+  gap: 8px;
+  border-radius: 20px;
+}
+
+.toc .toc-tab {
+  display: flex;
+  flex: 1 1 max-content;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 68px;
+  margin: 8px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 20px;
+  background-color: #2d2d2d;
+  color: #fff;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: normal;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.toc .toc-tab[aria-selected='true'] {
+  background-color: var(--usta-lime);
+  color: #000;
+}
+
+.toc .toc-tab:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.toc .toc-tab[aria-selected='true']:focus-visible {
+  outline-color: var(--usta-lime);
+}
+
+@media (width >= 768px) {
+  .toc.block {
+    padding: 12px 12px 20px;
+  }
+
+  .toc .toc-list {
+    gap: 16px;
+    background-color: #2d2d2d;
+  }
+
+  .toc .toc-tab {
+    flex: 1 1 120px;
+    height: 101px;
+    padding: 0 20px;
+    background-color: transparent;
+    font-size: 12px;
+  }
+}
+
+@media (width >= 1024px) {
+  .toc .toc-tab {
+    height: 106px;
+    font-size: 14px;
+  }
+}
+
+@media (width >= 1280px) {
+  .toc .toc-tab {
+    height: 101px;
+    font-size: 16px;
+  }
+}
+
+/* the tab sections (`.toc-panel`, set by toc.js): an inactive one stays hidden; its copy sits
+   in the tabs component's 8px (12px from 768) padding + the text component's own 8 / 12px */
+main > .section.toc-panel[hidden] {
+  display: none;
+}
+
+main > .section.toc-panel .default-content-wrapper > * {
+  padding-inline: 16px;
+}
+
+@media (width >= 768px) {
+  main > .section.toc-panel .default-content-wrapper > * {
+    padding-inline: 24px;
+  }
+}

@@ -2,9 +2,9 @@
   "status": "success",
   "url": "https://www.ustacoaching.com/en/home/coaching-community/coaching-workshops.html",
   "path": "en/home/coaching-community/coaching-workshops",
-  "timestamp": "2026-11-16T04:42:40.606Z",
+  "timestamp": "2026-11-17T06:30:39.697Z",
   "title": "COACHING WORKSHOPS | USTA Coaching",
   "template": "landing-page",
-  "sections": "default | default",
-  "importScript": "f767b0bdf7f8"
+  "sections": "columns-media-outlined | heading | events-list | heading | columns-promo | heading | toc | toc-panel | toc-panel | default",
+  "importScript": "5ca39d658df7"
 }

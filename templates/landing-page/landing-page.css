@@ -1,3 +1,5 @@
+/* stylelint-disable no-descending-specificity -- template overrides are ordered by page flow, not specificity */
+
 /* landing-page template (metadata `Template: landing-page`) — the source landing pages'
    own component type styles (measured on coach-mentorship, coaching-community, …):
    - section headings = the `text--font-size--40px-28px` USTA Sans style: 28 → 32 (768)
@@ -42,6 +44,13 @@ body.landing-page main .default-content-wrapper p.blank {
 
 @media (width >= 1024px) {
   body.landing-page main :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) { font-size: 40px; }
+}
+
+/* `heading-64` (landing pages only): the source's `text--font-size--64px-28px` headings
+   (coaching-workshops, learning-pathway) = the GLOBAL h2 size (28 → 40 → 56 → 64px via
+   --heading-font-size-xl), instead of the template's smaller h2 above */
+body.landing-page main > .section.heading-64 :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) {
+  font-size: var(--heading-font-size-xl);
 }
 
 /* section rhythm: the source's section containers (`container--top-margin--52` /
@@ -139,8 +148,10 @@ body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-w
   margin-top: 42px;
 }
 
+/* heading → copy: 24px = the heading component's 12px bottom (the heading section's
+   wrapper padding) + the copy component's 12px top (source coaching-workshops) */
 body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > .default-content-wrapper:first-child > :first-child {
-  margin-top: 24px;
+  margin-top: 12px;
 }
 
 /* the outlined Banner (stacked) band (source `container--top-margin--32 …bottom-margin--32`,
@@ -156,4 +167,119 @@ body.landing-page main > .section.banner-container:has(.banner.stacked) { paddin
 
 @media (width >= 1280px) {
   body.landing-page main > .section.banner-container:has(.banner.stacked) { padding-bottom: 44px; }
+}
+
+/* copy / display headings that sit INSIDE the source's outer-gutter wrapper (coaching-workshops:
+   the tabs intro, the `heading-64` section headings) are text components padded 8px (12px
+   from 768) inside the gutter; copy straight in the page grid (e.g. the footnote) sits at
+   the gutter, and the events section bakes the inset into its own gutter (columns.css) */
+body.landing-page main > .section:has(.toc) .default-content-wrapper > :is(p, ul, ol, h3) {
+  padding-inline: 8px;
+}
+
+body.landing-page main > .section.heading-64 .default-content-wrapper > :is(h1, h2) {
+  margin-inline: 8px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section:has(.toc) .default-content-wrapper > :is(p, ul, ol, h3) {
+    padding-inline: 12px;
+  }
+
+  body.landing-page main > .section.heading-64 .default-content-wrapper > :is(h1, h2) {
+    margin-inline: 12px;
+  }
+}
+
+/* intro copy → events list / promo cards (coaching-workshops, measured): the source's
+   42px separator plus the list component's own 12 + 12px (events: 66px) or the card's
+   12px (promo: 54px) */
+body.landing-page main > .section > .default-content-wrapper + div.columns-wrapper:has(> .columns.events) {
+  margin-top: 66px;
+}
+
+body.landing-page main > .section > .default-content-wrapper + div.columns-wrapper:has(> .columns.promo) {
+  margin-top: 54px;
+}
+
+/* a promo-card section on its own (not a tab) sits in the source's `container--padding--small`
+   (sides 16px on phones, 12px from 768): the cards 16px in on phones (the block's own 12px
+   from 768), the intro copy (a text component, 8 / 12px) 24px in at every width; it ends with
+   the source's 26px separator + its 12px (36px from 1280) bottom padding */
+body.landing-page main > .section:not(.toc-panel):has(.columns.promo) {
+  padding-bottom: 38px;
+}
+
+body.landing-page main > .section:not(.toc-panel):has(.columns.promo) .columns-promo-panel {
+  margin-inline: 16px;
+}
+
+body.landing-page main > .section:not(.toc-panel):has(.columns.promo) .default-content-wrapper > :is(p, ul, ol, h3) {
+  padding-inline: 24px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section:not(.toc-panel):has(.columns.promo) .columns-promo-panel {
+    margin-inline: 12px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:not(.toc-panel):has(.columns.promo) {
+    padding-bottom: 62px;
+  }
+}
+
+/* toc tab sets (coaching-workshops "ONLINE WEBINARS"): the tab sections follow the strip
+   directly — strip → panel 20px (the toc block's own bottom padding), then the source's
+   42px separator before a panel's first block (a panel opening with copy uses the copy's
+   usual 12px); each tab section ends 24px below its content (separator + component) */
+body.landing-page main > .section:has(.toc) {
+  padding-bottom: 0;
+}
+
+body.landing-page main > .section.toc-panel {
+  padding: 0 0 24px;
+}
+
+body.landing-page main > .section.toc-panel > div.columns-wrapper:first-child {
+  margin-top: 42px;
+}
+
+/* default-content h3 = the source's plain h3 (coaching-workshops "Recorded Webinars"):
+   Graphik Semibold 20 → 22 (1024) → 24px (1280), line-height 1, normal tracking */
+body.landing-page main .default-content-wrapper h3:not([class]) {
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+}
+
+@media (width >= 1024px) {
+  body.landing-page main .default-content-wrapper h3:not([class]) { font-size: 22px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main .default-content-wrapper h3:not([class]) { font-size: 24px; }
+}
+
+/* a CTA inside a tab section (source `button-core--small button--height--56-50-48-48`):
+   a content-width lime button, ≥170px on phones / ≥120px from 768, 48 → 50 (1024) →
+   56px tall (1280), 14px padding, 18px label */
+body.landing-page main > .section.toc-panel .default-content-wrapper a.button {
+  min-width: 170px;
+  height: 48px;
+  padding: 0 14px;
+  font-size: 18px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section.toc-panel .default-content-wrapper a.button { min-width: 120px; }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.toc-panel .default-content-wrapper a.button { height: 50px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.toc-panel .default-content-wrapper a.button { height: 56px; }
 }

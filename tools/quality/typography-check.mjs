@@ -72,9 +72,11 @@ function measure(tags) {
       // per-block, not against the global default-content type scale. The same
       // goes for the homepage `.intro-statement` display paragraph (32→72px by
       // design, verified against its own source component) and the news-article
-      // template's article frame (its own source-measured type: h1 28→50px etc.).
+      // template's article frame (its own source-measured type: h1 28→50px etc.),
+      // and the `heading-64` section style (the source's display-size
+      // text--font-size--64px-28px headings: 28→40→56→64px by design).
       return r.width > 0 && r.height > 0 && e.textContent.trim()
-        && !e.closest('.block, .intro-statement, body.news-article main > .section.bordered');
+        && !e.closest('.block, .intro-statement, body.news-article main > .section.bordered, main > .section.heading-64');
     });
     if (!el) continue;
     const cs = getComputedStyle(el);

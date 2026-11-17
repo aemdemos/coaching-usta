@@ -10,11 +10,12 @@
  */
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
 import landing, {
-  emitSection, finalizeOutput, contentRoot, block, el, norm, TEMPLATE,
+  emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE,
 } from './import-landing-page-v1.js';
 
 const CM = 'coach-mentorship';
 const CC = 'coaching-community';
+const CW = 'coaching-workshops';
 
 const SAMPLES = {
   'hero-content': {
@@ -101,6 +102,18 @@ const SAMPLES = {
     intro: 'An outlined promo band (<code>banner (stacked)</code>; one row: a cell with the H2 heading + copy, a cell with the CTA link — the same authoring as the base banner): black panel, 1px white outline, 20px radius; the USTA Sans heading (28 → 32 → 40) STACKED over Graphik 18/24 copy in one column, and the lime 56px button (12px radius, label 16 → 18 → 24) alone in a right column — 3 of 12 columns at 768, 2 of 12 from 1024; under the copy on phones. The button fills its column but never squeezes its label.',
     examples: [{ anchor: 'Career Center is Live' }],
   },
+  'columns-media-outlined': {
+    page: CW,
+    title: 'Columns (Media, Outlined)',
+    intro: 'The <code>columns (media)</code> row with its card as the source\'s white-OUTLINED container (<code>columns (media, outlined)</code>; one row: a text cell (heading, copy, list) and an image cell, in either order): transparent card, 1px white border, 20px radius, white text; USTA Sans heading 32 / 40 (1024) / 56 (1280) centred, Graphik 16 / 18 copy, an 18/24 bullet list 42px below. Photo 20px radius: above the card on phones, 2:3 at 768, as tall as the card at 1024, 5:6 from 1280.',
+    examples: [{ anchor: 'Tennis Coaching Workshops & Webinars' }],
+  },
+  toc: {
+    page: CW,
+    title: 'TOC (Tabs over sections)',
+    intro: 'A tab set over whole page SECTIONS (<code>toc</code>; one row per tab: label | anchor). Each tab\'s content is its own section after the block, carrying Section Metadata <code>toc-anchor</code> = the anchor, so a tab can hold any blocks (here Columns (promo) rows). Clicking a tab shows only its section; deep links use the source\'s form <code>#tab=upcoming</code> / <code>#tab=recordedwebinars</code>; arrow keys switch tabs. Phones: tabs as wide as their label, 68px, inactive #2d2d2d; from 768: a #2d2d2d track, tabs share the width, 101px (106px at 1024); active lime.',
+    examples: [{ anchor: 'ONLINE WEBINARS' }],
+  },
   'text-style-lead-subhead': {
     page: CM,
     title: 'Text Style (Lead / Subhead)',
@@ -131,7 +144,7 @@ export default {
     cleanupTransformer('beforeTransform', main, payload);
     main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
     const { root, skip } = contentRoot(main);
-    const sections = [...root.children].filter((s) => !skip(s) && norm(s.textContent));
+    const sections = prepareSections(root, document, skip).filter((s) => !skip(s) && norm(s.textContent));
     const find = (anchor) => {
       const s = sections.find((x) => [...x.querySelectorAll('h1, h2, h3, p')].some((h) => norm(h.textContent).toLowerCase() === anchor.toLowerCase()));
       if (!s) throw new Error(`section "${anchor}" not found on ${url}`);
@@ -147,11 +160,12 @@ export default {
       block(document, 'Spacer', [['desktop', '40px'], ['mobile', '24px']]),
     );
     sample.examples.forEach(({ anchor, pick }) => {
-      emitSection(find(anchor), { document, pagePath }).forEach(({ nodes, styles }) => {
+      emitSection(find(anchor), { document, pagePath }).forEach(({ nodes, styles, meta }) => {
         // `pick`: keep the headings and the named block only
         const kept = pick ? nodes.filter((n) => /^H[1-6]$/.test(n.tagName) || blockName(n).startsWith(pick)) : nodes;
         if (!kept.length) return;
-        out.append(hr(document), ...kept, ...(styles.length ? [block(document, 'Section Metadata', { Style: styles.join(', ') })] : []));
+        const cells = { ...(styles.length ? { Style: styles.join(', ') } : {}), ...(meta || {}) };
+        out.append(hr(document), ...kept, ...(Object.keys(cells).length ? [block(document, 'Section Metadata', cells)] : []));
       });
     });
     out.append(

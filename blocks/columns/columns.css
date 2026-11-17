@@ -2365,7 +2365,8 @@ main > .section.columns-container:has(.columns.promo) > div {
   padding: 0 16px;
 }
 
-/* each row = an outlined rounded panel; stacked with 24px between panels */
+/* each row = an outlined rounded panel; stacked 26px apart (the source's separator between
+   cards: 4px vertical paddings + the separator line box, coaching-workshops webinar list) */
 .columns.promo > div {
   display: block;
 }
@@ -2381,7 +2382,7 @@ main > .section.columns-container:has(.columns.promo) > div {
 }
 
 .columns.promo .columns-promo-panel + .columns-promo-panel {
-  margin-top: 24px;
+  margin-top: 26px;
 }
 
 /* header: title (left) + CTA (right). Mobile-first the title sits above the CTA
@@ -2759,4 +2760,160 @@ main > .section.columns-container:has(.columns.promo) > div {
 
 @media (width >= 1280px) {
   .columns.photos img { aspect-ratio: 2 / 1; }
+}
+
+/* ---- media, `outlined` option (coaching-workshops top: "Tennis Coaching Workshops &
+   Webinars") ----
+   Same frame model as the light card (the card's 24 / 48px insets + 50/50 split from 768),
+   but the card is the source's white-OUTLINED container: transparent, 1px white border,
+   20px radius, white text (text 25px in: border 1 + 24), plus a trailing 42px separator. Measured
+   @375 / 768 / 1024 / 1280 / 1440:
+   - heading (h1): USTA Sans 32/32 → 40/40 (1024) → 56/56 (1280), centred, 24px above copy;
+   - intro: Graphik Regular 16/19.2 → 18/21.6 (1280), left; list: 18/24, 40px indent, 42px
+     above, bullets;
+   - photo: 20px radius, cover; phones above the card at 1.247:1; 768 at 2:3; 1024 as tall
+     as the card; from 1280 at 5:6 (top aligned — the card may be taller); the card stretches
+     to a taller photo with its copy at the bottom (source).
+   Only `.columns.media.outlined` rules — the light / dark media cards are untouched. The
+   selector prefix carries :not(.dark):has() so it outranks the light card's Safe Play rules. */
+.columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content {
+  justify-content: flex-end;
+  padding: 23px 24px 65px;
+  border: 1px solid #fff;
+  background-color: transparent;
+  color: #fff;
+}
+
+.columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2, h3) {
+  width: auto;
+  max-width: none;
+  margin: 0 0 24px;
+  font-family: var(--heading-font-family);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 32px;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+
+.columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content p {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content ul {
+  max-width: none;
+  margin: 42px 0 0;
+  padding-left: 40px;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+.columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media img {
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+@media (width >= 768px) {
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content {
+    justify-content: flex-end;
+  }
+
+  /* tablet: the photo keeps its own 2:3 frame (not the card's height) */
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media {
+    position: static;
+    align-self: flex-start;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media picture {
+    position: static;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media img {
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+}
+
+@media (width >= 1024px) {
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2, h3) {
+    font-size: 40px;
+    line-height: 40px;
+  }
+
+  /* 1024: the photo is as tall as the card */
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media {
+    position: relative;
+    align-self: stretch;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media picture {
+    position: absolute;
+    inset: 0;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+@media (width >= 1280px) {
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content {
+    padding: 47px 24px 89px;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2, h3) {
+    font-size: 56px;
+    line-height: 56px;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-content p {
+    font-size: 18px;
+  }
+
+  /* from 1280 the photo keeps a 5:6 frame, top aligned */
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media {
+    position: static;
+    align-self: flex-start;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media picture {
+    position: static;
+  }
+
+  .columns.media.outlined:not(.dark):has(.columns-media-content) .columns-media-media img {
+    height: auto;
+    aspect-ratio: 5 / 6;
+  }
+}
+
+/* the source's outlined card sits in an `outer-gutter-paddings` container padded 12px on
+   top: the block starts 12px below its section top (coaching-workshops @all widths); it is
+   followed on the source by an empty spacer container (padding 8px + 32px margins), which is
+   reproduced as the card's bottom margin: 100 → 116 (768) → 124 (1024) → 140px (1280) */
+.columns.media.outlined.block {
+  margin-top: 12px;
+  margin-bottom: 100px;
+}
+
+@media (width >= 768px) {
+  .columns.media.outlined.block { margin-bottom: 116px; }
+}
+
+@media (width >= 1024px) {
+  .columns.media.outlined.block { margin-bottom: 124px; }
+}
+
+@media (width >= 1280px) {
+  .columns.media.outlined.block { margin-bottom: 140px; }
 }

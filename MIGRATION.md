@@ -45,6 +45,8 @@ header, hero, hero-video, widget. _Document each block's authoring contract + va
 - [ ] **MIGRATION ROADMAP (agreed 2026-11-17): Phase 1 = import every in-scope page as-is (logged-out view);
       Phase 2 = dynamic / login-dependent features.** Page status table, Phase 2 inventory and build order in the
       section "MIGRATION ROADMAP — Phase 1 … → Phase 2 …" at the end of this file.
+- [ ] **Phase 1 import schedule (planned 2026-11-17):** 31 pending EN pages, 2 people × 5 pages / day, Days 1–3 +
+      buffer Day 4 — see the section "PHASE 1 IMPORT SCHEDULE" at the end of this file.
 - [ ] **Dynamic / login-dependent content** (Join wizard, quiz, Package Required + other pop-ups, gated buttons,
       account area): analysis + client questions in the section "DYNAMIC & LOGIN-DEPENDENT CONTENT — analysis
       2026-11-16" near the end of this file. Needed before results / courses / learning-pathway / workshops /
@@ -4561,3 +4563,167 @@ matched; fixed:
 - Gates: lint 0 errors · breakpoints ✓ · overflow ✓ · typography ✓ · a11y ✓ (en/home/coach-mentorship, en/home,
   accordion-closed sample). Pre-existing, unrelated: the old `accordion` sample fails a11y contrast on the
   `timeline` variant's meta headings (What To Expect / Minimum Req. Package / Industry Equivalent) — not touched.
+
+## PHASE 1 IMPORT SCHEDULE — pending EN pages (2 people × 5 pages / day = 10 pages / day) — planned 2026-11-17
+Scope = the Phase 1 rows of the MIGRATION ROADMAP (static, as-is, logged-out view). Done already: home,
+coach-mentorship, coaching-community, 56 news articles. Not in Phase 1: account area, auth-error, ES.
+Effort: L = existing blocks, mostly mapping · M = a few new options · H = new blocks / dynamic public lists.
+Pages are grouped by importer / shared blocks so each person builds a mapping ONCE and reuses it.
+
+### Day 1 — finish the landing pages (landing importer exists; first passes in drafts/meet)
+| Person A — community pages | Eff. | Person B — education + Gallagher | Eff. |
+|---|---|---|---|
+| /en/home/coaching-community/coaching-workshops (events list, Tabs, Columns promo) — ✅ imported to drafts/meet 2026-11-17, awaiting review | H | /en/home/courses (Tabs, course filter, Cards comparison) | H |
+| /en/home/coaching-community/fellowship-in-coaching-and-leadership (feature cards, dates banner + rows, Video, Columns quote) | M | /en/home/learning-pathway (Accordion pathway ×4, Cards comparison, Banner centered) | M |
+| /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) | L |
+| /en/home/membership-benefits/coaching-membership-terms-and-conditions (long text — imports complete; parity only) | L | /en/home/membership-benefits/gallagher-disclaimer-pro-plus | L |
+| /en/home/account/flag-profile (heading + intro + Form flag-form) | L | /en/home/membership-benefits/gallagher-disclaimer-rally | L |
+
+### Day 2 — results pages (NEW quiz-results importer, one template) + small form / utility pages
+| Person A — results importer | Eff. | Person B — utility pages | Eff. |
+|---|---|---|---|
+| /en/home/results/college-coach (builds the importer: tiers, Accordion pathway, Cards media stacked, Columns media) | M | /en/home/results/volunteer-emerging-coach (reuses A's importer — after A's first page) | L |
+| /en/home/results/ft-pro-coach | L | /en/home/about/faqs (Accordion `faq` — option has no code yet) | M |
+| /en/home/results/pt-pro-coach (Accordion timeline) | L | /en/home/membership-benefits/gallagher-disclaimer-baseline (same form as Day 1) | L |
+| /en/home/results/school-coach (Accordion `courses` — option has no code yet; Cards icons) | M | /en/home/settings/lead-interests (Form) | L |
+| /en/home/results/guardian-coach (not imported yet) | L | /en/home/settings/unsubscribe (`unsubscribe` block does not exist yet) | M |
+
+### Day 3 — listing hub (dynamic PUBLIC lists) + long-form / one-off pages
+| Person A — listing hub | Eff. | Person B — long-form + one-offs | Eff. |
+|---|---|---|---|
+| /en/home/news (news index: latest articles, featured, tags — list from the EDS query index) | H | /en/home/about (Cards text, Columns profile / Cards profile, Cards logos, Contact) | M |
+| /en/home/news/search-results (search bar + results → Columns list; client-side search on the query index) | H | /en/home/learning-pathway/usta-coaching-equivalency-application (Form application + Tabs application — built) | M |
+| /en/home/coachtennis (quiz CTAs → static links for now) | M | /en/home/job-board (tiers + job content) | L |
+| /en/home/workshops | M | /en/home/membership-benefits (Cards pricing, Banner centered, FAQ) | M |
+| /en/home/workshops/education-center-locations (location list + Google map — largest page, 245 instances) | H | /en/maintenance-page (standalone) | L |
+
+### Day 4 — buffer (half to full day, both)
+- /en/home/settings — confirm first whether it is public or a logged-in app screen (else → Phase 2).
+- Cross-page QA at 375 / 768 / 1024 / 1280 / 1440, fix drifts left from Days 1–3, Phase 2 inventory consolidated,
+  backups + migration-log entries complete. DA upload / preview only on request.
+
+### Definition of done — per page (every day)
+importer run (never hand-built) → images finalized (reuse existing media; new ones to `media-da/<path>/`) →
+parity vs source at 375 / 768 / 1024 / 1280 / 1440 (+ wide) → quality gate (lint, breakpoints, overflow,
+typography, a11y) → importer backup → migration-log entry → dynamic hooks added to the Phase 2 inventory.
+Import into `drafts/meet/<source path>` first; replace the real page only after review (back it up first).
+
+### Risks / dependencies
+- Day 1 Person A + Day 3 Person A carry the H items; if they slip, move flag-profile / terms (Day 1) or
+  coachtennis (Day 3) to the Day 4 buffer.
+- Day 2 Person B's volunteer-emerging page waits for Person A's results importer (start it after the first
+  results page is verified).
+- Missing code to build on the day: Accordion `courses`, Accordion `faq`, `unsubscribe` block, news list +
+  search blocks, education-center locations list / map.
+- Gallagher + flag-profile forms point at DA form sheets — confirm the sheet names with the authors.
+- Gated buttons, quiz / Join wizard links: imported as plain links (Phase 2 adds the behaviour).
+
+### 2026-11-17 — coaching-workshops imported (drafts/meet) — new `Columns (media, outlined)` + `toc` block, heading-64
+Source https://www.ustacoaching.com/en/home/coaching-community/coaching-workshops.html → local
+`drafts/meet/coaching-community/coaching-workshops` (local only, NOT uploaded to DA; the real
+`en/home/coaching-community/coaching-workshops` gets created after review). Importer: landing `import-landing-page-v1.js`.
+Backup: `tools/importer/backups/landing-page/coaching-workshops-2026-11-17/`.
+
+**Page structure (top to bottom):** outlined top card (`Columns (media, outlined)`) → "IN-PERSON WORKSHOPS"
+heading + intro → `Columns (events)` list → "IN-PERSON EVENTS" heading + intro → `Columns (promo)` card →
+"ONLINE WEBINARS" heading + intro → `Toc` (Upcoming | Recorded Webinars) → panel section `upcoming`
+(`Columns (promo)` webinar cards) → panel section `recorded-webinars` (heading, copy, Join CTA) → footnote.
+
+**New / changed pieces**
+- **`Columns (media, outlined)`** (blocks/columns/columns.css). The user asked for a white-border option on the
+  existing `media` columns that leaves the existing blocks alone. It's a new `outlined` option, and every rule is
+  prefixed `.columns.media.outlined:not(.dark):has(.columns-media-content)`, so plain `media` / `media dark` are
+  unchanged (re-verified on home, CM, CC). Card: transparent, 1px white border, 20px radius, white text, padding
+  23px 24px 65px (47px 24px 89px ≥1280), copy at the bottom; USTA Sans h 32/32 → 40 (1024) → 56 (1280), centred;
+  Graphik 16/19.2 → 18 (1280); list 42px below, 18/24, 40px indent. Photo 20px radius: phones above the card;
+  768 = 2:3, top-aligned; 1024 = as tall as the card (absolute picture); ≥1280 = 5:6, top-aligned. The empty
+  source spacer container after the card (padding 8px + 32px margins) is the card's own bottom margin: 100 → 116
+  (768) → 124 (1024) → 140px (1280) — no Spacer block. Sample: `drafts/block-samples/columns-media-outlined`.
+- **`toc` block (new, blocks/toc/)**: tabs over whole page SECTIONS, modelled on foundation-usta `toc-profile`.
+  Authoring: one row per tab = label | anchor. Each panel is its own section right after the block with Section
+  Metadata `toc-anchor` = the anchor. If there's no anchor, a section whose heading matches the label is bound
+  instead. ARIA tablist / tab / tabpanel, roving tabindex, arrows + Home/End; inactive sections get `hidden`
+  (`main > .section.toc-panel[hidden] { display:none }` in toc.css). A tab section's copy sits 16px in (24px from
+  768) — the tabs component's 8 / 12px + the text component's 8 / 12px — set in toc.css. Deep links in the source's form `#tab=upcoming` /
+  `#tab=recordedwebinars` (key = label slug without hyphens), written with `history.replaceState` and read on
+  `hashchange`. Strip: phones = label-wide tabs 68px tall, inactive #2d2d2d, 8px gaps; ≥768 = #2d2d2d track,
+  tabs share the width, 101px (106px @1024, 101px @1280), 12 → 14 → 16px labels; active = lime / black. Sample:
+  `drafts/block-samples/toc`.
+- **Width-dependent insets live in block / template CSS — no section style** (user decision, 2026-11-17: keep
+  section styles and Spacers to a minimum). A first pass used a two-value `inset-A-B` section style and a
+  Spacer `desktop-small` row; both were REMOVED (scripts.js, styles.css, spacer.js/.css are back to HEAD). Now:
+  standalone promo section (source `container--padding--small`) → landing-page.css: cards 16px in on phones (12px
+  from 768 = the block's own), intro copy 24px; toc panels → toc.css (above); full-width `heading-64` headings →
+  landing-page.css margin 8 / 12px (the source text component inset); tabs intro copy → landing-page.css 8 / 12px.
+- **`heading-64` (landing-page template only — landing-page.css, nothing in styles.css)**: the source's
+  `text--font-size--64px-28px` h2 IS the global h2 size (28 → 40 → 56 → 64px, `--heading-font-size-xl`), but the
+  landing template shrinks h2 to the `40px-28px` preset (28 → 32 → 40) for coach-mentorship / coaching-community /
+  inclusion-summit. One template rule puts a `heading-64` section's h2 back on the global token — no new font sizes.
+  Source pages using the 64px preset: coaching-workshops, learning-pathway (courses uses `64px-32px`). The importer
+  sets it when the source heading is 64px. Same landing-page template as CM / CC — no new template.
+  `tools/quality/typography-check.mjs` now skips `main > .section.heading-64` (a display style, like
+  `.intro-statement`), so the h2 scale check still applies everywhere else.
+- **Landing h3 scale**: default-content h3 = Graphik Semibold 20 / 1 → 22 (1024) → 24 (1280), recorded in
+  `tools/quality/typography.json` (landing-page template).
+- **landing-page.css**: section gaps measured on the source (events wrapper 66px, promo wrapper 54px below the
+  intro; promo section bottom 38 / 62px; tabs → first card 42px; toc-panel bottom 24px); copy in promo / toc
+  intro padded 8px (12px ≥768), like the source text component; toc-panel CTA 48 / 50 / 56px tall. The file
+  now has a file-level `stylelint-disable no-descending-specificity`, like columns.css, because its overrides are
+  ordered by page flow.
+
+**Importer changes (import-landing-page-v1.js)**
+- `prepareSections(root, document, skip)` (exported, used by the page AND the sample importer): when a
+  `container--outer-gutter-paddings` wrapper holds 2+ section-like children, those children are used directly;
+  loose components between containers are grouped into one section. `contentRoot` stops descending when the large
+  child has siblings with content.
+- New kinds: `columns-media-outlined`, `events-list`, `columns-promo` (the tabs become `Toc` + one section per panel
+  via `emitTabs`; the copy after the tabs becomes its own section). Section parts can carry extra Section Metadata
+  cells (`meta`, e.g. `toc-anchor`). The importer writes NO inset style and NO Spacer for this page (an empty source
+  spacer container is skipped; its gap is block CSS).
+- A centred USTA Sans lead heading is split into its own `narrow-12` section only when the next text isn't centred
+  (this kept coach-mentorship from regressing).
+- Wizard / quiz buttons without an href → `/en/home/membership-benefits` (Phase 2 adds the real wizard).
+- Output for coach-mentorship + coaching-community is still **byte-identical** to before.
+
+**Verified** vs source at 375 / 768 / 1024 / 1280 / 1440: top card position + text widths, spacer gap, headings,
+events intro → list, promo section, promo card → webinars (59 / 67 / 81 / 120), tabs → first card (62), last card →
+footnote (50 / 58 / 74 / 90), tab labels / sizes, recorded tab, tab behaviour (click, arrows, deep link).
+
+**Known deviations (accepted)**
+1. Events card internals at < 1440: the location line is 14px vs 20px in the local preview only. The dev server
+   serves pages without a doctype (quirks mode); aem.page is in standards mode. Re-check on aem.page after upload.
+2. Webinar cards 5–7 are ~21px shorter: the source starts their copy with an empty `<b></b><br>` (a blank line),
+   which the HTML conversion drops. This is a content quirk, so the blank line isn't reproduced.
+3. On the source, the promo CTA (280px pill) sticks out of its card at 768–1279. Ours stays inside, so at 768 card
+   1's title wraps one line more.
+4. Top outlined card height is ±2px (line-box rounding).
+5. Phones only: the source writes `IN-PERSON&nbsp;EVENTS` (non-breaking space), so its heading breaks "IN-" /
+   "PERSON EVENTS" and overflows its box by ~20px; ours breaks "IN-PERSON" / "EVENTS". This is a content quirk, so the
+   source break isn't copied. Lines match from 768.
+
+**Phase 2 hooks on this page**: the events list and webinar cards are static snapshots (source = AEM event
+lists); "Join" / wizard CTAs are plain links; recorded webinars are gated (package required). See DYNAMIC &
+LOGIN-DEPENDENT CONTENT.
+
+Quality gate (2026-11-17): lint 0 errors · breakpoint-check ✓ · overflow ✓ · typography ✓ · a11y ✓ on
+drafts/meet/coaching-community/coaching-workshops, block-samples columns-media-outlined + toc, en/home,
+en/home/coach-mentorship, en/home/coaching-community, section-samples/section-inset-n.
+
+### 2026-11-17 — coaching-workshops: insets + spacer moved into block / template CSS (no new section style)
+User decision: width-dependent paddings belong in the CSS of the block (or the template) they belong to, and
+section styles / Spacers stay at a minimum. Reverted the two-value `inset-A-B` (scripts.js + styles.css) and the
+Spacer `desktop-small` row (spacer.js / spacer.css) to HEAD; `inset-N` (single value, CM / CC) is unchanged. The
+importer no longer writes `inset-8-12` / `inset-16-12` or the Spacer section. Replacements: columns.css (outlined
+card bottom margin 100 / 116 / 124 / 140), toc.css (hidden panels, panel copy 16 / 24), landing-page.css (standalone
+promo cards 16px on phones + intro 24px; `heading-64` heading margin 8 / 12). Re-verified against the source at 375 /
+768 / 1024 / 1280 / 1440, both tabs: top card → heading gap, every heading box + line, intro copy, events + webinar card
+x / width, card gaps (26), footnote = source (only the accepted deviation 5 differs). CM + CC importer output is still
+byte-identical. Quality gate: lint 0 errors · breakpoints ✓ · overflow / typography / a11y ✓ on the page, samples toc /
+columns-media-outlined / columns-promo / spacer, en/home, CM, CC, section-inset-n.
+
+### 2026-11-17 — `heading-64` moved out of styles.css into the landing-page template
+User decision: the 64px heading rule is limited to the landing-page template. styles.css is back to HEAD (no changes from
+this page at all); landing-page.css has one rule, `body.landing-page main > .section.heading-64 … h2:not([class])
+{ font-size: var(--heading-font-size-xl) }`, i.e. the global h2 token. Re-verified: the 3 section headings = source
+font-size / line-height / font / box width at 375 / 768 / 1024 / 1280 / 1440. Gate: lint 0 errors · breakpoints ✓ ·
+overflow / typography / a11y ✓ on the page, block-samples/toc, en/home, CM, CC.

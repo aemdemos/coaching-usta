@@ -105,6 +105,7 @@ var CustomImportScript = (() => {
       const total = kids.reduce((s, k) => s + Number(k.getAttribute("data-h") || 0), 0);
       const big = kids.find((k) => Number(k.getAttribute("data-h") || 0) >= 0.85 * total);
       if (kids.length > 2 && !big) break;
+      if (big && kids.some((k) => k !== big && (norm(k.textContent) || k.querySelector("img")))) break;
       const next = big && big.querySelector(".aem-Grid");
       if (!next) break;
       root = next;
@@ -146,7 +147,7 @@ var CustomImportScript = (() => {
     return m ? Number(m[1]) : 0;
   };
   var isUstaSans = (c) => /text--font-family--usta-sans/.test(c.className || "");
-  function textEls(c, document, { headingLevel } = {}) {
+  function textEls(c, document, { headingLevel, plain } = {}) {
     const cmp = c.querySelector(".cmp-text") || c;
     const out = [];
     const size = fontSize(c);
@@ -197,7 +198,7 @@ var CustomImportScript = (() => {
       prevP = k.tagName === "P" ? k : null;
     });
     const style = { 24: "lead", 18: "subhead" }[size];
-    if (style && !isUstaSans(c) && !headingLevel && out.length && out.every((k) => k.tagName === "P")) {
+    if (style && !plain && !isUstaSans(c) && !headingLevel && out.length && out.every((k) => k.tagName === "P")) {
       const opts = [style, .../cmp-text--alignment-center/.test(c.className) ? ["center"] : []];
       return [block(document, `Text Style (${opts.join(", ")})`, [[out]])];
     }
@@ -217,7 +218,9 @@ var CustomImportScript = (() => {
     const label = norm(a.textContent);
     if (!label) return null;
     const link = el(document, "a");
-    link.href = a.getAttribute("href") || pagePath;
+    const action = (c.querySelector("[data-button-action]") || a).getAttribute("data-button-action") || "";
+    const href = a.getAttribute("href");
+    link.href = /^(wizard|quiz)/.test(action) && (!href || href === "#") ? "/en/home/membership-benefits" : href || pagePath;
     link.textContent = label;
     const p = el(document, "p");
     const wrap = el(document, c.getAttribute("data-btn") === "outline" ? "em" : "strong");
@@ -256,6 +259,88 @@ var CustomImportScript = (() => {
     const k = components(c).filter((x) => kind(x) !== "separator");
     return k.length >= 2 && k.every(isText);
   };
+  var para = (document, text) => {
+    const p = el(document, "p");
+    p.textContent = text;
+    return p;
+  };
+  var slugOf = (t) => norm(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  var isPromoCard = (c) => isContainer(c) && /container--border--white/.test(c.className) && deep(c).some(isButton) && deep(c).filter(isText).length >= 2 && !deep(c).some(isImage);
+  function promoBlock(cards, document, pagePath) {
+    const rows = cards.map((card) => {
+      const d = deep(card);
+      const cell = [];
+      d.filter(isText).forEach((t, i) => {
+        cell.push(...textEls(t, document, { plain: true }));
+        const btn = i === 0 && d.find(isButton);
+        if (btn) {
+          const b = buttonEl(btn, document, pagePath);
+          if (b) {
+            const p = el(document, "p");
+            p.append(b.querySelector("a"));
+            cell.push(p);
+          }
+        }
+      });
+      return [cell];
+    });
+    return block(document, "Columns (promo)", rows);
+  }
+  function eventsBlock(list, viewMore, document, pagePath) {
+    const rows = [...list.querySelectorAll(".v-event")].map((ev) => {
+      const t = (sel) => norm((ev.querySelector(sel) || {}).textContent);
+      const ul = el(document, "ul");
+      ev.querySelectorAll(".v-event__chip").forEach((chip) => {
+        const li = el(document, "li");
+        li.textContent = norm(chip.textContent);
+        ul.append(li);
+      });
+      return [[para(document, t(".v-event__date"))], [para(document, t(".v-event__delivery-method")), para(document, t(".v-event__location")), para(document, t(".v-event__title"))], [ul]];
+    });
+    if (viewMore) {
+      const b = buttonEl(viewMore, document, pagePath);
+      if (b) rows.push([b.querySelector("a")]);
+    }
+    return block(document, "Columns (events)", rows);
+  }
+  function emitTabs(s, { document, pagePath }) {
+    const tabsEl = s.querySelector(".cmp-tabs");
+    const host = tabsEl.closest(".core-tabs") || tabsEl;
+    const others = comps(s).filter((c) => c !== host && !host.contains(c) && !c.contains(host) && kind(c) !== "separator");
+    const lead = others.filter((c) => c.compareDocumentPosition(host) & 4);
+    const trail = others.filter((c) => !lead.includes(c));
+    const toNodes = (list) => {
+      const nodes = [];
+      list.forEach((c) => {
+        if (isText(c)) nodes.push(...textEls(c, document));
+        else if (isButton(c)) {
+          const b = buttonEl(c, document, pagePath);
+          if (b) nodes.push(b);
+        }
+      });
+      return nodes;
+    };
+    const leadNodes = toNodes(lead);
+    const labels = [...tabsEl.querySelectorAll(".cmp-tabs__tab")].map((t) => norm(t.textContent));
+    const centred = lead.some((c) => isText(c) && cls(c, "cmp-text--alignment-center"));
+    const out = [{ name: "toc", nodes: [...leadNodes, block(document, "Toc", labels.map((l) => [l, slugOf(l)]))], styles: centred ? ["center"] : [] }];
+    [...tabsEl.querySelectorAll(".cmp-tabs__tabpanel")].forEach((panel, i) => {
+      const list = comps(panel);
+      const cards = list.filter(isPromoCard);
+      const nodes = [];
+      if (cards.length) {
+        list.filter((c) => !cards.includes(c) && isText(c)).forEach((c) => nodes.push(...textEls(c, document)));
+        nodes.push(promoBlock(cards, document, pagePath));
+      } else nodes.push(...defaultContent(panel, document, pagePath));
+      const firstText = deep(panel).find((c) => isText(c) && norm(c.textContent));
+      out.push({ name: "toc-panel", nodes, styles: firstText && cls(firstText, "cmp-text--alignment-center") ? ["center"] : [], meta: { "toc-anchor": slugOf(labels[i] || `tab-${i + 1}`) } });
+    });
+    if (trail.length) {
+      const centredTrail = trail.some((c) => isText(c) && cls(c, "cmp-text--alignment-center"));
+      out.push({ name: "default", nodes: toNodes(trail), styles: centredTrail ? ["center"] : [] });
+    }
+    return out;
+  }
   function centredSpan(c) {
     const n = Number(((c.className || "").match(/aem-GridColumn--default--(\d+)\b/) || [])[1]);
     const off = Number(((c.className || "").match(/aem-GridColumn--offset--default--(\d+)\b/) || [])[1]);
@@ -276,21 +361,28 @@ var CustomImportScript = (() => {
     }
     const insetPx = Number((padded && padded.className.match(/\bcontainer--padding--\d+px-(\d+)px\b/) || [])[1] || 0);
     const inset = insetPx >= 1 && insetPx <= 64 ? [`inset-${insetPx}`] : [];
+    const texts = comps(s).filter((c) => isText(c) && norm(c.textContent));
+    const centredLead = (c) => {
+      if (centredSpan(c)) return true;
+      const next = texts[texts.indexOf(c) + 1];
+      return cls(c, "cmp-text--alignment-center") && isUstaSans(c) && !!next && !cls(next, "cmp-text--alignment-center");
+    };
     for (const c of comps(s)) {
-      if (isText(c) && centredSpan(c)) lead.push(c);
+      if (isText(c) && centredLead(c)) lead.push(c);
       else break;
     }
     const rest = comps(s).filter((c) => !lead.includes(c) && kind(c) !== "separator");
     if (lead.length && rest.length) {
-      const n = centredSpan(lead[0]);
+      const n = centredSpan(lead[0]) || 12;
       const nodes2 = [];
       lead.forEach((c) => {
         nodes2.push(...textEls(c, document));
         c.remove();
       });
-      const styles2 = [...cls(lead[0], "cmp-text--alignment-center") ? ["center"] : [], `narrow-${n}`, ...inset];
+      const styles2 = [...cls(lead[0], "cmp-text--alignment-center") ? ["center"] : [], `narrow-${n}`, ...fontSize(lead[0]) === 64 ? ["heading-64"] : [], ...inset];
       out.push({ name: "heading", nodes: nodes2, styles: styles2 });
     }
+    if (s.querySelector(".cmp-tabs")) return [...out, ...emitTabs(s, { document, pagePath }).map((p) => ({ ...p, styles: [...p.styles, ...inset] }))];
     const k = KINDS.find((kd) => {
       try {
         return kd.match(s);
@@ -299,7 +391,7 @@ var CustomImportScript = (() => {
       }
     });
     const firstText = deep(s).find((c) => isText(c) && norm(c.textContent));
-    const centred = !!firstText && cls(firstText, "cmp-text--alignment-center") || out.length && out[0].styles.includes("center");
+    const centred = !!firstText && cls(firstText, "cmp-text--alignment-center") || out.length && out[0].styles.includes("center") && !out[0].styles.includes("narrow-12");
     const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
     const styles = [];
     if (centred && !(k && /^(hero|banner)/.test(k.name))) styles.push("center");
@@ -331,6 +423,64 @@ var CustomImportScript = (() => {
         });
         const title = !deep(s).some(isButton);
         return [block(document, title ? "Hero (content, title)" : "Hero (content)", [[img], [content]])];
+      }
+    },
+    {
+      // a white-outlined text card (heading, copy, list — no CTA, no image) beside an image:
+      // `Columns (media, outlined)`, cells in source order (coaching-workshops top)
+      name: "columns-media-outlined",
+      match: (s) => {
+        const d = comps(s);
+        const card = d.find((c) => isContainer(c) && /container--border--white/.test(c.className) && deep(c).some(isText) && !deep(c).some((k) => isButton(k) || isImage(k)));
+        return d.length === 2 && !!card && d.some(isImage);
+      },
+      emit: (s, { document }) => {
+        const cells = comps(s).map((c) => {
+          if (isImage(c)) return [imageEl(c, document)];
+          const texts = [];
+          deep(c).filter(isText).forEach((t) => texts.push(...textEls(t, document, { plain: true })));
+          return texts;
+        });
+        return [block(document, "Columns (media, outlined)", [cells])];
+      }
+    },
+    {
+      // the Vue events list (+ lead heading / copy and the "View More" button)
+      name: "events-list",
+      match: (s) => !!s.querySelector(".v-events-list"),
+      emit: (s, { document, pagePath }) => {
+        const list = s.querySelector(".v-events-list");
+        const host = list.closest(".aem-events-list") || list;
+        const before = [];
+        let viewMore = null;
+        const after = [];
+        comps(s).forEach((c) => {
+          if (c === host || c.contains(host) || kind(c) === "separator") return;
+          const isBefore = !!(c.compareDocumentPosition(host) & 4);
+          if (isButton(c) && !isBefore && !viewMore) {
+            viewMore = c;
+            return;
+          }
+          if (isText(c)) (isBefore ? before : after).push(...textEls(c, document));
+        });
+        return [...before, eventsBlock(list, viewMore, document, pagePath), ...after];
+      }
+    },
+    {
+      // white-outlined event / promo cards (title + CTA + details) after a lead heading / copy
+      name: "columns-promo",
+      match: (s) => comps(s).some(isPromoCard),
+      emit: (s, { document, pagePath }) => {
+        const list = comps(s);
+        const cards = list.filter(isPromoCard);
+        const before = [];
+        const after = [];
+        list.forEach((c) => {
+          if (cards.includes(c) || kind(c) === "separator") return;
+          const isBefore = !!(c.compareDocumentPosition(cards[0]) & 4);
+          if (isText(c)) (isBefore ? before : after).push(...textEls(c, document));
+        });
+        return [...before, promoBlock(cards, document, pagePath), ...after];
       }
     },
     {
@@ -681,30 +831,19 @@ var CustomImportScript = (() => {
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       if (!root) throw new Error("landing-page content grid not found");
-      const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags)\b/.test(k.className || "");
-      [...root.children].forEach((k) => {
-        if (!loose(k)) return;
-        const prev = k.previousElementSibling;
-        if (prev && prev.hasAttribute("data-loose-run")) {
-          prev.append(k);
-          return;
-        }
-        const run = document.createElement("div");
-        run.setAttribute("data-loose-run", "");
-        k.replaceWith(run);
-        run.append(k);
-      });
+      prepareSections(root, document, skip);
       const out = document.createElement("div");
       const report = [];
       let first = true;
       [...root.children].forEach((s) => {
         if (skip(s) || !norm(s.textContent) && !s.querySelector("img")) return;
-        emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles }) => {
+        emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles, meta }) => {
           if (!nodes.length) return;
           if (!first) out.append(document.createElement("hr"));
           first = false;
           out.append(...nodes);
-          if (styles.length) out.append(block(document, "Section Metadata", { Style: styles.join(", ") }));
+          const cells = { ...styles.length ? { Style: styles.join(", ") } : {}, ...meta || {} };
+          if (Object.keys(cells).length) out.append(block(document, "Section Metadata", cells));
           report.push(name);
         });
       });
@@ -715,6 +854,31 @@ var CustomImportScript = (() => {
       return [{ element: out, path: pagePath, report: { title: document.title, template: TEMPLATE, sections: report.join(" | ") } }];
     }
   };
+  function prepareSections(root, document, skip) {
+    [...root.children].forEach((k) => {
+      if (!isContainer(k) || skip(k) || !/container--outer-gutter-paddings/.test(k.className)) return;
+      const kids = components(k);
+      const sectionLike = kids.filter((c) => isContainer(c) && /container--(top|bottom)-margin--/.test(c.className) || /^(core-tabs|aem-events-list)\b/.test(c.className || ""));
+      if (sectionLike.length >= 2) {
+        kids.forEach((c) => c.setAttribute("data-in-wrapper", ""));
+        k.replaceWith(...kids);
+      }
+    });
+    const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags|core-tabs|aem-events-list)\b/.test(k.className || "");
+    [...root.children].forEach((k) => {
+      if (!loose(k)) return;
+      const prev = k.previousElementSibling;
+      if (prev && prev.hasAttribute("data-loose-run")) {
+        prev.append(k);
+        return;
+      }
+      const run = document.createElement("div");
+      run.setAttribute("data-loose-run", "");
+      k.replaceWith(run);
+      run.append(k);
+    });
+    return [...root.children];
+  }
   function finalizeOutput(out, document) {
     out.querySelectorAll("table table").forEach((t) => {
       const frag = document.createDocumentFragment();
@@ -744,6 +908,7 @@ var CustomImportScript = (() => {
   // tools/importer/import-sample-landing-blocks.js
   var CM = "coach-mentorship";
   var CC = "coaching-community";
+  var CW = "coaching-workshops";
   var SAMPLES = {
     "hero-content": {
       page: CM,
@@ -829,6 +994,18 @@ var CustomImportScript = (() => {
       intro: "An outlined promo band (<code>banner (stacked)</code>; one row: a cell with the H2 heading + copy, a cell with the CTA link \u2014 the same authoring as the base banner): black panel, 1px white outline, 20px radius; the USTA Sans heading (28 \u2192 32 \u2192 40) STACKED over Graphik 18/24 copy in one column, and the lime 56px button (12px radius, label 16 \u2192 18 \u2192 24) alone in a right column \u2014 3 of 12 columns at 768, 2 of 12 from 1024; under the copy on phones. The button fills its column but never squeezes its label.",
       examples: [{ anchor: "Career Center is Live" }]
     },
+    "columns-media-outlined": {
+      page: CW,
+      title: "Columns (Media, Outlined)",
+      intro: "The <code>columns (media)</code> row with its card as the source's white-OUTLINED container (<code>columns (media, outlined)</code>; one row: a text cell (heading, copy, list) and an image cell, in either order): transparent card, 1px white border, 20px radius, white text; USTA Sans heading 32 / 40 (1024) / 56 (1280) centred, Graphik 16 / 18 copy, an 18/24 bullet list 42px below. Photo 20px radius: above the card on phones, 2:3 at 768, as tall as the card at 1024, 5:6 from 1280.",
+      examples: [{ anchor: "Tennis Coaching Workshops & Webinars" }]
+    },
+    toc: {
+      page: CW,
+      title: "TOC (Tabs over sections)",
+      intro: "A tab set over whole page SECTIONS (<code>toc</code>; one row per tab: label | anchor). Each tab's content is its own section after the block, carrying Section Metadata <code>toc-anchor</code> = the anchor, so a tab can hold any blocks (here Columns (promo) rows). Clicking a tab shows only its section; deep links use the source's form <code>#tab=upcoming</code> / <code>#tab=recordedwebinars</code>; arrow keys switch tabs. Phones: tabs as wide as their label, 68px, inactive #2d2d2d; from 768: a #2d2d2d track, tabs share the width, 101px (106px at 1024); active lime.",
+      examples: [{ anchor: "ONLINE WEBINARS" }]
+    },
     "text-style-lead-subhead": {
       page: CM,
       title: "Text Style (Lead / Subhead)",
@@ -855,7 +1032,7 @@ var CustomImportScript = (() => {
       transform("beforeTransform", main, payload);
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
-      const sections = [...root.children].filter((s) => !skip(s) && norm(s.textContent));
+      const sections = prepareSections(root, document, skip).filter((s) => !skip(s) && norm(s.textContent));
       const find = (anchor) => {
         const s = sections.find((x) => [...x.querySelectorAll("h1, h2, h3, p")].some((h) => norm(h.textContent).toLowerCase() === anchor.toLowerCase()));
         if (!s) throw new Error(`section "${anchor}" not found on ${url}`);
@@ -870,10 +1047,11 @@ var CustomImportScript = (() => {
         block(document, "Spacer", [["desktop", "40px"], ["mobile", "24px"]])
       );
       sample.examples.forEach(({ anchor, pick }) => {
-        emitSection(find(anchor), { document, pagePath }).forEach(({ nodes, styles }) => {
+        emitSection(find(anchor), { document, pagePath }).forEach(({ nodes, styles, meta }) => {
           const kept = pick ? nodes.filter((n) => /^H[1-6]$/.test(n.tagName) || blockName(n).startsWith(pick)) : nodes;
           if (!kept.length) return;
-          out.append(hr(document), ...kept, ...styles.length ? [block(document, "Section Metadata", { Style: styles.join(", ") })] : []);
+          const cells = { ...styles.length ? { Style: styles.join(", ") } : {}, ...meta || {} };
+          out.append(hr(document), ...kept, ...Object.keys(cells).length ? [block(document, "Section Metadata", cells)] : []);
         });
       });
       out.append(

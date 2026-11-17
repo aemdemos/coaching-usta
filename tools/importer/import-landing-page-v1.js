@@ -56,6 +56,9 @@ function contentRoot(main) {
     const total = kids.reduce((s, k) => s + Number(k.getAttribute('data-h') || 0), 0);
     const big = kids.find((k) => Number(k.getAttribute('data-h') || 0) >= 0.85 * total);
     if (kids.length > 2 && !big) break;
+    // the big child is not the whole page when its siblings carry content (coaching-workshops:
+    // the hero row above it and the footnote below) — this grid is the content root
+    if (big && kids.some((k) => k !== big && (norm(k.textContent) || k.querySelector('img')))) break;
     const next = big && big.querySelector('.aem-Grid');
     if (!next) break;
     root = next;
@@ -94,7 +97,7 @@ const fontSize = (c) => { const m = (c.className || '').match(/text--font-size--
 const isUstaSans = (c) => /text--font-family--usta-sans/.test(c.className || '');
 
 /* a text component → its elements (headings by size style, paragraphs, lists) */
-function textEls(c, document, { headingLevel } = {}) {
+function textEls(c, document, { headingLevel, plain } = {}) {
   const cmp = c.querySelector('.cmp-text') || c;
   const out = [];
   const size = fontSize(c);
@@ -138,7 +141,8 @@ function textEls(c, document, { headingLevel } = {}) {
   // and the smaller subhead (`text--font-size--18px-16px`, 16 → 18); centred on the
   // source → the block's `center` option (a section's centring only reaches default content)
   const style = { 24: 'lead', 18: 'subhead' }[size];
-  if (style && !isUstaSans(c) && !headingLevel && out.length && out.every((k) => k.tagName === 'P')) {
+  // (`plain`: text inside a block cell stays plain paragraphs — a block can't nest a block)
+  if (style && !plain && !isUstaSans(c) && !headingLevel && out.length && out.every((k) => k.tagName === 'P')) {
     const opts = [style, ...(/cmp-text--alignment-center/.test(c.className) ? ['center'] : [])];
     return [block(document, `Text Style (${opts.join(', ')})`, [[out]])];
   }
@@ -162,7 +166,11 @@ function buttonEl(c, document, pagePath) {
   const label = norm(a.textContent);
   if (!label) return null;
   const link = el(document, 'a');
-  link.href = a.getAttribute('href') || pagePath;
+  // Join-wizard / quiz buttons have no real href on the source (a script opens a pop-up):
+  // Phase 1 links them to the closest real page (MIGRATION ROADMAP; Phase 2 adds the pop-up)
+  const action = (c.querySelector('[data-button-action]') || a).getAttribute('data-button-action') || '';
+  const href = a.getAttribute('href');
+  link.href = /^(wizard|quiz)/.test(action) && (!href || href === '#') ? '/en/home/membership-benefits' : (href || pagePath);
   link.textContent = label;
   const p = el(document, 'p');
   // filled (lime) source buttons → **bold** link = primary button; outlined → *italic*
@@ -199,6 +207,91 @@ const isListRow = (c) => isText(c) && !!c.querySelector('.cmp-text__image-and-pa
 /* a container holding only text components (separators aside), at least two */
 const isTopicCard = (c) => { const k = components(c).filter((x) => kind(x) !== 'separator'); return k.length >= 2 && k.every(isText); };
 
+/* a plain <p> with text */
+const para = (document, text) => { const p = el(document, 'p'); p.textContent = text; return p; };
+/* a URL-safe slug ("Recorded Webinars" → "recorded-webinars") */
+const slugOf = (t) => norm(t).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/* a promo / event card: a white-outlined container with a title, a CTA and a details text,
+   no image (coaching-workshops "IN-PERSON EVENTS" + the webinar cards in the tabs) */
+const isPromoCard = (c) => isContainer(c) && /container--border--white/.test(c.className)
+  && deep(c).some(isButton) && deep(c).filter(isText).length >= 2 && !deep(c).some(isImage);
+
+/* promo cards → ONE `Columns (promo)` block, one row per card (title, CTA link, details) */
+function promoBlock(cards, document, pagePath) {
+  const rows = cards.map((card) => {
+    const d = deep(card);
+    const cell = [];
+    d.filter(isText).forEach((t, i) => {
+      cell.push(...textEls(t, document, { plain: true }));
+      const btn = i === 0 && d.find(isButton);
+      if (btn) {
+        // a plain link paragraph: the block styles its own CTA (block sample contract)
+        const b = buttonEl(btn, document, pagePath);
+        if (b) { const p = el(document, 'p'); p.append(b.querySelector('a')); cell.push(p); }
+      }
+    });
+    return [cell];
+  });
+  return block(document, 'Columns (promo)', rows);
+}
+
+/* the Vue events list (`v-events-list`, rendered on the live page) → `Columns (events)`:
+   one row per event — date | delivery method, location, title | chips — plus a row with
+   the "View More" link (block sample contract) */
+function eventsBlock(list, viewMore, document, pagePath) {
+  const rows = [...list.querySelectorAll('.v-event')].map((ev) => {
+    const t = (sel) => norm((ev.querySelector(sel) || {}).textContent);
+    const ul = el(document, 'ul');
+    ev.querySelectorAll('.v-event__chip').forEach((chip) => { const li = el(document, 'li'); li.textContent = norm(chip.textContent); ul.append(li); });
+    return [[para(document, t('.v-event__date'))], [para(document, t('.v-event__delivery-method')), para(document, t('.v-event__location')), para(document, t('.v-event__title'))], [ul]];
+  });
+  if (viewMore) { const b = buttonEl(viewMore, document, pagePath); if (b) rows.push([b.querySelector('a')]); }
+  return block(document, 'Columns (events)', rows);
+}
+
+/* a core-tabs component → a `Toc` block (label | anchor per tab) after the section's lead
+   copy, then ONE SECTION PER TAB carrying Section Metadata `toc-anchor` (the toc block shows
+   one tab's section at a time — tabs hold real blocks, so they can't be nested in a block) */
+function emitTabs(s, { document, pagePath }) {
+  const tabsEl = s.querySelector('.cmp-tabs');
+  const host = tabsEl.closest('.core-tabs') || tabsEl;
+  const others = comps(s).filter((c) => c !== host && !host.contains(c) && !c.contains(host) && kind(c) !== 'separator');
+  // copy BEFORE the tabs introduces them; copy AFTER them (a footnote in the same run of
+  // loose components) becomes its own section after the tab panels
+  const lead = others.filter((c) => c.compareDocumentPosition(host) & 4);
+  const trail = others.filter((c) => !lead.includes(c));
+  const toNodes = (list) => {
+    const nodes = [];
+    list.forEach((c) => {
+      if (isText(c)) nodes.push(...textEls(c, document));
+      else if (isButton(c)) { const b = buttonEl(c, document, pagePath); if (b) nodes.push(b); }
+    });
+    return nodes;
+  };
+  const leadNodes = toNodes(lead);
+  const labels = [...tabsEl.querySelectorAll('.cmp-tabs__tab')].map((t) => norm(t.textContent));
+  const centred = lead.some((c) => isText(c) && cls(c, 'cmp-text--alignment-center'));
+  const out = [{ name: 'toc', nodes: [...leadNodes, block(document, 'Toc', labels.map((l) => [l, slugOf(l)]))], styles: centred ? ['center'] : [] }];
+  [...tabsEl.querySelectorAll('.cmp-tabs__tabpanel')].forEach((panel, i) => {
+    const list = comps(panel);
+    const cards = list.filter(isPromoCard);
+    const nodes = [];
+    if (cards.length) {
+      list.filter((c) => !cards.includes(c) && isText(c)).forEach((c) => nodes.push(...textEls(c, document)));
+      nodes.push(promoBlock(cards, document, pagePath));
+    } else nodes.push(...defaultContent(panel, document, pagePath));
+    const firstText = deep(panel).find((c) => isText(c) && norm(c.textContent));
+    // (the tabs component's 8 / 12px padding around a tab section is in toc.css)
+    out.push({ name: 'toc-panel', nodes, styles: firstText && cls(firstText, 'cmp-text--alignment-center') ? ['center'] : [], meta: { 'toc-anchor': slugOf(labels[i] || `tab-${i + 1}`) } });
+  });
+  if (trail.length) {
+    const centredTrail = trail.some((c) => isText(c) && cls(c, 'cmp-text--alignment-center'));
+    out.push({ name: 'default', nodes: toNodes(trail), styles: centredTrail ? ['center'] : [] });
+  }
+  return out;
+}
+
 /* ------------------------------------------------------------- section kinds -- */
 /* the column span N of a centred text component (`default--N` + `offset--default--(12−N)/2`) */
 function centredSpan(c) {
@@ -224,18 +317,37 @@ function emitSection(s, { document, pagePath }) {
   }
   const insetPx = Number(((padded && padded.className.match(/\bcontainer--padding--\d+px-(\d+)px\b/)) || [])[1] || 0);
   const inset = insetPx >= 1 && insetPx <= 64 ? [`inset-${insetPx}`] : [];
-  for (const c of comps(s)) { if (isText(c) && centredSpan(c)) lead.push(c); else break; }
+  // (the `container--padding--small` preset around a promo section and the wrapper's 8 / 12px
+  // inset around full-width display headings are reproduced in CSS: columns.css /
+  // landing-page.css — no section style)
+  // a centred heading over LEFT-aligned copy (coaching-workshops: the centred section headings
+  // above left-aligned intros) is its own section too — on all 12 columns (`narrow-12`), so it
+  // joins the next section like a narrow heading does
+  const texts = comps(s).filter((c) => isText(c) && norm(c.textContent));
+  const centredLead = (c) => {
+    if (centredSpan(c)) return true;
+    // the copy DIRECTLY under the heading decides (a centred subhead keeps one section)
+    const next = texts[texts.indexOf(c) + 1];
+    return cls(c, 'cmp-text--alignment-center') && isUstaSans(c) && !!next && !cls(next, 'cmp-text--alignment-center');
+  };
+  for (const c of comps(s)) { if (isText(c) && centredLead(c)) lead.push(c); else break; }
   const rest = comps(s).filter((c) => !lead.includes(c) && kind(c) !== 'separator');
   if (lead.length && rest.length) {
-    const n = centredSpan(lead[0]);
+    const n = centredSpan(lead[0]) || 12;
     const nodes = []; lead.forEach((c) => { nodes.push(...textEls(c, document)); c.remove(); });
-    const styles = [...(cls(lead[0], 'cmp-text--alignment-center') ? ['center'] : []), `narrow-${n}`, ...inset];
+    // the source's display heading size (`text--font-size--64px-28px`) → `heading-64`
+    const styles = [...(cls(lead[0], 'cmp-text--alignment-center') ? ['center'] : []), `narrow-${n}`, ...(fontSize(lead[0]) === 64 ? ['heading-64'] : []), ...inset];
     out.push({ name: 'heading', nodes, styles });
   }
+  // tabs: the lead copy + a Toc block, then one section per tab
+  if (s.querySelector('.cmp-tabs')) return [...out, ...emitTabs(s, { document, pagePath }).map((p) => ({ ...p, styles: [...p.styles, ...inset] }))];
   const k = KINDS.find((kd) => { try { return kd.match(s); } catch (e) { return false; } });
   // centred copy (source text component `cmp-text--alignment-center`) → center
   const firstText = deep(s).find((c) => isText(c) && norm(c.textContent));
-  const centred = (!!firstText && cls(firstText, 'cmp-text--alignment-center')) || (out.length && out[0].styles.includes('center'));
+  // (a narrow heading's section inherits its centring; a full-width centred heading split
+  // off LEFT-aligned copy does not)
+  const centred = (!!firstText && cls(firstText, 'cmp-text--alignment-center'))
+    || (out.length && out[0].styles.includes('center') && !out[0].styles.includes('narrow-12'));
   const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
   const styles = [];
   if (centred && !(k && /^(hero|banner)/.test(k.name))) styles.push('center');
@@ -265,6 +377,57 @@ const KINDS = [
       // no CTA → the title-only hero (its own spacing)
       const title = !deep(s).some(isButton);
       return [block(document, title ? 'Hero (content, title)' : 'Hero (content)', [[img], [content]])];
+    },
+  },
+  {
+    // a white-outlined text card (heading, copy, list — no CTA, no image) beside an image:
+    // `Columns (media, outlined)`, cells in source order (coaching-workshops top)
+    name: 'columns-media-outlined',
+    match: (s) => {
+      const d = comps(s);
+      const card = d.find((c) => isContainer(c) && /container--border--white/.test(c.className) && deep(c).some(isText) && !deep(c).some((k) => isButton(k) || isImage(k)));
+      return d.length === 2 && !!card && d.some(isImage);
+    },
+    emit: (s, { document }) => {
+      const cells = comps(s).map((c) => {
+        if (isImage(c)) return [imageEl(c, document)];
+        const texts = []; deep(c).filter(isText).forEach((t) => texts.push(...textEls(t, document, { plain: true })));
+        return texts;
+      });
+      return [block(document, 'Columns (media, outlined)', [cells])];
+    },
+  },
+  {
+    // the Vue events list (+ lead heading / copy and the "View More" button)
+    name: 'events-list',
+    match: (s) => !!s.querySelector('.v-events-list'),
+    emit: (s, { document, pagePath }) => {
+      const list = s.querySelector('.v-events-list');
+      const host = list.closest('.aem-events-list') || list;
+      const before = []; let viewMore = null; const after = [];
+      comps(s).forEach((c) => {
+        if (c === host || c.contains(host) || kind(c) === 'separator') return;
+        const isBefore = !!(c.compareDocumentPosition(host) & 4); // host FOLLOWS c
+        if (isButton(c) && !isBefore && !viewMore) { viewMore = c; return; }
+        if (isText(c)) (isBefore ? before : after).push(...textEls(c, document));
+      });
+      return [...before, eventsBlock(list, viewMore, document, pagePath), ...after];
+    },
+  },
+  {
+    // white-outlined event / promo cards (title + CTA + details) after a lead heading / copy
+    name: 'columns-promo',
+    match: (s) => comps(s).some(isPromoCard),
+    emit: (s, { document, pagePath }) => {
+      const list = comps(s);
+      const cards = list.filter(isPromoCard);
+      const before = []; const after = [];
+      list.forEach((c) => {
+        if (cards.includes(c) || kind(c) === 'separator') return;
+        const isBefore = !!(c.compareDocumentPosition(cards[0]) & 4);
+        if (isText(c)) (isBefore ? before : after).push(...textEls(c, document));
+      });
+      return [...before, promoBlock(cards, document, pagePath), ...after];
     },
   },
   {
@@ -573,28 +736,22 @@ export default {
     // some pages (membership terms, flag-profile) put their text / embed components straight
     // in the content grid instead of in section containers: a run of such loose components
     // becomes ONE section (a plain wrapper div, which components() walks through)
-    const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags)\b/.test(k.className || '');
-    [...root.children].forEach((k) => {
-      if (!loose(k)) return;
-      const prev = k.previousElementSibling;
-      if (prev && prev.hasAttribute('data-loose-run')) { prev.append(k); return; }
-      const run = document.createElement('div');
-      run.setAttribute('data-loose-run', '');
-      k.replaceWith(run);
-      run.append(k);
-    });
+    prepareSections(root, document, skip);
 
     const out = document.createElement('div');
     const report = [];
     let first = true;
+    // (an EMPTY source spacer container is skipped like any empty container: the gap it adds
+    // belongs to the block above it — e.g. the outlined columns card's margin in columns.css)
     [...root.children].forEach((s) => {
       if (skip(s) || !norm(s.textContent) && !s.querySelector('img')) return;
-      emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles }) => {
+      emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles, meta }) => {
         if (!nodes.length) return;
         if (!first) out.append(document.createElement('hr'));
         first = false;
         out.append(...nodes);
-        if (styles.length) out.append(block(document, 'Section Metadata', { Style: styles.join(', ') }));
+        const cells = { ...(styles.length ? { Style: styles.join(', ') } : {}), ...(meta || {}) };
+        if (Object.keys(cells).length) out.append(block(document, 'Section Metadata', cells));
         report.push(name);
       });
     });
@@ -606,6 +763,37 @@ export default {
     return [{ element: out, path: pagePath, report: { title: document.title, template: TEMPLATE, sections: report.join(' | ') } }];
   },
 };
+
+/* the page sections under the content root: a wrapper container around several page
+   sections is replaced by its children, and a run of loose components becomes ONE section
+   (shared with the sample importers, so their sections are the landing importer's) */
+function prepareSections(root, document, skip) {
+  // a wrapper container around several page sections (coaching-workshops
+  // `container--outer-gutter-paddings`: two section containers + loose webinar heading,
+  // copy and tabs) → its children ARE the page sections
+  [...root.children].forEach((k) => {
+    if (!isContainer(k) || skip(k) || !/container--outer-gutter-paddings/.test(k.className)) return;
+    const kids = components(k);
+    const sectionLike = kids.filter((c) => (isContainer(c) && /container--(top|bottom)-margin--/.test(c.className)) || /^(core-tabs|aem-events-list)\b/.test(c.className || ''));
+    if (sectionLike.length >= 2) {
+      // mark them: a heading split off such a section sits on the wrapper's 8 / 12px inset
+      kids.forEach((c) => c.setAttribute('data-in-wrapper', ''));
+      k.replaceWith(...kids);
+    }
+  });
+
+  const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags|core-tabs|aem-events-list)\b/.test(k.className || '');
+  [...root.children].forEach((k) => {
+    if (!loose(k)) return;
+    const prev = k.previousElementSibling;
+    if (prev && prev.hasAttribute('data-loose-run')) { prev.append(k); return; }
+    const run = document.createElement('div');
+    run.setAttribute('data-loose-run', '');
+    k.replaceWith(run);
+    run.append(k);
+  });
+  return [...root.children];
+}
 
 /* output sweeps shared with the sample importers: nested block tables → their content;
    blank-line markers removed */
@@ -630,5 +818,5 @@ function finalizeOutput(out, document) {
 }
 
 export {
-  KINDS, emitSection, finalizeOutput, contentRoot, block, el, norm, TEMPLATE,
+  KINDS, emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE,
 };
