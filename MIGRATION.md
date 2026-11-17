@@ -4727,3 +4727,14 @@ this page at all); landing-page.css has one rule, `body.landing-page main > .sec
 { font-size: var(--heading-font-size-xl) }`, i.e. the global h2 token. Re-verified: the 3 section headings = source
 font-size / line-height / font / box width at 375 / 768 / 1024 / 1280 / 1440. Gate: lint 0 errors · breakpoints ✓ ·
 overflow / typography / a11y ✓ on the page, block-samples/toc, en/home, CM, CC.
+
+### 2026-11-17 — `toc` block: `#tab=` deep-link behaviour = source (scroll on in-page tab links)
+Measured on the source (coaching-workshops) vs ours at 375 / 1280; all cases now match:
+- open the page with `#tab=recordedwebinars` → that tab selected, page stays at the top (no scroll);
+- a NEW `#tab=…` on the open page (an in-page link, `location.hash`) → tab selected AND the strip scrolled to the
+  middle of the viewport (`scrollIntoView({ block: 'center' })`: list top 408px @375 on both; 392 vs 391px @1280);
+- back / forward → tab follows the hash, the browser's restored scroll position is kept (Navigation API
+  `navigationType === 'traverse'` skips the scroll; without the API every change scrolls);
+- clicking a tab / arrow keys → hash rewritten (`history.replaceState`), no scroll.
+Keys = label without spaces / punctuation (`upcoming`, `recordedwebinars`), same as the source; the anchor slug
+(`#tab=recorded-webinars`) is accepted too. Gate: lint 0 errors · breakpoints ✓ · a11y ✓ (page + toc sample).

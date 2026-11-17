@@ -11,8 +11,9 @@
  * the label; a section whose first heading matches the label's words is also bound).
  *
  * Deep links match the source: `#tab=<label without spaces/punctuation>` (e.g.
- * `#tab=recordedwebinars`) opens that tab on load or on a hash change; the URL is kept in
- * that form as tabs change (history entry replaced, no scroll jump).
+ * `#tab=recordedwebinars`) opens that tab on load (no scroll) or on a hash change (the strip
+ * is scrolled to the middle of the viewport); the URL is kept in that form as tabs change
+ * (history entry replaced, no scroll jump).
  */
 
 function slugify(str) {
@@ -126,9 +127,23 @@ export default function decorate(block) {
     select(next, { focus: true, updateHash: true });
   });
 
+  // a hash change on the open page opens the tab. A NEW `#tab=…` (an in-page link) also brings
+  // the strip to the middle of the viewport; back / forward leave the browser's restored scroll
+  // position alone (both as on the source). Opening the page with a `#tab=…` link selects the
+  // tab without scrolling (source). Where the Navigation API is missing, every change scrolls.
+  let traversing = false;
+  if (window.navigation) {
+    window.navigation.addEventListener('navigate', (event) => {
+      traversing = event.navigationType === 'traverse';
+    });
+  }
   window.addEventListener('hashchange', () => {
     const entry = entryFromHash(window.location.hash, entries);
-    if (entry) select(entries.indexOf(entry));
+    const scroll = !traversing;
+    traversing = false;
+    if (!entry) return;
+    select(entries.indexOf(entry));
+    if (scroll) tablist.scrollIntoView({ block: 'center' });
   });
 
   block.replaceChildren(tablist);
