@@ -4896,3 +4896,10 @@ supports Value / Visible expressions and skips rules when the changed field is i
 Verified vs source on Pro and Pro-Plus: load (checked, lime) → untick (disabled, #bdbdb9 / #4c4c4c, default cursor, no
 hover change) → re-tick (enabled, lime) — identical. Gate: lint 0 errors · breakpoints ✓ · overflow ✓ · a11y ✓ (pro).
 Code is local only (not committed / pushed), so the aem.page preview does not have it yet.
+- **Follow-up (same day, user report): no inline warning on untick.** The source shows nothing when the opt-in is
+  unticked — only the grey Submit. Ours showed the shared required-field UI ("Please fill in this field.", red outline,
+  `aria-invalid`) from enableValidation's form `change` → revalidate. `gateSubmitOnOptIn()` now listens on the form
+  `change` (registered after enableValidation, so it runs after revalidate) and clears it for opt-in boxes with
+  `updateOrCreateInvalidMsg(target, '')`. The box stays `required`; the `invalid` path can't fire because Submit is
+  disabled while unticked. Other forms keep their required-field messages. Verified on Pro / Pro-Plus: untick → plain 1px
+  white box, no message, Submit grey; re-tick → lime. Gate: lint 0 errors · breakpoints ✓ · overflow ✓ · a11y ✓.

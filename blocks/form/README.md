@@ -101,9 +101,10 @@ Every form follows the same pattern:
 Submit row: `Value` is the thank-you message, or an `https://…` URL to redirect
 to after a successful submit.
 
-Opt-in checkbox (Style `gallagher-optin`): the Submit button is disabled (grey)
+Opt-in checkbox (Style `gallagher-optin`): the Submit button is disabled (grey),
 while any opt-in checkbox in the form is unchecked, as on the source Gallagher
-pages (`gateSubmitOnOptIn()` in `form.js`). Forms without one are unaffected.
+pages (`gateSubmitOnOptIn()` in `form.js`), with no inline "required" message on
+untick. Forms without one are unaffected.
 
 | Sheet | Page | CSS |
 | --- | --- | --- |

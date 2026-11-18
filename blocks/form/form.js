@@ -9,6 +9,7 @@ import { handleSubmit } from './submit.js';
 import DocBasedFormToAF from './transform.js';
 import {
   checkValidation,
+  updateOrCreateInvalidMsg,
   createButton,
   createDropdownUsingEnum,
   createFieldWrapper,
@@ -667,7 +668,9 @@ function loadVariantStyles(block) {
 
 /**
  * Opt-in checkboxes (sheet Style `gallagher-optin`) gate the submit button, as on
- * the source: Submit is disabled while any of them is unchecked.
+ * the source: Submit is disabled while any of them is unchecked, and — also as on
+ * the source — unticking shows no inline "required" error (the disabled Submit is
+ * the only cue). Registered after enableValidation(), so it runs after revalidate.
  * @param {HTMLFormElement} form
  */
 function gateSubmitOnOptIn(form) {
@@ -678,7 +681,11 @@ function gateSubmitOnOptIn(form) {
     if (form.dataset.submitting === 'true') return;
     button.disabled = optIns.some((input) => !input.checked);
   };
-  optIns.forEach((input) => input.addEventListener('change', update));
+  form.addEventListener('change', ({ target }) => {
+    if (!optIns.includes(target)) return;
+    updateOrCreateInvalidMsg(target, '');
+    update();
+  });
   // reset fires before the fields return to their defaults
   form.addEventListener('reset', () => setTimeout(update));
   update();
