@@ -115,28 +115,54 @@ function textEls(c, document, { headingLevel, plain } = {}) {
   // a lime-coloured run inside a heading ("Now <span lime>Live</span>") → <em> (the
   // blocks render an emphasised heading word in lime)
   cmp.querySelectorAll('span[style]').forEach((sp) => {
-    if (/207,\s*255,\s*5|#cfff05/i.test(sp.getAttribute('style'))) { const em = el(document, 'em'); em.append(...sp.childNodes); sp.replaceWith(em); }
+    if (/207,\s*255,\s*[58]\b|#cfff0[58]/i.test(sp.getAttribute('style'))) { const em = el(document, 'em'); em.append(...sp.childNodes); sp.replaceWith(em); }
   });
   let prevP = null;
   let prevH = null;
-  [...cmp.children].forEach((k) => {
+  // authored blank lines (<p>&nbsp;</p>) in default content are kept as blank paragraphs
+  // (the landing template renders each as a 24px line, no margin): leading, trailing and
+  // next to a list / heading as authored; between two paragraphs the first one is already
+  // the paragraph gap, so only the extra ones are written
+  const keepBlanks = !plain && !headingLevel;
+  let pending = 0;
+  let started = false;
+  const flushBlanks = (next) => {
+    if (keepBlanks && pending) {
+      const last = out[out.length - 1];
+      const implicit = started && next === 'P' && last && last.tagName === 'P' && !last.hasAttribute('data-blank') ? 1 : 0;
+      for (let i = implicit; i < pending; i += 1) { const b = el(document, 'p'); b.textContent = '\u200b'; b.setAttribute('data-blank', ''); out.push(b); }
+    }
+    pending = 0;
+    started = true;
+  };
+  [...cmp.children].forEach((child) => {
+    let k = child;
     if (cls(k, 'cmp-text__icon')) return;
-    if (!norm(k.textContent) && !k.querySelector('img')) { prevP = null; prevH = null; return; }
+    if (!norm(k.textContent) && !k.querySelector('img')) { if (k.tagName === 'P' && !k.hasAttribute('data-collapsed')) pending += 1; prevP = null; prevH = null; return; }
     // consecutive headings of one level = one heading set on several lines
-    if (/^H[1-6]$/.test(k.tagName) && prevH && prevH.tagName === k.tagName) { prevH.append(el(document, 'br'), ...k.childNodes); return; }
+    if (/^H[1-6]$/.test(k.tagName) && prevH && prevH.tagName === k.tagName && !pending) { prevH.append(el(document, 'br'), ...k.childNodes); return; }
+    // a section heading the source marks up as h3 / h4 in the USTA Sans 40px display preset
+    // (fellowship) → h2 (the page has no h2 otherwise: h1 → h3 would skip a level)
+    if (/^H[34]$/.test(k.tagName) && (headingLevel === 2 || (!headingLevel && isUstaSans(c) && size >= 40))) {
+      const h2 = el(document, 'h2'); h2.append(...k.childNodes); k.replaceWith(h2); k = h2;
+    }
     prevH = /^H[1-6]$/.test(k.tagName) ? k : null;
     if (k.tagName === 'P' && (headingLevel || size >= 32)) {
       const lvl = headingLevel || (size >= 40 || isUstaSans(c) ? 2 : 3);
       const h = el(document, `h${lvl}`);
       h.append(...k.childNodes);
+      flushBlanks('H');
       out.push(h);
       prevP = null;
       return;
     }
     if (k.tagName === 'P' && prevP) { prevP.append(el(document, 'br'), ...k.childNodes); return; }
+    flushBlanks(k.tagName);
     out.push(k);
     prevP = k.tagName === 'P' ? k : null;
   });
+  if (started) flushBlanks('END');
+  out.forEach((k) => k.removeAttribute && k.removeAttribute('data-blank'));
   // sized intro lines → Text Style: the large lead (`text--font-size--24px…`, 16 → 24)
   // and the smaller subhead (`text--font-size--18px-16px`, 16 → 18); centred on the
   // source → the block's `center` option (a section's centring only reaches default content)
@@ -350,8 +376,24 @@ function emitSection(s, { document, pagePath }) {
     || (out.length && out[0].styles.includes('center') && !out[0].styles.includes('narrow-12'));
   const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
   const styles = [];
-  if (centred && !(k && /^(hero|banner)/.test(k.name))) styles.push('center');
+  if (centred && !(k && /^(hero|banner|video)/.test(k.name))) styles.push('center');
   styles.push(...inset);
+  // a section container on the source's 36px margin preset (`container--top-margin--36` /
+  // `--bottom-margin--36`, fellowship) → `spacing-36` (landing template: 12 / 12 / 20 / 36px
+  // section padding instead of the 52px preset) — its split-off heading too
+  // (the TOP preset decides; a coloured / rounded panel's spacing is its block's business)
+  const m36 = (e) => !!e && (e.hasAttribute('data-margin-36') || (/container--top-margin--36\b/.test(e.className || '') && !/container--border-radius--/.test(e.className) && !e.getAttribute('data-bg')));
+  if (m36(s) || m36(padded) || [...s.children].some((c) => c.hasAttribute('data-margin-36'))) {
+    styles.push('spacing-36');
+    if (out.length && out[0].name === 'heading') out[0].styles.push('spacing-36');
+  }
+  // default content in the `container--padding--small` preset (sides 16px on phones, 12px
+  // from 768; fellowship "APPLICATION DETAILS" / "CANDIDATE QUALIFICATIONS") → the single
+  // value `inset-12` (exact from 768, 4px less on phones) — its split-off heading too
+  if (!k && !inset.length && padded && /\bcontainer--padding--small\b/.test(padded.className) && !/container--border--/.test(padded.className)) {
+    styles.push('inset-12');
+    if (out.length && out[0].name === 'heading') out[0].styles.push('inset-12');
+  }
   out.push({ name: k ? k.name : 'default', nodes, styles });
   return out;
 }
@@ -428,6 +470,83 @@ const KINDS = [
         if (isText(c)) (isBefore ? before : after).push(...textEls(c, document));
       });
       return [...before, promoBlock(cards, document, pagePath), ...after];
+    },
+  },
+  {
+    // page title + full-width photo + intro (fellowship top): default content (not a
+    // media row) — the h1, the photo, the intro (Text Style lead)
+    name: 'title-photo',
+    match: (s) => { const d = comps(s).filter((c) => kind(c) !== 'separator'); return d.some((c) => isText(c) && c.querySelector('h1')) && d.some((c) => isImage(c) && /aem-GridColumn--default--12\b/.test(c.className)) && !d.some(isContainer); },
+    emit: (s, { document, pagePath }) => defaultContent(s, document, pagePath),
+  },
+  {
+    // a dates list: a blue header panel (heading + subtitle) over white-outlined rows, each
+    // a date beside an eyebrow + title (fellowship "IMPORTANT DATES") → Banner (header, blue)
+    // + Columns (events, dates): one row per date — date | eyebrow, title
+    name: 'dates-list',
+    match: (s) => {
+      const d = comps(s);
+      const rows = d.filter((c) => isContainer(c) && /container--border--white/.test(c.className) && !deep(c).some((k) => isButton(k) || isImage(k)) && deep(c).filter(isText).length >= 2);
+      return rows.length >= 2 && d.some((c) => isContainer(c) && c.getAttribute('data-bg') === 'blue');
+    },
+    emit: (s, { document }) => {
+      const d = comps(s);
+      const head = d.find((c) => isContainer(c) && c.getAttribute('data-bg') === 'blue');
+      const ht = deep(head).filter(isText);
+      const cells = ht.map((t, i) => textEls(t, document, { headingLevel: i === 0 ? 2 : 0, plain: true }));
+      const rows = d.filter((c) => isContainer(c) && /container--border--white/.test(c.className)).map((row) => {
+        const texts = deep(row).filter((t) => isText(t) && norm(t.textContent));
+        return [[para(document, norm(texts[0].textContent))], texts.slice(1).map((t) => para(document, norm(t.textContent)))];
+      });
+      return [block(document, 'Banner (header, blue)', [cells]), block(document, 'Columns (events, dates)', rows)];
+    },
+  },
+  {
+    // a display heading over a consent-gated YouTube / Vimeo embed → Video (title row, consent
+    // message row whose link is the video; block sample contract)
+    name: 'video',
+    match: (s) => !!s.querySelector('.embed iframe[data-src*="youtube"], .embed iframe[src*="youtube"], .embed iframe[data-src*="vimeo"], .embed iframe[src*="vimeo"]'),
+    emit: (s, { document }) => {
+      const frame = s.querySelector('.embed iframe');
+      const src = (frame.getAttribute('data-src') || frame.getAttribute('src') || '').split('?')[0];
+      const title = [];
+      comps(s).filter(isText).forEach((t) => textEls(t, document, { plain: true }).forEach((k) => { const p = el(document, 'p'); p.append(...k.childNodes); title.push(p); }));
+      const ph = s.querySelector('.usta-consent-placeholder');
+      const msg = [];
+      if (ph) {
+        ph.querySelectorAll('p').forEach((p) => {
+          if (!norm(p.textContent)) return;
+          const q = el(document, 'p'); q.append(...p.childNodes);
+          q.querySelectorAll('a, button').forEach((a) => { const l = el(document, 'a'); l.href = src; l.textContent = norm(a.textContent); a.replaceWith(l); });
+          msg.push(q);
+        });
+      }
+      if (!msg.length) { const p = el(document, 'p'); const a = el(document, 'a'); a.href = src; a.textContent = src; p.append(a); msg.push(p); }
+      return [block(document, 'Video', [[title], [msg]])];
+    },
+  },
+  {
+    // a photo beside a white-outlined quote card (quote glyph + quote + attribution) →
+    // Columns (quote); the source's large quote preset (`text--font-size--40px-28px`) → `large`
+    name: 'columns-quote',
+    match: (s) => {
+      const d = comps(s);
+      const card = d.find((c) => isContainer(c) && /container--border--white/.test(c.className) && deep(c).some((k) => isImage(k) && /quote/i.test((k.querySelector('img') || {}).src || k.innerHTML)));
+      return d.length === 2 && !!card && d.some(isImage);
+    },
+    emit: (s, { document }) => {
+      const d = comps(s);
+      const photo = imageEl(d.find(isImage), document);
+      const card = d.find(isContainer);
+      const cell = [];
+      let large = false;
+      deep(card).forEach((k) => {
+        if (isImage(k)) { const i = imageEl(k, document); if (i) { const p = el(document, 'p'); p.append(i); cell.push(p); } } else if (isText(k)) {
+          if (fontSize(k) >= 40) large = true;
+          textEls(k, document, { plain: true }).forEach((x) => { const p = el(document, 'p'); p.append(...x.childNodes); cell.push(p); });
+        }
+      });
+      return [block(document, large ? 'Columns (quote, large)' : 'Columns (quote)', [[[photo], cell]])];
     },
   },
   {
@@ -551,7 +670,10 @@ const KINDS = [
           if (isText(c)) out.push(...textEls(c, document));
         }
       });
-      out.push(block(document, 'Cards (media, stacked)', rows));
+      // copy in the source's `text--letter-spacing--narrow` text (16/19.2, 14/16.8 at 768) and
+      // photos at their own 3:2 shape → `compact` (fellowship)
+      const compact = comps(s).some((c) => isContainer(c) && components(c).some((t) => isText(t) && /text--letter-spacing--narrow/.test(t.className)));
+      out.push(block(document, compact ? 'Cards (media, stacked, compact)' : 'Cards (media, stacked)', rows));
       comps(s).filter((c) => !isContainer(c) && rows.length).forEach((c) => {
         // anything after the grid (CTA / note) stays default content after the block
         if (isButton(c)) { const b = buttonEl(c, document, pagePath); if (b) out.push(b); }
@@ -696,7 +818,12 @@ export default {
     // authored blank lines (<p>&nbsp;</p>) don't survive the importer's HTML cleanup —
     // mark them so textEls can still see the gap
     document.querySelectorAll('.cmp-text p').forEach((q) => {
-      if (!q.textContent.replace(/\s/g, '') && !q.querySelector('img')) q.textContent = BLANK;
+      if (q.textContent.replace(/\s/g, '') || q.querySelector('img')) return;
+      // a rendered blank line (it has a line box) is kept as one; a collapsed empty
+      // paragraph (0px) only separates the paragraphs around it
+      const host = q.closest('.text');
+      if (q.getBoundingClientRect().height === 0 && host && host.getBoundingClientRect().height > 0) q.setAttribute('data-collapsed', '');
+      q.textContent = BLANK;
     });
     // stamp live-layout facts the transform needs (the transform DOM has no layout)
     document.querySelectorAll('.aem-GridColumn, .cmp-container, .container').forEach((e) => {
@@ -775,11 +902,25 @@ function prepareSections(root, document, skip) {
     if (!isContainer(k) || skip(k) || !/container--outer-gutter-paddings/.test(k.className)) return;
     const kids = components(k);
     const sectionLike = kids.filter((c) => (isContainer(c) && /container--(top|bottom)-margin--/.test(c.className)) || /^(core-tabs|aem-events-list)\b/.test(c.className || ''));
-    if (sectionLike.length >= 2) {
+    // (fellowship: the page title + photo + intro above ONE section container (the cards))
+    const titled = sectionLike.length === 1 && kids.some((c) => isText(c) && c.querySelector('h1'));
+    if (sectionLike.length >= 2 || titled) {
       // mark them: a heading split off such a section sits on the wrapper's 8 / 12px inset
       kids.forEach((c) => c.setAttribute('data-in-wrapper', ''));
+      // (the title wrapper's own 36px margin preset carries over to the title copy)
+      if (titled && /container--(top|bottom)-margin--36\b/.test(k.className)) kids.forEach((c) => c.setAttribute('data-margin-36', ''));
       k.replaceWith(...kids);
     }
+  });
+
+  // a plain grouping container (no padding / border / fill of its own) whose children are 2+
+  // sections, EACH with its own display heading (USTA Sans, 40px preset) → those sections
+  // (fellowship: "APPLICATION DETAILS" / "IMPORTANT DATES" / "CANDIDATE QUALIFICATIONS")
+  const headed = (c) => isContainer(c) && deep(c).some((t) => isText(t) && isUstaSans(t) && fontSize(t) >= 40);
+  [...root.children].forEach((k) => {
+    if (!isContainer(k) || skip(k) || /container--(padding|border)--/.test(k.className) || k.getAttribute('data-bg')) return;
+    const kids = components(k).filter((c) => kind(c) !== 'separator');
+    if (kids.length >= 2 && kids.every(headed)) k.replaceWith(...kids);
   });
 
   const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags|core-tabs|aem-events-list)\b/.test(k.className || '');

@@ -1449,6 +1449,68 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   }
 }
 
+/* compact (fellowship "On-court Coaching … Classroom Sessions", 3 × 2): each card is a
+   source container padded 12px 8px (12px from 768) inside its 4/12 column, its image and
+   text components padded as in `stacked` — so the grid spans the column edges (no negative
+   margin) and everything sits one card inset further in; each card opens with the 36px
+   margin preset (12 → 20 @1024 → 36 @1280) inside its 12px padding, and the grid ends with
+   its wrapper's 12px. A card ends
+   26px + 3px lower on phones (a separator the source shows below 768) and 6 / 10 / 18px
+   lower from 768 / 1024 / 1280 (its inner container). Photos keep
+   their own 3:2 shape at every width; copy = the source's narrow-tracking text, Graphik
+   Regular 16/19.2 −0.03em (14/16.8 at 768–1023). */
+.cards.media.stacked.compact {
+  margin-bottom: 12px;
+}
+
+.cards.media.stacked.compact > ul {
+  margin-inline: 0;
+}
+
+.cards.media.stacked.compact .cards-media-card {
+  padding: 24px 8px 41px;
+}
+
+.cards.media.stacked.compact .cards-media-image img {
+  aspect-ratio: 3 / 2;
+}
+
+.cards.media.stacked.compact .cards-media-card p {
+  font-size: 16px;
+  line-height: 19.2px;
+  letter-spacing: -0.03em;
+}
+
+@media (width >= 768px) {
+  .cards.media.stacked.compact .cards-media-card {
+    padding: 24px 12px 18px;
+  }
+
+  .cards.media.stacked.compact .cards-media-card p {
+    font-size: 14px;
+    line-height: 16.8px;
+  }
+}
+
+@media (width >= 1024px) {
+  .cards.media.stacked.compact .cards-media-card {
+    padding-top: 32px;
+    padding-bottom: 22px;
+  }
+
+  .cards.media.stacked.compact .cards-media-card p {
+    font-size: 16px;
+    line-height: 19.2px;
+  }
+}
+
+@media (width >= 1280px) {
+  .cards.media.stacked.compact .cards-media-card {
+    padding-top: 48px;
+    padding-bottom: 30px;
+  }
+}
+
 /* ---------------------------------------------------------------- pricing -- */
 
 /* USTA membership tiers on the dark "PACKAGES" section. Source: black rounded

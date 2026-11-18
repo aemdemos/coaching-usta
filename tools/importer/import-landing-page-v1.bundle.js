@@ -171,7 +171,7 @@ var CustomImportScript = (() => {
       return out;
     }
     cmp.querySelectorAll("span[style]").forEach((sp) => {
-      if (/207,\s*255,\s*5|#cfff05/i.test(sp.getAttribute("style"))) {
+      if (/207,\s*255,\s*[58]\b|#cfff0[58]/i.test(sp.getAttribute("style"))) {
         const em = el(document, "em");
         em.append(...sp.childNodes);
         sp.replaceWith(em);
@@ -179,22 +179,48 @@ var CustomImportScript = (() => {
     });
     let prevP = null;
     let prevH = null;
-    [...cmp.children].forEach((k) => {
+    const keepBlanks = !plain && !headingLevel;
+    let pending = 0;
+    let started = false;
+    const flushBlanks = (next) => {
+      if (keepBlanks && pending) {
+        const last = out[out.length - 1];
+        const implicit = started && next === "P" && last && last.tagName === "P" && !last.hasAttribute("data-blank") ? 1 : 0;
+        for (let i = implicit; i < pending; i += 1) {
+          const b = el(document, "p");
+          b.textContent = "\u200B";
+          b.setAttribute("data-blank", "");
+          out.push(b);
+        }
+      }
+      pending = 0;
+      started = true;
+    };
+    [...cmp.children].forEach((child) => {
+      let k = child;
       if (cls(k, "cmp-text__icon")) return;
       if (!norm(k.textContent) && !k.querySelector("img")) {
+        if (k.tagName === "P" && !k.hasAttribute("data-collapsed")) pending += 1;
         prevP = null;
         prevH = null;
         return;
       }
-      if (/^H[1-6]$/.test(k.tagName) && prevH && prevH.tagName === k.tagName) {
+      if (/^H[1-6]$/.test(k.tagName) && prevH && prevH.tagName === k.tagName && !pending) {
         prevH.append(el(document, "br"), ...k.childNodes);
         return;
+      }
+      if (/^H[34]$/.test(k.tagName) && (headingLevel === 2 || !headingLevel && isUstaSans(c) && size >= 40)) {
+        const h2 = el(document, "h2");
+        h2.append(...k.childNodes);
+        k.replaceWith(h2);
+        k = h2;
       }
       prevH = /^H[1-6]$/.test(k.tagName) ? k : null;
       if (k.tagName === "P" && (headingLevel || size >= 32)) {
         const lvl = headingLevel || (size >= 40 || isUstaSans(c) ? 2 : 3);
         const h = el(document, `h${lvl}`);
         h.append(...k.childNodes);
+        flushBlanks("H");
         out.push(h);
         prevP = null;
         return;
@@ -203,9 +229,12 @@ var CustomImportScript = (() => {
         prevP.append(el(document, "br"), ...k.childNodes);
         return;
       }
+      flushBlanks(k.tagName);
       out.push(k);
       prevP = k.tagName === "P" ? k : null;
     });
+    if (started) flushBlanks("END");
+    out.forEach((k) => k.removeAttribute && k.removeAttribute("data-blank"));
     const style = { 24: "lead", 18: "subhead" }[size];
     if (style && !plain && !isUstaSans(c) && !headingLevel && out.length && out.every((k) => k.tagName === "P")) {
       const opts = [style, .../cmp-text--alignment-center/.test(c.className) ? ["center"] : []];
@@ -403,8 +432,17 @@ var CustomImportScript = (() => {
     const centred = !!firstText && cls(firstText, "cmp-text--alignment-center") || out.length && out[0].styles.includes("center") && !out[0].styles.includes("narrow-12");
     const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
     const styles = [];
-    if (centred && !(k && /^(hero|banner)/.test(k.name))) styles.push("center");
+    if (centred && !(k && /^(hero|banner|video)/.test(k.name))) styles.push("center");
     styles.push(...inset);
+    const m36 = (e) => !!e && (e.hasAttribute("data-margin-36") || /container--top-margin--36\b/.test(e.className || "") && !/container--border-radius--/.test(e.className) && !e.getAttribute("data-bg"));
+    if (m36(s) || m36(padded) || [...s.children].some((c) => c.hasAttribute("data-margin-36"))) {
+      styles.push("spacing-36");
+      if (out.length && out[0].name === "heading") out[0].styles.push("spacing-36");
+    }
+    if (!k && !inset.length && padded && /\bcontainer--padding--small\b/.test(padded.className) && !/container--border--/.test(padded.className)) {
+      styles.push("inset-12");
+      if (out.length && out[0].name === "heading") out[0].styles.push("inset-12");
+    }
     out.push({ name: k ? k.name : "default", nodes, styles });
     return out;
   }
@@ -490,6 +528,114 @@ var CustomImportScript = (() => {
           if (isText(c)) (isBefore ? before : after).push(...textEls(c, document));
         });
         return [...before, promoBlock(cards, document, pagePath), ...after];
+      }
+    },
+    {
+      // page title + full-width photo + intro (fellowship top): default content (not a
+      // media row) — the h1, the photo, the intro (Text Style lead)
+      name: "title-photo",
+      match: (s) => {
+        const d = comps(s).filter((c) => kind(c) !== "separator");
+        return d.some((c) => isText(c) && c.querySelector("h1")) && d.some((c) => isImage(c) && /aem-GridColumn--default--12\b/.test(c.className)) && !d.some(isContainer);
+      },
+      emit: (s, { document, pagePath }) => defaultContent(s, document, pagePath)
+    },
+    {
+      // a dates list: a blue header panel (heading + subtitle) over white-outlined rows, each
+      // a date beside an eyebrow + title (fellowship "IMPORTANT DATES") → Banner (header, blue)
+      // + Columns (events, dates): one row per date — date | eyebrow, title
+      name: "dates-list",
+      match: (s) => {
+        const d = comps(s);
+        const rows = d.filter((c) => isContainer(c) && /container--border--white/.test(c.className) && !deep(c).some((k) => isButton(k) || isImage(k)) && deep(c).filter(isText).length >= 2);
+        return rows.length >= 2 && d.some((c) => isContainer(c) && c.getAttribute("data-bg") === "blue");
+      },
+      emit: (s, { document }) => {
+        const d = comps(s);
+        const head = d.find((c) => isContainer(c) && c.getAttribute("data-bg") === "blue");
+        const ht = deep(head).filter(isText);
+        const cells = ht.map((t, i) => textEls(t, document, { headingLevel: i === 0 ? 2 : 0, plain: true }));
+        const rows = d.filter((c) => isContainer(c) && /container--border--white/.test(c.className)).map((row) => {
+          const texts = deep(row).filter((t) => isText(t) && norm(t.textContent));
+          return [[para(document, norm(texts[0].textContent))], texts.slice(1).map((t) => para(document, norm(t.textContent)))];
+        });
+        return [block(document, "Banner (header, blue)", [cells]), block(document, "Columns (events, dates)", rows)];
+      }
+    },
+    {
+      // a display heading over a consent-gated YouTube / Vimeo embed → Video (title row, consent
+      // message row whose link is the video; block sample contract)
+      name: "video",
+      match: (s) => !!s.querySelector('.embed iframe[data-src*="youtube"], .embed iframe[src*="youtube"], .embed iframe[data-src*="vimeo"], .embed iframe[src*="vimeo"]'),
+      emit: (s, { document }) => {
+        const frame = s.querySelector(".embed iframe");
+        const src = (frame.getAttribute("data-src") || frame.getAttribute("src") || "").split("?")[0];
+        const title = [];
+        comps(s).filter(isText).forEach((t) => textEls(t, document, { plain: true }).forEach((k) => {
+          const p = el(document, "p");
+          p.append(...k.childNodes);
+          title.push(p);
+        }));
+        const ph = s.querySelector(".usta-consent-placeholder");
+        const msg = [];
+        if (ph) {
+          ph.querySelectorAll("p").forEach((p) => {
+            if (!norm(p.textContent)) return;
+            const q = el(document, "p");
+            q.append(...p.childNodes);
+            q.querySelectorAll("a, button").forEach((a) => {
+              const l = el(document, "a");
+              l.href = src;
+              l.textContent = norm(a.textContent);
+              a.replaceWith(l);
+            });
+            msg.push(q);
+          });
+        }
+        if (!msg.length) {
+          const p = el(document, "p");
+          const a = el(document, "a");
+          a.href = src;
+          a.textContent = src;
+          p.append(a);
+          msg.push(p);
+        }
+        return [block(document, "Video", [[title], [msg]])];
+      }
+    },
+    {
+      // a photo beside a white-outlined quote card (quote glyph + quote + attribution) →
+      // Columns (quote); the source's large quote preset (`text--font-size--40px-28px`) → `large`
+      name: "columns-quote",
+      match: (s) => {
+        const d = comps(s);
+        const card = d.find((c) => isContainer(c) && /container--border--white/.test(c.className) && deep(c).some((k) => isImage(k) && /quote/i.test((k.querySelector("img") || {}).src || k.innerHTML)));
+        return d.length === 2 && !!card && d.some(isImage);
+      },
+      emit: (s, { document }) => {
+        const d = comps(s);
+        const photo = imageEl(d.find(isImage), document);
+        const card = d.find(isContainer);
+        const cell = [];
+        let large = false;
+        deep(card).forEach((k) => {
+          if (isImage(k)) {
+            const i = imageEl(k, document);
+            if (i) {
+              const p = el(document, "p");
+              p.append(i);
+              cell.push(p);
+            }
+          } else if (isText(k)) {
+            if (fontSize(k) >= 40) large = true;
+            textEls(k, document, { plain: true }).forEach((x) => {
+              const p = el(document, "p");
+              p.append(...x.childNodes);
+              cell.push(p);
+            });
+          }
+        });
+        return [block(document, large ? "Columns (quote, large)" : "Columns (quote)", [[[photo], cell]])];
       }
     },
     {
@@ -615,7 +761,8 @@ var CustomImportScript = (() => {
             if (isText(c)) out.push(...textEls(c, document));
           }
         });
-        out.push(block(document, "Cards (media, stacked)", rows));
+        const compact = comps(s).some((c) => isContainer(c) && components(c).some((t) => isText(t) && /text--letter-spacing--narrow/.test(t.className)));
+        out.push(block(document, compact ? "Cards (media, stacked, compact)" : "Cards (media, stacked)", rows));
         comps(s).filter((c) => !isContainer(c) && rows.length).forEach((c) => {
           if (isButton(c)) {
             const b = buttonEl(c, document, pagePath);
@@ -810,7 +957,10 @@ var CustomImportScript = (() => {
   var import_landing_page_v1_default = {
     onLoad: ({ document }) => {
       document.querySelectorAll(".cmp-text p").forEach((q) => {
-        if (!q.textContent.replace(/\s/g, "") && !q.querySelector("img")) q.textContent = BLANK;
+        if (q.textContent.replace(/\s/g, "") || q.querySelector("img")) return;
+        const host = q.closest(".text");
+        if (q.getBoundingClientRect().height === 0 && host && host.getBoundingClientRect().height > 0) q.setAttribute("data-collapsed", "");
+        q.textContent = BLANK;
       });
       document.querySelectorAll(".aem-GridColumn, .cmp-container, .container").forEach((e) => {
         const r = e.getBoundingClientRect();
@@ -868,10 +1018,18 @@ var CustomImportScript = (() => {
       if (!isContainer(k) || skip(k) || !/container--outer-gutter-paddings/.test(k.className)) return;
       const kids = components(k);
       const sectionLike = kids.filter((c) => isContainer(c) && /container--(top|bottom)-margin--/.test(c.className) || /^(core-tabs|aem-events-list)\b/.test(c.className || ""));
-      if (sectionLike.length >= 2) {
+      const titled = sectionLike.length === 1 && kids.some((c) => isText(c) && c.querySelector("h1"));
+      if (sectionLike.length >= 2 || titled) {
         kids.forEach((c) => c.setAttribute("data-in-wrapper", ""));
+        if (titled && /container--(top|bottom)-margin--36\b/.test(k.className)) kids.forEach((c) => c.setAttribute("data-margin-36", ""));
         k.replaceWith(...kids);
       }
+    });
+    const headed = (c) => isContainer(c) && deep(c).some((t) => isText(t) && isUstaSans(t) && fontSize(t) >= 40);
+    [...root.children].forEach((k) => {
+      if (!isContainer(k) || skip(k) || /container--(padding|border)--/.test(k.className) || k.getAttribute("data-bg")) return;
+      const kids = components(k).filter((c) => kind(c) !== "separator");
+      if (kids.length >= 2 && kids.every(headed)) k.replaceWith(...kids);
     });
     const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags|core-tabs|aem-events-list)\b/.test(k.className || "");
     [...root.children].forEach((k) => {

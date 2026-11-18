@@ -42,6 +42,7 @@ cards-media, cards-pricing, columns, columns-cta, columns-media, columns-quote, 
 header, hero, hero-video, widget. _Document each block's authoring contract + variants here as you touch them._
 
 ## 6. Open items / TODO
+- **Footer spacing (site-wide):** last section → footer is ~108–238px on the source but 12–118px on our landing pages (CM / CC ≈120px short, fellowship 72–96px). Fix once for all pages (footer / last-section rule), not per page. (found 2026-11-17)
 - [ ] **MIGRATION ROADMAP (agreed 2026-11-17): Phase 1 = import every in-scope page as-is (logged-out view);
       Phase 2 = dynamic / login-dependent features.** Page status table, Phase 2 inventory and build order in the
       section "MIGRATION ROADMAP — Phase 1 … → Phase 2 …" at the end of this file.
@@ -4338,7 +4339,7 @@ content for this analysis. EN only (ES = Smartling later).
 | Account Navigation | account pages nav | dashboard, mymembership, mylearningprogress, mybenefits | ❌ |
 | Comparison Matrix | membership options table | dashboard, mybenefits, **home** | ❌ not built — check where it shows on home |
 | Tiers — General / Homepage | membership options (pricing) | results ×6, account/mymembership, job-board, learning-pathway, membership-benefits(-rebuild), courses / home | ✅ `cards (pricing)` (static copy per page) |
-| Coaching Workshops banner (blue) | link to Events | courses, dashboard, learning-pathway, home | ✅ `banner (events, blue)` |
+| Coaching Workshops banner (blue) | link to Events | courses, dashboard, learning-pathway, home | ✅ `banner (blue)` (events variant removed 2026-11-18) |
 | Complete Safe Play Banners | Safe Play prompts | mylearningprogress, learning | ❌ |
 | Professional Certification / Development Badge / Associate Badge / Specialist / Master Certification — **v1 "with text info"** | accordion with the courses | learning-pathway, results (ft-pro, college, pt-pro, volunteer) | ✅ `accordion (pathway)` / `accordion (timeline)` (static); `accordion (courses)` on school-coach has NO code |
 | same — **v2 "with progress bar"** | + the user's progress | account/mylearningprogress | ❌ needs LMS progress data |
@@ -4573,8 +4574,8 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 ### Day 1 — finish the landing pages (landing importer exists; first passes in drafts/meet)
 | Person A — community pages | Eff. | Person B — education + Gallagher | Eff. |
 |---|---|---|---|
-| /en/home/coaching-community/coaching-workshops (events list, Tabs, Columns promo) — ✅ imported to drafts/meet 2026-11-17, awaiting review | H | /en/home/courses (Tabs, course filter, Cards comparison) | H |
-| /en/home/coaching-community/fellowship-in-coaching-and-leadership (feature cards, dates banner + rows, Video, Columns quote) | M | /en/home/learning-pathway (Accordion pathway ×4, Cards comparison, Banner centered) | M |
+| /en/home/coaching-community/coaching-workshops (events list, Tabs, Columns promo) — ✅ DONE 2026-11-17 (en/home, local) | H | /en/home/courses (Tabs, course filter, Cards comparison) | H |
+| /en/home/coaching-community/fellowship-in-coaching-and-leadership (feature cards, dates banner + rows, Video, Columns quote) — ✅ DONE 2026-11-18 (en/home, local) | M | /en/home/learning-pathway (Accordion pathway ×4, Cards comparison, Banner centered) | M |
 | /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) | L |
 | /en/home/membership-benefits/coaching-membership-terms-and-conditions (long text — imports complete; parity only) | L | /en/home/membership-benefits/gallagher-disclaimer-pro-plus | L |
 | /en/home/account/flag-profile (heading + intro + Form flag-form) | L | /en/home/membership-benefits/gallagher-disclaimer-rally | L |
@@ -4738,3 +4739,130 @@ Measured on the source (coaching-workshops) vs ours at 375 / 1280; all cases now
 - clicking a tab / arrow keys → hash rewritten (`history.replaceState`), no scroll.
 Keys = label without spaces / punctuation (`upcoming`, `recordedwebinars`), same as the source; the anchor slug
 (`#tab=recorded-webinars`) is accepted too. Gate: lint 0 errors · breakpoints ✓ · a11y ✓ (page + toc sample).
+
+### 2026-11-17 — coaching-workshops placed at its real path (local)
+`drafts/meet/coaching-community/coaching-workshops` copied unchanged (byte-identical) to
+`en/home/coaching-community/coaching-workshops` (nothing existed there before). The drafts/meet copy stays as the
+review / backup copy, as with coach-mentorship / coaching-community. Same template (landing-page). The nav / home links
+to `/en/home/coaching-community/coaching-workshops` now resolve locally. Gate at the new path: overflow ✓ · typography ✓
+· a11y ✓. NOT uploaded to DA / not previewed or published (on request only).
+
+### 2026-11-17 — fellowship-in-coaching-and-leadership imported (drafts/meet) — 4 block options, 2 landing-only styles
+Source https://www.ustacoaching.com/en/home/coaching-community/fellowship-in-coaching-and-leadership.html → local
+`drafts/meet/coaching-community/fellowship-in-coaching-and-leadership` (local only; NOT uploaded to DA; the real en/home
+page gets created after review). Template: landing-page (same as CM / CC / CW — no new template; user decision, the
+template's body copy / spacing / insets are the source's landing styles). Backup:
+`tools/importer/backups/landing-page/fellowship-2026-11-17/`.
+
+**Page structure:** page title h1 + title photo + intro (Text Style lead, center) → `Cards (media, stacked, compact)` ×6 →
+"APPLICATION DETAILS" (h2) + copy → `Banner (header, blue)` + `Columns (events, dates)` ×4 → "CANDIDATE
+QUALIFICATIONS" (h2) + copy + list + Apply Now → `Video` ("Get Ahead…") → `Columns (quote, large)`.
+
+**New block options (all CSS-only; existing variants unchanged) — each has its own block sample:**
+- `Cards (media, stacked, compact)` (cards.css): card inset 8 / 12px more than stacked (no negative grid margin); photos at
+  their own 3:2 (no crop); copy Graphik 16/19.2 −0.03em (14/16.8 at 768–1023); every card opens with the 36px preset inside
+  its 12px padding and ends 26+3px (phones: the source's mobile-only separator) / 6 / 10 / 18px lower. Sample
+  `drafts/block-samples/cards-media-stacked-compact`.
+- `Banner (header)` / `Banner (header, blue)` (banner.css; first built as `banner (events, blue, header)`, moved onto the
+  base banner 2026-11-18): no CTA, heading | subtitle; heading 32 → 40 (768), centred below 1024; subtitle Graphik
+  Semibold 24/32; 8 + 4 of 12 columns from 1024. Sample `banner-header` (default + blue).
+- `Columns (events, dates)` (columns.css): same authoring as events (date | eyebrow, title — no chips); 1px white rows,
+  26px apart, 26px under the banner, at the page container edge (8 / 28 / 36 / 52px — the section's banner too); date on
+  3/12 centred from 768; date Graphik Semibold 28 → 32 (bold), eyebrow Graphik Regular 18/24 faux-bold, title 28 → 32 →
+  40. The dates section has no padding of its own. Sample `columns-events-dates`.
+- `Columns (quote, large)` (columns.css): quote 28 → 32 → 40, normal tracking; card as tall as its copy, photo top-aligned;
+  768–1023 card above the photo (688 × 624); 12px top inset. Sample `columns-quote-large`.
+
+**Landing template (landing-page.css / .js) — page-type rules, no global change:**
+- Default-content **h1** (page title, source `56px-32px`): 32 → 40 (768) → 56 (1280); recorded in
+  `tools/quality/typography.json` (landing h1). The **title photo** (picture right after the h1): 12 → 10 → 8 → 12 columns
+  (768 / 1024 / 1280), padded 8 / 12, radius 20, 50px above / 42 below; not capped at the 360px default-image width.
+  Title section: 36px top (source title container +12). The intro under a title isn't pulled into the column inset.
+- **Section headings** (source h3 in USTA Sans 40px preset → h2): the template h2 size (user decision: "Landing + template
+  h2") — 4px smaller on phones (Application Details / Important Dates), 8px smaller at 768, exact from 1024.
+- **`spacing-36`** (new landing-only section style, user decision): sections whose own container is on the source's
+  36px TOP margin preset (not panels) → 12 / 12 / 20 / 36px section padding instead of the 52 preset. Importer-set only.
+  Combos: `spacing-36.inset-12` adds the padding--small preset's 12 / 12 / 12 / 36 vertical padding; the compact cards'
+  section has no bottom padding (the grid closes the title container); the video's section = 52-preset top (it follows a
+  group closed by the 52 preset) / 27-preset bottom (22 / 18 / 22 / 27).
+- **padding--small default content** (Application Details / Qualifications) → existing single-value `inset-12` (exact from
+  768, 4px less on phones — two-value insets are not used, user decision 2026-11-17).
+- **Blank lines** (user decision "keep"): the source author's rendered `<p>&nbsp;</p>` gaps. Empty / nbsp-only paragraphs
+  don't survive the markdown conversion (import runner = the EDS content pipeline), so the importer writes each as a
+  paragraph holding a zero-width space (U+200B); landing-page.js marks it `.blank` (24px line, no margin; a leading one
+  keeps the component's 12px top inset). Counted per text component: a single blank between two paragraphs is already the
+  paragraph gap; leading / trailing / extra / next-to-list blanks are written. Collapsed (0px) empty paragraphs are not
+  blank lines (cards 4–5). CM / CC / CW: no blank lines emitted (byte-identical).
+- Default-content lists 18/24 with 1em (18px) margins; a lone CTA closing a section = 280 × 56, centred; bold runs in copy
+  = "Graphik Regular Synth" (the source's faux bold); text-style links underlined in the text colour; a paragraph that is
+  entirely italic (source `<i>`) stays white italic (landing-page.js marks `em.italic`) — partial *emphasis* stays the lime
+  accent.
+
+**Importer (import-landing-page-v1.js):** prepareSections splits an outer-gutter wrapper holding the page title + one section
+container, and a plain grouping container of 2+ headed sections; new kinds `title-photo`, `dates-list`, `video` (title row
++ consent-message row whose link is the YouTube URL — Video block contract), `columns-quote` (`large` from the 40px quote
+preset); `compact` cards from `text--letter-spacing--narrow`; lime spans `207,255,5|8`; video sections not `center`.
+Finished pages' output (CM, CC, CW) is byte-identical.
+
+**Images:** the 6 card photos are SVG wrappers of 4752 × 3168 rasters, 4–16 MB each. Rendered once in Chromium to
+1200 × 800 JPEG (q82, 120–240 KB) next to the SVGs in `media-da/en/home/coaching-community/fellowship-in-coaching-and-leadership/`;
+the image-mapping step points any > 40 KB SVG at its `.jpeg` twin (the original SVGs are unused).
+
+**Verified** vs source at 375 / 768 / 1024 / 1280 / 1440: every heading, copy block, photo, card (x / width / font / pitch),
+banner, date row, list, button, video and quote, and every vertical gap between them — all match from 1024 up.
+
+**Known deviations (accepted)**
+1. Section headings at < 1024: template h2 size (see above).
+2. padding--small copy 4px less inset on phones (`inset-12`).
+3. Phones: the first date row's title is authored on 9/12 columns on the source (rows 2–4 on 12), so it wraps to 2 lines
+   there; ours 1 line (row 28px shorter). Content quirk.
+4. 768 only: the intro's "12-week Fellowship" is joined by a `&nbsp;` on the source (lost in the content conversion, as
+   with "IN-PERSON&nbsp;EVENTS" on CW) → the intro wraps 4 lines vs 5.
+5. Phone card pitch ±1–3px (rounding).
+6. Last section → footer: 12–36px vs the source's 108px. The same gap differs on CM / CC (≈120px short) — a site-wide
+   footer-spacing item, not page-specific (added to Open items).
+
+**Phase 2 hooks:** "Apply Now" + the intro link go to the external iCIMS job posting (as on the source); the video is
+consent-gated (Video block). No gated / dynamic content on this page.
+
+Quality gate (2026-11-17): lint 0 errors · breakpoint-check ✓ · overflow ✓ · typography ✓ · a11y ✓ on the page, the 4 new
+samples + cards-media-stacked / columns-quote / columns-events / banner-events-blue, en/home, CM, CC, CW.
+
+### 2026-11-18 — Banner `header` is an option of the base banner (not of `events`); paired sample
+User question: banner (events) looks the same as the default banner — why stack more variants on it? The two existing
+variants do differ on the source (home "The Coaches Open" vs "Explore workshops & events": events = 24 / 48px panel
+padding, a 56px 2px-bordered CTA without tracking, 16px body until 1280, heading | content stacked until 1280; default =
+12 / 36px padding, a 46px borderless CTA with 1px tracking, 18px body from 768, 3 columns from 1024) — both kept, they're
+in use on home. But the Fellowship header panel has no CTA and overrides nearly everything `events` sets, so `header` is
+now an option of the BASE banner: `Banner (header)` / `Banner (header, blue)` (banner.css: own 24 / 48px padding, normal
+tracking). Importer `dates-list` emits `Banner (header, blue)`. Sample `drafts/block-samples/banner-header` shows the
+default (black, outlined) and the blue version, like the other banner samples — the sample importer has a `pair` option
+for that. The old `banner-events-blue-header` sample page was removed. Fellowship header re-verified = source at 375 /
+768 / 1024 / 1280 / 1440 (panel, heading, subtitle, 26px to the rows); CM / CC / CW importer output byte-identical. Gate:
+lint 0 errors · breakpoints ✓ · overflow / typography / a11y ✓ on fellowship, banner-header + banner / banner-default /
+banner-events / banner-events-blue / banner-stacked / banner-info samples, en/home, CC.
+
+### 2026-11-18 — STANDARDIZED: one banner (default); the `events` banner variant removed
+User decision: keep ONE banner — `Banner` (default, + `blue`) — and raise any visual difference with the customer as a
+standardization, rather than keep near-duplicate variants.
+- **Removed:** the `events` variant CSS (banner.css, ~100 lines); comments in banner.js / banner.css that cited it. No
+  importer emits `Banner (events …)` (the home importer predates the banner block).
+- **Content (local only):** `en/home` and `index` — the "Explore workshops & events" band `banner events blue` →
+  `banner blue` (a one-word direct edit of the .plain.html; re-running the old home importer would overwrite other home work,
+  so this is a direct edit — note it if home is ever re-imported). `es/home` left as is (ES out of scope; an unstyled
+  `events` class renders as the default banner anyway). DA / aem.page content NOT changed (on request only) — until it is,
+  the published home keeps the class, which now renders as the default banner once the code is deployed.
+- **Samples removed:** `drafts/block-samples/banner-events`, `banner-events-blue` (the `banner` sample shows default + blue).
+  `banner-header` (default + blue) stays — `header` is an option of the default banner.
+- **Visual change on home (vs source) — customer talking point:** the band now uses the default banner: CTA 280 × 46, no
+  border (source 280 × 56, 2px border); panel 260 / 159 / 223 / 152px tall at 375 / 768 / 1024 / 1440 (source 294 / 186 /
+  168 / 216 — the default's 12 / 36px padding and its heading | body | CTA columns from 1024 instead of stacked body + CTA
+  until 1280). Heading sizes and colours unchanged.
+- Gate: lint 0 errors · breakpoints ✓ · overflow / typography / a11y ✓ on en/home, index, banner / banner-default /
+  banner-header / banner-stacked samples, fellowship, CC. Fellowship's header banner re-verified = source at all widths.
+
+### 2026-11-18 — fellowship-in-coaching-and-leadership placed at its real path (local)
+`drafts/meet/coaching-community/fellowship-in-coaching-and-leadership` copied unchanged (byte-identical) to
+`en/home/coaching-community/fellowship-in-coaching-and-leadership` (nothing existed there). drafts/meet copy kept as the
+review / backup copy (as for CM / CC / CW). Same render at both paths (9 sections, 9 images, 0 broken, 7 blank lines).
+Gate at the new path: overflow ✓ · typography ✓ · a11y ✓. NOT uploaded to DA / not previewed or published.

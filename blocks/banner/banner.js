@@ -2,9 +2,10 @@
  * banner — a contained, rounded full-width promo band with a heading, a short
  * body line, and a pill CTA laid out in a row (stacked on mobile).
  *
- * Colour variants (authored as classes, e.g. `banner (events, blue)`):
+ * Colour variants (authored as classes, e.g. `banner (blue)`):
  *   • default / black — black panel, white text, lime-green pill button.
- *   • blue — blue panel, black text, black pill button (the "events" banner).
+ *   • blue — blue panel, black text, black pill button (e.g. the home
+ *     "Explore workshops & events" band).
  * Black is the default when no colour class is present; appending `blue` to any
  * banner switches it to the blue palette.
  *

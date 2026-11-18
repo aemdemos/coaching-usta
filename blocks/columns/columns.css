@@ -945,6 +945,78 @@ main > .section.columns-container:has(.columns.quote) > div {
   }
 }
 
+/* large (fellowship "The fellowship was an unbelievable opportunity…"): the source's
+   large quote text (`text--font-size--40px-28px`): 28 → 32 (768) → 40 (1024), normal
+   tracking; the card is as tall as its copy (the attribution right under the quote, the
+   photo top-aligned beside a taller card). 768–1023: stacked with the CARD first and the
+   photo below it (688 × 624); phones keep photo first. */
+.columns.quote.large.block {
+  margin-top: 12px; /* the row's first component (photo / card) is padded 12px on the source */
+}
+
+.columns.quote.large .columns-quote-text {
+  flex: none;
+  letter-spacing: normal;
+}
+
+.columns.quote.large .columns-quote-attribution {
+  flex: none;
+}
+
+@media (width >= 768px) {
+  .columns.quote.large > div {
+    flex-direction: column;
+  }
+
+  .columns.quote.large .columns-quote-card {
+    flex: none;
+    order: -1;
+  }
+
+  .columns.quote.large .columns-quote-photo {
+    flex: none;
+  }
+
+  .columns.quote.large .columns-quote-photo img {
+    aspect-ratio: 688 / 624;
+  }
+
+  .columns.quote.large .columns-quote-text {
+    font-size: 32px;
+  }
+}
+
+@media (width >= 1024px) {
+  .columns.quote.large > div {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .columns.quote.large .columns-quote-card {
+    flex: 0 0 calc(50% - 12px);
+    order: 0;
+  }
+
+  .columns.quote.large .columns-quote-photo {
+    flex: 0 0 calc(50% - 12px);
+  }
+
+  .columns.quote.large .columns-quote-photo img {
+    height: auto;
+    aspect-ratio: 452 / 616;
+  }
+
+  .columns.quote.large .columns-quote-text {
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1280px) {
+  .columns.quote.large .columns-quote-photo img {
+    aspect-ratio: 564 / 592;
+  }
+}
+
 /* ----------------------------------------------------------------- events -- */
 
 /* IN-PERSON WORKSHOPS — a repeating list of bordered event cards (black bg, 2px
@@ -1238,6 +1310,158 @@ main > .section.columns-container:has(.columns.events) > div {
     font-size: 16px;
     line-height: 19.2px;
     letter-spacing: -0.48px;
+  }
+}
+
+/* dates (`columns (events, dates)`, fellowship "IMPORTANT DATES"): same authoring as the
+   event list (date | eyebrow, title), no chips. Source rows: a 1px white outlined rounded
+   container padded 8px, 26px apart, at the page container edge (no outer gutter: 8 / 28 /
+   36 / 52px — the section's banner too); each text a component padded 12px 8px (12px from
+   768). Phones: date, eyebrow, title stacked. From 768: the date on 3 of 12 columns,
+   centred both ways, beside the eyebrow + title. Date Graphik Semibold 28 → 32 (1280,
+   authored bold); eyebrow Graphik Regular 18/24 bold; title Graphik Semibold 28 → 32
+   (768) → 40 (1024), line-height 1, normal tracking. */
+main > .section.columns-container:has(.columns.events.dates) > div {
+  padding: 0 8px;
+}
+
+/* the dates container has no margin preset of its own (the sections around it carry the
+   gaps); a 26px separator sits between the header banner and the rows */
+main > .section.columns-container:has(.columns.events.dates) {
+  padding-block: 0;
+}
+
+.columns.events.dates.block {
+  margin-top: 26px;
+}
+
+.columns.events.dates .columns-events-list {
+  gap: 26px;
+}
+
+.columns.events.dates .columns-events-event {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 8px;
+  background-color: transparent;
+  border: 1px solid #fff;
+}
+
+.columns.events.dates .columns-events-left {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.columns.events.dates .columns-events-date {
+  width: auto;
+  min-width: 0;
+  padding: 12px 8px;
+  font-family: "Graphik Semibold", var(--body-font-family);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.columns.events.dates .columns-events-info {
+  gap: 0;
+}
+
+.columns.events.dates .columns-events-location-line {
+  padding: 12px 8px;
+  font-family: "Graphik Regular Synth", var(--body-font-family); /* the source's faux bold */
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.columns.events.dates .columns-events-delivery {
+  font: inherit;
+  letter-spacing: normal;
+}
+
+.columns.events.dates .columns-events-title {
+  padding: 12px 8px;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: normal;
+}
+
+@media (width >= 768px) {
+  main > .section.columns-container:has(.columns.events.dates) > div {
+    padding: 0 28px;
+  }
+
+  .columns.events.dates .columns-events-event {
+    padding: 8px;
+  }
+
+  .columns.events.dates .columns-events-left {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+
+  .columns.events.dates .columns-events-date {
+    flex: 0 0 25%;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .columns.events.dates .columns-events-info {
+    flex: 1 1 0;
+  }
+
+  .columns.events.dates .columns-events-location-line,
+  .columns.events.dates .columns-events-title {
+    padding: 12px;
+  }
+
+  .columns.events.dates .columns-events-title {
+    font-size: 32px;
+  }
+}
+
+@media (width >= 1024px) {
+  main > .section.columns-container:has(.columns.events.dates) > div {
+    padding: 0 36px;
+  }
+
+  .columns.events.dates .columns-events-event {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .columns.events.dates .columns-events-left {
+    flex: none;
+    align-self: stretch;
+  }
+
+  .columns.events.dates .columns-events-title {
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1280px) {
+  main > .section.columns-container:has(.columns.events.dates) > div {
+    padding: 0 52px;
+  }
+
+  .columns.events.dates .columns-events-date {
+    font-size: 32px;
+    line-height: 32px;
+  }
+
+  .columns.events.dates .columns-events-delivery {
+    font: inherit;
+    letter-spacing: normal;
+  }
+
+  .columns.events.dates .columns-events-title {
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: normal;
   }
 }
 

@@ -5,7 +5,7 @@
      • default (no colour class, or `black`) — black panel, white text, solid
        LIME-GREEN pill button with a black label.
      • blue — blue panel, black text, solid BLACK pill button with a white label
-       (append `blue` to any banner, e.g. `banner (events, blue)`).
+       (append `blue` to any banner, e.g. `banner (blue)`).
    Source (blue "Explore workshops & events"): 20px radius; padding 36px 12px
    desktop / 12px 16px mobile; heading USTA Sans 40px (28 mobile) weight 700;
    body Graphik Semibold 18px (16 mobile); CTA a fully-rounded pill, 18px, +1px
@@ -358,109 +358,6 @@ main > .section.banner-container > div {
   border: 0;
 }
 
-/* ---- events variant -------------------------------------------------------
-   Source: the home "Explore workshops & events" band (blue), measured
-   2026-10-19 @375/768/1024/1280/1440. Content sits 24px in from the panel (panel
-   12px + the text components' 12px; 48px top/bottom from 1280).
-   - phones: stacked — heading, body 26px below, the CTA 29px below (centred).
-   - 768–1279: heading | content (body, CTA centred below), 51:49, both
-     vertically centred; body 16px.
-   - 1280+: heading | body | CTA in 9:5:5 columns, body 18px.
-   CTA: a fixed 280x56 pill with a 2px border, label 14 → 16 @768 → 18 @1280,
-   no tracking. */
-.banner.events {
-  padding: 24px;
-}
-
-.banner.events .banner-body p {
-  font-size: 16px;
-  letter-spacing: -0.03em;
-}
-
-.banner.events .banner-cta {
-  height: 56px;
-  padding: 14px;
-  border: 2px solid currentcolor;
-  font-size: 14px;
-  letter-spacing: normal;
-}
-
-.banner.events.blue .banner-cta {
-  border-color: #000;
-}
-
-@media (width >= 768px) {
-  .banner.events {
-    padding: 24px;
-  }
-
-  .banner.events .banner-inner {
-    gap: 24px;
-  }
-
-  .banner.events .banner-heading {
-    flex: 0 0 calc((100% - 24px) * 0.508);
-  }
-
-  .banner.events .banner-content {
-    flex: 1 1 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 24px;
-  }
-
-  .banner.events .banner-body p {
-    font-size: 16px;
-  }
-
-  .banner.events .banner-action {
-    align-self: center;
-  }
-
-  .banner.events .banner-cta {
-    font-size: 16px;
-  }
-}
-
-@media (width >= 1280px) {
-  .banner.events {
-    padding: 48px 24px;
-  }
-
-  .banner.events .banner-heading {
-    flex: 0 0 calc((100% - 48px) * 9 / 19);
-  }
-
-  .banner.events .banner-content {
-    flex-direction: row;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .banner.events .banner-body,
-  .banner.events .banner-action {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .banner.events .banner-action {
-    display: flex;
-    justify-content: center;
-  }
-
-  .banner.events .banner-body p {
-    font-size: 18px;
-  }
-
-  /* the source CTA sits 4px above the row's centre line */
-  .banner.events .banner-cta {
-    flex: none;
-    max-width: none;
-    margin-bottom: 8px;
-    font-size: 18px;
-  }
-}
-
 /* ---- centered variant -------------------------------------------------------
    Source: "More questions? Visit Coach Care." (membership-benefits). The panel
    fills its grid column INCLUDING the column insets (8px / 12px from 768 past
@@ -760,4 +657,74 @@ main > .section.banner-container > div {
 
 @media (width >= 1280px) {
   .banner.stacked .banner-cta { font-size: 24px; }
+}
+
+/* ---- header option (`banner (header)` / `banner (header, blue)`) -----------
+   Source: the fellowship "IMPORTANT DATES" panel over its dates list (blue) — a heading
+   and a subtitle, no CTA. Content 24px in from the panel (panel 12px 16px / 12px + the text
+   components' 12px 8px / 12px), 48px top / bottom from 1280 (panel 36px). Heading USTA Sans
+   32 → 40 (768), normal tracking, centred below 1024; subtitle Graphik Semibold 24/32,
+   normal tracking, 24px below. From 1024 they sit side by side, top-aligned, on 8 + 4 of
+   the panel's 12 columns. Colours as the base banner (black, outlined) or `blue`. */
+.banner.header {
+  padding: 24px;
+}
+
+.banner.header .banner-inner {
+  align-items: stretch;
+  gap: 24px;
+}
+
+.banner.header .banner-heading {
+  font-size: 32px;
+  letter-spacing: normal;
+  text-align: center;
+}
+
+.banner.header .banner-body p {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: normal;
+}
+
+@media (width >= 768px) {
+  .banner.header {
+    padding: 24px;
+  }
+
+  .banner.header .banner-inner {
+    flex-direction: column;
+  }
+
+  .banner.header .banner-heading {
+    flex: none;
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  .banner.header {
+    padding: 24px;
+  }
+
+  .banner.header .banner-inner {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .banner.header .banner-heading {
+    flex: 0 0 calc((100% + 24px) * 8 / 12 - 24px);
+    text-align: left;
+  }
+
+  .banner.header .banner-content {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+@media (width >= 1280px) {
+  .banner.header {
+    padding: 48px 24px;
+  }
 }

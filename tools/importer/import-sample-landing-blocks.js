@@ -16,6 +16,7 @@ import landing, {
 const CM = 'coach-mentorship';
 const CC = 'coaching-community';
 const CW = 'coaching-workshops';
+const FEL = 'fellowship-in-coaching-and-leadership';
 
 const SAMPLES = {
   'hero-content': {
@@ -114,6 +115,37 @@ const SAMPLES = {
     intro: 'A tab set over whole page SECTIONS (<code>toc</code>; one row per tab: label | anchor). Each tab\'s content is its own section after the block, carrying Section Metadata <code>toc-anchor</code> = the anchor, so a tab can hold any blocks (here Columns (promo) rows). Clicking a tab shows only its section; deep links use the source\'s form <code>#tab=upcoming</code> / <code>#tab=recordedwebinars</code>; arrow keys switch tabs. Phones: tabs as wide as their label, 68px, inactive #2d2d2d; from 768: a #2d2d2d track, tabs share the width, 101px (106px at 1024); active lime.',
     examples: [{ anchor: 'ONLINE WEBINARS' }],
   },
+  'cards-media-stacked-compact': {
+    page: FEL,
+    title: 'Cards (Media, Stacked, Compact)',
+    intro: 'The landing media cards (<code>cards (media, stacked)</code>: one row per card — photo | title + copy) with the <code>compact</code> option: 1 card per row on phones, 3 from 768; each card is inset 8px (12px from 768) more than plain stacked cards; photos keep their own 3:2 shape (no crop); copy in the source\'s narrow text — Graphik Regular 16/19.2, −0.03em (14/16.8 at 768–1023); title Graphik Semibold 28 → 32 (1280).',
+    examples: [{ anchor: 'On-court Coaching' }],
+  },
+  'banner-header': {
+    page: FEL,
+    title: 'Banner (Header)',
+    intro: 'Section header band (no CTA): one row — heading | subtitle. Heading USTA Sans 32 → 40 (768), centred below 1024; subtitle Graphik Semibold 24/32; side by side on 8 + 4 of 12 columns from 1024. Shown in its default colours and with <strong>blue</strong> appended (the source uses the blue one above a <code>columns (events, dates)</code> list).',
+    examples: [{
+      anchor: 'IMPORTANT DATES',
+      pick: 'Banner',
+      pair: {
+        base: 'Default: black panel with a 1px white outline and white text. Authored as <code>banner header</code>.',
+        blue: 'Blue: append <strong>blue</strong> — blue panel, no outline, black text. Authored as <code>banner header blue</code>.',
+      },
+    }],
+  },
+  'columns-events-dates': {
+    page: FEL,
+    title: 'Columns (Events, Dates)',
+    intro: 'The event list with the <code>dates</code> option (same authoring: one row per date — date | eyebrow, title; no chips): 1px white outlined rows, 26px apart, at the page container edge. Phones: date, eyebrow and title stacked; from 768 the date sits on 3 of 12 columns, centred, beside the eyebrow and title. Date Graphik Semibold 28 → 32 (1280); eyebrow Graphik Regular 18/24 bold; title Graphik Semibold 28 → 32 (768) → 40 (1024).',
+    examples: [{ anchor: 'IMPORTANT DATES', pick: 'Columns' }],
+  },
+  'columns-quote-large': {
+    page: FEL,
+    title: 'Columns (Quote, Large)',
+    intro: 'The quote row (<code>columns (quote)</code>: photo | quote glyph, quote, attribution) with the <code>large</code> option: the source\'s large quote, Graphik Semibold 28 → 32 (768) → 40 (1024), normal tracking; the card is as tall as its copy (attribution right below the quote) and the photo is top-aligned beside it; at 768–1023 the card stacks above the photo.',
+    examples: [{ anchor: 'Fellowship Participant' }],
+  },
   'text-style-lead-subhead': {
     page: CM,
     title: 'Text Style (Lead / Subhead)',
@@ -159,11 +191,25 @@ export default {
       hr(document),
       block(document, 'Spacer', [['desktop', '40px'], ['mobile', '24px']]),
     );
-    sample.examples.forEach(({ anchor, pick }) => {
+    sample.examples.forEach(({ anchor, pick, pair }) => {
       emitSection(find(anchor), { document, pagePath }).forEach(({ nodes, styles, meta }) => {
         // `pick`: keep the headings and the named block only
         const kept = pick ? nodes.filter((n) => /^H[1-6]$/.test(n.tagName) || blockName(n).startsWith(pick)) : nodes;
         if (!kept.length) return;
+        // `pair`: the block in its default colours, then with `blue` appended (each under its
+        // own heading + note, as the other banner samples)
+        const table = pair && kept.find((n) => n.tagName === 'TABLE');
+        if (table) {
+          const cell = table.querySelector('tr').firstElementChild;
+          const opts = (cell.textContent.match(/\(([^)]*)\)/) || [, ''])[1].split(',').map((o) => o.trim()).filter((o) => o && o.toLowerCase() !== 'blue');
+          const name = (extra) => `${cell.textContent.replace(/\s*\(.*$/, '')} (${[...opts, ...extra].join(', ')})`;
+          const title = (extra) => name(extra).replace(/\b\w/g, (ch) => ch.toUpperCase());
+          const variant = (extra) => { const t = table.cloneNode(true); t.querySelector('tr').firstElementChild.textContent = name(extra); return t; };
+          out.append(hr(document), el(document, 'h2', title([])), el(document, 'p', pair.base), hr(document), variant([]),
+            hr(document), block(document, 'Spacer', [['desktop', '60px'], ['mobile', '40px']]),
+            hr(document), el(document, 'h2', title(['blue'])), el(document, 'p', pair.blue), hr(document), variant(['blue']));
+          return;
+        }
         const cells = { ...(styles.length ? { Style: styles.join(', ') } : {}), ...(meta || {}) };
         out.append(hr(document), ...kept, ...(Object.keys(cells).length ? [block(document, 'Section Metadata', cells)] : []));
       });
