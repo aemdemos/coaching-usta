@@ -280,11 +280,12 @@ function assembleCourseCard({
   label.append(content);
   card.append(label);
 
-  // TIMELINE: description is a full-width block below the header row.
+  // TIMELINE: the description sits in the text column beside the chevron (source
+  // `.v-course__info`), in a certification panel and in a bare course list alike
   if (!clampDesc) {
     descNodes.forEach((node) => {
       node.classList.add('accordion-timeline-desc');
-      card.append(node);
+      head.append(node);
     });
   }
 
@@ -397,15 +398,16 @@ function decorateTimeline(block) {
     const last = courseRows[courseRows.length - 1];
     const footerRow = last && last.children.length === 1 && last.querySelector('a') && !last.querySelector('ol, ul, img') ? courseRows.pop() : null;
     courseRows.forEach((row) => list.append(buildCourseCard(row.children[0], row.children[1])));
+    panel.append(list);
+    // the footer link follows the list (outside it, so the cards can share one row height)
     if (footerRow) {
       const footer = document.createElement('div');
       footer.className = 'accordion-timeline-footer';
       const cta = footerRow.querySelector('a');
       cta.className = 'accordion-timeline-viewall';
       footer.append(cta);
-      list.append(footer);
+      panel.append(footer);
     }
-    panel.append(list);
     block.replaceChildren(panel);
     return;
   }
