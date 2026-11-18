@@ -3121,6 +3121,131 @@ main > .section.columns-container:has(.columns.promo) > div {
   }
 }
 
+/* ---- Columns (media, lime) — the results pages' welcome row ("WELCOME, COLLEGE COACH!")
+   Source: a LIME rounded panel (`container--padding--small`: 12px 16px phones / 12px / 36px
+   12px from 1280) beside a portrait photo; its texts are components padded 12px 8px (12px
+   from 768). Title USTA Sans 32 → 40 (1024) → 64 (1280), centred, black; intro Graphik
+   16/19.2 → 18 (1024) → 24 (1280), −0.03em; a BLACK Join button (white Graphik Semibold
+   18px, 12px radius, full width on phones / 280px from 768, 48 → 50 (1024) → 56 (1280) tall)
+   pinned to the panel bottom. Photo first on phones (343 / 268); from 768 the photo sets the
+   row height: 1 / 2 (768), 452 / 616 (1024), 564 / 592 (1280). */
+.columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content {
+  justify-content: flex-start;
+  padding: 12px 16px;
+  background-color: var(--usta-lime);
+}
+
+.columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content > * {
+  max-width: none;
+}
+
+.columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2) {
+  width: auto;
+  margin: 0;
+  padding: 12px 8px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-align: center;
+}
+
+.columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content p {
+  margin: 0;
+  padding: 12px 8px;
+}
+
+/* (phones: the Join button sits at the bottom of a 126px button container — 54px above it) */
+.columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content p:last-child {
+  margin-top: auto;
+  padding-top: 66px;
+}
+
+.columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content p:last-child a {
+  width: 100%;
+  height: 48px;
+  font-size: 18px;
+  border-color: #000;
+  background-color: #000;
+  color: #fff;
+}
+
+.columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-media img {
+  aspect-ratio: 343 / 268;
+  object-fit: cover;
+}
+
+@media (width >= 768px) {
+  .columns.media.lime:not(.dark):has(.columns-media-content) > div {
+    align-items: stretch;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content {
+    padding: 12px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2, p) {
+    padding: 12px;
+  }
+
+  /* the photo sets the row height (not the card, as on the home Safe Play row) */
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-media,
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-media picture {
+    position: static;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2) {
+    font-size: 32px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content p:last-child a {
+    width: 280px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-media img {
+    height: auto;
+    aspect-ratio: 1 / 2;
+  }
+}
+
+@media (width >= 1024px) {
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2) {
+    font-size: 40px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content p:last-child a {
+    height: 50px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-media img {
+    aspect-ratio: 452 / 616;
+  }
+}
+
+@media (width >= 1280px) {
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content {
+    padding: 36px 12px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content :is(h1, h2) {
+    font-size: 64px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-content p:last-child a {
+    height: 56px;
+  }
+
+  .columns.media.lime:not(.dark):has(.columns-media-content) .columns-media-media img {
+    aspect-ratio: 564 / 592;
+  }
+}
+
+/* the lime row's panel and photo are components padded 12px on the source */
+.columns.media.lime.block {
+  margin-top: 12px;
+}
+
 /* the source's outlined card sits in an `outer-gutter-paddings` container padded 12px on
    top: the block starts 12px below its section top (coaching-workshops @all widths); it is
    followed on the source by an empty spacer container (padding 8px + 32px margins), which is

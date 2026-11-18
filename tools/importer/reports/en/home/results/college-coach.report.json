@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/results/college-coach.html",
+  "path": "en/home/results/college-coach",
+  "timestamp": "2026-11-18T05:27:23.579Z",
+  "title": "College Coach",
+  "template": "landing-page",
+  "sections": "results-intro | heading | results-cards | results-certification | heading | results-tiers",
+  "importScript": "f1761a54d8f4"
+}

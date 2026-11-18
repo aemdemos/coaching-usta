@@ -143,6 +143,15 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
   padding: 16px 8px 8px; /* mobile: 16 top, 8 sides/bottom (source) */
 }
 
+/* headless timeline (no certification header: the block starts with course rows — results
+   school-coach / guardian-coach): just the course cards on the page, no outer panel */
+.accordion.timeline.accordion-timeline-headless .accordion-timeline-panel {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background-color: transparent;
+}
+
 /* panel header wrapper: holds the head (badge + text/meta). The chevron is NOT
    here — it lives in the `__info` row beside the meta grid (see below) so it
    centres on the META block, matching the source, not the whole tall header.

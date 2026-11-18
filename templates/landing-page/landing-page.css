@@ -129,10 +129,35 @@ body.landing-page main > .section.spacing-36:has(> .cards-wrapper > .cards.compa
   padding-bottom: 0;
 }
 
+/* the results pages' welcome row (Columns (media, lime)) opens the page on the 36px margin
+   preset below the nav strip: 24px + 12 / 12 / 20 / 36px (the block adds its 12px inset) */
+body.landing-page main > .section:first-child:has(.columns.media.lime) { padding-top: 36px; }
+
+@media (width >= 1024px) {
+  body.landing-page main > .section:first-child:has(.columns.media.lime) { padding-top: 44px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:first-child:has(.columns.media.lime) { padding-top: 60px; }
+}
+
 /* a page-title section (default-content h1, fellowship) sits in the source's title
    container: its 12px top padding comes on top of the hero spacing */
 body.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
   padding-top: 36px;
+}
+
+/* a narrow `heading-64` heading section (results "What USTA Coaching Has To Offer", 10 of 12
+   columns) spans the full width below 1280 — the source sets these headings on tablet--12 /
+   desktop-small--12 and narrows them from 1280 only */
+body.landing-page main > .section.heading-64.narrow-cols > div:not(.full-width) {
+  padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.heading-64.narrow-cols > div:not(.full-width) {
+    padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px) + (min(100%, 1536px) - 2 * var(--section-gutter) - 2 * var(--section-pad, 0px) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
+  }
 }
 
 /* the FAQ accordion is a component with the usual 12px inset above and below */

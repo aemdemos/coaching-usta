@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/results/volunteer-emerging-coach.html",
+  "path": "en/home/results/volunteer-emerging-coach",
+  "timestamp": "2026-11-18T05:28:52.259Z",
+  "title": "Volunteer or Emerging Coach",
+  "template": "landing-page",
+  "sections": "results-intro | heading | results-cards | results-certification | heading | results-tiers",
+  "importScript": "f1761a54d8f4"
+}

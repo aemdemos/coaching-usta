@@ -24,13 +24,28 @@ var CustomImportScript = (() => {
     KINDS: () => KINDS,
     TEMPLATE: () => TEMPLATE,
     block: () => block,
+    buttonEl: () => buttonEl,
+    cls: () => cls,
+    components: () => components,
+    comps: () => comps,
     contentRoot: () => contentRoot,
+    deep: () => deep,
     default: () => import_landing_page_v1_default,
     el: () => el,
     emitSection: () => emitSection,
     finalizeOutput: () => finalizeOutput,
+    fontSize: () => fontSize,
+    imageEl: () => imageEl,
+    isButton: () => isButton,
+    isContainer: () => isContainer,
+    isImage: () => isImage,
+    isText: () => isText,
+    isUstaSans: () => isUstaSans,
+    kind: () => kind,
     norm: () => norm,
-    prepareSections: () => prepareSections
+    para: () => para,
+    prepareSections: () => prepareSections,
+    textEls: () => textEls
   });
 
   // tools/importer/transformers/coaching-usta-cleanup.js
@@ -406,6 +421,7 @@ var CustomImportScript = (() => {
       return cls(c, "cmp-text--alignment-center") && isUstaSans(c) && !!next && !cls(next, "cmp-text--alignment-center");
     };
     for (const c of comps(s)) {
+      if (!lead.length && kind(c) === "separator") continue;
       if (isText(c) && centredLead(c)) lead.push(c);
       else break;
     }
@@ -433,6 +449,8 @@ var CustomImportScript = (() => {
     const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
     const styles = [];
     if (centred && !(k && /^(hero|banner|video)/.test(k.name))) styles.push("center");
+    const leadText = comps(s).find((c) => isText(c) && norm(c.textContent));
+    if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push("heading-64");
     styles.push(...inset);
     const m36 = (e) => !!e && (e.hasAttribute("data-margin-36") || /container--top-margin--36\b/.test(e.className || "") && !/container--border-radius--/.test(e.className) && !e.getAttribute("data-bg"));
     if (m36(s) || m36(padded) || [...s.children].some((c) => c.hasAttribute("data-margin-36"))) {

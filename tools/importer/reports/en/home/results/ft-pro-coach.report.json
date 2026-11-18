@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/results/ft-pro-coach.html",
+  "path": "en/home/results/ft-pro-coach",
+  "timestamp": "2026-11-18T05:27:57.897Z",
+  "title": "Full Time Professional Coach",
+  "template": "landing-page",
+  "sections": "results-intro | heading | results-cards | results-certification | heading | results-tiers",
+  "importScript": "f1761a54d8f4"
+}

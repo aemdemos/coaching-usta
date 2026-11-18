@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/results/pt-pro-coach.html",
+  "path": "en/home/results/pt-pro-coach",
+  "timestamp": "2026-11-18T05:28:32.500Z",
+  "title": "Part Time Professional Coach",
+  "template": "landing-page",
+  "sections": "results-intro | heading | results-cards | results-certification | heading | results-tiers",
+  "importScript": "f1761a54d8f4"
+}

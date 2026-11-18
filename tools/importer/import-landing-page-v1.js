@@ -356,7 +356,8 @@ function emitSection(s, { document, pagePath }) {
     const next = texts[texts.indexOf(c) + 1];
     return cls(c, 'cmp-text--alignment-center') && isUstaSans(c) && !!next && !cls(next, 'cmp-text--alignment-center');
   };
-  for (const c of comps(s)) { if (isText(c) && centredLead(c)) lead.push(c); else break; }
+  // (an empty separator above the heading — results pages — doesn't end the lead)
+  for (const c of comps(s)) { if (!lead.length && kind(c) === 'separator') continue; if (isText(c) && centredLead(c)) lead.push(c); else break; }
   const rest = comps(s).filter((c) => !lead.includes(c) && kind(c) !== 'separator');
   if (lead.length && rest.length) {
     const n = centredSpan(lead[0]) || 12;
@@ -377,6 +378,10 @@ function emitSection(s, { document, pagePath }) {
   const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
   const styles = [];
   if (centred && !(k && /^(hero|banner|video)/.test(k.name))) styles.push('center');
+  // a section that opens with the source's display heading size (USTA Sans
+  // `text--font-size--64px-…`) and wasn't split → `heading-64` too (results pages)
+  const leadText = comps(s).find((c) => isText(c) && norm(c.textContent));
+  if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push('heading-64');
   styles.push(...inset);
   // a section container on the source's 36px margin preset (`container--top-margin--36` /
   // `--bottom-margin--36`, fellowship) → `spacing-36` (landing template: 12 / 12 / 20 / 36px
@@ -960,4 +965,7 @@ function finalizeOutput(out, document) {
 
 export {
   KINDS, emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE,
+  // helpers shared with the quiz-results importer
+  textEls, imageEl, buttonEl, components, comps, deep, kind, isText, isImage, isButton, isContainer,
+  cls, para, fontSize, isUstaSans,
 };
