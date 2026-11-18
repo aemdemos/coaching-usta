@@ -160,8 +160,10 @@ const SAMPLES = {
 const hr = (document) => document.createElement('hr');
 const blockName = (n) => (n.tagName === 'TABLE' ? norm(n.querySelector('tr')?.textContent || '') : '');
 
-export default {
-  onLoad: landing.onLoad,
+/* the sample builder, shared with import-sample-results-blocks.js (which brings the results
+   pages' kinds and onLoad) */
+export const sampleImporter = (SAMPLES, onLoad) => ({
+  onLoad,
 
   transform: (payload) => {
     const { document, params } = payload;
@@ -225,4 +227,6 @@ export default {
     WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
     return [{ element: out, path: `/drafts/block-samples/${key}`, report: { template: 'block-sample', sample: key } }];
   },
-};
+});
+
+export default sampleImporter(SAMPLES, landing.onLoad);

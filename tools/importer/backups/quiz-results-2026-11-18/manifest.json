@@ -1,0 +1,11 @@
+{
+  "pages": ["results/college-coach", "results/ft-pro-coach", "results/pt-pro-coach", "results/school-coach", "results/guardian-coach", "results/volunteer-emerging-coach"],
+  "regression": ["en/home (Cards (media), Cards (pricing))", "coach-mentorship (Cards (icons))", "coaching-community/fellowship-in-coaching-and-leadership"],
+  "locales": ["en"],
+  "output": "drafts/meet/results/<slug> (local only; not uploaded to DA; the hand-built en/home/results pages are untouched)",
+  "samples": ["drafts/block-samples/columns-media-lime", "drafts/block-samples/accordion-timeline-headless"],
+  "date": "2026-11-18",
+  "importer": "import-quiz-results-v1.js (imports import-landing-page-v1.js and adds the results kinds) · import-sample-results-blocks.js for the samples (shares the builder exported by import-sample-landing-blocks.js) · map-images.py = the image mapping used",
+  "changes": "results kinds: welcome row → Columns (media, media-right, lime); media cards → Cards (media); text-only icon cards → Cards (icons); certification fragment → Accordion (pathway) / Accordion (timeline); bare course list → headless Accordion (timeline); tiers → Cards (pricing) · responsive twins with identical text keep the phone/tablet copy (no forced <br>) · Graphik Semibold text components authored as bold (rendered Semibold in Text Style)",
+  "verified": "parity vs source at 375/768/1024/1280/1440 on all six pages; spacing standardised per the user (no spacers / page-specific spacing); lint, breakpoint, overflow, typography and a11y pass on the six pages + home, coach-mentorship, fellowship"
+}

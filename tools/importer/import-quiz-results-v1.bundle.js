@@ -1321,6 +1321,19 @@ var CustomImportScript = (() => {
         if (grid) grid.append(...btns);
         sec.after(c);
       });
+      const desktopOnly = (e) => /\baem-GridColumn--mobile--hide\b/.test(e.className) && /\baem-GridColumn--tablet--hide\b/.test(e.className);
+      document.querySelectorAll('.text[class*="aem-GridColumn--default--hide"]').forEach((t) => {
+        const twin = [t.previousElementSibling, t.nextElementSibling].find((s) => s && /^text\b/.test(s.className) && desktopOnly(s) && norm(s.textContent) === norm(t.textContent));
+        if (!twin) return;
+        twin.remove();
+        t.className = t.className.replace(/\baem-GridColumn--default--hide\b/g, "");
+      });
+      document.querySelectorAll(".text.text--font-family--graphic-semibold p").forEach((p) => {
+        if (p.closest("header, footer, .experiencefragment") || p.querySelector("b, strong") || !norm(p.textContent)) return;
+        const b = document.createElement("b");
+        b.append(...p.childNodes);
+        p.append(b);
+      });
       import_landing_page_v1_default.onLoad(payload);
       document.querySelectorAll(".experiencefragment").forEach((x) => {
         if (x.querySelector(".v-classification-accordion")) x.className = x.className.replace(/\bexperiencefragment\b/g, "container results-certification");

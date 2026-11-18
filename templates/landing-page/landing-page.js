@@ -15,4 +15,13 @@ export default function decorate(main) {
     const em = p.children.length === 1 && p.firstElementChild.matches('em, i') ? p.firstElementChild : null;
     if (em && em.textContent.trim() === p.textContent.trim()) em.classList.add('italic');
   });
+  // a Text Style paragraph set entirely in bold is the source's Graphik Semibold text
+  // component (results pathway intros); bold runs inside a sentence stay synthesized bold
+  main.querySelectorAll('.text-style p, .text-style > div > div').forEach((p) => {
+    const strong = p.children.length === 1 && p.firstElementChild.matches('strong, b') ? p.firstElementChild : null;
+    if (!strong || strong.textContent.trim() !== p.textContent.trim()) return;
+    // (a bold link on its own is a button, not copy)
+    const link = strong.children.length === 1 && strong.firstElementChild.matches('a') ? strong.firstElementChild : null;
+    if (!link || link.textContent.trim() !== strong.textContent.trim()) strong.classList.add('semibold');
+  });
 }

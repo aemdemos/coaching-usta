@@ -4583,11 +4583,11 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 ### Day 2 — results pages (NEW quiz-results importer, one template) + small form / utility pages
 | Person A — results importer | Eff. | Person B — utility pages | Eff. |
 |---|---|---|---|
-| /en/home/results/college-coach (builds the importer: tiers, Accordion pathway, Cards media stacked, Columns media) | M | /en/home/results/volunteer-emerging-coach (reuses A's importer — after A's first page) | L |
-| /en/home/results/ft-pro-coach | L | /en/home/about/faqs (Accordion `faq` — option has no code yet) | M |
-| /en/home/results/pt-pro-coach (Accordion timeline) | L | /en/home/membership-benefits/gallagher-disclaimer-baseline (same form as Day 1) | L |
-| /en/home/results/school-coach (Accordion `courses` — option has no code yet; Cards icons) | M | /en/home/settings/lead-interests (Form) | L |
-| /en/home/results/guardian-coach (not imported yet) | L | /en/home/settings/unsubscribe (`unsubscribe` block does not exist yet) | M |
+| /en/home/results/college-coach (builds the importer: tiers, Accordion pathway, Cards media stacked, Columns media) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | M | /en/home/results/volunteer-emerging-coach (reuses A's importer — after A's first page) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L |
+| /en/home/results/ft-pro-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/about/faqs (Accordion `faq` — option has no code yet) | M |
+| /en/home/results/pt-pro-coach (Accordion timeline) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/membership-benefits/gallagher-disclaimer-baseline (same form as Day 1) | L |
+| /en/home/results/school-coach (headless Accordion timeline — not `courses`; Cards icons) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | M | /en/home/settings/lead-interests (Form) | L |
+| /en/home/results/guardian-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/settings/unsubscribe (`unsubscribe` block does not exist yet) | M |
 
 ### Day 3 — listing hub (dynamic PUBLIC lists) + long-form / one-off pages
 | Person A — listing hub | Eff. | Person B — long-form + one-offs | Eff. |
@@ -4866,3 +4866,88 @@ standardization, rather than keep near-duplicate variants.
 `en/home/coaching-community/fellowship-in-coaching-and-leadership` (nothing existed there). drafts/meet copy kept as the
 review / backup copy (as for CM / CC / CW). Same render at both paths (9 sections, 9 images, 0 broken, 7 blank lines).
 Gate at the new path: overflow ✓ · typography ✓ · a11y ✓. NOT uploaded to DA / not previewed or published.
+
+### 2026-11-18 — results pages (6) imported — quiz-results importer, landing template
+**Pages:** results/{college-coach, ft-pro-coach, pt-pro-coach, school-coach, guardian-coach, volunteer-emerging-coach},
+EN only, imported into `drafts/meet/results/<slug>` (local only — not uploaded to DA, not previewed / published). The
+older hand-built `en/home/results/*` pages are untouched; replacing them is a separate step (on request).
+**Template:** `landing-page` (no new template). **Importer:** `tools/importer/import-quiz-results-v1.js` — imports the
+landing importer and puts the results kinds in front of its KINDS; backup + manifest in
+`tools/importer/backups/quiz-results-2026-11-18/`. Phase 1 = static snapshots (tiers, course lists); live data is Phase 2.
+
+**Block mapping (authoring contracts):**
+- Welcome row → **Columns (media, media-right, lime)** — one row: photo | h1, intro, CTA link. The `lime` option (kept
+  per the user): lime panel, black text, black CTA pinned to the panel bottom (full width on phones, 280px from 768);
+  title USTA Sans **28** (phones) → 32 (768) → 40 (1024) → 64 (1280) — 28 on phones is a STANDARDISATION (user decision
+  2026-11-18): the source is 32 but "WELCOME PROFESSIONAL COACH!" didn't fit, and the source author hand-set 28px on
+  FT/PT Pro only. Photo crops 343:268 → 1:2 (768) → 452:616 (1024) → 564:592 (1280) = the source's on 5 of 6 pages.
+  Sample: `drafts/block-samples/columns-media-lime`.
+- Offer cards → **Cards (media)** (the home page's); results-only differences in landing-page.css (phone copy inset 8px,
+  273px photo column at 768, 12px under the copy and the row).
+- School "why provide tennis" cards → **Cards (icons)** without icon rows: in cards.css `.cards.icons:not(:has(.cards-icons-image))`
+  = 8px-padded grey cards, USTA Sans 16 → 18 (1280) titles, 1 / 2 (768) / 3 (1024) columns. No new option.
+- Certification fragment → **Accordion (pathway)** (College / FT Pro) or **Accordion (timeline)** (PT Pro / Volunteer).
+- Bare course list (School / Guardian) → **headless Accordion (timeline)**: first row is already a course row → no panel;
+  description inside the text column (JS `descInHead`), footer CTA after the list, 305px min height from 1024
+  (each card grows on its own when opened — fixed 2026-11-18: a shared row height made every card grow), badge 120 until 1280. Sample: `drafts/block-samples/accordion-timeline-headless`. **Accordion (courses) retired
+  as the target** (its sample `drafts/block-samples/accordion-courses` removed; its code stays — the old hand-built
+  results pages use it).
+- Tiers → **Cards (pricing)**. Block fixes (also fix home): normal tracking in the card, tier title on a normal line
+  (37px), CTA 2px black border, phone tab names in Arial (source quirk: its tab `<button>` never gets a font) at a 72px
+  min width, 8px name→price gap, active tab borderless.
+- Footer subscribe form (`v-leads`) not imported (site footer).
+
+**Template rules added (landing-page.css):** 48px separator above results section headings; heading-64 10-column headings
+full width below 1280 and with no 12px inset from 768; welcome-row section padding 36/44/60 top, 24/32/48 bottom; the
+heading → block gap is a variable (`--text-block-gap`, default 42px) — results heading-64 sections use the source's
+52px preset (24 / 32 / 48 / 64 past the text); a course accordion right under its heading 60; the pathway intro + course
+box share the 36px preset (intro 12 / 20 / 36 lower, box 24 / 32 / 48 under it); "See all benefits" CTA = content
+width (280 on phones), 48 / 50 / 56 tall; two-line headings (`h2 + h2` in a narrow section) touch; a wholly bold Text
+Style paragraph = Graphik Semibold −0.03em (landing-page.js marks it `.semibold`; bold runs inside a sentence stay the
+synthesized bold — e.g. Gallagher's bold default-content line is unchanged).
+**Importer rules:** responsive twins whose text is identical keep the phone/tablet copy (no forced `<br>`; FT/PT Pro card
+titles) — twins with different text keep the desktop copy (decision 2026-10-07); Graphik Semibold text components are
+wrapped in bold.
+
+**STANDARDISED SPACING (user, 2026-11-18):** no spacers and no page-specific spacing rules — spacing comes from the
+shared rhythm even where a source page differs. Removed: the 54px phone spacer above the lime CTA (source has it on
+College / FT / PT only), School's icon-card / Join offsets (now the standard 54px heading → cards and cards → CTA, 280×56
+CTA), the no-gap rule under School's photo cards, the edge-to-edge pricing tab strip.
+
+**Known differences vs source (logged, not reproduced):**
+- College / FT / PT phones: the source's 54px spacer above the CTA (see above).
+- Guardian welcome photo: the source crops it differently (panel 518 / 676 / 696 tall at 768 / 1024 / 1280 vs the shared
+  664 / 616 / 592).
+- College card 1: a desktop-only blank `<h3>&nbsp;</h3>` pushes its copy 32px lower from 1280.
+- School card 2 + "Access to Learning Content": the desktop copy forces a line break; we keep one heading (natural wrap)
+  → 1 vs 2 lines at 1280.
+- Pathway intro "…Certification&nbsp;here": the content pipeline turns `&nbsp;` into a space → one word wraps
+  differently (1280).
+- FT / PT Pro welcome title: source inline 62px at desktop (ours 64).
+- School Join (under the icon cards): the source sits in an offset grid column (off-centre; overflows phones by 142px —
+  a source bug); ours is centred.
+- Course cards (School / Guardian): the source's 305px reserve is set by a script on page load and doesn't follow
+  resizes; we reserve it from 1024.
+- Results section headings on phones (`What USTA Coaching Has To Offer`, `Find a Package…`): the source spans 10 or 12
+  columns per heading; ours share one span (same line count).
+
+**Gate (2026-11-18):** lint 0 errors · breakpoints ✓ · overflow ✓ · typography ✓ · a11y ✓ on the six results pages,
+en/home, coach-mentorship, fellowship and the two new samples' pages render clean (0 broken images, no overflow).
+
+### 2026-11-18 — timeline course cards: one layout for panel + bare lists (user review)
+User screenshots (PT Pro desktop, School phone) showed our timeline course cards differed from the source. Source
+`.v-course` is the same in a certification panel (PT Pro, Volunteer) and a bare list (School, Guardian), so the card
+layout is now shared (accordion.css "timeline course cards", accordion.js puts the description in the text column):
+- ≥768: description in the text column, 22px under the title, 32px short of the chevron; chevron centred on the text;
+  an extra 24px row under the content (source empty buttons row); cards take their content height (the 232px
+  minimum now applies to pathway cards only); panel list inset 12px (8px on phones).
+- Phones: the pathway ("accordion grid") re-flow now applies to timeline cards too — badge | eyebrow + title |
+  chevron in row 1, the opened description FULL WIDTH 32px below, then the module list; cards without a badge drop
+  the empty badge column.
+- Headless-only: no panel, full column, 305px minimum from 1024, 120px badge until 1280, footer CTA 44px below.
+- Fixed earlier the same day: opening one card no longer stretches the others (no shared row height).
+- Known difference: at 1024 the source script equalises PT Pro's cards to the tallest (254px) on load; ours keep
+  their content height (232) — standardised, as a shared height breaks open/close.
+Verified vs source: PT Pro at 375 / 768 / 1024 / 1440 (card, eyebrow, title, description, chevron positions), School
+open card at 375, School cards at all widths, College pathway unchanged. Gate: lint 0 errors · breakpoints ✓ ·
+overflow / typography / a11y ✓ on the six results pages + the course-list sample.

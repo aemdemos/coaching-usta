@@ -250,6 +250,26 @@ export default {
       if (grid) grid.append(...btns);
       sec.after(c);
     });
+    // responsive twins that differ only in line breaks (FT Pro "Elevate your coaching" +
+    // "game" as two desktop <h3>s vs one phone/tablet <h3>): keep the phone/tablet copy, which
+    // wraps the same way on desktop without a forced break. Twins with different text keep
+    // the landing importer's rule (the desktop copy).
+    const desktopOnly = (e) => /\baem-GridColumn--mobile--hide\b/.test(e.className) && /\baem-GridColumn--tablet--hide\b/.test(e.className);
+    document.querySelectorAll('.text[class*="aem-GridColumn--default--hide"]').forEach((t) => {
+      const twin = [t.previousElementSibling, t.nextElementSibling].find((s) => s && /^text\b/.test(s.className) && desktopOnly(s) && norm(s.textContent) === norm(t.textContent));
+      if (!twin) return;
+      twin.remove();
+      t.className = t.className.replace(/\baem-GridColumn--default--hide\b/g, '');
+    });
+    // a Graphik Semibold text component (the pathway intros, `text--font-family--graphic-semibold`)
+    // is authored as bold copy; the template renders a wholly bold Text Style paragraph in
+    // Graphik Semibold (bold runs inside a sentence stay the synthesized bold)
+    document.querySelectorAll('.text.text--font-family--graphic-semibold p').forEach((p) => {
+      if (p.closest('header, footer, .experiencefragment') || p.querySelector('b, strong') || !norm(p.textContent)) return;
+      const b = document.createElement('b');
+      b.append(...p.childNodes);
+      p.append(b);
+    });
     landing.onLoad(payload);
     // the certification fragment is page content (the landing importer skips fragments)
     document.querySelectorAll('.experiencefragment').forEach((x) => {
