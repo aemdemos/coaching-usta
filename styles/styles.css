@@ -825,6 +825,28 @@ main > .section.narrow-cols > div:not(.full-width) {
   main > .section.narrow-cols { --section-gutter: 64px; }
 }
 
+/* `narrow-desktop-N`: on all 12 columns below 1280, on N from 1280 (scripts.js sets
+   --section-desktop-span) — the source's `default--N` span with tablet / desktop-small on 12 */
+main > .section.narrow-desktop { --section-span: 12; }
+
+@media (width >= 1280px) {
+  main > .section.narrow-desktop { --section-span: var(--section-desktop-span, 12); }
+}
+
+/* ---- Legal section (section-metadata style: legal) ----
+   Long legal copy (membership terms): the source's underlines are real underlines (defined
+   terms, clause titles), not the site's blue `u` accent, and links are underlined in the
+   text colour. */
+main > .section.legal u:not(a u) {
+  color: inherit;
+  text-decoration: underline;
+}
+
+main > .section.legal a:any-link:not(.button) {
+  color: inherit;
+  text-decoration: underline;
+}
+
 /* ---- Inset-N section (section-metadata style: inset-N, N = 1…64 px) ----
    The whole section (and its 12-col grid) sits N px further in on each side, at every
    width — like the source's `container--padding--12px-4px` (= inset-4, what the landing

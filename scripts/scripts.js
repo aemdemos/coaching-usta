@@ -284,12 +284,16 @@ function decorateSectionMetadata(main) {
   // `narrow-N`: the section's content on N of 12 grid columns (styles.css). The
   // delivery pipeline already turns section-metadata styles into classes on the
   // section div, so read the class from every section, not just from metadata.
+  // `narrow-desktop-N`: the same, from 1280px only (full width below — the source's
+  // `aem-GridColumn--default--N` with tablet / desktop-small on 12)
   main.querySelectorAll(':scope > div[class*="narrow-"]').forEach((section) => {
-    const cls = [...section.classList].find((c) => /^narrow-\d+$/.test(c));
-    const span = cls ? Number(cls.slice(7)) : 0;
+    const cls = [...section.classList].find((c) => /^narrow-(desktop-)?\d+$/.test(c));
+    const span = cls ? Number(cls.match(/\d+$/)[0]) : 0;
     if (span >= 1 && span <= 12) {
-      section.style.setProperty('--section-span', span);
+      const desktopOnly = cls.startsWith('narrow-desktop-');
+      section.style.setProperty(desktopOnly ? '--section-desktop-span' : '--section-span', span);
       section.classList.add('narrow-cols');
+      if (desktopOnly) section.classList.add('narrow-desktop');
     }
   });
   // `inset-N`: the whole section N px further in on each side (styles.css), N = 1…64

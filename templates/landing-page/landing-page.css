@@ -397,6 +397,14 @@ body.landing-page main .default-content-wrapper > h1 {
   body.landing-page main .default-content-wrapper > h1 { font-size: 56px; }
 }
 
+/* `heading-80`: a title in the source's largest preset (`text--font-size--80px-32px` —
+   membership terms) = the global h1 scale, 32 → 40 → 56 (1024) → 80px (1280); flush with
+   the section top and bottom (the next section's own top spacing makes the source's 24px) */
+body.landing-page main > .section.heading-80 .default-content-wrapper > h1 {
+  font-size: var(--heading-font-size-xxl);
+  margin: 0;
+}
+
 /* the title photo (a picture right after that h1, fellowship): an image component, 20px
    radius, padded 8px (12px from 768) on 12 → 10 (768, centred) → 8 (1024, centred) → 12
    columns (1280); 26px above (the source separator) and 42px below */

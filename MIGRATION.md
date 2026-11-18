@@ -4577,7 +4577,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 | /en/home/coaching-community/coaching-workshops (events list, Tabs, Columns promo) — ✅ DONE 2026-11-17 (en/home, local) | H | /en/home/courses (Tabs, course filter, Cards comparison) | H |
 | /en/home/coaching-community/fellowship-in-coaching-and-leadership (feature cards, dates banner + rows, Video, Columns quote) — ✅ DONE 2026-11-18 (en/home, local) | M | /en/home/learning-pathway (Accordion pathway ×4, Cards comparison, Banner centered) | M |
 | /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) — ✅ DONE 2026-11-18 (en/home, local; parity-checked) | L |
-| /en/home/membership-benefits/coaching-membership-terms-and-conditions (long text — imports complete; parity only) | L | /en/home/membership-benefits/gallagher-disclaimer-pro-plus | L |
+| /en/home/membership-benefits/coaching-membership-terms-and-conditions (long text — imports complete; parity only) — ✅ DONE 2026-11-18 (en/home, local; parity-checked) | L | /en/home/membership-benefits/gallagher-disclaimer-pro-plus | L |
 | /en/home/account/flag-profile (heading + intro + Form flag-form) | L | /en/home/membership-benefits/gallagher-disclaimer-rally | L |
 
 ### Day 2 — results pages (NEW quiz-results importer, one template) + small form / utility pages
@@ -4903,3 +4903,43 @@ Code is local only (not committed / pushed), so the aem.page preview does not ha
   `updateOrCreateInvalidMsg(target, '')`. The box stays `required`; the `invalid` path can't fire because Submit is
   disabled while unticked. Other forms keep their required-field messages. Verified on Pro / Pro-Plus: untick → plain 1px
   white box, no message, Submit grey; re-tick → lime. Gate: lint 0 errors · breakpoints ✓ · overflow ✓ · a11y ✓.
+
+### 2026-11-18 — coaching-membership-terms-and-conditions: re-imported + verified (en/home replaced, local)
+The page in `en/home` was the DA-authored copy (styles `center, narrow-desktop-8` / `legal` that had no code). Measured
+against the source it was off: title 40 / 56px at 1024 / ≥1280 (source 56 / 80), title on 12 columns at ≥1280 (source 8),
+defined terms + clause titles blue and not underlined (source white, underlined), links not underlined, ~300 `&nbsp;`
+of the source (the wide gap after each clause number, double spaces) partly kept. Re-imported with the landing importer
+(scratch run → `drafts/meet/membership-benefits/` → verified → copied to `en/home`; the old copy backed up in
+`drafts/meet/backup/membership-benefits/`). Source facts: title text component `text--font-size--80px-32px`,
+`cmp-text--alignment-center`, `default--8` + `offset--default--2` but `desktop-small--12` / `tablet--12` / `mobile--12`;
+copy = one plain text component (no alignment class), `<p>` margin 0, `<u>` and links underlined in the text colour.
+- **New section style `narrow-desktop-N`** (styles.css + scripts.js): N of 12 columns from 1280 only, 12 below (scripts.js
+  sets `--section-desktop-span`; CSS swaps it into `--section-span` ≥1280). Same name the DA copy already used.
+  `heading-64` keeps its own CSS for the same behaviour (not migrated — results pages unchanged).
+- **New section style `legal`** (styles.css): `u` = a real underline in the text colour (not the site's blue `u` accent,
+  which stays the default — home intro statement), links underlined in the text colour. Same name the DA copy used.
+- **New landing option `heading-80`** (landing-page.css): default-content h1 at the global h1 scale (32 → 40 → 56 @1024 →
+  80 @1280) instead of the template's 56px preset; margin 0 (the next section's 12 + 12px make the source's 24px gap).
+- **Importer (`import-landing-page-v1.js`):** (1) a narrow lead heading whose tablet + desktop-small spans are 12 →
+  `narrow-desktop-N` (not `narrow-N`); (2) `text--font-size--80px-…` lead → `heading-80`; (3) in a plain text section the
+  copy's OWN alignment decides — it no longer inherits the narrow heading's `center` (terms copy was centred);
+  (4) a default-content section with source `<u>` outside links → `legal`; (5) `file:` links whose text is an e-mail
+  (source slip `file:///C:/Users/…/coachcare@usta.com`) → `mailto:`; (6) **non-breaking spaces kept** — onLoad marks
+  U+00A0 in `.cmp-text` as `[[nbsp]]`, finalizeOutput writes "U+2060 space U+2060" (word joiners: renders like nbsp
+  and survives the bulk import's md → html, which turns U+00A0 into a space), dropped at the very start / end of a
+  heading / p / li (they only changed heading ids). **New post-import step:** `node tools/importer/restore-nbsp.mjs
+  <page.plain.html>…` turns the word-joiner form back into U+00A0 (as DA stores it) — run it after every landing import.
+- **Regression (old vs new importer, all 10 EN landing URLs, scratch):** home, flag-profile identical; coach-mentorship,
+  coaching-community, coaching-workshops, fellowship, inclusion summit, courses, learning-pathway differ ONLY by restored
+  nbsp inside text (1–12 each: e.g. fellowship's "12-week&nbsp;Fellowship", the 768 wrap deviation logged 11-17).
+  Those pages were NOT re-imported (their en/home copies are unchanged).
+- **Verified vs source** — the y of all 11 clause titles + the last line: identical at 375 / 768 / 1024 / 1280 / 1440 /
+  1920; at 360 one line wraps earlier from clause 6 (−24px). Title x / width / size, copy x / width / 18/24, underline
+  and link styles = source at every width. Known deviation: the source title's last line ends in an nbsp (shifts the
+  centred "CONDITIONS" ~15px left on the source) — dropped on purpose (heading-edge rule above).
+- Gate: lint 0 errors · breakpoints ✓ · overflow ✓ (terms, CM, CW, fellowship) · a11y ✓ · typography: 4 drifts = the
+  intentional `heading-80` h1 (56 / 80px at 1024 / 1280 vs the landing record's 40 / 56 preset — source measured above;
+  the checker has no per-page exception). `narrow-N` on CM (10) / CW (12) unchanged.
+- Backup: `tools/importer/backups/landing-page/terms-2026-11-18/` (importer, bundle, restore-nbsp, urls). ES terms untouched.
+- Local only — NOT uploaded to DA, not previewed / published. The aem.page preview still shows the old DA copy; with this
+  code deployed that copy also gains `narrow-desktop-8` + `legal` styling (its heading lacks `heading-80`).
