@@ -665,6 +665,25 @@ function loadVariantStyles(block) {
     .map((variant) => loadCSS(`${base}/blocks/form/${variant}.css`)));
 }
 
+/**
+ * Opt-in checkboxes (sheet Style `gallagher-optin`) gate the submit button, as on
+ * the source: Submit is disabled while any of them is unchecked.
+ * @param {HTMLFormElement} form
+ */
+function gateSubmitOnOptIn(form) {
+  const optIns = [...form.querySelectorAll('.gallagher-optin input[type="checkbox"]')];
+  const button = form.querySelector('button[type="submit"]');
+  if (!optIns.length || !button) return;
+  const update = () => {
+    if (form.dataset.submitting === 'true') return;
+    button.disabled = optIns.some((input) => !input.checked);
+  };
+  optIns.forEach((input) => input.addEventListener('change', update));
+  // reset fires before the fields return to their defaults
+  form.addEventListener('reset', () => setTimeout(update));
+  update();
+}
+
 export default async function decorate(block) {
   const variantStyles = loadVariantStyles(block);
   let container = block.querySelector('a[href]');
@@ -700,6 +719,7 @@ export default async function decorate(block) {
       const first = form.querySelector('[required]:not([type="file"], [type="checkbox"], [type="radio"])');
       if (first) checkValidation(first);
     }
+    gateSubmitOnOptIn(form);
     await variantStyles;
     container.replaceWith(form);
   }

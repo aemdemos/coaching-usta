@@ -4576,7 +4576,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 |---|---|---|---|
 | /en/home/coaching-community/coaching-workshops (events list, Tabs, Columns promo) — ✅ DONE 2026-11-17 (en/home, local) | H | /en/home/courses (Tabs, course filter, Cards comparison) | H |
 | /en/home/coaching-community/fellowship-in-coaching-and-leadership (feature cards, dates banner + rows, Video, Columns quote) — ✅ DONE 2026-11-18 (en/home, local) | M | /en/home/learning-pathway (Accordion pathway ×4, Cards comparison, Banner centered) | M |
-| /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) | L |
+| /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) — ✅ DONE 2026-11-18 (en/home, local; parity-checked) | L |
 | /en/home/membership-benefits/coaching-membership-terms-and-conditions (long text — imports complete; parity only) | L | /en/home/membership-benefits/gallagher-disclaimer-pro-plus | L |
 | /en/home/account/flag-profile (heading + intro + Form flag-form) | L | /en/home/membership-benefits/gallagher-disclaimer-rally | L |
 
@@ -4866,3 +4866,33 @@ standardization, rather than keep near-duplicate variants.
 `en/home/coaching-community/fellowship-in-coaching-and-leadership` (nothing existed there). drafts/meet copy kept as the
 review / backup copy (as for CM / CC / CW). Same render at both paths (9 sections, 9 images, 0 broken, 7 blank lines).
 Gate at the new path: overflow ✓ · typography ✓ · a11y ✓. NOT uploaded to DA / not previewed or published.
+
+### 2026-11-18 — gallagher-disclaimer-pro: verified as migrated (kept, not re-imported)
+`en/home/membership-benefits/gallagher-disclaimer-pro` already holds the agreed authoring (h1 + 2 intro paragraphs +
+`Form` → `/forms/gallagher-disclaimer-pro.json` in a `split, intro-text` section; Title metadata). User decision: KEEP it —
+the landing-page importer still has no mapping to the sheet and would re-create the disclaimers as a plain `accordion`
+(its 11-16 report: `default | accordion`), so **do not re-import this page (or pro-plus / rally / baseline) with
+import-landing-page-v1 until a Gallagher → Form mapping exists**.
+- Sheet `/forms/gallagher-disclaimer-pro.json` (10 rows) renders: 3 disclaimer items = source (AJG GAIS, General Everest,
+  Electronic Delivery of Policy Documents), the `gallagher-optin` checkbox, eligibility copy, lime Submit.
+- **Parity vs source** (375 / 768 / 1024 / 1280 / 1440): h1, intro paragraph, first accordion header and Submit — x, y,
+  width, height and font size identical at every width (Submit 1px higher at 375). Accordion title text = source
+  (Graphik Semibold 32px white @1280).
+- Gate: lint 0 errors (8 pre-existing warnings) · breakpoint-check ✓ · overflow ✓ (360–1920) · a11y ✓ · typography: the
+  10 known `intro-text` drifts (h1 32/40/64, copy 16/18/24 — intentional source values, see 2026-10-01; the checker has
+  no exception mechanism).
+- **Tooling gotcha:** the browser checks failed to launch ("Executable doesn't exist … chromium_headless_shell-1187"); the
+  machine only has build 1254. Ran them with a Node preload that sets `executablePath` to the installed headless shell
+  (no repo change). A fix in the repo would be updating Playwright / reinstalling browsers.
+- Local only — NOT uploaded to DA, not previewed or published.
+
+### 2026-11-18 — Gallagher form: Submit disabled while the opt-in is unchecked (source behaviour)
+User report: on the source, unticking "Opt-In for Electronic Delivery of Policy Documents" disables Submit. Ours kept it
+active (only the grey `:disabled` CSS existed — see 2026-09-30). Added `gateSubmitOnOptIn()` in `blocks/form/form.js`:
+every `.gallagher-optin` checkbox gates `button[type=submit]` (disabled while any is unchecked; re-evaluated on change
+and after form reset; skipped while a submit is in flight). Keyed on the existing sheet Style, so no sheet / DA change —
+applies to Pro and Pro-Plus; Rally / Baseline (no opt-in) untouched. The doc-based rule engine was not used: it only
+supports Value / Visible expressions and skips rules when the changed field is invalid (an unchecked required box is).
+Verified vs source on Pro and Pro-Plus: load (checked, lime) → untick (disabled, #bdbdb9 / #4c4c4c, default cursor, no
+hover change) → re-tick (enabled, lime) — identical. Gate: lint 0 errors · breakpoints ✓ · overflow ✓ · a11y ✓ (pro).
+Code is local only (not committed / pushed), so the aem.page preview does not have it yet.
