@@ -42,6 +42,7 @@ var CustomImportScript = (() => {
     isText: () => isText,
     isUstaSans: () => isUstaSans,
     kind: () => kind,
+    markPhoneImages: () => markPhoneImages,
     norm: () => norm,
     para: () => para,
     prepareSections: () => prepareSections,
@@ -1247,6 +1248,15 @@ var CustomImportScript = (() => {
       }
     }
   ];
+  function markPhoneImages(main) {
+    main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
+      const next = c.nextElementSibling;
+      const img = c.querySelector("img");
+      if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
+      next.setAttribute("data-phone-image", img.getAttribute("src") || img.getAttribute("data-src") || "");
+      next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
+    });
+  }
   var import_landing_page_v1_default = {
     onLoad: ({ document }) => {
       document.querySelectorAll(".cmp-text p").forEach((q) => {
@@ -1281,15 +1291,7 @@ var CustomImportScript = (() => {
       const main = document.querySelector("main") || document.body;
       transform("beforeTransform", main, payload);
       const theme = themeOf(pagePath);
-      if (IMAGE_PAIR_THEMES.includes(theme)) {
-        main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
-          const next = c.nextElementSibling;
-          const img = c.querySelector("img");
-          if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
-          next.setAttribute("data-phone-image", img.getAttribute("src") || img.getAttribute("data-src") || "");
-          next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
-        });
-      }
+      if (IMAGE_PAIR_THEMES.includes(theme)) markPhoneImages(main);
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       if (!root) throw new Error("landing-page content grid not found");

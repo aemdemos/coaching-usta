@@ -32,7 +32,7 @@ const BASE = 'https://www.ustacoaching.com';
    course-catalog: the courses intro's own rhythm + type, and phone / wide image pairs */
 const PAGE_THEMES = { '/home/courses': 'course-catalog' };
 const themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, '')] || '';
-/* themes whose CSS shows a phone-only image beside the wide one (see imageEl pairs) */
+/* themes whose pages keep a phone-only image as the `Image` block's mobile row */
 const IMAGE_PAIR_THEMES = ['course-catalog'];
 
 /* ------------------------------------------------------------------ helpers -- */
@@ -234,13 +234,17 @@ function defaultContent(container, document, pagePath) {
     else if (isImage(c)) {
       const i = imageEl(c, document);
       if (i) {
-        const p = el(document, 'p');
-        p.append(i);
-        // a phone-only copy of this image (themed pages): ONE paragraph, wide image
-        // first, phone image second — the theme CSS shows one per breakpoint
+        // a phone-only copy of this image (themed pages) → an `Image` block: the wide
+        // image from 768px up, the phone image below (one art-directed picture)
         const phone = c.getAttribute('data-phone-image');
-        if (phone) { const m = el(document, 'img'); m.src = phone; m.alt = c.getAttribute('data-phone-alt') || i.alt; p.append(m); }
-        out.push(p);
+        if (phone) {
+          const m = el(document, 'img'); m.src = phone; m.alt = c.getAttribute('data-phone-alt') || i.alt;
+          out.push(block(document, 'Image', [['desktop', i], ['mobile', m]]));
+        } else {
+          const p = el(document, 'p');
+          p.append(i);
+          out.push(p);
+        }
       }
     }
     else if (isButton(c)) { const b = buttonEl(c, document, pagePath); if (b) out.push(b); }
@@ -1020,6 +1024,19 @@ const KINDS = [
   },
 ];
 
+/* a desktop-hidden image component right before a visible one is its phone version: keep
+   it on the visible image (data-phone-image / -alt) so defaultContent emits an `Image` block
+   (desktop / mobile rows) — call BEFORE the desktop-hidden components are removed */
+function markPhoneImages(main) {
+  main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
+    const next = c.nextElementSibling;
+    const img = c.querySelector('img');
+    if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
+    next.setAttribute('data-phone-image', img.getAttribute('src') || img.getAttribute('data-src') || '');
+    next.setAttribute('data-phone-alt', img.getAttribute('alt') || '');
+  });
+}
+
 /* ------------------------------------------------------------------- import -- */
 export default {
   onLoad: ({ document }) => {
@@ -1063,17 +1080,8 @@ export default {
 
     cleanupTransformer('beforeTransform', main, payload);
     const theme = themeOf(pagePath);
-    // a desktop-hidden image right before a visible one is its phone version: on themed
-    // pages that show image pairs, keep it on the visible image (data-phone-image)
-    if (IMAGE_PAIR_THEMES.includes(theme)) {
-      main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
-        const next = c.nextElementSibling;
-        const img = c.querySelector('img');
-        if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
-        next.setAttribute('data-phone-image', img.getAttribute('src') || img.getAttribute('data-src') || '');
-        next.setAttribute('data-phone-alt', img.getAttribute('alt') || '');
-      });
-    }
+    // phone-only image copies → the `Image` block's mobile row (themed pages only)
+    if (IMAGE_PAIR_THEMES.includes(theme)) markPhoneImages(main);
     // desktop-hidden responsive duplicates (the import viewport is desktop)
     main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
 
@@ -1190,7 +1198,7 @@ function finalizeOutput(out, document) {
 }
 
 export {
-  KINDS, emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE,
+  KINDS, emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE, markPhoneImages,
   // helpers shared with the quiz-results importer
   textEls, imageEl, buttonEl, components, comps, deep, kind, isText, isImage, isButton, isContainer,
   cls, para, fontSize, isUstaSans,

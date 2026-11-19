@@ -5223,3 +5223,33 @@ theme's `p:has(> picture + picture)` rule never matched. Paragraph structure is 
   HTML renders through the old allow-list. Exporter `htmlToText()`; EN + ES sheets regenerated (0 cells with HTML).
   Verified = source at 1440 (Coach Well-Being 20+108 / 150+86, Applied Coaching Skills 20+86 / 128+86, links). Local
   only — the DA sheets still hold the HTML version until re-uploaded.
+- **2026-11-19 (later):** plain-text EN + ES course-catalog sheets uploaded to DA (on request; cell-for-cell = local,
+  0 HTML cells, 13 links) — NOT previewed. Badges confirmed on aem.page at the new path (22/22, previewed by the
+  user). aem.page courses still showed BOTH infographics: the deployed code is current (image block + theme served =
+  workspace), but the DA courses PAGE is the old import (two loose pictures, no `Image` block) → the re-imported
+  content/en/home/courses.plain.html (with the Image block) must be uploaded to DA + previewed (on request).
+
+### 2026-11-19 (later) — block / variant inventory + `image` block sample
+- **Inventory (code, 2026-11-19):** 23 blocks, 68 variant options defined in block CSS / JS (`.block.option` selectors
+  + `block.classList.contains()`): accordion 3 (closed, pathway, timeline) · banner 7 (blue, centered, header, info,
+  narrow, spotlight, stacked) · cards 13 (compact, comparison, course, icons, logos, media, news, pricing, profile,
+  quote, stacked, testimonial, text) · columns 29 (article, checklist, cta, dark, dates, embed, events, feature, grid,
+  large, lime, list, media, media-12 [= the generic media-N], media-left, media-right, mobile, no-photo, outlined,
+  person, photos, portrait, profile, promo, quote, stacked, tablet, text, unframed) · form 2 (application, edit-mode
+  [a runtime state, not authored]) · hero 3 (content, title, video) · quote 1 (marks) · social 2 (center, left) ·
+  spacer 1 (line) · tabs 1 (application) · text-style 6 (center, intro, label, large, lead, subhead); no options:
+  breadcrumb, contact, course-filter, discussion-boards, footer, fragment, header, image, tags, toc, video, widget.
+  → 66 authorable options; 80 block sample pages (81 with `image`). No recorded baseline of 47 found in the log.
+- **`image` sample** (drafts/block-samples/image): new key in `import-sample-landing-blocks.js` (page `courses`,
+  anchor "SET YOUR PATHWAY", `pick: 'Image'`, `noHeadings`, `phoneImages`). The phone-image step is now a shared
+  helper `markPhoneImages(main)` exported by the landing importer (the landing transform calls it for themed pages;
+  the sample importer when a sample sets `phoneImages`). URL list `tools/importer/urls-sample-image.txt`; images
+  finalized. Courses import byte-identical after the refactor; all 5 bundles rebuilt. Verified: phone graphic 343×1235
+  at 375, wide graphic 688 / 1312 at 768 / 1440 (one picture, 3 sources); overflow ✓ · a11y ✓ · breakpoints ✓.
+  Local only (not in DA). Backups refreshed: block-sample/landing-blocks, landing-page/courses.
+- **2026-11-19 (later) — `blocks/course-filter/README.md`** (team doc; `*.md` is not served): how the block works
+  (Mermaid data-flow, task and lock-evaluation charts), the sheet's three tabs column by column with the AEM fragment
+  field each mirrors, authoring tasks (edit / show / hide / brand-new course via the LMS first / badge / filter / tab /
+  default tab / Spanish), the plain-text description format, and the prerequisite model using "Applied Coaching
+  Skills: Group" (ACS-B1009) — all its Constraint fields are sheet columns; signed-out visitors see the unlock note,
+  the signed-in lock states need EDS sign-in + the user APIs (not built).

@@ -10,15 +10,24 @@
  */
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
 import landing, {
-  emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE,
+  emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE, markPhoneImages,
 } from './import-landing-page-v1.js';
 
 const CM = 'coach-mentorship';
 const CC = 'coaching-community';
 const CW = 'coaching-workshops';
 const FEL = 'fellowship-in-coaching-and-leadership';
+const CO = 'courses';
 
 const SAMPLES = {
+  image: {
+    page: CO,
+    title: 'Image',
+    intro: 'One image with an optional phone version (<code>image</code>; Spacer-style rows: <code>desktop</code> | the wide image, <code>mobile</code> | the phone image). It renders ONE picture: the desktop image from 768px, the mobile image below — each device downloads only its own image. Without a <code>mobile</code> row the single image shows at every width. Full column width, its own aspect ratio, square corners; alt text from the desktop image. Shown with the courses "Certification Pathway" infographic (wide graphic + tall phone graphic, as on the source).',
+    phoneImages: true,
+    noHeadings: true,
+    examples: [{ anchor: 'SET YOUR PATHWAY', pick: 'Image' }],
+  },
   'hero-content': {
     page: CM,
     title: 'Hero (Content)',
@@ -176,6 +185,8 @@ export const sampleImporter = (SAMPLES, onLoad) => ({
 
     const main = document.querySelector('main') || document.body;
     cleanupTransformer('beforeTransform', main, payload);
+    // `phoneImages`: keep phone-only image copies as the Image block's mobile row
+    if (sample.phoneImages) markPhoneImages(main);
     main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
     const { root, skip } = contentRoot(main);
     const sections = prepareSections(root, document, skip).filter((s) => !skip(s) && norm(s.textContent));
@@ -195,8 +206,9 @@ export const sampleImporter = (SAMPLES, onLoad) => ({
     );
     sample.examples.forEach(({ anchor, pick, pair }) => {
       emitSection(find(anchor), { document, pagePath }).forEach(({ nodes, styles, meta }) => {
-        // `pick`: keep the headings and the named block only
-        const kept = pick ? nodes.filter((n) => /^H[1-6]$/.test(n.tagName) || blockName(n).startsWith(pick)) : nodes;
+        // `pick`: keep the headings (unless the sample says `noHeadings`) and the named block only
+        const keepHeading = (n) => !sample.noHeadings && /^H[1-6]$/.test(n.tagName);
+        const kept = pick ? nodes.filter((n) => keepHeading(n) || blockName(n).startsWith(pick)) : nodes;
         if (!kept.length) return;
         // `pair`: the block in its default colours, then with `blue` appended (each under its
         // own heading + note, as the other banner samples)

@@ -1224,6 +1224,15 @@ var CustomImportScript = (() => {
       }
     }
   ];
+  function markPhoneImages(main) {
+    main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
+      const next = c.nextElementSibling;
+      const img = c.querySelector("img");
+      if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
+      next.setAttribute("data-phone-image", img.getAttribute("src") || img.getAttribute("data-src") || "");
+      next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
+    });
+  }
   var import_landing_page_v1_default = {
     onLoad: ({ document }) => {
       document.querySelectorAll(".cmp-text p").forEach((q) => {
@@ -1258,15 +1267,7 @@ var CustomImportScript = (() => {
       const main = document.querySelector("main") || document.body;
       transform("beforeTransform", main, payload);
       const theme = themeOf(pagePath);
-      if (IMAGE_PAIR_THEMES.includes(theme)) {
-        main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
-          const next = c.nextElementSibling;
-          const img = c.querySelector("img");
-          if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
-          next.setAttribute("data-phone-image", img.getAttribute("src") || img.getAttribute("data-src") || "");
-          next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
-        });
-      }
+      if (IMAGE_PAIR_THEMES.includes(theme)) markPhoneImages(main);
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       if (!root) throw new Error("landing-page content grid not found");
@@ -1368,7 +1369,16 @@ var CustomImportScript = (() => {
   var CC = "coaching-community";
   var CW = "coaching-workshops";
   var FEL = "fellowship-in-coaching-and-leadership";
+  var CO = "courses";
   var SAMPLES = {
+    image: {
+      page: CO,
+      title: "Image",
+      intro: 'One image with an optional phone version (<code>image</code>; Spacer-style rows: <code>desktop</code> | the wide image, <code>mobile</code> | the phone image). It renders ONE picture: the desktop image from 768px, the mobile image below \u2014 each device downloads only its own image. Without a <code>mobile</code> row the single image shows at every width. Full column width, its own aspect ratio, square corners; alt text from the desktop image. Shown with the courses "Certification Pathway" infographic (wide graphic + tall phone graphic, as on the source).',
+      phoneImages: true,
+      noHeadings: true,
+      examples: [{ anchor: "SET YOUR PATHWAY", pick: "Image" }]
+    },
     "hero-content": {
       page: CM,
       title: "Hero (Content)",
@@ -1520,6 +1530,7 @@ var CustomImportScript = (() => {
       const pagePath = new URL(url).pathname.replace(/\.html$/, "");
       const main = document.querySelector("main") || document.body;
       transform("beforeTransform", main, payload);
+      if (sample.phoneImages) markPhoneImages(main);
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       const sections = prepareSections(root, document, skip).filter((s) => !skip(s) && norm(s.textContent));
@@ -1538,7 +1549,8 @@ var CustomImportScript = (() => {
       );
       sample.examples.forEach(({ anchor, pick, pair }) => {
         emitSection(find(anchor), { document, pagePath }).forEach(({ nodes, styles, meta }) => {
-          const kept = pick ? nodes.filter((n) => /^H[1-6]$/.test(n.tagName) || blockName(n).startsWith(pick)) : nodes;
+          const keepHeading = (n) => !sample.noHeadings && /^H[1-6]$/.test(n.tagName);
+          const kept = pick ? nodes.filter((n) => keepHeading(n) || blockName(n).startsWith(pick)) : nodes;
           if (!kept.length) return;
           const table = pair && kept.find((n) => n.tagName === "TABLE");
           if (table) {

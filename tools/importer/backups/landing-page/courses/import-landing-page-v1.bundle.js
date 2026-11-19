@@ -42,6 +42,7 @@ var CustomImportScript = (() => {
     isText: () => isText,
     isUstaSans: () => isUstaSans,
     kind: () => kind,
+    markPhoneImages: () => markPhoneImages,
     norm: () => norm,
     para: () => para,
     prepareSections: () => prepareSections,
@@ -370,16 +371,17 @@ var CustomImportScript = (() => {
       else if (isImage(c)) {
         const i = imageEl(c, document);
         if (i) {
-          const p = el(document, "p");
-          p.append(i);
           const phone = c.getAttribute("data-phone-image");
           if (phone) {
             const m = el(document, "img");
             m.src = phone;
             m.alt = c.getAttribute("data-phone-alt") || i.alt;
-            p.append(m);
+            out.push(block(document, "Image", [["desktop", i], ["mobile", m]]));
+          } else {
+            const p = el(document, "p");
+            p.append(i);
+            out.push(p);
           }
-          out.push(p);
         }
       } else if (isButton(c)) {
         const b = buttonEl(c, document, pagePath);
@@ -1246,6 +1248,15 @@ var CustomImportScript = (() => {
       }
     }
   ];
+  function markPhoneImages(main) {
+    main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
+      const next = c.nextElementSibling;
+      const img = c.querySelector("img");
+      if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
+      next.setAttribute("data-phone-image", img.getAttribute("src") || img.getAttribute("data-src") || "");
+      next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
+    });
+  }
   var import_landing_page_v1_default = {
     onLoad: ({ document }) => {
       document.querySelectorAll(".cmp-text p").forEach((q) => {
@@ -1280,15 +1291,7 @@ var CustomImportScript = (() => {
       const main = document.querySelector("main") || document.body;
       transform("beforeTransform", main, payload);
       const theme = themeOf(pagePath);
-      if (IMAGE_PAIR_THEMES.includes(theme)) {
-        main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
-          const next = c.nextElementSibling;
-          const img = c.querySelector("img");
-          if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
-          next.setAttribute("data-phone-image", img.getAttribute("src") || img.getAttribute("data-src") || "");
-          next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
-        });
-      }
+      if (IMAGE_PAIR_THEMES.includes(theme)) markPhoneImages(main);
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       if (!root) throw new Error("landing-page content grid not found");
