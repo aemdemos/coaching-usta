@@ -1,0 +1,90 @@
+/* course-catalog theme (page metadata `Theme: course-catalog`, CSS only) — layered on
+   the landing-page template for the courses page (source /en/home/courses.html).
+   It reproduces the intro ("SET YOUR PATHWAY" … "Courses and Workshops"), whose source
+   text components and separators differ from the standard landing-page rhythm. Measured
+   on the live source at 375 / 768 / 1024 / 1280 / 1440 (2026-11-19):
+     sub-nav → h1          20 / 20 / 96 / 108   (a 96px separator from 1024)
+     h1 → copy             66                   (12 + 42px separator + 12)
+     copy → copy / image   24
+     image → h2            32 / 32 / 108 / 120  (a 96px separator from 1024)
+     h2 → copy             66
+     copy → course filter  60 / 68 / 84 / 100
+   Copy: Graphik Semibold 20/24 under the h1, 18/24 under the h2 (the source's
+   `graphic-semibold` text components). h2 = the `56px-32px` USTA Sans style:
+   32 → 40 (768) → 56 (1280). The h1 scale lives in the landing-page template.
+   The intro image is a PAIR — one paragraph holding the wide graphic and, second, its
+   phone version (source: a phone-only image component): phones show the phone image,
+   768+ the wide one.
+   Selectors start with `body.course-catalog.landing-page … > .section` so they outrank
+   the template's `:is()` type rules. */
+body.course-catalog.landing-page main > .section:has(> .default-content-wrapper > h1) {
+  --intro-top-pad: 8px;
+  --intro-image-gap: 32px;
+
+  padding-top: var(--intro-top-pad);
+
+  /* last copy → course-filter tabs 60 / 68 / 84 / 100 (source) at every width */
+  padding-bottom: 36px;
+}
+
+body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > h1 + p,
+body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > h2 + p {
+  margin-top: 66px;
+}
+
+body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > p:has(> picture) + h2 {
+  margin-top: var(--intro-image-gap);
+}
+
+/* copy: Graphik Semibold, 20/24 under the page title, 18/24 under the section heading */
+body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > h1 ~ p:not([class]) {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 20px;
+  line-height: 24px;
+}
+
+body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > h2 ~ p:not([class]) {
+  font-size: 18px;
+}
+
+body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > h2:not([class]) {
+  font-size: 32px;
+  line-height: 1;
+}
+
+/* image pair: [wide, phone] in one paragraph — phones show the phone image */
+body.course-catalog main .default-content-wrapper p:has(> picture + picture) > picture:first-child {
+  display: none;
+}
+
+@media (width >= 768px) {
+  body.course-catalog main .default-content-wrapper p:has(> picture + picture) > picture:first-child {
+    display: block;
+  }
+
+  body.course-catalog main .default-content-wrapper p:has(> picture + picture) > picture:last-child {
+    display: none;
+  }
+
+  body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > h2:not([class]) {
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  body.course-catalog.landing-page main > .section:has(> .default-content-wrapper > h1) {
+    --intro-top-pad: 84px;
+    --intro-image-gap: 108px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.course-catalog.landing-page main > .section:has(> .default-content-wrapper > h1) {
+    --intro-top-pad: 96px;
+    --intro-image-gap: 120px;
+  }
+
+  body.course-catalog.landing-page main > .section > .default-content-wrapper:has(> h1) > h2:not([class]) {
+    font-size: 56px;
+  }
+}

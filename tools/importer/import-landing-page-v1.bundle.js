@@ -76,8 +76,82 @@ var CustomImportScript = (() => {
     }
   }
 
+  // tools/importer/parsers/cards-pricing.js
+  function parse(element, { document }) {
+    const cards = [...element.querySelectorAll(".v-tiers-card")];
+    const cells = [];
+    cards.forEach((card) => {
+      const content = card.querySelector(".v-tiers-card--content") || card;
+      const cellContent = [];
+      const titleEl = content.querySelector(".v-tiers-card__title");
+      if (titleEl && titleEl.textContent.trim()) {
+        const h = document.createElement("h3");
+        h.textContent = titleEl.textContent.trim();
+        cellContent.push(h);
+      }
+      const subtitle = content.querySelector(".v-tiers-card__subtitle");
+      if (subtitle) {
+        [...subtitle.querySelectorAll("p")].forEach((p) => {
+          if (p.textContent.trim()) cellContent.push(p);
+        });
+      }
+      const priceEl = content.querySelector(".v-tiers-card__price");
+      if (priceEl && priceEl.textContent.trim()) {
+        const price = document.createElement("p");
+        price.className = "price";
+        price.textContent = priceEl.textContent.trim();
+        cellContent.push(price);
+      }
+      const featureList = content.querySelector(".v-tiers-card__description ul, .v-tiers-card__description ol");
+      if (featureList) cellContent.push(featureList);
+      const anchor = content.querySelector(".v-tiers-card__button-wrapper a[href]");
+      const button = content.querySelector(".v-tiers-card__button-wrapper button, .coaching-primary-button");
+      if (anchor) {
+        cellContent.push(anchor);
+      } else if (button && button.textContent.trim()) {
+        const link = document.createElement("a");
+        link.href = "#";
+        link.textContent = button.textContent.trim();
+        cellContent.push(link);
+      }
+      if (cellContent.length) cells.push([cellContent]);
+    });
+    if (!cells.length) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block2 = WebImporter.Blocks.createBlock(document, { name: "cards-pricing", cells });
+    element.replaceWith(block2);
+  }
+
+  // tools/importer/parsers/columns-cta.js
+  function parse2(element, { document }) {
+    const paras = [...element.querySelectorAll(".cmp-text p, p")].filter((p) => p.textContent.trim());
+    const cta = element.querySelector("a[href]");
+    if (!paras.length && !cta) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const textParas = paras.filter((p) => !cta || !cta.contains(p));
+    const textCell = [];
+    if (textParas[0]) {
+      const h = document.createElement("h2");
+      h.textContent = textParas[0].textContent.trim();
+      textCell.push(h);
+    }
+    textParas.slice(1).forEach((p) => textCell.push(p));
+    const actionCell = cta || "";
+    const cells = [[textCell.length ? textCell : "", actionCell]];
+    const block2 = WebImporter.Blocks.createBlock(document, { name: "columns-cta", cells });
+    element.replaceWith(block2);
+  }
+
   // tools/importer/import-landing-page-v1.js
   var TEMPLATE = "landing-page";
+  var BASE = "https://www.ustacoaching.com";
+  var PAGE_THEMES = { "/home/courses": "course-catalog" };
+  var themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, "")] || "";
+  var IMAGE_PAIR_THEMES = ["course-catalog"];
   var el = (document, tag, html) => {
     const e = document.createElement(tag);
     if (html !== void 0) e.innerHTML = html;
@@ -91,9 +165,9 @@ var CustomImportScript = (() => {
     const u = new URL(url);
     return u.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/index";
   }
-  function metadata(document) {
+  function metadata(document, theme) {
     const meta = (sel) => document.querySelector(sel)?.getAttribute("content") || "";
-    const cells = { Title: document.title, Description: meta('meta[name="description"]'), Template: TEMPLATE };
+    const cells = { Title: document.title, Description: meta('meta[name="description"]'), Template: TEMPLATE, Theme: theme };
     const og = meta('meta[property="og:image"]');
     if (og) {
       const img = el(document, "img");
@@ -106,7 +180,7 @@ var CustomImportScript = (() => {
     return block(document, "Metadata", cells);
   }
   function contentRoot(main) {
-    const skip = (e) => /experiencefragment|aem-header|aem-hidden-component|aem-quiz|aem-wizard|safe-play|footer/.test(e.className || "");
+    const skip = (e) => /experiencefragment/.test(e.className || "") && !e.querySelector(".v-tiers") || /aem-header|aem-hidden-component|aem-quiz|aem-wizard|safe-play|footer/.test(e.className || "");
     let root = main.querySelector(".aem-Grid");
     for (let guard = 0; guard < 12 && root; guard += 1) {
       const kids = [...root.children].filter((k) => !skip(k) && Number(k.getAttribute("data-h") || 0) > 0);
@@ -177,23 +251,31 @@ var CustomImportScript = (() => {
     });
     let prevP = null;
     let prevH = null;
+    let prevPH = null;
     [...cmp.children].forEach((k) => {
       if (cls(k, "cmp-text__icon")) return;
       if (!norm(k.textContent) && !k.querySelector("img")) {
         prevP = null;
         prevH = null;
+        prevPH = null;
         return;
       }
+      if (k.tagName !== "P") prevPH = null;
       if (/^H[1-6]$/.test(k.tagName) && prevH && prevH.tagName === k.tagName) {
         prevH.append(el(document, "br"), ...k.childNodes);
         return;
       }
       prevH = /^H[1-6]$/.test(k.tagName) ? k : null;
-      if (k.tagName === "P" && (headingLevel || size >= 32)) {
+      if (k.tagName === "P" && (headingLevel || size >= 32 || isUstaSans(c) && !size)) {
         const lvl = headingLevel || (size >= 40 || isUstaSans(c) ? 2 : 3);
+        if (prevPH && prevPH.tagName === `H${lvl}`) {
+          prevPH.append(el(document, "br"), ...k.childNodes);
+          return;
+        }
         const h = el(document, `h${lvl}`);
         h.append(...k.childNodes);
         out.push(h);
+        prevPH = h;
         prevP = null;
         return;
       }
@@ -239,7 +321,18 @@ var CustomImportScript = (() => {
       if (isText(c)) out.push(...textEls(c, document));
       else if (isImage(c)) {
         const i = imageEl(c, document);
-        if (i) out.push(el(document, "p")), out[out.length - 1].append(i);
+        if (i) {
+          const p = el(document, "p");
+          p.append(i);
+          const phone = c.getAttribute("data-phone-image");
+          if (phone) {
+            const m = el(document, "img");
+            m.src = phone;
+            m.alt = c.getAttribute("data-phone-alt") || i.alt;
+            p.append(m);
+          }
+          out.push(p);
+        }
       } else if (isButton(c)) {
         const b = buttonEl(c, document, pagePath);
         if (b) out.push(b);
@@ -264,6 +357,19 @@ var CustomImportScript = (() => {
     const k = components(c).filter((x) => kind(x) !== "separator");
     return k.length >= 2 && k.every(isText);
   };
+  function reparse(node, parse3, name, document) {
+    const holder = el(document, "div");
+    holder.append(node);
+    parse3(node, { document });
+    const table = holder.querySelector("table");
+    if (table) table.rows[0].cells[0].textContent = name;
+    return [...holder.childNodes];
+  }
+  function textP(document, source) {
+    const p = el(document, "p");
+    p.innerHTML = source.innerHTML.replace(/<(\/?)b>/g, "<$1strong>");
+    return p;
+  }
   function centredSpan(c) {
     const n = Number(((c.className || "").match(/aem-GridColumn--default--(\d+)\b/) || [])[1]);
     const off = Number(((c.className || "").match(/aem-GridColumn--offset--default--(\d+)\b/) || [])[1]);
@@ -294,15 +400,119 @@ var CustomImportScript = (() => {
         return false;
       }
     });
-    const firstText = deep(s).find((c) => isText(c) && norm(c.textContent));
+    const texts = deep(s).filter((c) => isText(c) && norm(c.textContent));
+    const firstText = texts.find((c) => !(isUstaSans(c) && !cls(c, "cmp-text--alignment-center"))) || texts[0];
     const centred = !!firstText && cls(firstText, "cmp-text--alignment-center") || out.length && out[0].styles.includes("center");
     const nodes = k ? k.emit(s, { document, pagePath }) : defaultContent(s, document, pagePath);
     const styles = [];
     if (centred && !(k && /^(hero|banner)/.test(k.name))) styles.push("center");
-    out.push({ name: k ? k.name : "default", nodes, styles });
+    out.push({ name: k ? k.name : "default", nodes, styles, join: !!(k && k.joinPrevious) });
     return out;
   }
   var KINDS = [
+    {
+      // page sub-navigation (Courses · Workshops · Education Centers) → Tabs in navigation
+      // mode: one row per link (no panel); the tab linking to the current page is active
+      name: "sub-nav",
+      match: (s) => !!s.querySelector(".cmp-navigation"),
+      emit: (s, { document }) => {
+        const rows = [...s.querySelectorAll(".cmp-navigation__item-link")].map((a) => {
+          const link = el(document, "a");
+          link.href = a.getAttribute("href");
+          link.textContent = norm(a.textContent);
+          return [link];
+        });
+        return rows.length ? [block(document, "Tabs", rows)] : [];
+      }
+    },
+    {
+      // the course browser (Vue v-course-list) → Course Filter; it fills itself from the
+      // LMS API + the locale course catalog sheet, so the block has no rows
+      name: "course-filter",
+      match: (s) => cls(s, "aem-course-list") || !!s.querySelector(".aem-course-list, .v-course-list"),
+      emit: (s, { document }) => [block(document, "Course Filter", [[""]])]
+    },
+    {
+      // certification cost cards (Vue v-cost-card) → Cards (comparison): one row per tier
+      // (logo | title, fee, PER YEAR + price, description, TOTAL); the equivalency line and
+      // the "Notes:" paragraph after the cards are the block's last two rows
+      name: "cards-comparison",
+      match: (s) => !!s.querySelector(".v-cost-card"),
+      emit: (s, { document }) => {
+        const cards = [...s.querySelectorAll(".v-cost-card")];
+        const texts = [...s.querySelectorAll(".text")].filter((t) => isText(t) && norm(t.textContent));
+        const before = texts.filter((t) => t.compareDocumentPosition(cards[0]) & 4);
+        const after = texts.filter((t) => !before.includes(t));
+        const lead = [];
+        before.forEach((t) => lead.push(...textEls(t, document, { headingLevel: 2 })));
+        const p = (text) => {
+          const q = el(document, "p");
+          q.textContent = text;
+          return q;
+        };
+        const rows = cards.map((c) => {
+          const logo = c.querySelector(".v-cost-card__badge-image img");
+          const img = el(document, "img");
+          if (logo) {
+            img.src = logo.getAttribute("src");
+            img.alt = logo.getAttribute("alt") || "";
+          }
+          const body = [];
+          const h = el(document, "h3");
+          h.textContent = norm(c.querySelector(".v-cost-card__title")?.textContent);
+          body.push(h);
+          const overlay = c.querySelector(".v-cost-card__coming-soon-overlay");
+          if (overlay) {
+            body.push(p(norm(c.querySelector(".v-cost-card__total")?.textContent) || h.textContent));
+            return [logo ? img : "", body];
+          }
+          const sub = c.querySelector(".v-cost-card__subtitle");
+          if (sub) body.push(p(norm(sub.textContent)));
+          const label = c.querySelector(".v-cost-card__price-label");
+          if (label) body.push(p(norm(label.textContent)));
+          const value = c.querySelector(".v-cost-card__price-value");
+          if (value) body.push(p(norm(value.textContent)));
+          const desc = c.querySelector(".v-cost-card__description");
+          if (desc) {
+            [...desc.children].forEach((k) => {
+              if (k.tagName === "UL" || k.tagName === "OL") {
+                const list = el(document, k.tagName.toLowerCase());
+                k.querySelectorAll("li").forEach((li) => {
+                  const item = el(document, "li");
+                  item.textContent = norm(li.textContent);
+                  list.append(item);
+                });
+                body.push(list);
+              } else if (norm(k.textContent)) body.push(textP(document, k));
+            });
+          }
+          const tl = c.querySelector(".v-cost-card__total-label");
+          if (tl) body.push(p(norm(tl.textContent)));
+          const tv = c.querySelector(".v-cost-card__total-value");
+          if (tv) body.push(p(norm(tv.textContent)));
+          return [logo ? img : "", body];
+        });
+        after.forEach((t) => {
+          const ps = textEls(t, document).filter((k) => k.tagName === "P");
+          if (ps.length) rows.push([ps]);
+        });
+        return [...lead, block(document, "Cards (comparison)", rows)];
+      }
+    },
+    {
+      // the membership tiers (Vue v-tiers, an experience fragment) → Cards (pricing);
+      // joins the "PACKAGES FOR EVERY KIND OF COACH" heading section before it (as on home)
+      name: "cards-pricing",
+      joinPrevious: true,
+      match: (s) => !!s.querySelector(".v-tiers"),
+      emit: (s, { document }) => reparse(s.querySelector(".v-tiers"), parse, "Cards (pricing)", document)
+    },
+    {
+      // the "Explore workshops & events" experience fragment → Banner (events, blue), as on home
+      name: "banner-events",
+      match: (s) => !!s.querySelector(".experiencefragment .container--display--flex.container--align-items--center"),
+      emit: (s, { document }) => reparse(s.querySelector(".container--display--flex.container--align-items--center"), parse2, "Banner (events, blue)", document)
+    },
     {
       // full-bleed rounded hero: background photo container + H1 (+ subhead, copy, CTA)
       name: "hero-content",
@@ -600,11 +810,66 @@ var CustomImportScript = (() => {
       }
     },
     {
+      // a rounded colour panel: heading + copy on the left, ONE CTA in its own column at the
+      // right ("Bring a USTA Coaching Workshop to Your Facility") → Banner (stacked[, blue])
+      name: "banner-stacked",
+      match: (s) => /container--border-radius--top-left\b/.test(s.className) && !!s.getAttribute("data-bg") && !deep(s).some(isImage) && !deep(s).some(isListRow) && deep(s).filter(isButton).length === 1 && comps(s).some((c) => isContainer(c) && components(c).some(isText) && !components(c).some(isButton)),
+      emit: (s, { document, pagePath }) => {
+        const cell = [];
+        deep(s).filter(isText).forEach((t, i) => textEls(t, document, { headingLevel: i === 0 ? 2 : 0 }).forEach((k) => {
+          if (/^H/.test(k.tagName)) k.innerHTML = k.textContent;
+          cell.push(k);
+        }));
+        const b = buttonEl(deep(s).find(isButton), document, pagePath);
+        const blue = s.getAttribute("data-bg") === "blue";
+        return [block(document, `Banner (stacked${blue ? ", blue" : ""})`, [[cell, b ? b.querySelector("a") : ""]])];
+      }
+    },
+    {
+      // a photo tile (container background image, no text) beside a white card with a
+      // heading + CTA ("Discover our learning pathway") → Columns (media), in source order
+      name: "columns-media-bg",
+      match: (s) => {
+        const d = comps(s).filter(isContainer);
+        return d.length === 2 && !s.querySelector("h1") && d.some((c) => !!c.querySelector(".cmp-container[data-desktop-background-image]") && !deep(c).some(isText)) && d.some((c) => deep(c).some(isText) && deep(c).some(isButton));
+      },
+      emit: (s, { document, pagePath }) => {
+        const cells = comps(s).filter(isContainer).map((c) => {
+          const bgC = c.querySelector(".cmp-container[data-desktop-background-image]");
+          if (bgC && !deep(c).some(isText)) {
+            const img = el(document, "img");
+            img.src = bgC.getAttribute("data-desktop-background-image");
+            img.alt = "";
+            return [img];
+          }
+          const cell = [];
+          deep(c).forEach((k) => {
+            if (isText(k)) cell.push(...textEls(k, document));
+            else if (isButton(k)) {
+              const b = buttonEl(k, document, pagePath);
+              if (b) {
+                const q = el(document, "p");
+                q.append(b.querySelector("a"));
+                cell.push(q);
+              }
+            }
+          });
+          return cell;
+        });
+        return [block(document, "Columns (media)", [cells])];
+      }
+    },
+    {
       // text column(s) beside an image (the desktop copy of a media row)
       name: "columns-media-row",
+      // the image must sit BESIDE the text (another left edge): an image stacked between
+      // copy at the same left edge (the courses intro infographic) is default content
       match: (s) => {
         const d = comps(s);
-        return d.some(isImage) && d.some((c) => isText(c) || isContainer(c) && components(c).some(isText));
+        const imgs = d.filter(isImage);
+        const texts = d.filter((c) => isText(c) || isContainer(c) && components(c).some(isText));
+        const x = (c) => c.getAttribute("data-x");
+        return imgs.length > 0 && texts.length > 0 && imgs.some((i) => texts.some((t) => x(t) !== x(i)));
       },
       emit: (s, { document, pagePath }) => {
         const d = comps(s);
@@ -655,6 +920,16 @@ var CustomImportScript = (() => {
       const pagePath = pathOf(url);
       const main = document.querySelector("main") || document.body;
       transform("beforeTransform", main, payload);
+      const theme = themeOf(pagePath);
+      if (IMAGE_PAIR_THEMES.includes(theme)) {
+        main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
+          const next = c.nextElementSibling;
+          const img = c.querySelector("img");
+          if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
+          next.setAttribute("data-phone-image", img.getAttribute("src") || img.getAttribute("data-src") || "");
+          next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
+        });
+      }
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       if (!root) throw new Error("landing-page content grid not found");
@@ -663,8 +938,16 @@ var CustomImportScript = (() => {
       let first = true;
       [...root.children].forEach((s) => {
         if (skip(s) || !norm(s.textContent) && !s.querySelector("img")) return;
-        emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles }) => {
+        emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles, join }) => {
           if (!nodes.length) return;
+          if (join && !first) {
+            const meta = [...out.children].pop();
+            const isMeta = meta && meta.tagName === "TABLE" && /section metadata/i.test(meta.rows[0]?.textContent || "");
+            if (isMeta) meta.before(...nodes);
+            else out.append(...nodes);
+            report.push(`+${name}`);
+            return;
+          }
           if (!first) out.append(document.createElement("hr"));
           first = false;
           out.append(...nodes);
@@ -673,7 +956,15 @@ var CustomImportScript = (() => {
         });
       });
       finalizeOutput(out, document);
-      out.append(document.createElement("hr"), metadata(document));
+      [...out.querySelectorAll("h1")].slice(1).forEach((h) => {
+        const h2 = el(document, "h2");
+        h2.append(...h.childNodes);
+        h.replaceWith(h2);
+      });
+      out.querySelectorAll('a[href^="/content/dam/"]').forEach((a) => {
+        a.setAttribute("href", `${BASE}${a.getAttribute("href")}`);
+      });
+      out.append(document.createElement("hr"), metadata(document, theme));
       transform("afterTransform", out, payload);
       WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
       return [{ element: out, path: pagePath, report: { title: document.title, template: TEMPLATE, sections: report.join(" | ") } }];

@@ -2,7 +2,7 @@
 /**
  * breakpoint-check.mjs — enforces The Breakpoint Rule (AGENTS.md / responsive-breakpoints).
  *
- * Fails (exit 1) if any CSS in blocks/**\/*.css, templates/**\/*.css or styles/*.css:
+ * Fails (exit 1) if any CSS in blocks/**\/*.css, templates/**\/*.css, themes/**\/*.css or styles/*.css:
  *   - uses a `max-width` media query (no mixing min/max — mobile-first only), or
  *   - uses a min-width / range media query at a width outside the sanctioned set.
  * The same rules apply to viewport breakpoints written in JS (blocks/, templates/,
@@ -67,6 +67,7 @@ function collectFiles() {
   const files = [];
   walk(join(ROOT, 'blocks'), files);
   walk(join(ROOT, 'templates'), files);
+  walk(join(ROOT, 'themes'), files);
   walk(join(ROOT, 'widgets'), files);
   // scripts/*.js (aem.js is the untouchable core library — not ours to change)
   try {

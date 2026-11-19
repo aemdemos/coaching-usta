@@ -343,6 +343,16 @@ main > .section.course-filter-container > div {
   gap: 16px; /* source: 16px at every breakpoint */
 }
 
+/* the block toggles parts with the hidden attribute; keep it winning over display rules */
+.course-filter [hidden] { display: none; }
+
+/* "No courses were found" (catalog settings: empty-message) spans the grid */
+.course-filter .course-filter-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #fff;
+}
+
 /* card min-height (source): none on phones, 250 (768) → 333 (1024) → 347 (1280).
    The source card ends with an (empty) buttons row, so one more card gap sits
    below the content: bottom padding 16 + 16 (24 + 24 from 768). */
@@ -451,8 +461,9 @@ main > .section.course-filter-container > div {
   padding-left: 8px;
 }
 
-.course-filter-card-description p { margin: 0 0 1lh; } /* source: one blank line between paragraphs */
-.course-filter-card-description p:last-child { margin-bottom: 0; }
+/* source: paragraphs have no margin — blank lines are authored <p>&nbsp;</p>
+   (e.g. before the "To unlock this course…" note) */
+.course-filter-card-description p { margin: 0; }
 
 /* Description links render slightly LARGER than the body copy (source quirk):
    16px/lh1.2 on mobile, 18px/lh1.2 at tablet+ — see the >=768 override below. */

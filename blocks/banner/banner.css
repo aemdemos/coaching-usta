@@ -659,3 +659,113 @@ main > .section.banner-container > div {
 @media (width >= 1280px) {
   .banner.spotlight .banner-cta { font-size: 24px; }
 }
+
+/* ---- stacked variant --------------------------------------------------------
+   `banner (stacked)` / `banner (stacked, blue)` — the heading STACKED over its copy
+   in the left 8 of 12 columns, ONE lime CTA in the right 4 (source: courses "Bring a
+   USTA Coaching Workshop to Your Facility", blue; coaching-community "Career Center",
+   black outlined). Measured 375 / 768 / 1024 / 1280 / 1440 (2026-11-18):
+   - panel spans the grid column incl. the component inset (−8 / −12px), padding
+     12px 16px → 12px (768) → 36px 12px (1280); each text / button item keeps the
+     source component inset (12px 8px → 12px), so content starts 24px in;
+   - heading USTA Sans 28 → 32 (768) → 40 (1024), line-height 1; copy Graphik
+     Semibold 28/24; heading → copy 24px;
+   - CTA: lime, black label, 280×56 (257 wide, centred, on phones), radius 12, 2px
+     border, label Graphik Semibold 18 (normal tracking); 42px below the top inset
+     (the source separator) — beside the copy from 768, below it on phones. */
+.banner.stacked {
+  margin-inline: -8px;
+  padding: 12px 16px;
+}
+
+.banner.stacked .banner-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+}
+
+.banner.stacked .banner-content { display: contents; }
+
+.banner.stacked .banner-heading {
+  padding: 12px 8px 0;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.banner.stacked .banner-body { padding: 24px 8px 12px; }
+
+.banner.stacked .banner-body p {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 24px;
+}
+
+.banner.stacked .banner-action {
+  justify-self: center;
+  padding: 42px 8px 12px;
+}
+
+.banner.stacked .banner-cta,
+.banner.stacked.blue .banner-cta {
+  width: 257px;
+  height: 56px;
+  padding: 0 14px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background-color: var(--usta-lime);
+  color: #000;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: normal;
+  white-space: normal;
+}
+
+.banner.stacked .banner-cta:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (width >= 768px) {
+  .banner.stacked {
+    margin-inline: -12px;
+    padding: 12px;
+  }
+
+  .banner.stacked .banner-inner { grid-template-columns: 8fr 4fr; }
+
+  .banner.stacked .banner-heading {
+    grid-column: 1;
+    padding: 12px 12px 0;
+    font-size: 32px;
+  }
+
+  .banner.stacked .banner-body {
+    grid-column: 1;
+    padding: 24px 12px 12px;
+  }
+
+  /* the CTA is centred in its 4-column track; when the 280px button is wider than the
+     track (768–1023) it starts at the track edge instead (source) — `safe center` */
+  .banner.stacked .banner-action {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-content: safe center;
+    justify-self: stretch;
+    padding: 42px 12px 12px;
+  }
+
+  .banner.stacked .banner-cta,
+  .banner.stacked.blue .banner-cta { width: 280px; }
+}
+
+@media (width >= 1024px) {
+  .banner.stacked { padding: 12px; }
+
+  .banner.stacked .banner-heading { font-size: 40px; }
+}
+
+@media (width >= 1280px) {
+  .banner.stacked { padding: 36px 12px; }
+}

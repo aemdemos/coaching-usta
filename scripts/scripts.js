@@ -138,6 +138,13 @@ export function fetchPlaceholders() {
 const TEMPLATES = ['news-article', 'landing-page'];
 
 /**
+ * Page themes — CSS-only page variations (no JS): `themes/{name}/{name}.css`, picked by
+ * the page metadata `Theme` and layered on top of the page's template (aem.js adds the
+ * theme as a body class). A variation that needs JS is a template instead.
+ */
+const THEMES = ['course-catalog'];
+
+/**
  * Applies a Metadata block still sitting in main as <meta> tags. Delivered
  * pages never have one (the backend turns it into <head> meta), but local
  * content previews serve it as-is — without this the template, keywords and
@@ -181,6 +188,21 @@ async function loadTemplate(main) {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Loading template ${template} failed`, error);
+  }
+}
+
+/**
+ * Loads the page theme's CSS (themes are CSS-only).
+ */
+async function loadTheme() {
+  const theme = toClassName(getMetadata('theme') || getMetadata('Theme'));
+  if (!THEMES.includes(theme)) return;
+  document.body.classList.add(theme); // aem.js only adds it for the lowercase key
+  try {
+    await loadCSS(`${window.hlx.codeBasePath}/themes/${theme}/${theme}.css`);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Loading theme ${theme} failed`, error);
   }
 }
 
@@ -341,6 +363,7 @@ async function loadEager(doc) {
   decorateTemplateAndTheme();
   if (main) {
     await loadTemplate(main);
+    await loadTheme();
     decorateMain(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);

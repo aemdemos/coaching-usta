@@ -367,12 +367,24 @@ function decorateComparison(block) {
     const isComingSoon = /coming\s+202\d/i.test(body.textContent) && !body.querySelector('ul, ol');
     if (isComingSoon) {
       li.classList.add('is-coming-soon');
-      // the flame graphic is the body image; tag it so CSS can place it
-      const flame = body.querySelector('picture, img');
-      if (flame) {
-        const p = flame.closest('p') || flame;
-        p.classList.add('cards-comparison-flame');
+      // the flame graphic: an authored body image, else the component's own flame
+      // (source: built into the cost-card component, not authored)
+      let flame = body.querySelector('picture, img');
+      if (!flame) {
+        const img = document.createElement('img');
+        img.src = `${window.hlx?.codeBasePath || ''}/icons/flame-ball.svg`;
+        img.alt = '';
+        img.width = 161;
+        img.height = 53;
+        img.loading = 'lazy';
+        const p = document.createElement('p');
+        p.append(img);
+        const title = body.querySelector('h1, h2, h3, h4, h5, h6');
+        if (title) title.after(p); else body.prepend(p);
+        flame = img;
       }
+      const p = flame.closest('p') || flame;
+      p.classList.add('cards-comparison-flame');
     }
 
     // the "Annual Package Fee" subtitle = the paragraph right after the title
@@ -435,6 +447,9 @@ function decorateComparison(block) {
     li.append(body);
     ul.append(li);
   });
+
+  // desktop shows every tier on one row: the CSS column count = the tier count
+  block.style.setProperty('--cards-count', String(ul.children.length || 4));
 
   // the equivalency strip is the panel's bottom section (stays inside the block).
   const parts = [ul];
