@@ -267,6 +267,58 @@ function appendAuthoredHtml(parent, html) {
   parent.append(...holder.childNodes);
 }
 
+// a link in a plain-text sheet cell: [link text](https://…)
+const CELL_LINK = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+
+/** Appends one line of cell text to `p`, turning [text](url) into links. */
+function appendLinkedText(p, text) {
+  let last = 0;
+  [...text.matchAll(CELL_LINK)].forEach((m) => {
+    const [match, label, target] = m;
+    if (m.index > last) p.append(document.createTextNode(text.slice(last, m.index)));
+    const href = safeHref(target);
+    if (href) {
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = label;
+      // links that leave the site open in a new tab (source)
+      if (new URL(href).origin !== window.location.origin) {
+        a.target = '_blank';
+        a.rel = 'noopener';
+      }
+      p.append(a);
+    } else {
+      p.append(document.createTextNode(label));
+    }
+    last = m.index + match.length;
+  });
+  if (last < text.length) p.append(document.createTextNode(text.slice(last)));
+}
+
+/**
+ * Appends a sheet cell (description / conditional description) to `parent`.
+ * Authoring format: plain text; a blank line starts a new paragraph, a line break
+ * stays a line break; links as [link text](https://…). No HTML needed. (A cell that
+ * still holds HTML — the first export — renders through the HTML allow-list.)
+ */
+function appendAuthoredText(parent, value, className) {
+  const text = String(value || '').trim();
+  if (!text) return;
+  if (/<\/?[a-z][^>]*>/i.test(text)) {
+    appendAuthoredHtml(parent, text);
+    return;
+  }
+  text.split(/\n\s*\n/).map((para) => para.trim()).filter(Boolean).forEach((para) => {
+    const p = document.createElement('p');
+    if (className) p.classList.add(className);
+    para.split('\n').forEach((line, i) => {
+      if (i) p.append(document.createElement('br'));
+      appendLinkedText(p, line.trim());
+    });
+    parent.append(p);
+  });
+}
+
 /**
  * Source-parity clamp: the card description is capped (CSS max-height via
  * .is-clamped); when the text overflows that cap, a bottom-right "..." indicator
@@ -332,8 +384,9 @@ function buildCard(course) {
   const buildDescription = () => {
     const desc = document.createElement('div');
     desc.className = 'course-filter-card-description';
-    appendAuthoredHtml(desc, course.description);
-    appendAuthoredHtml(desc, course.conditionalDescription);
+    appendAuthoredText(desc, course.description);
+    // the "To unlock this course…" note, one blank line below the description
+    appendAuthoredText(desc, course.conditionalDescription, 'course-filter-card-unlock');
     return desc;
   };
 

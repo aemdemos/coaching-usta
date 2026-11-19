@@ -5211,3 +5211,15 @@ theme's `p:has(> picture + picture)` rule never matched. Paragraph structure is 
   The old DA copies under /assets/media/coaching/course-catalog/ stay until removed on request.
 - Gates (courses): overflow ✓ · typography ✓ · breakpoints ✓ · a11y: only the known cards-comparison contrast · lint:
   only main's known backups/quiz-results-2026-11-18/accordion.js error.
+- **2026-11-19 (later):** uploaded to DA (on request): the 22 badges at `/assets/media/course-catalog/badges/` (22/22,
+  byte-identical) and both sheets (`/en|es/course-catalog.json`, cell-for-cell = local, new badge paths). NOT
+  previewed (the preview step was blocked — needs an explicit request); the courses page itself not uploaded.
+- **2026-11-19 (later) — course catalog descriptions are PLAIN TEXT (no HTML for authors).** User: authors shouldn't
+  write HTML in the sheet. The AEM rich text only ever used one paragraph per cell, stray <br>s, links (13, wrapped in
+  <u>) and an empty <p>&nbsp;</p> before the unlock note. New cell format: plain text, a blank line = new paragraph,
+  links as `[link text](https://…)` (trailing punctuation outside the link, e.g. `[Spanish](…).`). The block
+  (`appendAuthoredText`) builds the paragraphs + links (external → new tab; http/https/mailto only) and adds the blank
+  line before the "To unlock…" note itself (`.course-filter-card-unlock { margin-top: 1lh }`); a cell that still holds
+  HTML renders through the old allow-list. Exporter `htmlToText()`; EN + ES sheets regenerated (0 cells with HTML).
+  Verified = source at 1440 (Coach Well-Being 20+108 / 150+86, Applied Coaching Skills 20+86 / 128+86, links). Local
+  only — the DA sheets still hold the HTML version until re-uploaded.

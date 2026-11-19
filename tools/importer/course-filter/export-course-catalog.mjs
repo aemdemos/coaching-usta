@@ -15,7 +15,8 @@
  * (authored data lives in the locale folders, never under /blocks/, which is code)
  * Sheets:
  *   courses  — one row per content fragment (code, description, logoPath, flags,
- *              constraint / prerequisite fields, conditionalDescription)
+ *              constraint / prerequisite fields, conditionalDescription). Descriptions are
+ *              PLAIN TEXT with [link text](url) links — no HTML for authors
  *   filters  — one row per filter option (section, data path, value, tab fields)
  *   settings — key/value component settings (page size, See More label, …)
  *
@@ -71,6 +72,29 @@ function readProps(html) {
 const bool = (v) => String(v === true || v === 'true');
 const clean = (s) => (s || '').trim();
 
+/**
+ * AEM rich text → the sheet's author-friendly cell text: plain text, one blank line
+ * between paragraphs, links as [link text](url) (the course-filter block renders them).
+ * Empty spacer paragraphs (<p>&nbsp;</p>) and stray <br>s are dropped — the block adds
+ * the blank line before the "To unlock…" note itself.
+ */
+function htmlToText(html) {
+  if (!html) return '';
+  const decode = (t) => t.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+  const withLinks = html.replace(/<a\b[^>]*?href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,
+    (m, href, inner) => {
+      // trailing punctuation inside the source link ("Spanish.") goes after it
+      const [, label, punct] = inner.replace(/<[^>]+>/g, '').trim().match(/^(.*?)([.,;:!?]*)$/s);
+      return `[${label}](${decode(href)})${punct}`;
+    });
+  return withLinks.split(/<\/p>/i)
+    .map((para) => decode(para.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ''))
+      .replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .join('\n\n');
+}
+
 function courseRows(fragments, names) {
   const rows = [];
   const skipped = [];
@@ -81,7 +105,7 @@ function courseRows(fragments, names) {
     rows.push({
       code: f.code,
       courseName: names.get(f.code) || '',
-      description: clean(f.description),
+      description: htmlToText(f.description),
       logoPath: logo ? damToMedia(logo) : '',
       sourceLogoPath: logo,
       isAdvancedMembershipRequired: bool(f.isAdvancedMembershipRequired),
@@ -91,7 +115,7 @@ function courseRows(fragments, names) {
       requiredCourseCode: clean(f.requiredCourseCode),
       logicalOperator: OPERATORS[f.logicalOperator] || clean(f.logicalOperator),
       courseNameForLocker: clean(f.courseNameForLocker),
-      conditionalDescription: clean(f.conditionalDescription),
+      conditionalDescription: htmlToText(f.conditionalDescription),
     });
   });
   return { rows, skipped };
