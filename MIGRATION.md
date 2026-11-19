@@ -5185,3 +5185,29 @@ scope). 8 files conflicted; resolution keeps both sides — rule: `main`'s pages
   cards-comparison contrast + school-coach's `accordion (courses)` findings (main: "has NO code" yet) · lint: 1 error
   from main's `tools/importer/backups/quiz-results-2026-11-18/accordion.js` (a block backup whose import path doesn't
   resolve from the backups folder — present on main; not changed here).
+
+### 2026-11-19 (later) — NEW `image` block (desktop / mobile art direction) + badges moved to /assets/media/course-catalog/badges
+PR #53 merged to main (6179c79, merge commit 3b6ad85 kept main as a parent). On aem.page the courses infographic showed
+BOTH images: DA → Edge Delivery put the two pictures of the image-pair paragraph into separate paragraphs, so the
+theme's `p:has(> picture + picture)` rule never matched. Paragraph structure is not a contract → a block.
+- **`blocks/image`** (new): rows `desktop | <image>` and `mobile | <image>` (Spacer-style labels; unlabelled rows =
+  desktop, mobile in order; a single image = that image at every width). Renders ONE <picture>: media-gated
+  `(width >= 768px)` desktop sources (webp + own format, built directly — a helper picture's <img> would start the
+  wide download on phones; per-source width/height) + the phone image as the fallback <img>. Alt = desktop alt, else
+  mobile. CSS: full column width, own aspect, square corners. On aem.page images are lazy, so each device downloads
+  only its own file (the local preview serves authored images eagerly — both load there; preview-only artefact).
+- **Importer:** an image with a phone copy (themes in IMAGE_PAIR_THEMES = course-catalog) → `Image` block with
+  desktop / mobile rows (was one paragraph with two pictures). Courses re-imported.
+- **course-catalog theme:** the intro is now copy wrapper | image block | copy wrapper — rules keyed on
+  `.section:has(> .image-wrapper)`: copy → image 24 (template `--text-block-gap: 12px` + the copy wrapper's 12),
+  the template's 42px block → copy separator dropped, the second h1 carries the image gap; first wrapper's h1 =
+  28/40/56/64. Old image-pair rules removed. Verified = source at 375/768/1024/1440 (all gaps, sizes, fonts; the phone
+  image below 768, the wide one from 768).
+- **Badges path (user decision):** `/assets/media/course-catalog/badges/` (the AEM DAM path minus its
+  `/content/dam/coaching/` root; was `/assets/media/coaching/course-catalog/badges/`). Exporter `damToMedia` updated,
+  EN + ES sheets regenerated, local files moved (content/assets/media/course-catalog/badges, 22 PNGs). Local: 24/24
+  badges load from the new folder. **DA / preview NOT updated yet** (blocked by the remote-content guard — needs an
+  explicit request): upload the 22 badges + both sheets (+ the re-imported courses page with the Image block).
+  The old DA copies under /assets/media/coaching/course-catalog/ stay until removed on request.
+- Gates (courses): overflow ✓ · typography ✓ · breakpoints ✓ · a11y: only the known cards-comparison contrast · lint:
+  only main's known backups/quiz-results-2026-11-18/accordion.js error.

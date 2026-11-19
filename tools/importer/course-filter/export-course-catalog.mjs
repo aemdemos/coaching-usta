@@ -32,11 +32,12 @@ const LOCALES = [
   { page: '/en/home/courses.html', out: 'content/en/course-catalog.json' },
   { page: '/es/home/courses.html', out: 'content/es/course-catalog.json' },
 ];
-// Badges: the source SVGs were rasterized to 2x PNGs (Asset-Size Rule) and live
-// in DA under /assets/media/, mirroring the AEM DAM path (same as assets/media/
-// coaching/videos): /content/dam/coaching/course-catalog/badges/x.svg →
-// /assets/media/coaching/course-catalog/badges/x.png. Keep the AEM DAM path too.
-const damToMedia = (dam) => dam.replace(/^\/content\/dam\//, '/assets/media/').replace(/\.svg$/i, '.png');
+// Badges: the source SVGs were rasterized to 2x PNGs (Asset-Size Rule) and live in DA
+// under /assets/media/course-catalog/badges/ — the AEM DAM path without its
+// `/content/dam/coaching/` root (user decision 2026-11-19): /content/dam/coaching/
+// course-catalog/badges/x.svg → /assets/media/course-catalog/badges/x.png. The AEM DAM
+// path is kept in sourceLogoPath.
+const damToMedia = (dam) => dam.replace(/^\/content\/dam\/(coaching\/)?/, '/assets/media/').replace(/\.svg$/i, '.png');
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36';
 const dryRun = process.argv.includes('--dry-run');
 

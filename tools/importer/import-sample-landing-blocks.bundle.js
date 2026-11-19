@@ -347,16 +347,17 @@ var CustomImportScript = (() => {
       else if (isImage(c)) {
         const i = imageEl(c, document);
         if (i) {
-          const p = el(document, "p");
-          p.append(i);
           const phone = c.getAttribute("data-phone-image");
           if (phone) {
             const m = el(document, "img");
             m.src = phone;
             m.alt = c.getAttribute("data-phone-alt") || i.alt;
-            p.append(m);
+            out.push(block(document, "Image", [["desktop", i], ["mobile", m]]));
+          } else {
+            const p = el(document, "p");
+            p.append(i);
+            out.push(p);
           }
-          out.push(p);
         }
       } else if (isButton(c)) {
         const b = buttonEl(c, document, pagePath);

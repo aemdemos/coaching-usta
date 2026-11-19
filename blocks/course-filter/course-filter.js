@@ -351,7 +351,7 @@ function buildCard(course) {
     badgeWrap.className = 'course-filter-card-badge';
     const img = document.createElement('img');
     // Badge = the sheet's logoPath, a root-relative content asset
-    // (/assets/media/coaching/course-catalog/badges/…)
+    // (/assets/media/course-catalog/badges/…)
     // published to DA, so it resolves on every host without a domain or basePath.
     img.src = course.badge;
     img.alt = `${course.name} badge`;

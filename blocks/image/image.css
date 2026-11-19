@@ -1,0 +1,14 @@
+/* image — one image (optionally a phone version below 768px) spanning its column,
+   at its own aspect ratio. Square corners, like the source image component; a page
+   template or theme sets any spacing around it. */
+.image picture,
+.image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.image img {
+  max-width: 100%;
+  border-radius: 0;
+}

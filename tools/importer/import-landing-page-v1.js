@@ -32,7 +32,7 @@ const BASE = 'https://www.ustacoaching.com';
    course-catalog: the courses intro's own rhythm + type, and phone / wide image pairs */
 const PAGE_THEMES = { '/home/courses': 'course-catalog' };
 const themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, '')] || '';
-/* themes whose CSS shows a phone-only image beside the wide one (see imageEl pairs) */
+/* themes whose pages keep a phone-only image as the `Image` block's mobile row */
 const IMAGE_PAIR_THEMES = ['course-catalog'];
 
 /* ------------------------------------------------------------------ helpers -- */
@@ -234,13 +234,17 @@ function defaultContent(container, document, pagePath) {
     else if (isImage(c)) {
       const i = imageEl(c, document);
       if (i) {
-        const p = el(document, 'p');
-        p.append(i);
-        // a phone-only copy of this image (themed pages): ONE paragraph, wide image
-        // first, phone image second — the theme CSS shows one per breakpoint
+        // a phone-only copy of this image (themed pages) → an `Image` block: the wide
+        // image from 768px up, the phone image below (one art-directed picture)
         const phone = c.getAttribute('data-phone-image');
-        if (phone) { const m = el(document, 'img'); m.src = phone; m.alt = c.getAttribute('data-phone-alt') || i.alt; p.append(m); }
-        out.push(p);
+        if (phone) {
+          const m = el(document, 'img'); m.src = phone; m.alt = c.getAttribute('data-phone-alt') || i.alt;
+          out.push(block(document, 'Image', [['desktop', i], ['mobile', m]]));
+        } else {
+          const p = el(document, 'p');
+          p.append(i);
+          out.push(p);
+        }
       }
     }
     else if (isButton(c)) { const b = buttonEl(c, document, pagePath); if (b) out.push(b); }
