@@ -2,9 +2,9 @@
   "status": "success",
   "url": "https://www.ustacoaching.com/es/home/coach-mentorship.html",
   "path": "es/home/coach-mentorship",
-  "timestamp": "2026-11-19T05:29:04.958Z",
+  "timestamp": "2026-11-19T07:10:08.271Z",
   "title": "Mentoría de entrenadores",
   "template": "landing-page",
   "sections": "hero-content | columns-media-row | cards-media | heading | cards-icon | columns-text-plain | columns-text-panel | heading | columns-cta | heading | accordion | banner-centered",
-  "importScript": "5e576453b683"
+  "importScript": "d217c922141b"
 }

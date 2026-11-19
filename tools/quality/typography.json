@@ -139,16 +139,10 @@
   },
   "templates": {
     "landing-page": {
-      "source": "https://www.ustacoaching.com/en/home/coach-mentorship.html (+ coaching-community) + /en/home/courses (h1)",
-      "note": "The source landing pages' own text components: section headings = text--font-size--40px-28px USTA Sans (28 → 32 @768 → 40 @1024), body = the plain text component Graphik Regular 18/24 at every width (not the home page's 16/19.2). Recorded 2026-10-21. Page title h1 (default content, courses \"SET YOUR PATHWAY\") = the USTA Sans text component 28 → 40 @768 → 56 @1024 → 64 @1280, measured on the live source 2026-11-18.",
+      "source": "https://www.ustacoaching.com/en/home/coach-mentorship.html (+ coaching-community)",
+      "note": "The source landing pages' own text components: section headings = text--font-size--40px-28px USTA Sans (28 → 32 @768 → 40 @1024), body = the plain text component Graphik Regular 18/24 at every width (not the home page's 16/19.2). Recorded 2026-10-21. h3 (default content) = the plain source h3, Graphik Semibold 20 → 22 @1024 → 24 @1280, line-height 1 (coaching-workshops, recorded 2026-11-17). h1 (default content: the page title) = the source text--font-size--56px-32px USTA Sans 32 → 40 @768 → 56 @1280, line-height 1 (fellowship / inclusion summit / courses; coach-mentorship and coaching-community put theirs in the hero), recorded 2026-11-17.",
       "scale": {
         "390": {
-          "h1": {
-            "fontSizePx": 28,
-            "lineHeightPx": 28,
-            "fontWeight": 700,
-            "fontFamily": "usta sans"
-          },
           "h2": {
             "fontSizePx": 28,
             "lineHeightPx": 28,
@@ -160,15 +154,21 @@
             "lineHeightPx": 24,
             "fontWeight": 400,
             "fontFamily": "graphik regular"
+          },
+          "h3": {
+            "fontSizePx": 20,
+            "lineHeightPx": 20,
+            "fontWeight": 700,
+            "fontFamily": "graphik semibold"
+          },
+          "h1": {
+            "fontSizePx": 32,
+            "lineHeightPx": 32,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
           }
         },
         "768": {
-          "h1": {
-            "fontSizePx": 40,
-            "lineHeightPx": 40,
-            "fontWeight": 700,
-            "fontFamily": "usta sans"
-          },
           "h2": {
             "fontSizePx": 32,
             "lineHeightPx": 32,
@@ -180,46 +180,70 @@
             "lineHeightPx": 24,
             "fontWeight": 400,
             "fontFamily": "graphik regular"
+          },
+          "h3": {
+            "fontSizePx": 20,
+            "lineHeightPx": 20,
+            "fontWeight": 700,
+            "fontFamily": "graphik semibold"
+          },
+          "h1": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
           }
         },
         "1024": {
+          "h2": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          },
+          "p": {
+            "fontSizePx": 18,
+            "lineHeightPx": 24,
+            "fontWeight": 400,
+            "fontFamily": "graphik regular"
+          },
+          "h3": {
+            "fontSizePx": 22,
+            "lineHeightPx": 22,
+            "fontWeight": 700,
+            "fontFamily": "graphik semibold"
+          },
+          "h1": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "1280": {
+          "h2": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          },
+          "p": {
+            "fontSizePx": 18,
+            "lineHeightPx": 24,
+            "fontWeight": 400,
+            "fontFamily": "graphik regular"
+          },
+          "h3": {
+            "fontSizePx": 24,
+            "lineHeightPx": 24,
+            "fontWeight": 700,
+            "fontFamily": "graphik semibold"
+          },
           "h1": {
             "fontSizePx": 56,
             "lineHeightPx": 56,
             "fontWeight": 700,
             "fontFamily": "usta sans"
-          },
-          "h2": {
-            "fontSizePx": 40,
-            "lineHeightPx": 40,
-            "fontWeight": 700,
-            "fontFamily": "usta sans"
-          },
-          "p": {
-            "fontSizePx": 18,
-            "lineHeightPx": 24,
-            "fontWeight": 400,
-            "fontFamily": "graphik regular"
-          }
-        },
-        "1280": {
-          "h1": {
-            "fontSizePx": 64,
-            "lineHeightPx": 64,
-            "fontWeight": 700,
-            "fontFamily": "usta sans"
-          },
-          "h2": {
-            "fontSizePx": 40,
-            "lineHeightPx": 40,
-            "fontWeight": 700,
-            "fontFamily": "usta sans"
-          },
-          "p": {
-            "fontSizePx": 18,
-            "lineHeightPx": 24,
-            "fontWeight": 400,
-            "fontFamily": "graphik regular"
           }
         }
       }
@@ -227,12 +251,12 @@
     "course-catalog": {
       "kind": "theme",
       "source": "https://www.ustacoaching.com/en/home/courses.html",
-      "note": "Theme course-catalog (on the landing-page template): the courses intro copy is the Graphik Semibold text component (20/24 under the page title — the first default-content paragraph), and its section heading is the 56px-32px USTA Sans style (32 → 40 @768 → 56 @1280). Measured on the live source 2026-11-19.",
+      "note": "Theme course-catalog (on the landing-page template): the courses intro copy is the Graphik Semibold text component (20/24 under the page title — the first default-content paragraph); the page title h1 \"SET YOUR PATHWAY\" is the USTA Sans text component without a size class, 28 → 40 @768 → 56 @1024 → 64 @1280 (the second source h1, \"Courses and Workshops\", is the template's 56px-32px h1). Measured on the live source 2026-11-19.",
       "scale": {
         "390": {
-          "h2": {
-            "fontSizePx": 32,
-            "lineHeightPx": 32,
+          "h1": {
+            "fontSizePx": 28,
+            "lineHeightPx": 28,
             "fontWeight": 700,
             "fontFamily": "usta sans"
           },
@@ -244,7 +268,7 @@
           }
         },
         "768": {
-          "h2": {
+          "h1": {
             "fontSizePx": 40,
             "lineHeightPx": 40,
             "fontWeight": 700,
@@ -258,9 +282,9 @@
           }
         },
         "1024": {
-          "h2": {
-            "fontSizePx": 40,
-            "lineHeightPx": 40,
+          "h1": {
+            "fontSizePx": 56,
+            "lineHeightPx": 56,
             "fontWeight": 700,
             "fontFamily": "usta sans"
           },
@@ -272,9 +296,9 @@
           }
         },
         "1280": {
-          "h2": {
-            "fontSizePx": 56,
-            "lineHeightPx": 56,
+          "h1": {
+            "fontSizePx": 64,
+            "lineHeightPx": 64,
             "fontWeight": 700,
             "fontFamily": "usta sans"
           },

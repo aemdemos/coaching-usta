@@ -280,11 +280,12 @@ function assembleCourseCard({
   label.append(content);
   card.append(label);
 
-  // TIMELINE: description is a full-width block below the header row.
+  // TIMELINE: the description sits in the text column beside the chevron (source
+  // `.v-course__info`), in a certification panel and in a bare course list alike
   if (!clampDesc) {
     descNodes.forEach((node) => {
       node.classList.add('accordion-timeline-desc');
-      card.append(node);
+      head.append(node);
     });
   }
 
@@ -379,12 +380,37 @@ function buildPathwayCard(badgeCell, contentCell) {
 
 function decorateTimeline(block) {
   const rows = [...block.children];
-  // the first row is the panel header (single cell); the rest are course rows
-  const [headerRow, ...courseRows] = rows;
+  // the first row is the panel header (single cell); the rest are course rows. A block
+  // that starts with a course row ("Title — N modules" | body) has no header: just the
+  // course cards, always visible (source: a course list without a certification panel,
+  // e.g. results/school-coach, results/guardian-coach)
+  const headless = rows.length > 0 && rows[0].children.length > 1;
+  const [headerRow, ...courseRows] = headless ? [null, ...rows] : rows;
 
   // outer panel — dark bordered container
   const panel = document.createElement('div');
   panel.className = 'accordion-timeline-panel';
+
+  if (headless) {
+    block.classList.add('accordion-timeline-headless');
+    const list = document.createElement('div');
+    list.className = 'accordion-timeline-courses';
+    const last = courseRows[courseRows.length - 1];
+    const footerRow = last && last.children.length === 1 && last.querySelector('a') && !last.querySelector('ol, ul, img') ? courseRows.pop() : null;
+    courseRows.forEach((row) => list.append(buildCourseCard(row.children[0], row.children[1])));
+    panel.append(list);
+    // the footer link follows the list (outside it, so the cards can share one row height)
+    if (footerRow) {
+      const footer = document.createElement('div');
+      footer.className = 'accordion-timeline-footer';
+      const cta = footerRow.querySelector('a');
+      cta.className = 'accordion-timeline-viewall';
+      footer.append(cta);
+      panel.append(footer);
+    }
+    block.replaceChildren(panel);
+    return;
+  }
 
   // always-visible header (badge + intro + meta grid) with its own toggle button
   const header = document.createElement('div');

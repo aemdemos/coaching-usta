@@ -1,0 +1,10 @@
+{
+  "pages": ["coach-mentorship", "coaching-community"],
+  "locales": ["en"],
+  "output": "drafts/meet/<page> (the current en/home pages were NOT overwritten)",
+  "date": "2026-11-16",
+  "importer": "import-landing-page-v1.js",
+  "changes": "banner-stacked kind (Career Center band) · inset-4 section style for source container--padding--*-4px sections · internal links root-relative without .html",
+  "images": "re-pointed to the existing content/media-da/en/home/<page>/ files (byte-identical; no new downloads)",
+  "verified": "x / width / line wrap of every inset section, quote + icon cards and the Career Center band = source at 375/768/1024/1280/1440/1600/1920; quote dividers aligned across each row from 768"
+}

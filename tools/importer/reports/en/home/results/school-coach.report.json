@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/results/school-coach.html",
+  "path": "en/home/results/school-coach",
+  "timestamp": "2026-11-19T07:14:24.386Z",
+  "title": "Tennis Coaching Catalog for Schools | USTA Coaching",
+  "template": "landing-page",
+  "sections": "results-intro | heading | results-cards | heading | results-icon-cards | results-courses | heading | results-tiers",
+  "importScript": "cf2f2d8fecdc"
+}

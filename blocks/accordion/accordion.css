@@ -83,15 +83,17 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
   margin: 0;
 }
 
-/* +/- toggle: horizontal bar always, vertical bar only when closed */
+/* +/- toggle: horizontal bar always, vertical bar only when closed. Source: a 48×48
+   SVG at the row end (plus.svg / minus.svg) — a 20.4px line, stroke 3.5, square caps
+   (→ 24 × 3.5 bars), centred in the box, i.e. 12px in from the row end */
 .accordion.accordion-default .accordion-item-label::before,
 .accordion.accordion-default .accordion-item-label::after {
   content: '';
   position: absolute;
   top: 50%;
-  right: 0;
-  width: 22px;
-  height: 2px;
+  right: 12px;
+  width: 24px;
+  height: 3.5px;
   background-color: currentcolor;
   transform: translateY(-50%);
   transition: opacity 0.2s;
@@ -139,6 +141,93 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
   border-radius: 20px;
   background-color: #000;
   padding: 16px 8px 8px; /* mobile: 16 top, 8 sides/bottom (source) */
+}
+
+/* headless timeline (no certification header: the block starts with course rows — results
+   school-coach / guardian-coach): just the course cards on the page, no outer panel */
+.accordion.timeline.accordion-timeline-headless .accordion-timeline-panel {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background-color: transparent;
+}
+
+/* timeline course cards (source `.v-course`, in a certification panel or a bare list): the
+   chevron 16px from the text (24 from 768), vertically centred on it; the description sits in
+   the text column, 20px under the title's 2px and 32px short of the chevron; the card keeps
+   an empty buttons row under the content (one more 16px / 24px gap above the bottom padding);
+   the panel's list is inset 8px on phones (12 from 768), a bare list spans the column */
+.accordion.timeline.block .accordion-timeline-courses {
+  padding: 8px;
+}
+
+.accordion.timeline.block.accordion-timeline-headless .accordion-timeline-courses {
+  padding: 0;
+}
+
+.accordion.timeline.block .accordion-timeline-course {
+  padding-bottom: 32px;
+}
+
+.accordion.timeline.block .accordion-timeline-course-label {
+  gap: 16px;
+}
+
+/* phones: the opened description is a full-width row 32px under the badge row (16 + the
+   empty buttons row + 16); from 768 it sits in the text column */
+.accordion.timeline.block .accordion-timeline-desc {
+  margin-top: 32px;
+}
+
+/* the footer CTA ("View Course Catalog") 44px under a bare list */
+.accordion.timeline.accordion-timeline-headless .accordion-timeline-footer {
+  margin-top: 44px;
+}
+
+@media (width >= 768px) {
+  .accordion.timeline.block .accordion-timeline-courses {
+    padding: 12px;
+  }
+
+  .accordion.timeline.block.accordion-timeline-headless .accordion-timeline-courses {
+    padding: 0;
+  }
+
+  .accordion.timeline.block .accordion-timeline-course {
+    padding-bottom: 48px;
+  }
+
+  .accordion.timeline.block .accordion-timeline-course-label {
+    gap: 24px;
+  }
+
+  .accordion.timeline.block .accordion-timeline-desc {
+    margin-top: 22px;
+    padding-right: 32px;
+  }
+
+  .accordion.timeline.block .accordion-timeline-course .accordion-timeline-course-label > .accordion-timeline-chevron {
+    margin-left: 0;
+  }
+}
+
+@media (width >= 1024px) {
+  /* the source script reserves 305px on a full-width list's cards (232 in a panel); an
+     opened card grows on its own (no shared row height) */
+  .accordion.timeline.accordion-timeline-headless .accordion-timeline-course {
+    min-height: 305px;
+  }
+
+  /* the course badge stays 120px until 1280 in a full-width list (148 from 1024 in a panel) */
+  .accordion.timeline.accordion-timeline-headless .accordion-timeline-course-badge img {
+    width: 120px;
+  }
+}
+
+@media (width >= 1280px) {
+  .accordion.timeline.accordion-timeline-headless .accordion-timeline-course-badge img {
+    width: 148px;
+  }
 }
 
 /* panel header wrapper: holds the head (badge + text/meta). The chevron is NOT
@@ -506,7 +595,7 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
 }
 
 /* ==========================================================================
-   PATHWAY MOBILE ONLY (<=767, base tier): re-flow the card header so the
+   PATHWAY + TIMELINE MOBILE (<=767, base tier): re-flow the card header so the
    description drops to a FULL-WIDTH second row.
      Row 1: badge (left) + eyebrow/title (middle) + chevron (right)
      Row 2: description spanning the full card width
@@ -517,49 +606,63 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
    description, chevron) all become direct items of the card grid, then place them
    explicitly. ALL of this is reset to the flex layout at >=768 (see the 768 tier),
    so tablet/desktop are byte-for-byte unchanged. */
-.accordion.pathway .accordion-timeline-course {
+.accordion:is(.pathway, .timeline) .accordion-timeline-course {
   display: grid;
   grid-template-columns: auto 1fr auto;
   column-gap: 16px;
 }
 
+/* a card without a badge (PT Pro / Volunteer): the empty badge column takes no room */
+.accordion:is(.pathway, .timeline) .accordion-timeline-course:not(.accordion-timeline-course-badged) {
+  grid-template-columns: 0 1fr auto;
+  column-gap: 0;
+}
+
+.accordion:is(.pathway, .timeline) .accordion-timeline-course:not(.accordion-timeline-course-badged) .accordion-timeline-course-label > .accordion-timeline-chevron {
+  margin-left: 16px;
+}
+
 /* unwrap the header wrappers so their children join the card grid */
-.accordion.pathway .accordion-timeline-course-label,
-.accordion.pathway .accordion-timeline-course-content,
-.accordion.pathway .accordion-timeline-head {
+.accordion:is(.pathway, .timeline) .accordion-timeline-course-label,
+.accordion:is(.pathway, .timeline) .accordion-timeline-course-content,
+.accordion:is(.pathway, .timeline) .accordion-timeline-head {
   display: contents;
 }
 
 /* row 1: badge spans the two title rows on the left */
-.accordion.pathway .accordion-timeline-course-badge {
+.accordion:is(.pathway, .timeline) .accordion-timeline-course-badge {
   grid-column: 1;
   grid-row: 1 / 3;
   align-self: center;
 }
 
 /* row 1 middle: eyebrow on line 1, title on line 2 */
-.accordion.pathway .accordion-timeline-eyebrow {
+.accordion:is(.pathway, .timeline) .accordion-timeline-eyebrow {
   grid-column: 2;
   grid-row: 1;
   align-self: end;
 }
 
-.accordion.pathway .accordion-timeline-title {
+.accordion:is(.pathway, .timeline) .accordion-timeline-title {
   grid-column: 2;
   grid-row: 2;
   align-self: start;
 }
 
 /* row 1 right: chevron spans the two title rows */
-.accordion.pathway .accordion-timeline-course-label > .accordion-timeline-chevron {
+.accordion:is(.pathway, .timeline) .accordion-timeline-course-label > .accordion-timeline-chevron {
   grid-column: 3;
   grid-row: 1 / 3;
   align-self: center;
 }
 
-/* row 2: description spans the full card width (grid-column set on the base
-   .accordion-timeline-desc-wrapper rule above). Module timeline below it: */
-.accordion.pathway .accordion-timeline-steps {
+/* row 2: description spans the full card width (pathway: grid-column set on the base
+   .accordion-timeline-desc-wrapper rule above; timeline: the rule below). Module timeline below it: */
+.accordion.timeline .accordion-timeline-desc {
+  grid-column: 1 / -1;
+}
+
+.accordion:is(.pathway, .timeline) .accordion-timeline-steps {
   grid-column: 1 / -1;
 }
 
@@ -805,10 +908,13 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
     gap: 24px; /* source column gap */
   }
 
-  /* course cards line up equal-height with the always-visible description */
-  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-course {
-    min-height: 232px;
-    padding: 24px;
+  /* course cards: 24px padding (timeline cards keep their 48px bottom — see the timeline
+     card rules — and take their content height, as the source); pathway cards line up
+     equal-height (232px) with the always-visible description */
+  .accordion.timeline .accordion-timeline-course {
+    display: block; /* undo the phone grid re-flow (see below) */
+    padding-inline: 24px;
+    padding-top: 24px;
   }
 
   /* >=768: undo the pathway MOBILE grid re-flow — restore the desktop flex layout
@@ -816,26 +922,29 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
      the label row). Re-establish the wrappers and clear the mobile grid placements. */
   .accordion.pathway .accordion-timeline-course {
     display: block;
+    min-height: 232px;
+    padding: 24px;
   }
 
-  .accordion.pathway .accordion-timeline-course-label {
+  .accordion:is(.pathway, .timeline) .accordion-timeline-course-label {
     display: flex;
   }
 
-  .accordion.pathway .accordion-timeline-course-content {
+  .accordion:is(.pathway, .timeline) .accordion-timeline-course-content {
     display: flex;
   }
 
-  .accordion.pathway .accordion-timeline-head {
+  .accordion:is(.pathway, .timeline) .accordion-timeline-head {
     display: block;
   }
 
-  .accordion.pathway .accordion-timeline-course-badge,
-  .accordion.pathway .accordion-timeline-eyebrow,
-  .accordion.pathway .accordion-timeline-title,
-  .accordion.pathway .accordion-timeline-course-label > .accordion-timeline-chevron,
+  .accordion:is(.pathway, .timeline) .accordion-timeline-course-badge,
+  .accordion:is(.pathway, .timeline) .accordion-timeline-eyebrow,
+  .accordion:is(.pathway, .timeline) .accordion-timeline-title,
+  .accordion:is(.pathway, .timeline) .accordion-timeline-course-label > .accordion-timeline-chevron,
   .accordion.pathway .accordion-timeline-desc-wrapper,
-  .accordion.pathway .accordion-timeline-steps {
+  .accordion.timeline .accordion-timeline-desc,
+  .accordion:is(.pathway, .timeline) .accordion-timeline-steps {
     grid-column: auto;
     grid-row: auto;
     align-self: auto;

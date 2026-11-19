@@ -2,8 +2,9 @@
   "status": "success",
   "url": "https://www.ustacoaching.com/en/home/coaching-community/usta-coaches-inclusion-summit.html",
   "path": "en/home/coaching-community/usta-coaches-inclusion-summit",
-  "timestamp": "2026-10-21T18:18:44.161Z",
+  "timestamp": "2026-11-19T07:08:55.216Z",
   "title": "USTA Coaches Inclusion Summit",
   "template": "landing-page",
-  "sections": "hero-content | columns-media-row | default | cards-icon | default | default | default"
+  "sections": "hero-content | columns-media-row | video | cards-icon | default | default | default",
+  "importScript": "d217c922141b"
 }

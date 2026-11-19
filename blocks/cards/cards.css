@@ -1455,6 +1455,68 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   }
 }
 
+/* compact (fellowship "On-court Coaching … Classroom Sessions", 3 × 2): each card is a
+   source container padded 12px 8px (12px from 768) inside its 4/12 column, its image and
+   text components padded as in `stacked` — so the grid spans the column edges (no negative
+   margin) and everything sits one card inset further in; each card opens with the 36px
+   margin preset (12 → 20 @1024 → 36 @1280) inside its 12px padding, and the grid ends with
+   its wrapper's 12px. A card ends
+   26px + 3px lower on phones (a separator the source shows below 768) and 6 / 10 / 18px
+   lower from 768 / 1024 / 1280 (its inner container). Photos keep
+   their own 3:2 shape at every width; copy = the source's narrow-tracking text, Graphik
+   Regular 16/19.2 −0.03em (14/16.8 at 768–1023). */
+.cards.media.stacked.compact {
+  margin-bottom: 12px;
+}
+
+.cards.media.stacked.compact > ul {
+  margin-inline: 0;
+}
+
+.cards.media.stacked.compact .cards-media-card {
+  padding: 24px 8px 41px;
+}
+
+.cards.media.stacked.compact .cards-media-image img {
+  aspect-ratio: 3 / 2;
+}
+
+.cards.media.stacked.compact .cards-media-card p {
+  font-size: 16px;
+  line-height: 19.2px;
+  letter-spacing: -0.03em;
+}
+
+@media (width >= 768px) {
+  .cards.media.stacked.compact .cards-media-card {
+    padding: 24px 12px 18px;
+  }
+
+  .cards.media.stacked.compact .cards-media-card p {
+    font-size: 14px;
+    line-height: 16.8px;
+  }
+}
+
+@media (width >= 1024px) {
+  .cards.media.stacked.compact .cards-media-card {
+    padding-top: 32px;
+    padding-bottom: 22px;
+  }
+
+  .cards.media.stacked.compact .cards-media-card p {
+    font-size: 16px;
+    line-height: 19.2px;
+  }
+}
+
+@media (width >= 1280px) {
+  .cards.media.stacked.compact .cards-media-card {
+    padding-top: 48px;
+    padding-bottom: 30px;
+  }
+}
+
 /* ---------------------------------------------------------------- pricing -- */
 
 /* USTA membership tiers on the dark "PACKAGES" section. Source: black rounded
@@ -1499,6 +1561,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   border-radius: 16px;
   background-color: #000;
   color: #fff;
+  letter-spacing: normal; /* source tier cards: normal tracking (not the site's −0.03em) */
 }
 
 .cards.pricing .cards-pricing-card.is-active {
@@ -1516,7 +1579,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 40px;
-  line-height: 1;
+  line-height: normal; /* source: a 37px line box */
   color: #fff;
 }
 
@@ -1583,14 +1646,15 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   margin-top: auto;
 }
 
-/* source button: 16px 24px padding on a `normal` line — 16px label (50px tall) on
-   phones, 18px (53px) from 768 */
+/* source button: a 2px black border and 14px 24px padding on a `normal` line — 16px
+   label (50px tall) on phones, 18px (53px) from 768 */
 .cards.pricing .cards-pricing-cta a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  padding: 16px 24px;
+  padding: 14px 24px;
+  border: 2px solid #000;
   border-radius: 12px;
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 16px;
@@ -1626,7 +1690,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  gap: 8px;
   min-height: 96px;
   padding: 0 24px;
   border: 1px solid #fff;
@@ -1636,22 +1700,26 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   text-align: center;
 }
 
+/* the tier name is set in Arial on the source: its tab <button> never gets a font family,
+   so the browser's default button font shows (a source quirk, kept for parity) */
 .cards.pricing .cards-pricing-tab-name {
+  min-width: 72px; /* source: every name box is 72px wide */
+  font-family: arial, sans-serif;
   font-size: 16px;
-  line-height: 1;
+  line-height: normal;
   color: var(--usta-lime); /* inactive: tier name lime */
 }
 
 .cards.pricing .cards-pricing-tab-price {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-size: 24px;
-  line-height: 1;
+  line-height: normal;
   color: #fff;
 }
 
 /* active tab: solid lime, black text, no border */
 .cards.pricing .cards-pricing-tab[aria-selected="true"] {
-  border-color: transparent;
+  border: 0;
   background-color: var(--usta-lime);
 }
 
@@ -1940,11 +2008,17 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 /* testimonial: the landing "What Others Are Saying" cards (coaching-community).
-   Source: no border, Graphik Regular 18/24 italic quote; a tall gap (42 + 26px
-   separators plus a 96-type spacer: 8px → 84px @1024 → 96px @1280) before a 1px
-   #979797 rule inset like the text (8px / 12px from 768); then the name (bold) and
-   the role, both white 18/24. */
+   Source: no border, Graphik Regular 18/24 italic quote; a 1px #979797 rule inset
+   like the text (8px / 12px from 768); then the name (bold) and the role, both white
+   18/24. Measured on the card with the tallest quote (its only spacer is the
+   96-type separator): quote → rule 38 → 119 (1024) → 148px (1280); rule → name
+   line 31 → 34 → 42px; last line → card bottom 39 → 42 → 50px. The source authors
+   extra spacers into the shorter cards so all the rules of a row line up; from 768
+   the cards share their rows (subgrid), so every rule sits under the row's tallest
+   quote — exactly aligned, whatever the quotes. Phones (one card per row): the
+   base gaps. */
 .cards.quote.testimonial .cards-quote-card {
+  padding-bottom: 27px;
   border: 0;
 }
 
@@ -1955,7 +2029,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
 .cards.quote.testimonial .cards-quote-divider {
   width: auto;
-  margin: 96px 8px 0;
+  margin: 26px 8px 16px;
   border: 0;
   border-top: 1px solid #979797;
 }
@@ -1969,15 +2043,29 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 @media (width >= 768px) {
+  .cards.quote.testimonial > ul { row-gap: 0; }
+
+  /* each card spans the list's three shared rows: quote | rule | attribution */
+  .cards.quote.testimonial .cards-quote-card {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+
   .cards.quote.testimonial .cards-quote-divider { margin-inline: 12px; }
 }
 
 @media (width >= 1024px) {
-  .cards.quote.testimonial .cards-quote-divider { margin-top: 180px; }
+  .cards.quote.testimonial .cards-quote-card { padding-bottom: 30px; }
+
+  .cards.quote.testimonial .cards-quote-divider { margin-block: 107px 19px; }
 }
 
 @media (width >= 1280px) {
-  .cards.quote.testimonial .cards-quote-divider { margin-top: 200px; }
+  .cards.quote.testimonial .cards-quote-card { padding-bottom: 38px; }
+
+  .cards.quote.testimonial .cards-quote-divider { margin-block: 136px 27px; }
 }
 
 /* every cards variant gives its SECTION the site gutter (16/40/48/64): the section's
@@ -2106,4 +2194,58 @@ main > .section.cards-container > .default-content-wrapper {
   }
 
   .cards.icons .cards-icons-image img { width: 28px; }
+}
+
+/* text-only icon cards (no icon row — School "Why Provide Tennis in Your School?"). Source:
+   the same grey 20px cards, padded 8px, 1 / 2 (768) / 3 (1024) columns 24px apart; a USTA
+   Sans 16/19.2 title (18/21.6 from 1280) whose line sits 54px into the card, the copy 26px
+   under it, and 80px of card below the last line (the copy cell's 12px + an empty CTA cell) */
+.cards.icons:not(:has(.cards-icons-image)) > ul {
+  margin: 0;
+  gap: 24px;
+}
+
+.cards.icons:not(:has(.cards-icons-image)) .cards-icons-card {
+  margin: 0;
+  padding: 8px 8px 78px;
+}
+
+.cards.icons:not(:has(.cards-icons-image)) .cards-icons-card :is(h2, h3, h4) {
+  padding: 46px 8px 0;
+  font-family: var(--heading-font-family);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.cards.icons:not(:has(.cards-icons-image)) .cards-icons-card p:not(.cards-icons-image) {
+  margin-top: 24px;
+}
+
+@media (width >= 768px) {
+  .cards.icons:not(:has(.cards-icons-image)) > ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cards.icons:not(:has(.cards-icons-image)) .cards-icons-card :is(h2, h3, h4) {
+    padding-inline: 12px;
+  }
+}
+
+@media (width >= 1024px) {
+  .cards.icons:not(:has(.cards-icons-image)) > ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 1280px) {
+  .cards.icons:not(:has(.cards-icons-image)) .cards-icons-card :is(h2, h3, h4) {
+    font-size: 18px;
+  }
+}
+
+/* `inset-N` section style (styles.css: --section-gutter + --section-pad): the quote /
+   icon card sections pad the section themselves, so they add the inset here. Other
+   cards variants keep their own section padding (they need the same line to follow). */
+.cards-container.inset-px:has(.cards.quote, .cards.icons) {
+  padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
 }

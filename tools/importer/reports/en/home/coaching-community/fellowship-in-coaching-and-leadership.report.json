@@ -2,8 +2,9 @@
   "status": "success",
   "url": "https://www.ustacoaching.com/en/home/coaching-community/fellowship-in-coaching-and-leadership.html",
   "path": "en/home/coaching-community/fellowship-in-coaching-and-leadership",
-  "timestamp": "2026-10-21T05:43:10.203Z",
+  "timestamp": "2026-11-19T07:08:02.706Z",
   "title": "Fellowship in Tennis Coaching and Leadership",
   "template": "landing-page",
-  "sections": "columns-media-row | default | default | columns-media-row"
+  "sections": "title-photo | cards-media | heading | default | dates-list | heading | default | video | columns-quote",
+  "importScript": "d217c922141b"
 }

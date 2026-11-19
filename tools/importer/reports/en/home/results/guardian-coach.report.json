@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "url": "https://www.ustacoaching.com/en/home/results/guardian-coach.html",
+  "path": "en/home/results/guardian-coach",
+  "timestamp": "2026-11-19T07:14:09.514Z",
+  "title": "Tennis for Kids: A Parent & Guardian’s Guide to the Game",
+  "template": "landing-page",
+  "sections": "results-intro | heading | results-cards | results-courses | heading | results-tiers",
+  "importScript": "cf2f2d8fecdc"
+}

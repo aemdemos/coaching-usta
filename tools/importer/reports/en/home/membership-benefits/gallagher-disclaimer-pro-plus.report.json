@@ -2,8 +2,9 @@
   "status": "success",
   "url": "https://www.ustacoaching.com/en/home/membership-benefits/gallagher-disclaimer-pro-plus.html",
   "path": "en/home/membership-benefits/gallagher-disclaimer-pro-plus",
-  "timestamp": "2026-10-21T05:44:40.596Z",
+  "timestamp": "2026-11-19T07:09:50.167Z",
   "title": "Pro-plus - Gallagher Disclaimer",
   "template": "landing-page",
-  "sections": "default | accordion"
+  "sections": "default | accordion",
+  "importScript": "d217c922141b"
 }

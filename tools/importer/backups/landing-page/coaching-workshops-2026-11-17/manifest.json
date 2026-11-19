@@ -1,0 +1,12 @@
+{
+  "pages": ["coaching-community/coaching-workshops"],
+  "regression": ["coach-mentorship", "coaching-community"],
+  "locales": ["en"],
+  "output": "drafts/meet/coaching-community/coaching-workshops (local only; not uploaded to DA)",
+  "samples": ["drafts/block-samples/columns-media-outlined", "drafts/block-samples/toc"],
+  "date": "2026-11-17",
+  "importer": "import-landing-page-v1.js (+ import-sample-landing-blocks.js for the samples)",
+  "changes": "prepareSections() (outer-gutter wrapper split + loose-component runs, shared with the sample importer) · kinds columns-media-outlined, events-list, columns-promo · tabs become a toc block + one section per panel (Section Metadata toc-anchor) · heading-64 · wizard / quiz buttons without href link to the membership-benefits page · NO two-value inset or Spacer output (those insets and gaps are block / template CSS)",
+  "images": "1 new file: content/media-da/en/home/coaching-community/coaching-workshops/community-elevate-the-game-29343f15.jpeg; the rest re-point to existing media",
+  "verified": "parity vs source at 375/768/1024/1280/1440, both tabs (top card gap, heading boxes + lines, intro copy, event + webinar card x / width, card gaps, footnote); coach-mentorship + coaching-community importer output byte-identical"
+}

@@ -807,7 +807,7 @@ main > .section.narrow-cols {
 
 /* stylelint-disable-next-line no-descending-specificity -- unrelated to split's id-weighted reset */
 main > .section.narrow-cols > div:not(.full-width) {
-  padding-inline: calc(var(--section-gutter) + (min(100%, 1536px) - 2 * var(--section-gutter) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
+  padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px) + (min(100%, 1536px) - 2 * var(--section-gutter) - 2 * var(--section-pad, 0px) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
 }
 
 @media (width >= 768px) {
@@ -823,4 +823,30 @@ main > .section.narrow-cols > div:not(.full-width) {
 
 @media (width >= 1280px) {
   main > .section.narrow-cols { --section-gutter: 64px; }
+}
+
+/* ---- Inset-N section (section-metadata style: inset-N, N = 1…64 px) ----
+   The whole section (and its 12-col grid) sits N px further in on each side, at every
+   width — like the source's `container--padding--12px-4px` (= inset-4, what the landing
+   importer emits). scripts.js turns `inset-N` into `--section-pad: Npx` + `.inset-px`.
+   Composes with narrow-N (the narrow grid is taken inside the inset: --section-pad is
+   part of the narrow-N formula above). Cards sections pad the section themselves (no
+   wrapper gutter), so they add the inset in cards.css instead. */
+main > .section.inset-px { --section-gutter: 16px; }
+
+/* stylelint-disable-next-line no-descending-specificity -- same box as the section gutters above */
+main > .section.inset-px:not(.narrow-cols, .cards-container) > div:not(.full-width) {
+  padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
+}
+
+@media (width >= 768px) {
+  main > .section.inset-px { --section-gutter: 40px; }
+}
+
+@media (width >= 1024px) {
+  main > .section.inset-px { --section-gutter: 48px; }
+}
+
+@media (width >= 1280px) {
+  main > .section.inset-px { --section-gutter: 64px; }
 }

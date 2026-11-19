@@ -1,3 +1,5 @@
+/* stylelint-disable no-descending-specificity -- template overrides are ordered by page flow, not specificity */
+
 /* landing-page template (metadata `Template: landing-page`) — the source landing pages'
    own component type styles (measured on coach-mentorship, coaching-community, …):
    - section headings = the `text--font-size--40px-28px` USTA Sans style: 28 → 32 (768)
@@ -21,6 +23,7 @@ body.landing-page main :is(.default-content-wrapper, .columns.cta, .columns.bloc
 /* default content = a run of source text components, each padded 12px top and bottom:
    24px between items, 12px above the first and below the last */
 body.landing-page main .default-content-wrapper {
+  display: flow-root; /* the first item's 12px stays inside: after a block it adds to the 42px separator (source 54) instead of collapsing into it */
   padding-bottom: 12px;
 }
 
@@ -32,9 +35,20 @@ body.landing-page main .default-content-wrapper > :first-child {
   margin-top: 12px;
 }
 
-body.landing-page main .default-content-wrapper p.blank {
+/* an authored blank line (a paragraph holding only a zero-width space, marked `.blank` by
+   landing-page.js) is one 24px line of the text component it sits in: no margin of its own;
+   leading blank lines keep the component's 12px top inset and the copy follows directly */
+body.landing-page main .default-content-wrapper > p.blank {
   height: 24px;
+}
+
+body.landing-page main .default-content-wrapper > p.blank:not(:first-child) {
   margin: 0;
+}
+
+body.landing-page main .default-content-wrapper > p.blank:first-child + :not(.blank),
+body.landing-page main .default-content-wrapper > p.blank:first-child + p.blank + :not(.blank) {
+  margin-top: 0;
 }
 
 @media (width >= 768px) {
@@ -43,6 +57,13 @@ body.landing-page main .default-content-wrapper p.blank {
 
 @media (width >= 1024px) {
   body.landing-page main :is(.default-content-wrapper, .columns-wrapper:where(:not(:has(> .columns.media)))) h2:not([class]) { font-size: 40px; }
+}
+
+/* `heading-64` (landing pages only): the source's `text--font-size--64px-28px` headings
+   (coaching-workshops, learning-pathway) = the GLOBAL h2 size (28 → 40 → 56 → 64px via
+   --heading-font-size-xl), instead of the template's smaller h2 above */
+body.landing-page main > .section.heading-64 :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) {
+  font-size: var(--heading-font-size-xl);
 }
 
 /* section rhythm: the source's section containers (`container--top-margin--52` /
@@ -61,6 +82,148 @@ body.landing-page main > .section { padding: 12px 0; }
   body.landing-page main > .section { padding: 52px 0; }
 }
 
+/* `spacing-36` (landing pages only): a section built on the source's 36px margin preset
+   (`container--top-margin--36` / `--bottom-margin--36`, fellowship): 12 → 12 (768) → 20
+   (1024) → 36px (1280) above and below, instead of the 52px preset above */
+body.landing-page main > .section.spacing-36 { padding-block: 12px; }
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.spacing-36 { padding-block: 20px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.spacing-36 { padding-block: 36px; }
+}
+
+/* a `spacing-36` section in the `container--padding--small` preset (`inset-12`, fellowship
+   "APPLICATION DETAILS" / "CANDIDATE QUALIFICATIONS") adds the preset's own 12px (36px
+   from 1280) top / bottom padding — its heading and copy sections are one container */
+body.landing-page main > .section.spacing-36.inset-12 { padding-block: 24px; }
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.spacing-36.inset-12 { padding-block: 32px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.spacing-36.inset-12 { padding-block: 72px; }
+}
+
+/* the video's container (fellowship) ends on the 27px margin preset (22 → 18 @768 → 22
+   @1024 → 27 @1280) and follows a group of sections closed by the 52px preset: the gap above
+   it is 52-preset + 36-preset, so its own top padding takes the 52 preset's share */
+body.landing-page main > .section.spacing-36:has(> .video-wrapper) { padding: 12px 0 22px; }
+
+@media (width >= 768px) {
+  body.landing-page main > .section.spacing-36:has(> .video-wrapper) { padding: 20px 0 18px; }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.spacing-36:has(> .video-wrapper) { padding: 36px 0 22px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.spacing-36:has(> .video-wrapper) { padding: 52px 0 27px; }
+}
+
+/* the compact media cards close the page-title container (fellowship): only its 12px
+   bottom padding follows the grid (the cards block's own margin), no section gap */
+body.landing-page main > .section.spacing-36:has(> .cards-wrapper > .cards.compact) {
+  padding-bottom: 0;
+}
+
+/* the results pages' welcome row (Columns (media, lime)) opens the page on the 36px margin
+   preset below the nav strip: 24px + 12 / 12 / 20 / 36px (the block adds its 12px inset) */
+body.landing-page main > .section:first-child:has(.columns.media.lime) {
+  padding-top: 36px;
+  padding-bottom: 24px; /* … and ends with the block's 12px inset + the same preset below it */
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section:first-child:has(.columns.media.lime) {
+    padding-top: 44px;
+    padding-bottom: 32px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:first-child:has(.columns.media.lime) {
+    padding-top: 60px;
+    padding-bottom: 48px;
+  }
+}
+
+
+/* results pages: each section opens with the source's 48px (transparent) separator above its
+   display heading — the 10-column `heading-64` headings and the course-list sections — and a
+   closing course accordion keeps its component's 12px below */
+body.landing-page main > .section.heading-64:is(.narrow-10, :has(> .accordion-wrapper)) > :first-child {
+  margin-top: 48px;
+}
+
+body.landing-page main > .section.heading-64 > .accordion-wrapper:last-child {
+  padding-bottom: 12px;
+}
+
+/* … a course accordion right under its heading (no intro, FT Pro "Recommended Learning
+   Pathway") sits on another 48px separator: heading → card 12 + 48px */
+body.landing-page main > .section.heading-64:has(> .default-content-wrapper + .accordion-wrapper) {
+  --text-block-gap: 60px;
+}
+
+/* … with an intro (College, School, Guardian, Volunteer "Recommended Learning Pathway"), the
+   intro and the course box share the source's 36px-preset container: the intro 12 / 20
+   (1024) / 36px (1280) further down, and the box 24 / 32 / 48px under it (12 + the preset) */
+body.landing-page main > .section.heading-64:has(> .text-style-wrapper + .accordion-wrapper) {
+  --text-block-gap: 24px;
+}
+
+body.landing-page main > .section.heading-64 > .default-content-wrapper + .text-style-wrapper:has(+ .accordion-wrapper) {
+  margin-top: 12px;
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.heading-64:has(> .text-style-wrapper + .accordion-wrapper) { --text-block-gap: 32px; }
+  body.landing-page main > .section.heading-64 > .default-content-wrapper + .text-style-wrapper:has(+ .accordion-wrapper) { margin-top: 20px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.heading-64:has(> .text-style-wrapper + .accordion-wrapper) { --text-block-gap: 48px; }
+  body.landing-page main > .section.heading-64 > .default-content-wrapper + .text-style-wrapper:has(+ .accordion-wrapper) { margin-top: 36px; }
+}
+
+/* a heading split over two lines (School "why Provide Tennis in / Your School?"): the
+   lines touch */
+body.landing-page main > .section.narrow-cols .default-content-wrapper > h2 + h2 {
+  margin-top: 0;
+}
+
+/* a page-title section (default-content h1, fellowship) sits in the source's title
+   container: its 12px top padding comes on top of the hero spacing */
+body.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
+  padding-top: 36px;
+}
+
+/* a narrow `heading-64` heading section (results "What USTA Coaching Has To Offer", 10 of 12
+   columns) spans the full width below 1280 — the source sets these headings on tablet--12 /
+   desktop-small--12 and narrows them from 1280 only */
+body.landing-page main > .section.heading-64.narrow-cols > div:not(.full-width) {
+  padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
+}
+
+/* … and from 768 the results headings (`narrow-10`) span their whole column: no 12px text
+   inset (phones keep it — the source's phone spans differ per heading, 10 or 12 columns) */
+@media (width >= 768px) {
+  body.landing-page main > .section.heading-64.narrow-10 > .default-content-wrapper > h2 {
+    margin-inline: 0;
+  }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.heading-64.narrow-cols > div:not(.full-width) {
+    padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px) + (min(100%, 1536px) - 2 * var(--section-gutter) - 2 * var(--section-pad, 0px) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
+  }
+}
+
 /* the FAQ accordion is a component with the usual 12px inset above and below */
 body.landing-page main .accordion.accordion-default {
   padding-block: 12px;
@@ -77,6 +240,12 @@ body.landing-page main .text-style.block {
   margin-inline: -8px;
 }
 
+/* … except under a page title (fellowship): that intro sits in the source's title
+   container (8 / 12px gutter padding), one inset further in */
+body.landing-page main > .section:has(> .default-content-wrapper > h1) > .text-style-wrapper > .text-style.block {
+  margin-inline: 0;
+}
+
 body.landing-page main > .section.cards-container > .text-style-wrapper {
   max-width: none;
   padding-inline: 0;
@@ -90,7 +259,10 @@ body.landing-page main > .section.cards-container > .text-style-wrapper {
    that follows, and between a block and the copy/CTA after it (text-style intros sit
    right under the heading, no separator; icon cards carry their own column spacing
    instead) */
-body.landing-page main > .section > :is(.default-content-wrapper, .text-style-wrapper) + div:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons)),
+body.landing-page main > .section > :is(.default-content-wrapper, .text-style-wrapper) + div:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons img)) {
+  margin-top: var(--text-block-gap, 42px);
+}
+
 body.landing-page main > .section > div:not(.default-content-wrapper, .text-style-wrapper) + .default-content-wrapper {
   margin-top: 42px;
 }
@@ -99,6 +271,29 @@ body.landing-page main > .section > div:not(.default-content-wrapper, .text-styl
    home page's don't) */
 body.landing-page .accordion.accordion-default .accordion-item + .accordion-item .accordion-item-label {
   margin-top: 10px;
+}
+
+/* the landing FAQ answer is a TEXT COMPONENT inside the panel (source coach-mentorship;
+   the home accordion's panel holds plain text instead): panel 10px top + the component's
+   12px 8px (12px from 768) padding; Graphik Regular 18/24, normal tracking, at every
+   width; links inherit the text colour and are underlined (`.cmp-text--colored a`) */
+body.landing-page .accordion.accordion-default .accordion-item-body {
+  padding: 22px 8px 12px;
+}
+
+body.landing-page .accordion.accordion-default .accordion-item-body p {
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+body.landing-page .accordion.accordion-default .accordion-item-body a:any-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (width >= 768px) {
+  body.landing-page .accordion.accordion-default .accordion-item-body { padding-inline: 12px; }
 }
 
 /* a narrow heading section (narrow-N, default content only) introduces the section
@@ -113,39 +308,338 @@ body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-w
   padding-top: 0;
 }
 
-body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > :first-child:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons)) {
-  margin-top: 42px;
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > :first-child:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons img)) {
+  margin-top: var(--text-block-gap, 42px);
 }
 
+/* heading → copy: 24px = the heading component's 12px bottom (the heading section's
+   wrapper padding) + the copy component's 12px top (source coaching-workshops) */
 body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > .default-content-wrapper:first-child > :first-child {
-  margin-top: 24px;
+  margin-top: var(--heading-copy-gap, 12px);
 }
 
-/* page title (default content h1, e.g. courses "SET YOUR PATHWAY"): the source's USTA
-   Sans text component, 28 → 40 (768) → 56 (1024) → 64 (1280), line-height 1 */
-body.landing-page main .default-content-wrapper h1 {
-  font-size: 28px;
-  line-height: 1;
-  overflow-wrap: break-word;
-}
-
-/* a standalone image in default content is a 12-column image component on the source
-   (courses pathway infographic): it spans the content box, square corners — not the
-   site-wide 360px cap for loose images */
-body.landing-page main > .section > .default-content-wrapper > p > picture img {
-  width: 100%;
-  max-width: 100%;
-  border-radius: 0;
+/* results pages (the 10-column `heading-64` headings): the heading, its block and the CTA
+   under it share one source container, set apart by the source's responsive separators —
+   text → block 24 / 32 / 48 / 64px (768 / 1024 / 1280) past the text's 12px (heading → cards,
+   "See all benefits" → pricing), and heading → CTA 12 / 44px (from 768) (separator 0 / 32px
+   + the button's 12px) */
+body.landing-page main > .section.heading-64.narrow-10 + .section {
+  --text-block-gap: 24px;
+  --heading-copy-gap: 12px;
 }
 
 @media (width >= 768px) {
-  body.landing-page main .default-content-wrapper h1 { font-size: 40px; }
+  body.landing-page main > .section.heading-64.narrow-10 + .section {
+    --text-block-gap: 32px;
+    --heading-copy-gap: 44px;
+  }
 }
 
 @media (width >= 1024px) {
-  body.landing-page main .default-content-wrapper h1 { font-size: 56px; }
+  body.landing-page main > .section.heading-64.narrow-10 + .section { --text-block-gap: 48px; }
 }
 
 @media (width >= 1280px) {
-  body.landing-page main .default-content-wrapper h1 { font-size: 64px; }
+  body.landing-page main > .section.heading-64.narrow-10 + .section { --text-block-gap: 64px; }
+}
+
+/* … and its CTA ("See all benefits", source `button--width--padding-24
+   button--height--56-50-48-48`): 280px on phones, its label's width (24px sides) from 768;
+   48 → 50 (1024) → 56px (1280) tall; the site's 16 → 18 → 24px label */
+body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button {
+  width: auto;
+  min-width: 280px;
+  height: 48px;
+  padding: 0 22px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button { min-width: 0; }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button { height: 50px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button { height: 56px; }
+}
+
+/* results media cards (Cards (media), the home page's): the cards sit in a container padded
+   12px below them, the copy components are padded 8px on phones (12px from 768) with their
+   12px below, and the photo takes 5 of 12 tablet columns (273 x 285) at 768 */
+body.landing-page main .cards.media:not(.stacked) > ul {
+  gap: 24px;
+  padding-bottom: 12px;
+}
+
+body.landing-page main .cards.media:not(.stacked) .cards-media-body {
+  padding: 0 8px 12px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main .cards.media:not(.stacked) .cards-media-body {
+    padding: 12px;
+  }
+
+  body.landing-page main .cards.media:not(.stacked) .cards-media-image {
+    flex-basis: 273px;
+  }
+
+  body.landing-page main .cards.media:not(.stacked) .cards-media-image img {
+    aspect-ratio: 273 / 285;
+  }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main .cards.media:not(.stacked) .cards-media-image {
+    flex-basis: 293px;
+  }
+
+  body.landing-page main .cards.media:not(.stacked) .cards-media-image img {
+    aspect-ratio: 293 / 257;
+  }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main .cards.media:not(.stacked) .cards-media-body {
+    padding: 0 12px 12px;
+  }
+
+  body.landing-page main .cards.media:not(.stacked) .cards-media-image {
+    flex-basis: auto;
+  }
+
+  body.landing-page main .cards.media:not(.stacked) .cards-media-image img {
+    aspect-ratio: 421 / 297;
+  }
+}
+
+/* the outlined Banner (stacked) band (source `container--top-margin--32 …bottom-margin--32`,
+   right under the hero on coaching-community): measured vs source — 25px (33 from 768)
+   under the hero, and the next section's heading 45 / 65 / 81 / 105px (768 / 1024 /
+   1280) below the band, i.e. a bottom padding of 24 / 36 / 36 / 44 before the next
+   section's own top padding */
+body.landing-page main > .section.banner-container:has(.banner.stacked) { padding: 25px 0 24px; }
+
+@media (width >= 768px) {
+  body.landing-page main > .section.banner-container:has(.banner.stacked) { padding: 33px 0 36px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.banner-container:has(.banner.stacked) { padding-bottom: 44px; }
+}
+
+/* copy / display headings that sit INSIDE the source's outer-gutter wrapper (coaching-workshops:
+   the tabs intro, the `heading-64` section headings) are text components padded 8px (12px
+   from 768) inside the gutter; copy straight in the page grid (e.g. the footnote) sits at
+   the gutter, and the events section bakes the inset into its own gutter (columns.css) */
+body.landing-page main > .section:has(.toc) .default-content-wrapper > :is(p, ul, ol, h3) {
+  padding-inline: 8px;
+}
+
+body.landing-page main > .section.heading-64 .default-content-wrapper > :is(h1, h2) {
+  margin-inline: 8px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section:has(.toc) .default-content-wrapper > :is(p, ul, ol, h3) {
+    padding-inline: 12px;
+  }
+
+  body.landing-page main > .section.heading-64 .default-content-wrapper > :is(h1, h2) {
+    margin-inline: 12px;
+  }
+}
+
+/* intro copy → events list / promo cards (coaching-workshops, measured): the source's
+   42px separator plus the list component's own 12 + 12px (events: 66px) or the card's
+   12px (promo: 54px) */
+body.landing-page main > .section > .default-content-wrapper + div.columns-wrapper:has(> .columns.events) {
+  margin-top: 66px;
+}
+
+body.landing-page main > .section > .default-content-wrapper + div.columns-wrapper:has(> .columns.promo) {
+  margin-top: 54px;
+}
+
+/* a promo-card section on its own (not a tab) sits in the source's `container--padding--small`
+   (sides 16px on phones, 12px from 768): the cards 16px in on phones (the block's own 12px
+   from 768), the intro copy (a text component, 8 / 12px) 24px in at every width; it ends with
+   the source's 26px separator + its 12px (36px from 1280) bottom padding */
+body.landing-page main > .section:not(.toc-panel):has(.columns.promo) {
+  padding-bottom: 38px;
+}
+
+body.landing-page main > .section:not(.toc-panel):has(.columns.promo) .columns-promo-panel {
+  margin-inline: 16px;
+}
+
+body.landing-page main > .section:not(.toc-panel):has(.columns.promo) .default-content-wrapper > :is(p, ul, ol, h3) {
+  padding-inline: 24px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section:not(.toc-panel):has(.columns.promo) .columns-promo-panel {
+    margin-inline: 12px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:not(.toc-panel):has(.columns.promo) {
+    padding-bottom: 62px;
+  }
+}
+
+/* toc tab sets (coaching-workshops "ONLINE WEBINARS"): the tab sections follow the strip
+   directly — strip → panel 20px (the toc block's own bottom padding), then the source's
+   42px separator before a panel's first block (a panel opening with copy uses the copy's
+   usual 12px); each tab section ends 24px below its content (separator + component) */
+body.landing-page main > .section:has(.toc) {
+  padding-bottom: 0;
+}
+
+body.landing-page main > .section.toc-panel {
+  padding: 0 0 24px;
+}
+
+body.landing-page main > .section.toc-panel > div.columns-wrapper:first-child {
+  margin-top: 42px;
+}
+
+/* default-content h3 = the source's plain h3 (coaching-workshops "Recorded Webinars"):
+   Graphik Semibold 20 → 22 (1024) → 24px (1280), line-height 1, normal tracking */
+body.landing-page main .default-content-wrapper h3:not([class]) {
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+}
+
+@media (width >= 1024px) {
+  body.landing-page main .default-content-wrapper h3:not([class]) { font-size: 22px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main .default-content-wrapper h3:not([class]) { font-size: 24px; }
+}
+
+/* a CTA inside a tab section (source `button-core--small button--height--56-50-48-48`):
+   a content-width lime button, ≥170px on phones / ≥120px from 768, 48 → 50 (1024) →
+   56px tall (1280), 14px padding, 18px label */
+body.landing-page main > .section.toc-panel .default-content-wrapper a.button {
+  min-width: 170px;
+  height: 48px;
+  padding: 0 14px;
+  font-size: 18px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section.toc-panel .default-content-wrapper a.button { min-width: 120px; }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.toc-panel .default-content-wrapper a.button { height: 50px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.toc-panel .default-content-wrapper a.button { height: 56px; }
+}
+
+/* the page title as default content (source `text--font-size--56px-32px` h1 — fellowship,
+   inclusion summit, courses; coach-mentorship / coaching-community put theirs in the
+   hero): 32 → 40 (768) → 56px (1280), line-height 1 */
+body.landing-page main .default-content-wrapper > h1 {
+  font-size: 32px;
+  line-height: 1;
+}
+
+@media (width >= 768px) {
+  body.landing-page main .default-content-wrapper > h1 { font-size: 40px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main .default-content-wrapper > h1 { font-size: 56px; }
+}
+
+/* the title photo (a picture right after that h1, fellowship): an image component, 20px
+   radius, padded 8px (12px from 768) on 12 → 10 (768, centred) → 8 (1024, centred) → 12
+   columns (1280); 26px above (the source separator) and 42px below */
+body.landing-page main .default-content-wrapper > h1 + p:has(> picture) {
+  box-sizing: border-box;
+  margin: 50px auto 42px;
+  padding-inline: 8px;
+}
+
+body.landing-page main .default-content-wrapper > h1 + p:has(> picture) img {
+  display: block;
+  width: 100%;
+  max-width: none; /* not the 360px default-content image cap (styles.css) */
+  height: auto;
+  border-radius: 20px;
+}
+
+@media (width >= 768px) {
+  body.landing-page main .default-content-wrapper > h1 + p:has(> picture) {
+    width: calc(100% * 10 / 12);
+    padding-inline: 12px;
+  }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main .default-content-wrapper > h1 + p:has(> picture) { width: calc(100% * 8 / 12); }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main .default-content-wrapper > h1 + p:has(> picture) { width: 100%; }
+}
+
+/* bold runs in landing copy = the source's synthesized bold of Graphik Regular (a <b> on a
+   weight-normal face; the "Synth" face in fonts.css reproduces it — fellowship intro) */
+body.landing-page main :is(.default-content-wrapper, .text-style) strong {
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+}
+
+/* … but a Text Style paragraph set entirely in bold (landing-page.js marks it) is the
+   source's Graphik Semibold text component (results pathway intros) */
+body.landing-page main .text-style strong.semibold {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.03em; /* source `text--letter-spacing--narrow` */
+}
+
+/* links in a text-style intro are text-component links: the text colour, underlined */
+body.landing-page main .text-style a:any-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* a whole italic paragraph (landing-page.js marks it, fellowship "Fellowship placement…")
+   stays white italic */
+body.landing-page main .default-content-wrapper em.italic {
+  color: inherit;
+  font-style: italic;
+}
+
+/* default-content lists = the plain text component's copy (Graphik Regular 18/24); the
+   list keeps its 1em (18px) margins inside the component */
+body.landing-page main .default-content-wrapper > :is(ul, ol) {
+  margin-block: 18px;
+}
+
+body.landing-page main .default-content-wrapper > :is(ul, ol) > li {
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+/* a lone CTA closing a section (source `button-core--large`, fellowship "Apply Now"): a
+   280 × 56 button centred in its column (the tab sections size theirs above) */
+body.landing-page main > .section:not(.toc-panel) .default-content-wrapper > p.button-wrapper {
+  text-align: center;
+}
+
+body.landing-page main > .section:not(.toc-panel) .default-content-wrapper > p.button-wrapper a.button {
+  box-sizing: border-box;
+  width: 280px;
+  max-width: 100%;
 }

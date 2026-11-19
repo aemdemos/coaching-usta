@@ -1,0 +1,12 @@
+{
+  "pages": ["coaching-community/fellowship-in-coaching-and-leadership"],
+  "regression": ["coach-mentorship", "coaching-community", "coaching-community/coaching-workshops"],
+  "locales": ["en"],
+  "output": "drafts/meet/coaching-community/fellowship-in-coaching-and-leadership (local only; not uploaded to DA)",
+  "samples": ["drafts/block-samples/cards-media-stacked-compact", "drafts/block-samples/banner-header", "drafts/block-samples/columns-events-dates", "drafts/block-samples/columns-quote-large"],
+  "date": "2026-11-17",
+  "importer": "import-landing-page-v1.js (+ import-sample-landing-blocks.js for the samples; map-images.py = the finalize-assets image mapping used)",
+  "changes": "prepareSections: page-title wrapper split + headed grouping container split · kinds title-photo, dates-list (Banner (header, blue) + Columns (events, dates); header moved onto the base banner 2026-11-18), video, columns-quote (large) · Cards (media, stacked, compact) · source h3/h4 USTA Sans 40px headings as h2 · lime spans 207,255,5 or 8 · rendered blank lines kept as zero-width-space paragraphs · padding--small default content: inset-12 · 36px top-margin preset: spacing-36",
+  "images": "6 card photos were 4-16 MB SVG wrappers of rasters: rendered once to 1200x800 JPEG (q82, 120-240 KB) next to the SVGs; map-images.py points the page at the .jpeg twin of any > 40 KB SVG",
+  "verified": "parity vs source at 375/768/1024/1280/1440 (every heading, copy block, card, banner, date row, button, video, quote: x / width / font / gaps); the 3 finished landing pages' importer output byte-identical"
+}
