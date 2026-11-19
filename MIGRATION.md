@@ -4951,3 +4951,10 @@ layout is now shared (accordion.css "timeline course cards", accordion.js puts t
 Verified vs source: PT Pro at 375 / 768 / 1024 / 1440 (card, eyebrow, title, description, chevron positions), School
 open card at 375, School cards at all widths, College pathway unchanged. Gate: lint 0 errors · breakpoints ✓ ·
 overflow / typography / a11y ✓ on the six results pages + the course-list sample.
+
+## 2026-11-19 — CI build fix: importer backups excluded from ESLint
+
+The PR build (`npm run lint`) failed with `import/no-unresolved` in
+`tools/importer/backups/quiz-results-2026-11-18/accordion.js`. Backups are verbatim snapshots of live blocks, so their
+relative imports (`../../scripts/scripts.js`) only resolve from `blocks/<name>/`. Don't "fix" the path in the backup
+(that breaks a restore); `tools/importer/backups` is now in `.eslintignore`. Gate: lint 0 errors.
