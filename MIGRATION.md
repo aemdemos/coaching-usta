@@ -4576,7 +4576,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 |---|---|---|---|
 | /en/home/coaching-community/coaching-workshops (events list, Tabs, Columns promo) — ✅ DONE 2026-11-17 (en/home, local) | H | /en/home/courses (Tabs, course filter, Cards comparison) | H |
 | /en/home/coaching-community/fellowship-in-coaching-and-leadership (feature cards, dates banner + rows, Video, Columns quote) — ✅ DONE 2026-11-18 (en/home, local) | M | /en/home/learning-pathway (Accordion pathway ×4, Cards comparison, Banner centered) | M |
-| /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) | L |
+| /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) — ✅ DONE 2026-11-18 (en/home, local; parity-checked) | L |
 | /en/home/membership-benefits/coaching-membership-terms-and-conditions (long text — imports complete; parity only) | L | /en/home/membership-benefits/gallagher-disclaimer-pro-plus | L |
 | /en/home/account/flag-profile (heading + intro + Form flag-form) | L | /en/home/membership-benefits/gallagher-disclaimer-rally | L |
 
@@ -4951,3 +4951,10 @@ layout is now shared (accordion.css "timeline course cards", accordion.js puts t
 Verified vs source: PT Pro at 375 / 768 / 1024 / 1440 (card, eyebrow, title, description, chevron positions), School
 open card at 375, School cards at all widths, College pathway unchanged. Gate: lint 0 errors · breakpoints ✓ ·
 overflow / typography / a11y ✓ on the six results pages + the course-list sample.
+
+## 2026-11-19 — CI build fix: importer backups excluded from ESLint
+
+The PR build (`npm run lint`) failed with `import/no-unresolved` in
+`tools/importer/backups/quiz-results-2026-11-18/accordion.js`. Backups are verbatim snapshots of live blocks, so their
+relative imports (`../../scripts/scripts.js`) only resolve from `blocks/<name>/`. Don't "fix" the path in the backup
+(that breaks a restore); `tools/importer/backups` is now in `.eslintignore`. Gate: lint 0 errors.
