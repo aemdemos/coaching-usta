@@ -5,8 +5,10 @@
    - section headings = the `text--font-size--40px-28px` USTA Sans style: 28 → 32 (768)
      → 40 (1024), line-height 1 (h2);
    - body copy = the plain text component: Graphik Regular 18/24, normal tracking, at
-     every width (not the home page's 16/19.2). */
-body.landing-page main :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) {
+     every width (not the home page's 16/19.2).
+   Columns (media) keeps its own card heading scale (32 → 40 → 64, courses "Discover our
+   learning pathway"), so the section-heading rule skips it. */
+body.landing-page main :is(.default-content-wrapper, .columns-wrapper:where(:not(:has(> .columns.media)))) h2:not([class]) {
   font-size: 28px;
   line-height: 1;
   overflow-wrap: break-word; /* a long Spanish word in a narrow heading wraps rather than overflowing at 360 */
@@ -50,11 +52,11 @@ body.landing-page main .default-content-wrapper > p.blank:first-child + p.blank 
 }
 
 @media (width >= 768px) {
-  body.landing-page main :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) { font-size: 32px; }
+  body.landing-page main :is(.default-content-wrapper, .columns-wrapper:where(:not(:has(> .columns.media)))) h2:not([class]) { font-size: 32px; }
 }
 
 @media (width >= 1024px) {
-  body.landing-page main :is(.default-content-wrapper, .columns-wrapper) h2:not([class]) { font-size: 40px; }
+  body.landing-page main :is(.default-content-wrapper, .columns-wrapper:where(:not(:has(> .columns.media)))) h2:not([class]) { font-size: 40px; }
 }
 
 /* `heading-64` (landing pages only): the source's `text--font-size--64px-28px` headings

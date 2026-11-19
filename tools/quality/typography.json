@@ -247,6 +247,69 @@
           }
         }
       }
+    },
+    "course-catalog": {
+      "kind": "theme",
+      "source": "https://www.ustacoaching.com/en/home/courses.html",
+      "note": "Theme course-catalog (on the landing-page template): the courses intro copy is the Graphik Semibold text component (20/24 under the page title — the first default-content paragraph); the page title h1 \"SET YOUR PATHWAY\" is the USTA Sans text component without a size class, 28 → 40 @768 → 56 @1024 → 64 @1280 (the second source h1, \"Courses and Workshops\", is the template's 56px-32px h1). Measured on the live source 2026-11-19.",
+      "scale": {
+        "390": {
+          "h1": {
+            "fontSizePx": 28,
+            "lineHeightPx": 28,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          },
+          "p": {
+            "fontSizePx": 20,
+            "lineHeightPx": 24,
+            "fontWeight": 400,
+            "fontFamily": "graphik semibold"
+          }
+        },
+        "768": {
+          "h1": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          },
+          "p": {
+            "fontSizePx": 20,
+            "lineHeightPx": 24,
+            "fontWeight": 400,
+            "fontFamily": "graphik semibold"
+          }
+        },
+        "1024": {
+          "h1": {
+            "fontSizePx": 56,
+            "lineHeightPx": 56,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          },
+          "p": {
+            "fontSizePx": 20,
+            "lineHeightPx": 24,
+            "fontWeight": 400,
+            "fontFamily": "graphik semibold"
+          }
+        },
+        "1280": {
+          "h1": {
+            "fontSizePx": 64,
+            "lineHeightPx": 64,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          },
+          "p": {
+            "fontSizePx": 20,
+            "lineHeightPx": 24,
+            "fontWeight": 400,
+            "fontFamily": "graphik semibold"
+          }
+        }
+      }
     }
   }
 }

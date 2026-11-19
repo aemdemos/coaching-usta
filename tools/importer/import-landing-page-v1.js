@@ -22,9 +22,18 @@
  * button style) only exist on the live page, so onLoad stamps them as data-* attributes.
  */
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
+import parsePricing from './parsers/cards-pricing.js';
+import parseEventsBanner from './parsers/columns-cta.js';
 
 const TEMPLATE = 'landing-page';
 const BASE = 'https://www.ustacoaching.com';
+
+/* page themes (CSS-only variations, themes/<name>/) by page path without the locale.
+   course-catalog: the courses intro's own rhythm + type, and phone / wide image pairs */
+const PAGE_THEMES = { '/home/courses': 'course-catalog' };
+const themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, '')] || '';
+/* themes whose CSS shows a phone-only image beside the wide one (see imageEl pairs) */
+const IMAGE_PAIR_THEMES = ['course-catalog'];
 
 /* ------------------------------------------------------------------ helpers -- */
 const el = (document, tag, html) => { const e = document.createElement(tag); if (html !== undefined) e.innerHTML = html; return e; };
@@ -38,9 +47,9 @@ function pathOf(url) {
   return u.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/index';
 }
 
-function metadata(document) {
+function metadata(document, theme) {
   const meta = (sel) => document.querySelector(sel)?.getAttribute('content') || '';
-  const cells = { Title: document.title, Description: meta('meta[name="description"]'), Template: TEMPLATE };
+  const cells = { Title: document.title, Description: meta('meta[name="description"]'), Template: TEMPLATE, Theme: theme };
   const og = meta('meta[property="og:image"]');
   if (og) { const img = el(document, 'img'); img.src = og; cells.Image = img; }
   Object.keys(cells).forEach((k) => { if (!cells[k]) delete cells[k]; });
@@ -49,7 +58,10 @@ function metadata(document) {
 
 /* the content grid: descend through wrappers while one child holds the content */
 function contentRoot(main) {
-  const skip = (e) => /experiencefragment|aem-header|aem-hidden-component|aem-quiz|aem-wizard|safe-play|footer/.test(e.className || '');
+  // experience fragments are site chrome (header, modals) — except the pricing tiers XF,
+  // which is page content on the courses page
+  const skip = (e) => (/experiencefragment/.test(e.className || '') && !e.querySelector('.v-tiers'))
+    || /aem-header|aem-hidden-component|aem-quiz|aem-wizard|safe-play|footer/.test(e.className || '');
   let root = main.querySelector('.aem-Grid');
   for (let guard = 0; guard < 12 && root; guard += 1) {
     const kids = [...root.children].filter((k) => !skip(k) && Number(k.getAttribute('data-h') || 0) > 0);
@@ -123,6 +135,7 @@ function textEls(c, document, { headingLevel, plain } = {}) {
   // (the landing template renders each as a 24px line, no margin): leading, trailing and
   // next to a list / heading as authored; between two paragraphs the first one is already
   // the paragraph gap, so only the extra ones are written
+  let prevPH = null; // the heading built from the previous (touching) paragraph
   const keepBlanks = !plain && !headingLevel;
   let pending = 0;
   let started = false;
@@ -138,7 +151,8 @@ function textEls(c, document, { headingLevel, plain } = {}) {
   [...cmp.children].forEach((child) => {
     let k = child;
     if (cls(k, 'cmp-text__icon')) return;
-    if (!norm(k.textContent) && !k.querySelector('img')) { if (k.tagName === 'P' && !k.hasAttribute('data-collapsed')) pending += 1; prevP = null; prevH = null; return; }
+    if (!norm(k.textContent) && !k.querySelector('img')) { if (k.tagName === 'P' && !k.hasAttribute('data-collapsed')) pending += 1; prevP = null; prevH = null; prevPH = null; return; }
+    if (k.tagName !== 'P') prevPH = null;
     // consecutive headings of one level = one heading set on several lines
     if (/^H[1-6]$/.test(k.tagName) && prevH && prevH.tagName === k.tagName && !pending) { prevH.append(el(document, 'br'), ...k.childNodes); return; }
     // a section heading the source marks up as h3 / h4 in the USTA Sans 40px display preset
@@ -147,12 +161,17 @@ function textEls(c, document, { headingLevel, plain } = {}) {
       const h2 = el(document, 'h2'); h2.append(...k.childNodes); k.replaceWith(h2); k = h2;
     }
     prevH = /^H[1-6]$/.test(k.tagName) ? k : null;
-    if (k.tagName === 'P' && (headingLevel || size >= 32)) {
+    // USTA Sans text without a size class is a display section heading ("SET YOUR PATHWAY")
+    if (k.tagName === 'P' && (headingLevel || size >= 32 || (isUstaSans(c) && !size))) {
       const lvl = headingLevel || (size >= 40 || isUstaSans(c) ? 2 : 3);
+      // a heading paragraph touching the previous heading paragraph (no blank line)
+      // continues it on a new line — one heading, as on the source
+      if (prevPH && prevPH.tagName === `H${lvl}`) { prevPH.append(el(document, 'br'), ...k.childNodes); return; }
       const h = el(document, `h${lvl}`);
       h.append(...k.childNodes);
       flushBlanks('H');
       out.push(h);
+      prevPH = h;
       prevP = null;
       return;
     }
@@ -212,7 +231,18 @@ function defaultContent(container, document, pagePath) {
   const out = [];
   components(container).forEach((c) => {
     if (isText(c)) out.push(...textEls(c, document));
-    else if (isImage(c)) { const i = imageEl(c, document); if (i) out.push(el(document, 'p')), out[out.length - 1].append(i); }
+    else if (isImage(c)) {
+      const i = imageEl(c, document);
+      if (i) {
+        const p = el(document, 'p');
+        p.append(i);
+        // a phone-only copy of this image (themed pages): ONE paragraph, wide image
+        // first, phone image second — the theme CSS shows one per breakpoint
+        const phone = c.getAttribute('data-phone-image');
+        if (phone) { const m = el(document, 'img'); m.src = phone; m.alt = c.getAttribute('data-phone-alt') || i.alt; p.append(m); }
+        out.push(p);
+      }
+    }
     else if (isButton(c)) { const b = buttonEl(c, document, pagePath); if (b) out.push(b); }
     else if (isContainer(c)) out.push(...defaultContent(c, document, pagePath));
   });
@@ -232,6 +262,24 @@ function listFrom(comps, document) {
 const isListRow = (c) => isText(c) && !!c.querySelector('.cmp-text__image-and-paragraph');
 /* a container holding only text components (separators aside), at least two */
 const isTopicCard = (c) => { const k = components(c).filter((x) => kind(x) !== 'separator'); return k.length >= 2 && k.every(isText); };
+
+/* a parser-built block table, renamed to the current block name (the home parsers
+   still emit the pre-consolidation names: cards-pricing, columns-cta) */
+function reparse(node, parse, name, document) {
+  const holder = el(document, 'div');
+  holder.append(node);
+  parse(node, { document });
+  const table = holder.querySelector('table');
+  if (table) table.rows[0].cells[0].textContent = name;
+  return [...holder.childNodes];
+}
+
+/* a source text node → <p> (bold runs kept as <strong>) */
+function textP(document, source) {
+  const p = el(document, 'p');
+  p.innerHTML = source.innerHTML.replace(/<(\/?)b>/g, '<$1strong>');
+  return p;
+}
 
 /* a plain <p> with text */
 const para = (document, text) => { const p = el(document, 'p'); p.textContent = text; return p; };
@@ -370,7 +418,10 @@ function emitSection(s, { document, pagePath }) {
   if (s.querySelector('.cmp-tabs')) return [...out, ...emitTabs(s, { document, pagePath }).map((p) => ({ ...p, styles: [...p.styles, ...inset] }))];
   const k = KINDS.find((kd) => { try { return kd.match(s); } catch (e) { return false; } });
   // centred copy (source text component `cmp-text--alignment-center`) → center
-  const firstText = deep(s).find((c) => isText(c) && norm(c.textContent));
+  // (a display USTA Sans heading has no alignment class — the site CSS centres it — so a
+  // section opening with one follows the copy after it)
+  const deepTexts = deep(s).filter((c) => isText(c) && norm(c.textContent));
+  const firstText = deepTexts.find((c) => !(isUstaSans(c) && !cls(c, 'cmp-text--alignment-center'))) || deepTexts[0];
   // (a narrow heading's section inherits its centring; a full-width centred heading split
   // off LEFT-aligned copy does not)
   const centred = (!!firstText && cls(firstText, 'cmp-text--alignment-center'))
@@ -399,12 +450,104 @@ function emitSection(s, { document, pagePath }) {
     styles.push('inset-12');
     if (out.length && out[0].name === 'heading') out[0].styles.push('inset-12');
   }
-  out.push({ name: k ? k.name : 'default', nodes, styles });
+  const join = !!k && (typeof k.joinPrevious === 'function' ? k.joinPrevious(s) : !!k.joinPrevious);
+  out.push({ name: k ? k.name : 'default', nodes, styles, join });
   return out;
 }
 
 // each: { name, match(section, ctx) → bool, emit(section, ctx) → nodes[] }
 const KINDS = [
+  {
+    // page sub-navigation (Courses · Workshops · Education Centers) → Tabs in navigation
+    // mode: one row per link (no panel); the tab linking to the current page is active
+    name: 'sub-nav',
+    match: (s) => !!s.querySelector('.cmp-navigation'),
+    emit: (s, { document }) => {
+      const rows = [...s.querySelectorAll('.cmp-navigation__item-link')].map((a) => {
+        const link = el(document, 'a');
+        link.href = a.getAttribute('href');
+        link.textContent = norm(a.textContent);
+        return [link];
+      });
+      return rows.length ? [block(document, 'Tabs', rows)] : [];
+    },
+  },
+  {
+    // the course browser (Vue v-course-list WITH its filter bar — the courses page) → Course
+    // Filter; it fills itself from the LMS API + the locale course catalog sheet, so the
+    // block has no rows. (learning-pathway's v-course-list is a different instance — the
+    // certifications API, no filters, a redirect button — not this block.)
+    name: 'course-filter',
+    match: (s) => !!s.querySelector('.v-course-list__top-filters-wrapper'),
+    emit: (s, { document }) => [block(document, 'Course Filter', [['']])],
+  },
+  {
+    // certification cost cards (Vue v-cost-card) → Cards (comparison): one row per tier
+    // (logo | title, fee, PER YEAR + price, description, TOTAL); the equivalency line and
+    // the "Notes:" paragraph after the cards are the block's last two rows
+    name: 'cards-comparison',
+    match: (s) => !!s.querySelector('.v-cost-card'),
+    emit: (s, { document }) => {
+      const cards = [...s.querySelectorAll('.v-cost-card')];
+      // every text component, including those inside the cost-card experience
+      // fragment (the equivalency line + "Notes:"), which deep() doesn't enter
+      const texts = [...s.querySelectorAll('.text')].filter((t) => isText(t) && norm(t.textContent));
+      const before = texts.filter((t) => t.compareDocumentPosition(cards[0]) & 4);
+      const after = texts.filter((t) => !before.includes(t));
+      const lead = []; before.forEach((t) => lead.push(...textEls(t, document, { headingLevel: 2 })));
+      const p = (text) => { const q = el(document, 'p'); q.textContent = text; return q; };
+      const rows = cards.map((c) => {
+        const logo = c.querySelector('.v-cost-card__badge-image img');
+        const img = el(document, 'img');
+        if (logo) { img.src = logo.getAttribute('src'); img.alt = logo.getAttribute('alt') || ''; }
+        const body = [];
+        const h = el(document, 'h3'); h.textContent = norm(c.querySelector('.v-cost-card__title')?.textContent); body.push(h);
+        const overlay = c.querySelector('.v-cost-card__coming-soon-overlay');
+        if (overlay) {
+          // coming-soon tier: the "COMING 202x" line (the flame graphic is part of the
+          // source component, not authored — the block draws it)
+          body.push(p(norm(c.querySelector('.v-cost-card__total')?.textContent) || h.textContent));
+          return [logo ? img : '', body];
+        }
+        const sub = c.querySelector('.v-cost-card__subtitle'); if (sub) body.push(p(norm(sub.textContent)));
+        const label = c.querySelector('.v-cost-card__price-label'); if (label) body.push(p(norm(label.textContent)));
+        const value = c.querySelector('.v-cost-card__price-value'); if (value) body.push(p(norm(value.textContent)));
+        const desc = c.querySelector('.v-cost-card__description');
+        if (desc) {
+          [...desc.children].forEach((k) => {
+            if (k.tagName === 'UL' || k.tagName === 'OL') {
+              const list = el(document, k.tagName.toLowerCase());
+              k.querySelectorAll('li').forEach((li) => { const item = el(document, 'li'); item.textContent = norm(li.textContent); list.append(item); });
+              body.push(list);
+            } else if (norm(k.textContent)) body.push(textP(document, k));
+          });
+        }
+        const tl = c.querySelector('.v-cost-card__total-label'); if (tl) body.push(p(norm(tl.textContent)));
+        const tv = c.querySelector('.v-cost-card__total-value'); if (tv) body.push(p(norm(tv.textContent)));
+        return [logo ? img : '', body];
+      });
+      after.forEach((t) => { const ps = textEls(t, document).filter((k) => k.tagName === 'P'); if (ps.length) rows.push([ps]); });
+      return [...lead, block(document, 'Cards (comparison)', rows)];
+    },
+  },
+  {
+    // the membership tiers (Vue v-tiers, an experience fragment) → Cards (pricing). A tiers
+    // XF standing alone joins the "PACKAGES FOR EVERY KIND OF COACH" heading section before it
+    // (courses, as on home); copy / buttons sharing its section stay default content before
+    // the cards and the section stays its own (learning pathway)
+    name: 'cards-pricing',
+    joinPrevious: (s) => !comps(s).some((c) => isText(c) || isButton(c) || isImage(c)),
+    match: (s) => !!s.querySelector('.v-tiers'),
+    emit: (s, { document, pagePath }) => [...defaultContent(s, document, pagePath),
+      ...reparse(s.querySelector('.v-tiers'), parsePricing, 'Cards (pricing)', document)],
+  },
+  {
+    // the "Explore workshops & events" experience fragment → Banner (blue) (one banner: the
+    // `events` variant was removed — see MIGRATION.md 2026-11-18 STANDARDIZED)
+    name: 'banner-events',
+    match: (s) => !!s.querySelector('.experiencefragment .container--display--flex.container--align-items--center'),
+    emit: (s, { document }) => reparse(s.querySelector('.container--display--flex.container--align-items--center'), parseEventsBanner, 'Banner (blue)', document),
+  },
   {
     // full-bleed rounded hero: background photo container + H1 (+ subhead, copy, CTA)
     name: 'hero-content',
@@ -797,9 +940,69 @@ const KINDS = [
     },
   },
   {
+    // a rounded COLOUR panel (blue fill — main's `banner-stacked` handles the white-outlined
+    // one): heading + copy on the left, ONE CTA in its own column at the right ("Bring a USTA
+    // Coaching Workshop to Your Facility") → Banner (stacked[, blue])
+    name: 'banner-stacked-colour',
+    match: (s) => /container--border-radius--top-left\b/.test(s.className) && s.getAttribute('data-bg') === 'blue'
+      && !deep(s).some(isImage) && !deep(s).some(isListRow) && deep(s).filter(isButton).length === 1
+      && comps(s).some((c) => isContainer(c) && components(c).some(isText) && !components(c).some(isButton)),
+    emit: (s, { document, pagePath }) => {
+      const cell = [];
+      deep(s).filter(isText).forEach((t, i) => textEls(t, document, { headingLevel: i === 0 ? 2 : 0 }).forEach((k) => {
+        // the heading is set bold on the source (<b>) — the h2 carries the weight
+        if (/^H/.test(k.tagName)) k.innerHTML = k.textContent;
+        cell.push(k);
+      }));
+      const b = buttonEl(deep(s).find(isButton), document, pagePath);
+      return [block(document, 'Banner (stacked, blue)', [[cell, b ? b.querySelector('a') : '']])];
+    },
+  },
+  {
+    // a photo tile (container background image, no text) beside a white card with a
+    // heading + CTA ("Discover our learning pathway") → Columns (media), in source order
+    name: 'columns-media-bg',
+    match: (s) => {
+      const d = comps(s).filter(isContainer);
+      return d.length === 2 && !s.querySelector('h1')
+        && d.some((c) => !!c.querySelector('.cmp-container[data-desktop-background-image]') && !deep(c).some(isText))
+        && d.some((c) => deep(c).some(isText) && deep(c).some(isButton));
+    },
+    emit: (s, { document, pagePath }) => {
+      const cells = comps(s).filter(isContainer).map((c) => {
+        const bgC = c.querySelector('.cmp-container[data-desktop-background-image]');
+        if (bgC && !deep(c).some(isText)) {
+          const img = el(document, 'img');
+          img.src = bgC.getAttribute('data-desktop-background-image');
+          img.alt = '';
+          return [img];
+        }
+        const cell = [];
+        deep(c).forEach((k) => {
+          if (isText(k)) cell.push(...textEls(k, document));
+          else if (isButton(k)) {
+            // the media card styles its own CTA: a plain link (as on home)
+            const b = buttonEl(k, document, pagePath);
+            if (b) { const q = el(document, 'p'); q.append(b.querySelector('a')); cell.push(q); }
+          }
+        });
+        return cell;
+      });
+      return [block(document, 'Columns (media)', [cells])];
+    },
+  },
+  {
     // text column(s) beside an image (the desktop copy of a media row)
     name: 'columns-media-row',
-    match: (s) => { const d = comps(s); return d.some(isImage) && d.some((c) => isText(c) || (isContainer(c) && components(c).some(isText))); },
+    // the image must sit BESIDE the text (another left edge): an image stacked between
+    // copy at the same left edge (the courses intro infographic) is default content
+    match: (s) => {
+      const d = comps(s);
+      const imgs = d.filter(isImage);
+      const texts = d.filter((c) => isText(c) || (isContainer(c) && components(c).some(isText)));
+      const x = (c) => c.getAttribute('data-x');
+      return imgs.length > 0 && texts.length > 0 && imgs.some((i) => texts.some((t) => x(t) !== x(i)));
+    },
     emit: (s, { document, pagePath }) => {
       const d = comps(s);
       const imgC = d.find(isImage);
@@ -859,6 +1062,18 @@ export default {
     const main = document.querySelector('main') || document.body;
 
     cleanupTransformer('beforeTransform', main, payload);
+    const theme = themeOf(pagePath);
+    // a desktop-hidden image right before a visible one is its phone version: on themed
+    // pages that show image pairs, keep it on the visible image (data-phone-image)
+    if (IMAGE_PAIR_THEMES.includes(theme)) {
+      main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
+        const next = c.nextElementSibling;
+        const img = c.querySelector('img');
+        if (!img || !isImage(next) || /aem-GridColumn--default--hide/.test(next.className)) return;
+        next.setAttribute('data-phone-image', img.getAttribute('src') || img.getAttribute('data-src') || '');
+        next.setAttribute('data-phone-alt', img.getAttribute('alt') || '');
+      });
+    }
     // desktop-hidden responsive duplicates (the import viewport is desktop)
     main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
 
@@ -877,8 +1092,16 @@ export default {
     // belongs to the block above it — e.g. the outlined columns card's margin in columns.css)
     [...root.children].forEach((s) => {
       if (skip(s) || !norm(s.textContent) && !s.querySelector('img')) return;
-      emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles, meta }) => {
+      emitSection(s, { document, pagePath }).forEach(({ name, nodes, styles, join, meta }) => {
         if (!nodes.length) return;
+        // a joining kind continues the previous section (before its Section Metadata)
+        if (join && !first) {
+          const last = [...out.children].pop();
+          const isMeta = last && last.tagName === 'TABLE' && /section metadata/i.test(last.rows[0]?.textContent || '');
+          if (isMeta) last.before(...nodes); else out.append(...nodes);
+          report.push(`+${name}`);
+          return;
+        }
         if (!first) out.append(document.createElement('hr'));
         first = false;
         out.append(...nodes);
@@ -889,7 +1112,10 @@ export default {
     });
 
     finalizeOutput(out, document);
-    out.append(document.createElement('hr'), metadata(document));
+    // AEM DAM documents (PDFs) have no EDS path yet (no /assets/docs pipeline in this
+    // repo): link them to the live source file instead of a broken root-relative path
+    out.querySelectorAll('a[href^="/content/dam/"]').forEach((a) => { a.setAttribute('href', `${BASE}${a.getAttribute('href')}`); });
+    out.append(document.createElement('hr'), metadata(document, theme));
     cleanupTransformer('afterTransform', out, payload);
     WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
     return [{ element: out, path: pagePath, report: { title: document.title, template: TEMPLATE, sections: report.join(' | ') } }];

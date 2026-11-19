@@ -110,6 +110,20 @@
   letter-spacing: normal;
 }
 
+/* navigation tabs (every tab label a link — tabs.js renders a <nav> tab list): the
+   source sub-nav (.cmp-navigation on courses / workshops / education centers,
+   re-measured 2026-11-19) pads its pill row 12px above and below, starts the phone
+   strip at the page gutter (first pill 16px in) and spans the full content box from
+   768 (no inset). A navigation tab has no panel content: its empty panel takes no
+   space. (Labels keep Graphik Semibold — its widths match the source pills exactly.) */
+.tabs:has(> nav.tabs-list) {
+  padding-block: 12px;
+}
+
+.tabs:not(.application) > nav.tabs-list {
+  padding-inline: 16px;
+}
+
 .tabs .tabs-panel[aria-hidden='true'] {
   display: none;
 }
@@ -136,6 +150,11 @@
   }
 
   .tabs:not(.application) .tabs-list a.tabs-tab { min-width: 0; }
+
+  .tabs:not(.application) > nav.tabs-list {
+    margin-inline: 0;
+    padding-inline: 0;
+  }
 }
 
 /* Application variant — "Tabs (application)": the 2-tab pill toggle over the
@@ -247,4 +266,9 @@
     min-height: 101px;
     font-size: 16px;
   }
+}
+
+/* navigation tabs: a tab's (empty) panel takes no space — kept last for specificity order */
+.tabs:has(> nav.tabs-list) > .tabs-panel:not(:has(*)) {
+  display: none;
 }

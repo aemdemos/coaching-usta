@@ -1,0 +1,12 @@
+{
+  "page": "courses",
+  "locales": ["en"],
+  "date": "2026-11-19",
+  "importer": "import-landing-page-v1.js (+ parsers cards-pricing.js, columns-cta.js reused from the home importer)",
+  "urls": "tools/importer/urls-courses-en.txt",
+  "finalize": "node tools/assets/fetch-page-images.mjs en/home/courses",
+  "blocks": "Tabs (navigation mode) · default content (intro + infographic pair) · Course Filter · Banner (stacked, blue) · Columns (media) · Cards (comparison) · Cards (pricing) · Banner (events, blue)",
+  "sectionStyles": "center (intro, costs, packages)",
+  "theme": "course-catalog (themes/course-catalog/course-catalog.css, CSS only) — intro rhythm/type + phone/wide image pair",
+  "verified": "intro = source at 375/768/1024/1280/1440 (every gap, size, font, image per width); comparison cards = source at 768/1024/1440; coach-mentorship + coaching-community EN/ES re-import unchanged (only live-source edits differ)"
+}

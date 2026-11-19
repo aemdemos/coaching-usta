@@ -4951,3 +4951,237 @@ layout is now shared (accordion.css "timeline course cards", accordion.js puts t
 Verified vs source: PT Pro at 375 / 768 / 1024 / 1440 (card, eyebrow, title, description, chevron positions), School
 open card at 375, School cards at all widths, College pathway unchanged. Gate: lint 0 errors · breakpoints ✓ ·
 overflow / typography / a11y ✓ on the six results pages + the course-list sample.
+
+### 2026-11-18 — courses page: analysis of the course-filter data sources (before import)
+Source: /en/home/courses.html (+ /es/). Analysis only, no code change yet.
+- **Page sections (in order):** sub-nav strip (Courses · Workshops · Education Centers) → intro
+  ("SET YOUR PATHWAY" / "Courses and Workshops", text + pathway infographic image) → **course list**
+  (`.aem-course-list` → Vue `<v-course-list>`) → "Bring a USTA Coaching Workshop to Your Facility" CTA band →
+  "Discover our learning pathway—now live!" banner → 2026 Badge & Certification Costs (`v-cost-card` = cards
+  comparison) → "PACKAGES FOR EVERY KIND OF COACH" + tiers XF (`v-tiers` = cards pricing) → "EXPLORE WORKSHOPS &
+  EVENTS" CTA → "GET ON THE LIST" subscribe form.
+- **The "AEM JSON" is in the page HTML.** `<v-course-list>` gets its config as Vue props: `:filters` (the 4
+  filter groups: labels, values, `addToTopFilters` → the persona tabs + tab descriptions, `appliedByDefault` →
+  Coaches), `:fragments` (50 entries keyed by course `code`: `description` HTML, `logoPath` badge, flags
+  `hideModules` / `isAdvancedMembershipRequired` / `ignoreSafePlayForMinors`, and on 14 courses
+  `conditionalDescription` + `constraint` / `requiredCourseCode` / `courseNameForLocker` = the "To unlock…" copy),
+  `:api-configuration` (public `/lms/courses/all`, logged-in `/lms/courses/me/all`), `items-to-display` 16,
+  `show-more-button-title`, `empty-message`, `url-filter-parameter` `tab`. The only data request is the LMS API.
+  15 `*-GC` fragment codes are for the logged-in call only. The ES page carries its own copy (5 of 48 descriptions differ).
+- **Card part → source:** eyebrow "N modules" = API `modules.length`, **but 0 when the fragment has `hideModules`**
+  (workshops: the API returns 1 placeholder module); title = API `name`; description + Spanish link + badge =
+  AEM fragment; unlock paragraph = fragment `conditionalDescription`; module timeline = API `modules[].name`
+  (hidden by `hideModules`); filters/tabs/sort = API `filters` + AEM `:filters`.
+- **Drift found (our block vs source, Coaches tab @1440): 31 cards vs 29.** The API now returns the workshops
+  itself (`INC-W1010-IP`, new `INC-W1010-OD` On-Demand, `CAR-W1010`), but the block still appends its hard-coded
+  `WORKSHOP_CARDS` (`INC-W1010`, `CAR-W1010C`) and the enrichment sheet is keyed by those old codes → duplicate
+  workshop cards, the API copies show "1 module" and no description. All other 26 cards match.
+
+### 2026-11-18 — course-filter: course catalog sheet = export of the AEM Content Fragments (customer strategy)
+Customer strategy: every AEM "Coaching Course" Content Fragment parameter goes into a spreadsheet that becomes the
+single source of truth on EDS. The front end keeps calling the APIs for titles, modules and (later) user progress.
+- **Export:** `tools/importer/course-filter/export-course-catalog.mjs` reads the `<v-course-list>` props from the live
+  `/en|es/home/courses.html` and writes one EDS multi-sheet workbook per locale:
+  `content/blocks/course-filter/course-catalog.json` (EN) and `content/es/blocks/course-filter/course-catalog.json` (ES).
+  Sheets: **courses** (48 rows: code, courseName [reference only, from the API], description HTML, logoPath →
+  `/blocks/course-filter/media/*.png`, sourceLogoPath [AEM DAM], isAdvancedMembershipRequired, ignoreSafePlayForMinors,
+  hideModules, constraint [CF labels: Development Badge Required / Specific Course Required], requiredCourseCode,
+  logicalOperator [AND/OR], courseNameForLocker, conditionalDescription), **filters** (12 rows = the component's
+  filter config incl. tab title/description, addToTopFilters, appliedByDefault), **settings** (items-to-display,
+  show-more-button-title, empty-message, url-filter-parameter, …). Skipped: 2 code-less "electives" fragments (can't
+  match a course). The 15 `*-GC` rows are kept (logged-in call only). The CF "Workshop" checkbox is not in the page
+  JSON, so it isn't exported (the workshops are recognised by `hideModules`).
+- **Block:** reads `${localePrefix()}/blocks/course-filter/course-catalog.json` + the LMS API, matched by `code`. Only
+  API courses show (source behaviour). Removed: the hard-coded WORKSHOP_CARDS (they duplicated the API's workshops),
+  TABS and FILTER_GROUPS (now built from the filters sheet, with any-of-the-comma-values matching on
+  `filtersDataPath`; options no course carries are disabled = the "Coming Soon" certs), the Spanish/unlock text
+  splicing. `hideModules` → "0 modules" + no timeline (toggle on phones only). Description + conditionalDescription
+  render as authored HTML, rebuilt from an allow-list with createElement (no innerHTML; http/https/mailto links
+  only). Paragraph margin 0 (source); the authored `<p>&nbsp;</p>` makes the blank line. Empty state shows
+  `empty-message`. The access rules are parsed onto each course (`course.rules`) for the signed-in states.
+- **Verified vs source @1440:** Coaches 29 = 29 cards (same order, eyebrows, titles, descriptions, badges, module
+  counts); Parents 9 = 9; School 9 = 9; Coach Well-Being paragraph heights 108/22/86 = source; links identical.
+- **Not done / open:** signed-in states (Start / Continue / Locked / Review, card turns black) need sign-in on EDS +
+  the user-status and `/lms/courses/me/all` APIs. Nothing uploaded to DA yet: the new block code needs the catalog
+  sheets published first, or it shows structure-only cards with no tabs. The old `course-enrichment.json` sheet and
+  `build-courses-json.mjs` are superseded. The courses page itself is not imported yet.
+- Gates (block sample): lint 0 errors · breakpoints ✓ · overflow ✓ 360–1920 · typography ✓ · a11y ✓. Browser checks
+  ran with `PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers` (this machine only had a newer Chromium build than
+  Playwright 1.55 expects).
+
+### 2026-11-18 (later) — course-filter: source backend logic read from the Vue bundle (clientlib-vue)
+- **APIs (base services.ustacoaching.com/v1):** public `GET /lms/courses/all` (signed out); signed in
+  `GET /lms/courses/me/all` (same shape + startDate / completionDate / deepLink per course and module),
+  `GET /profile/lightweight` (dateOfBirth, safePlayStatus, membership.status + packageCode),
+  `GET /lms/courses/me/achievements` (completedBadges), `GET /lms/courses/me/{courseCode}/status` (prerequisite
+  check, status COMPLETED). Sign-in is AEM-backed: the IdP code is exchanged at `/etc/usta/idpcoderesponse…json`
+  and refreshed at `/etc/usta/getrefreshtoken.secure.coaching.json` (AEM servlets) → EDS needs its own token
+  service before any signed-in state can work.
+- **Merge (getMergedCourses):** API course + fragment by `code`; API courses WITHOUT a fragment are dropped; order
+  = sortSequence when use-response-order, else fragment order. Signed in: an ES twin (same coursePrefix) replaces
+  the EN course when it has progress; `GC` (grandfathered) courses are appended. → Block now drops API courses
+  with no catalog row and applies the same ordering rule (structure-only fallback only if the catalog fails).
+- **Lock rules (signed in only):** SafePlay lock = API isSafePlayRequired && safePlayStatus ≠ APPROVED, unless
+  under 18 && ignoreSafePlayForMinors; package lock = isAdvancedMembershipRequired && packageCode = BASELINE;
+  development-badge lock = constraint isDevelopmentBadgeRequired && the Development badge isn't completed;
+  specific-course lock = constraint isSpecificCourseRequired: requiredCourseCode list, OR (`||`) locks when ALL are
+  incomplete, AND locks when ANY is incomplete; the locker name = courseNameForLocker || the first missing
+  course's API name. Button / status labels (Start Course, Continue Course, Review Content, Course Completed, In
+  progress, Not started, "Complete the {name} and upgrade to a Rally Package to Access", …) are hard-coded EN + ES
+  in the bundle, NOT authored. The CF "Workshop" checkbox is never read by the front end (not in the page JSON).
+
+### 2026-11-18 (later) — course catalog sheets uploaded to DA + previewed (on user request)
+- DA source POST 201 + preview 200: `/blocks/course-filter/course-catalog.json` (EN) and
+  `/es/blocks/course-filter/course-catalog.json` (ES). Verified DA source and aem.page both equal the local files
+  cell for cell (courses 48 · filters 12 · settings 9 rows, each locale). NOT published live.
+- The new block code is still local (not pushed): aem.page / aem.live keep running the old block, which reads the
+  old course-enrichment.json. Publish the two sheets live together with (or before) the code going to main.
+
+### 2026-11-18 (later) — course catalog sheets moved out of /blocks/ (user decision)
+`/blocks/…` maps onto the code folder in Git, so authored data must not live there. The catalog sheets are now
+**`/en/course-catalog.json`** and **`/es/course-catalog.json`** (locale folders). The block reads
+`${localePrefix() || '/en'}/course-catalog.json` (English pages without a prefix, e.g. the homepage, use /en); the
+exporter writes `content/en|es/course-catalog.json`. Old local copies under content/blocks + content/es/blocks
+removed. Verified locally: Parents 9 · School 9 · Coaches 29, 29 descriptions, 24 badges. The badge PNGs are still
+served from `/blocks/course-filter/media/` in DA (same concern; not moved yet — logoPath values point there).
+
+### 2026-11-18 (later) — badges moved to /assets/media (mirrors the AEM DAM) + sheets moved in DA
+- **Badge location:** `/assets/media/coaching/course-catalog/badges/<name>.png` — same convention as
+  `/assets/media/coaching/videos` (the AEM DAM path with `/content/dam/` → `/assets/media/`, `.svg` → `.png`), so a
+  sheet `logoPath` is a direct translation of the fragment's AEM `logoPath` (kept in `sourceLogoPath`). Exporter
+  `damToMedia()`. 22 PNGs fetched from the published copies into content/assets/media/coaching/course-catalog/badges/,
+  uploaded to DA (22/22) and previewed (22/22, byte-identical). Missing: `general-elective-badge` — only on
+  ELE-M1001-GC / ELE-M1002-GC (signed-in grandfathered electives, never shown signed out).
+- **Sheets in DA:** `/en/course-catalog.json` + `/es/course-catalog.json` uploaded (201) + previewed (200); DA and
+  aem.page equal local (48 / 12 / 9 rows each). Local block: 29 cards, 24 badges from the new folder, 0 broken.
+- **Pending (blocked by the remote-content guard — needs an explicit user request):** unpreview + delete the old
+  `/blocks/course-filter/course-catalog.json` and `/es/blocks/course-filter/course-catalog.json`. Kept on purpose:
+  the old badges in `/blocks/course-filter/media/` + `course-enrichment.json` — the deployed (old) block still uses
+  them; remove only after the new code is on main and live. Nothing published live.
+
+### 2026-11-18 (later) — courses page imported (EN) on the landing-page importer
+Source /en/home/courses.html → content/en/home/courses.plain.html (local only; ES not yet). Importer
+`import-landing-page-v1.js` (backup tools/importer/backups/landing-page/courses/), URLs
+`tools/importer/urls-courses-en.txt`, then `node tools/assets/fetch-page-images.mjs en/home/courses`.
+**Local preview path is /content/en/home/courses** (the dev server serves html-folder pages under /content/;
+plain paths proxy to aem.page).
+- **Section → block:** sub-nav → **`Sub Nav` (NEW block)** · intro (SET YOUR PATHWAY, copy, infographic, Courses
+  and Workshops, copy) → default content, `center` · course list → `Course Filter` (empty) · "Bring a USTA Coaching
+  Workshop…" → `Banner (stacked, blue)` · learning pathway → `Columns (media)` (bg-image tile + white card) · 2026
+  costs → h2 + `Cards (comparison)` (5 tiers + equivalency + notes rows), `center` · packages → h2 + See all benefits
+  + `Cards (pricing)` (joined into one section, as on home), `center` · Explore → `Banner (events, blue)` · GET ON THE
+  LIST → dropped (the footer renders the subscribe form).
+- **Importer changes (all pages):** new kinds sub-nav, course-filter, cards-comparison (reads the live v-cost-card
+  DOM, incl. texts inside the XF), cards-pricing + banner-events (reuse the home parsers, renamed to current block
+  names via `reparse()`), banner-stacked, columns-media-bg; `joinPrevious` kinds; the pricing-tiers XF no longer
+  skipped; USTA Sans text without a size class = h2; touching heading paragraphs = one heading with <br>; a section
+  opening with a display heading takes `center` from its copy; later h1s → h2 (one h1 per page); `/content/dam/` doc
+  links → absolute source URLs (stop-gap — no /assets/docs pipeline yet); columns-media-row only when the image sits
+  beside the text (different measured x). **Regression-checked:** coach-mentorship + coaching-community EN/ES
+  re-imported to a scratch folder → identical to the old importer's output (only live-source edits differ:
+  community "Career Center is Live" band + new photo/booking link, ES mentorship CTA label — NOT re-imported).
+- **Blocks / styles:**
+  - `blocks/sub-nav` (NEW): one link per row; link to the current page = lime pill + aria-current; label from the
+    placeholders sheet key `Sub Nav Label` (EN "Helpful Links", added to content/placeholders.json — ES pending).
+    Phones: full-bleed scroll strip of dark pills (gap 8); ≥768 one #2d2d2d r20 track, equal pills (gap 16); 56px,
+    r20, Graphik bold 16/18 via the weight-normal "Graphik Regular Synth" face (source synthesises the bold).
+  - `banner (stacked)` styles written (the sample existed, its CSS was missing): 8 + 4 of 12 columns, item insets
+    12px 8px → 12px, panel −8/−12 margin, padding 12 16 → 12 → 36 12 (1280); heading 28/32/40; copy Graphik
+    Semibold 28/24; lime 280×56 r12 CTA (257 centred on phones) `safe center` in its track. ⚠ The banner-stacked
+    sample (coaching-community "Career Center") describes a 3/12 → 2/12 CTA column and 18px copy — different from
+    the courses instance; not reconciled (the community page doesn't use it yet).
+  - `cards (comparison)` re-measured on the live 5-tier page: panel = content box (gutters 16/40/48/64, no extra
+    inset), card padding 16, columns 1 / 2 (768) / 3 (1024) / all tiers in one row (1280, `--cards-count` set by
+    cards.js), module rows min-height 24 with 24px lines (wrap grows), coming-soon min-height 595; the coming-soon
+    flame is drawn by the block (`icons/flame-ball.svg`, 2.7KB, from the source component's inline SVG) when not
+    authored. Verified card-by-card = source at 768/1024/1440 (width, height, title, price, every module row).
+    The 4-tier block sample now lays out 3-up at 1024 (follows the live source).
+  - landing-page template: default-content h1 28/40/56/64 (typography.json `templates.landing-page` gained h1);
+    standalone default-content images span the content box (no 360 cap, square); the section-heading h2 rule
+    skips Columns (media) (its card heading 32/40/64 was being forced to 40).
+  - fetch-page-images.mjs also writes inline `data:image/svg+xml` images to files.
+- **Open (needs a decision):** (1) phones: the source swaps the pathway infographic for a tall portrait version
+  (ustac-pathway-mobile.jpeg, 343×1235) — we show the desktop image scaled down (unreadable on phones); (2) intro
+  vertical rhythm: the source has 42px / 96px separators between heading, copy, image (and 96px under the sub-nav)
+  — our template uses 24px between default-content items, so the intro is ~40–100px shorter per gap; (3) intro
+  type: copy is Graphik Semibold 20/24 + 18/24 on the source (ours Graphik Regular 18/24), "Courses and Workshops"
+  is the 56px-32px style (32/40/40/56) vs our landing h2 28/32/40; (4) cost badge alt text is the source's
+  "Badge"; infographic alt "pathway_web_graphic"; (5) PDF links point at www.ustacoaching.com.
+- Gates (courses page): lint 0 errors · breakpoints ✓ · svg ✓ · overflow ✓ (courses, coach-mentorship,
+  coaching-community, home, comparison / banner-stacked / columns-media samples) · typography ✓ (courses,
+  coach-mentorship, coaching-community) · a11y ✗ only the known cards-comparison contrast finding (white on
+  #0373F3 PER YEAR / TOTAL, dim COMING text — same on the existing sample; source colours).
+
+### 2026-11-19 — `course-catalog` THEME (CSS only) for the courses intro + phone infographic
+User decision: page-specific styling that is CSS-only goes in a **theme** (page metadata `Theme`), not a template;
+a template only when JS is needed. A theme is the place for a page's major CSS changes.
+- **Theme mechanism (new, generic):** scripts.js `THEMES = ['course-catalog']` + `loadTheme()` (after loadTemplate,
+  before decorateMain) loads `themes/<name>/<name>.css`; aem.js already adds the theme body class. lint:css and
+  breakpoint-check now scan `themes/`. typography-check layers a record with `"kind": "theme"` on top of its
+  template (typography.json `templates.course-catalog`: p Graphik Semibold 20/24, h2 32/40/40/56).
+- **themes/course-catalog/course-catalog.css** (selectors prefixed `body.course-catalog.landing-page … > .section`
+  to outrank the template's `:is()` rules): intro gaps sub-nav→h1 20/20/96/108, h1→copy 66, image→h2
+  32/32/108/120, h2→copy 66, copy→course filter 60/68/84/100 (section padding 8/8/84/96 top, 36 bottom); copy
+  Graphik Semibold 20/24 (18/24 under the h2); h2 32 → 40 (768) → 56 (1280). **Image pair:** one paragraph with two
+  pictures = [wide, phone]; phones (<768) show the second, 768+ the first.
+- **Importer:** `PAGE_THEMES` (`/home/courses` → `course-catalog`, locale-free) writes `Theme` metadata; on themes in
+  `IMAGE_PAIR_THEMES` a desktop-hidden image right before a visible one is kept as its phone copy
+  (`data-phone-image` → second img in the same paragraph). Other landing pages unchanged (re-import diff 0).
+- Template fix: the h2 rule's Columns (media) exclusion wrapped in `:where()` (it had raised that rule's specificity).
+- **Verified:** intro identical to the source at 375/768/1024/1280/1440 — all 7 gaps, h1/h2/copy/image sizes, fonts,
+  and the phone image (343×1235) below 768. Gates: lint 0 errors · breakpoints ✓ · svg ✓ · overflow ✓ (courses,
+  coach-mentorship, coaching-community) · typography ✓ (same 3) · a11y: only the known cards-comparison contrast
+  finding. Importer backup refreshed (tools/importer/backups/landing-page/courses/).
+- Still open on this page: cost-badge / infographic alt text are the source's ("Badge", "pathway_web_graphic"); PDF
+  links point at www.ustacoaching.com; banner (stacked) community variant not reconciled; ES not imported (user:
+  not now). Nothing uploaded to DA.
+
+### 2026-11-19 (later) — courses sub-nav = existing `Tabs` (navigation mode); `Sub Nav` block REMOVED
+User: "why a new sub-nav — the tabs block does the same". Validated: tabs.js already has a navigation mode (every tab
+label a link → a `<nav>` of page links, the current page's tab active; its samples are Courses · Workshops ·
+Education Centers). The importer's sub-nav kind now emits `Tabs` (one link per row, no panel); `blocks/sub-nav` and the
+`Sub Nav Label` placeholder were removed (supersedes the Sub Nav notes in the 2026-11-18 entries).
+- **Tabs fixes (navigation mode only, `.tabs:has(> nav.tabs-list)` / `> nav.tabs-list`; application tabs unchanged):**
+  re-measured the source .cmp-navigation on courses, workshops and education-center-locations (identical): 12px
+  above/below the pill row; phone strip starts at the gutter (first pill 16px in — was 24); from 768 the track spans
+  the content box (no 12px inset — was 12); an empty navigation panel takes no space (the active one had a 24px top
+  margin). Labels stay Graphik Semibold (its pill widths 120/136/193 match the source exactly; the Synth face didn't).
+  tabs.js no longer sets `aria-selected` on the current page link (axe aria-allowed-attr, critical — exposed now that
+  a page links to itself); `aria-current="page"` marks it. Hard-coded nav aria-label "Section navigation" unchanged
+  (source: "Helpful Links") — localization follow-up.
+- **Verified:** pills/track/colours/active state and the h1 below identical to the source at 375/768/1024/1440.
+  Gates: lint 0 errors · breakpoints ✓ · overflow ✓ (courses, tabs, tabs-application samples) · typography ✓ ·
+  a11y ✓ tabs + tabs-application samples; courses only the known cards-comparison contrast finding.
+
+### 2026-11-19 (later) — PR #53 (aem-20261119-1212 → main): merged `main` in, conflicts resolved
+`main` had moved 8 commits (coaching-workshops, fellowship, results pages, Toc, banner standardization, ES out of
+scope). 8 files conflicted; resolution keeps both sides — rule: `main`'s pages must import exactly as before.
+- **banner.css:** `main`'s file as-is (its `banner (stacked)` = the coaching-community "Career Center" band). The
+  courses "Bring a USTA Coaching Workshop" instance differs (blue, 8 + 4 columns, Graphik Semibold 28/24 copy, lime
+  280px CTA) → moved into the `course-catalog` THEME as page overrides (user rule: page-specific CSS = theme).
+  At 768–1023 the CTA stays inside its track (the source's runs off the panel — project rule, as columns promo).
+- **Events banner:** `main` removed the `events` variant (one banner) → the importer emits `Banner (blue)` for
+  "Explore workshops & events" (was `Banner (events, blue)`).
+- **h1:** `main`'s landing template styles every default-content h1 as the `56px-32px` page title (32 → 40 → 56) and
+  keeps the source's h1s → our importer's "later h1 → h2" rule was REMOVED. Courses keeps both source h1s: the second
+  ("Courses and Workshops") gets the template h1 (= source); the theme styles only the first (`h1:first-child`,
+  28 → 40 → 56 → 64) and the template no longer carries our h1 / standalone-image rules (moved to the theme).
+  typography.json: `landing-page` = main's record; `course-catalog` (kind theme) = h1 28/40/56/64 + p 20/24 semibold.
+- **Importer (`import-landing-page-v1.js`) merged by hand:** main's blank-line keeping + our touching-heading join;
+  both helper sets; main's centring / inset-N / spacing-36 / heading-64 logic + our display-heading centring rule;
+  `join` + `meta` in the section loop. Two `banner-stacked` kinds → ours renamed `banner-stacked-colour` and limited
+  to BLUE panels (main's handles white-outlined ones; the lime inclusion-summit band stays main's default content).
+  `course-filter` kind only for the v-course-list WITH a filter bar (learning-pathway's list is a different instance:
+  certifications API, 6 fragments, no filters, redirect button — not this block). `cards-pricing` keeps the copy /
+  buttons sharing its section and joins the previous section only when the tiers XF stands alone. Bundles rebuilt:
+  landing, quiz-results, sample-landing-sections, sample-landing-blocks (all import the landing importer).
+- **Regression (main's importer vs merged, same live pages):** 13 of 14 landing pages + guardian-coach identical;
+  learning-pathway only GAINS (cost cards, pricing tiers, events band — main dropped them) and its PDF link is absolute;
+  results pages differ only by the absolute PDF link and school-coach's two touching h2 lines → one h2 with <br>
+  (main's `h2 + h2 { margin-top: 0 }` made them touch; same lines). Courses re-imported into content/ with the merged
+  importer and re-verified = source at 375/768/1024/1440 (intro gaps / sizes / fonts, sub-nav pills, workshop banner).
+- Reports regenerated by the merged importers. Gates after the merge: breakpoints ✓ · svg ✓ · overflow ✓ (courses,
+  fellowship, coaching-workshops, results ×2, CM, CC, index, 4 samples) · typography ✓ (same) · a11y ✓ except the known
+  cards-comparison contrast + school-coach's `accordion (courses)` findings (main: "has NO code" yet) · lint: 1 error
+  from main's `tools/importer/backups/quiz-results-2026-11-18/accordion.js` (a block backup whose import path doesn't
+  resolve from the backups folder — present on main; not changed here).
