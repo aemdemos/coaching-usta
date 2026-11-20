@@ -12,7 +12,9 @@
  *   section 2 — the featured tile: Fragment → /fragments/news/featured-article (the
  *     shared tile), or the tile inline when it differs (the featured story); none on ES
  *   Metadata — Title, Description, Tags (from the source meta keywords), Template: news-article,
- *     Breadcrumb Title
+ *     Breadcrumb Title, Article Date (YYYY-MM-DD) and Featured (true, featured articles only) —
+ *     the last two are AEM page properties the page never renders, taken from the exported
+ *     news list (tools/importer/news/news-articles.json); they feed the news index
  * Not authored: the breadcrumb (auto-built from Breadcrumb Title + placeholders).
  *
  * Fragment mode: the same article URL with `#featured-fragment` emits ONLY the
@@ -26,6 +28,7 @@ import quoteParser from './parsers/news-quote.js';
 import tagsSocialParser from './parsers/news-tags-social.js';
 import featuredParser, { buildFeaturedTile, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
+import { articleOf } from './news/news-data.js';
 
 const TEMPLATE = 'news-article';
 
@@ -79,7 +82,7 @@ function spacer(document, px, variant) {
   });
 }
 
-function metadata(document, frame) {
+function metadata(document, frame, url) {
   const meta = (sel) => document.querySelector(sel)?.getAttribute('content') || '';
   const crumb = document.querySelector('.cmp-breadcrumb__item--active');
   const cells = {
@@ -96,6 +99,12 @@ function metadata(document, frame) {
     cells.Image = img;
   }
   if (crumb) cells['Breadcrumb Title'] = crumb.textContent.trim();
+  // page properties the article never renders (news index → dashboards)
+  const article = articleOf(url);
+  if (article) {
+    cells['Article Date'] = article.articleDate;
+    if (article.featured) cells.Featured = 'true';
+  }
   Object.keys(cells).forEach((k) => { if (cells[k] === '') delete cells[k]; });
   return WebImporter.Blocks.createBlock(document, { name: 'Metadata', cells });
 }
@@ -292,7 +301,8 @@ function markNbsp(root, document) {
  *   - leading/trailing blanks, blanks around a list → all kept;
  *   - a list that starts/ends its component → a blank line for the component edge
  *     (the list itself only carries its 18px margin; see news-article.css) — none
- *     after a list followed by a separator (the separator's gap covers that edge).
+ *     after a list followed by a separator in a row column (the separator's gap covers
+ *     that edge there).
  * Kept blanks hold the nbsp sentinel so the converter doesn't drop them.
  */
 const isListEl = (e) => !!e && (e.tagName === 'UL' || e.tagName === 'OL');
@@ -332,10 +342,16 @@ function normalizeTextComponent(cmpEl, document) {
   const first = kids[content[0]];
   const last = kids[content[content.length - 1]];
   if (isListEl(first) && content[0] === 0) first.before(blankLine());
-  // …but not before a separator: its 12 + 42 + 12 already holds that component edge
-  const nextCmp = cmpEl.closest('.text')?.nextElementSibling;
+  // …but not before a separator inside a side-by-side row column (a partial-width
+  // aem-Grid, e.g. learning-hub's 7/12 text column → columns (article) cell): the cell's
+  // list spacing + the separator already hold that edge. In the full-width article grid
+  // (aem-Grid--12) the blank line stays (wecoach, how-one-coach… = source, re-measured
+  // 2026-11-20).
+  const textCmp = cmpEl.closest('.text');
+  const nextCmp = textCmp?.nextElementSibling;
+  const inRowColumn = !textCmp?.parentElement?.closest('.aem-Grid')?.classList.contains('aem-Grid--12');
   if (isListEl(last) && content[content.length - 1] === kids.length - 1
-    && !nextCmp?.classList.contains('separator')) last.after(blankLine());
+    && !(inRowColumn && nextCmp?.classList.contains('separator'))) last.after(blankLine());
   wrapIndentedRuns(cmp, document);
 }
 
@@ -480,7 +496,7 @@ export default {
       if (featuredParser(featured, { document })) out.append(document.createElement('hr'), holder);
     }
 
-    out.append(metadata(document, frame));
+    out.append(metadata(document, frame, url));
     cleanupTransformer('afterTransform', out, payload);
     WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
 

@@ -14,13 +14,20 @@
  * title, description, CTA).
  *
  * The tile's CTA is a JS <button> with no href (navigation happens in Vue), so its
- * target can't be read from the DOM. Targets are resolved once by clicking the
- * live tile and recorded here (title → path); extend when the featured story changes.
+ * target can't be read from the DOM: it is resolved from the exported news article list
+ * (tools/importer/news/news-articles.json, title → page), with the clicked-and-verified
+ * map below as a fallback.
+ *
+ * The shared tile = the NEWEST featured article (the source rule: featured item 0, or
+ * item 1 on that article itself) — taken from the exported list, so a re-export after
+ * the source's featured story changes updates the importer with no code change.
  */
+import { FEATURED, pathForTitle } from '../news/news-data.js';
+
 export const FEATURED_FRAGMENT_PATH = '/fragments/news/featured-article';
 
 /** the tile shared by every article except the featured story itself */
-const FRAGMENT_TILE_TITLE = 'Serving Gratitude: Celebrating the Coaches Who Shape Our Game';
+const FRAGMENT_TILE_TITLE = FEATURED[0]?.title || '';
 
 const FEATURED_LINKS = {
   // verified 2026-10-04 by clicking the tile on /en/home/news/zina-garrison-…
@@ -43,7 +50,7 @@ export function buildFeaturedTile(element, document) {
   const p = document.createElement('p');
   p.textContent = desc ? desc.textContent.trim() : '';
   const content = [h2, p];
-  const href = FEATURED_LINKS[h2.textContent];
+  const href = pathForTitle(h2.textContent) || FEATURED_LINKS[h2.textContent];
   if (ctaBtn && href) {
     const cta = document.createElement('p');
     const a = document.createElement('a');

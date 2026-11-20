@@ -5287,3 +5287,63 @@ Customer `courses.json` (61 fragments, 59 with a code; pilot/QA environment — 
   sheet; hard-coded English labels), the customer export as the course data source (coverage, 11 new codes,
   adopted content changes, isWorkshop) and an open-items table (pilot-only badges, ITC prod links, LMS API per
   environment, general-elective badge upload, signed-in states).
+- **2026-11-20 — uploaded (on request):** `/en/course-catalog.json` (PROD: 59 courses, 16 production + 4 flagged
+  pilot links) and `/en/course-catalog-dev.json` (DEV: 59 courses, 20 pilot links) to DA (200 / 201) and previewed
+  (200 / 200); DA and aem.page = local, cell for cell. aem.page /en/home/courses with the PROD sheet: Coaches 29 cards,
+  22 badges, 0 broken, Intro to Coaching 1 without badge (associate-icon pending), production CSOD links. Not live.
+- **2026-11-20 — uploaded (on request):** `/assets/media/course-catalog/badges/general-elective-badge.png` (296px,
+  rasterized from the production DAM SVG) to DA (201) and previewed (200); DA and aem.page byte-identical to local.
+  Used by ELE-M1001-GC / ELE-M1002-GC (signed-in electives) — not visible on the page today. Not live.
+- **2026-11-20 — the 5 pilot-only badges found on the customer's STAGING AEM** (`stage.ustacoaching.com`, public;
+  qa / dev are password-protected): associate-icon-1/2.png (1920px PNGs), blind-and-visually-impaired-icon,
+  youth-pathway-coaches/parents-icon (SVGs) → rendered to 296px transparent PNGs (24–30KB) in
+  content/assets/media/course-catalog/badges/ and uploaded to DA (5 × 201, byte-identical). NOT previewed (the preview
+  step needs an explicit request). ITC "Spanish." links: the pilot links point at the pilot CSOD learning objects of
+  the Spanish course versions (ITC-B1001 → lo 683c3526…, ITC-B1002 → lo 1ca01134…); CSOD learning-object IDs are
+  per environment (INC-B1001 Spanish: pilot e452ca39… vs prod 758e2044…; PA-NB1022: the same ID in both), so the
+  production IDs only exist once the ITC courses are created in production CSOD. LMS API: the source sets it per
+  environment in AEM (`coachingApiEndpoint`, prod `https://services.ustacoaching.com/v1`); the staging page is
+  password-protected, so the pilot value is unknown — needed from the customer. Sheets published live (user).
+
+### 2026-11-20 — news dashboards, step 1: article data + news index (helix-query.yaml)
+Inputs: the customer's "Coaching News Breakdown" document (article page properties, Featured Articles, Latest
+Articles, Search, Search Results) + the live source (news.html, news/search-results.html).
+- **Source data path (found live):** every news component (v-featured-article ×3, v-latest-articles-list ×2,
+  v-article-search-results) calls ONE public AEM servlet: `POST /coaching/news-search.json` (Granite CSRF token +
+  Origin/Referer), body `filter: featured | not-featured`, `path /content/coaching/en/home/news`, sort
+  `articleDate desc`. Rows: title (= Page Title / H1, not the Navigation Title — the doc calls this a bug), description,
+  pageUrl, image, imageAltText, articleDate (UTC), tags (all empty except Zina: "tennis coaching"), no videoLength.
+  60 dated articles (11 featured) + the search-results page (no date, skipped). **The featured order = newest article
+  date first** (Paul Walker 10-19 → Business Case 10-14 → Emma Dell Part 3 08-28 …) — matches news.html's 3 tiles
+  (Displayed Item Number 0 / 1 / 2) and the article footer tile (item 0; item 1 on that article itself).
+- **EDS model:** two new page-metadata fields the article never renders (AEM page properties): `Article Date`
+  (YYYY-MM-DD, the US-Eastern date the source displays) and `Featured` (`true`, featured articles only). With Title,
+  Description, Breadcrumb Title (= AEM Navigation Title), Tags and the page image they feed ONE index:
+  **`helix-query.yaml` → index `news` → `/en/home/news/query-index.json`** (include /en/home/news/**, exclude the
+  news + search-results pages): title (og:title), headline (first main h1 = the source's displayed title), navTitle,
+  description, image (og:image), imageAlt (og:image:alt), articleDate, featured, tags (array), template, robots,
+  lastModified. Rebuilt by Edge Delivery on every publish → no page republishing when an article is added or
+  (un)featured (the doc's "400 pages" requirement). The dashboard blocks (featured / latest / search / results) will
+  read this index (step 2).
+- **Exporter** `tools/importer/news/export-news-articles.mjs` → `tools/importer/news/news-articles.json` (re-run when
+  the source adds articles or changes featured flags); `news/news-data.js` bundles it into the importer.
+- **Importer** (`import-news-article-v1.js`): writes Article Date + Featured; the shared footer tile = the newest
+  featured article from the data (was a hard-coded title) and its CTA path comes from the data (title → page).
+  **Fix:** the 10-21 "no list-edge blank line before a separator" rule now applies only inside a row column
+  (partial-width aem-Grid, the learning-hub case it was written for); in the full-width article grid the blank stays
+  (wecoach −96px / how-one-coach −24px vs source otherwise; both = source again @375/768/1440, learning-hub
+  unchanged). New URL list `tools/importer/urls-news-article-en.txt` (60 EN + the fragment; ES out of scope).
+- **Re-import (all 60 EN + fragment, scratch first, then content/):** 52 / 56 existing bodies identical; changes =
+  usta-school link (source edit), serving-gratitude footer tile → shared fragment (source now shows Paul Walker
+  there), the two restored blank-line pages. Fragment `/fragments/news/featured-article` = Paul Walker tile (image
+  localized to media-da/fragments/news/featured-article/). **4 NEW articles** (published on the source after our
+  import): alison-ojeda-winning-women-coaches, army-veteran-tennis-coach-paul-walker,
+  building-culture-before-chasing-results, why-hiring-certified-tennis-coaches-is-good-business (31 images localized).
+  Parity: why-hiring + building-culture = source @375/1440; alison-ojeda = source @1440, −1424px @375 (the source
+  shows 3 phone-only photo copies, ours stack the row photo); **army-veteran-paul-walker NOT at parity** — 20
+  outlined timeline cards (photo 4/12 + grey-bordered year/story panel 8/12) come out as loose content + 179 spacers →
+  needs a new columns option + parser (open).
+- Backup: `tools/importer/backups/news-article/all-news-pages-2026-11-20/` (script, bundle, data, exporter, URLs,
+  manifest). Lint: only the known backups/quiz-results-2026-11-18/accordion.js error.
+- **Open:** DA upload (images need the editor Sync — DA media URLs are not public), preview + publish, index check on
+  aem.live; Paul Walker timeline cards; dashboards (step 2).

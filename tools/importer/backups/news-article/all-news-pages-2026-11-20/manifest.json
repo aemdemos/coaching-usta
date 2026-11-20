@@ -1,0 +1,25 @@
+{
+  "template": "news-article",
+  "pages": "all 60 EN news articles (56 existing + 4 new) + /fragments/news/featured-article",
+  "backedUpOn": "2026-11-20",
+  "script": {
+    "file": "import-news-article-v1.js",
+    "sha256": "e3a0be31224ce3f5",
+    "bundle": "import-news-article-v1.bundle.js",
+    "bundleSha256": "9c997da0d4c2c57f",
+    "bundleCommand": "npx esbuild tools/importer/import-news-article-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-news-article-v1.bundle.js",
+    "runner": "excat-content-import run-bulk-import.js --import-script <bundle> --urls tools/importer/urls-news-article-en.txt --force; then node tools/assets/fetch-page-images.mjs --all-news (+ fragments/news/featured-article)"
+  },
+  "data": {
+    "file": "news/news-articles.json",
+    "sha256": "acafc6e9e1bf7310",
+    "exporter": "node tools/importer/news/export-news-articles.mjs",
+    "articles": 60,
+    "featured": 11
+  },
+  "newMetadata": {
+    "Article Date": "YYYY-MM-DD (US Eastern date of the AEM articleDate)",
+    "Featured": "true on the 11 featured articles only"
+  },
+  "verification": "body identical to the previous import on 52/56 pages; usta-school link (source edit), serving-gratitude tile (now the shared fragment = source), wecoach/how-one-coach blank lines restored by the narrowed list-edge rule (= source at 375/768/1440). New pages: why-hiring + building-culture = source @375/1440; alison-ojeda = source @1440, -1424px @375 (phone-only image copies); army-veteran-paul-walker NOT at parity (timeline cards, follow-up)."
+}
