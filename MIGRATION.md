@@ -5253,3 +5253,37 @@ theme's `p:has(> picture + picture)` rule never matched. Paragraph structure is 
   default tab / Spanish), the plain-text description format, and the prerequisite model using "Applied Coaching
   Skills: Group" (ACS-B1009) — all its Constraint fields are sheet columns; signed-out visitors see the unlock note,
   the signed-in lock states need EDS sign-in + the user APIs (not built).
+
+### 2026-11-19 (later) — course catalog from the customer's Content Fragment export + DEV / PROD sheets
+Customer `courses.json` (61 fragments, 59 with a code; pilot/QA environment — every link on
+`ustacoaching-pilot.csod.com`) → kept at `tools/importer/course-filter/source/courses-fragments-dev.json`.
+- **Coverage:** every public-API course has a fragment; every row we had is in the file; the file adds 11 codes the
+  live API doesn't return yet (BLV-B1001, CWT-W1010 workshop, ITC-B1001/-S/-GC, ITC-B1002/-S/-GC, SAS-00001,
+  YPC-B1001, YPP-B1001) — rows exist, they show once the API returns them. New field `isWorkshop` (4 workshops) →
+  new sheet column (stored; the front end doesn't use it). ~7 courses differ from the live page in real content
+  (e.g. CWT-B1015 AND vs OR, INC-B1001S constraint + Rally + badge); user decision: take ALL courses from the file.
+- **Environments (user decision — repoless: one code base; the DEV site has its own content):** a site whose name
+  contains `-dev` (`main--coaching-dev--usta-digital.aem.page|live`) reads `/en/course-catalog-dev.json`, every
+  other host `/en/course-catalog.json`; a missing DEV sheet falls back to PROD (`isDevSite()` / `loadCatalog()`).
+  DEV sheet = the file's links (pilot); PROD sheet = each pilot link swapped for its production link (learned by
+  pairing course + field + link text with the live page: 16 / 20 mapped, e.g. the Development Coach Badge pilot
+  module=38 → production module=33 + ouid=2). Unmapped (kept as pilot, flagged): the "Spanish." links of ITC-B1001,
+  ITC-B1002 and their -GC copies (not in production yet). ES: unchanged (live ES export; ES out of scope).
+- **Badges:** 5 of the file's badges exist only on pilot (associate-icon-1/2.png, blind-and-visually-impaired-icon,
+  youth-pathway-coaches/parents-icon) — 404 on the production DAM; their rows point at the expected
+  /assets/media/course-catalog/badges/*.png, and the block now hides a badge whose image doesn't load (no broken
+  image). general-elective-badge rasterized to a 296px PNG (local). Intro to Coaching 1 EN/ES show no badge until
+  associate-icon-1/2 are supplied.
+- Verified locally (PROD sheet): Coaches 29 · Parents 9 · School 9 (unchanged), 22 badges shown / 0 broken.
+  Local only — DA upload of `en/course-catalog.json`, `en/course-catalog-dev.json` (+ the new badge PNG) pending.
+  README updated (Environments, isWorkshop, export options).
+- **2026-11-20 — course-filter README: Spanish + data source.** Clarified (user): Spanish-language COURSES are part
+  of the EN course set (PA-NB1022S, INC-B1001S, INC-B1002S shown on the EN page; ITC-B1001S / ITC-B1002S rows waiting
+  for the API) — verified = source EN page on all tabs (Parents 9 · School 9 · Coaches 29, same Spanish cards). The
+  Spanish SITE (/es/ pages) stays out of scope — Smartling will translate the EN pages; no ES content migrated
+  (see 2026-11-16 SCOPE DECISION). README now documents: the two Spanish meanings, the state of
+  /es/course-catalog.json (one-off export of the live ES page, not maintained, no -dev copy), that /es/ pages do NOT
+  fall back to the EN sheet, the decisions for when ES returns (Smartling-translated sheet vs EN fallback vs own
+  sheet; hard-coded English labels), the customer export as the course data source (coverage, 11 new codes,
+  adopted content changes, isWorkshop) and an open-items table (pilot-only badges, ITC prod links, LMS API per
+  environment, general-elective badge upload, signed-in states).

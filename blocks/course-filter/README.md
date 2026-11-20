@@ -10,7 +10,7 @@ two things at runtime:
 | Data | Where it comes from | Who edits it |
 |---|---|---|
 | Course **titles, module lists, filter tags, sort order** | USTA LMS API `GET https://services.ustacoaching.com/v1/lms/courses/all` (live, public) | USTA's course system (not authors) |
-| Course **descriptions, badges, flags, prerequisites, unlock text**, the **tabs / filters** and **settings** | DA sheet `/en/course-catalog.json` (Spanish: `/es/course-catalog.json`) | Authors, in Document Authoring |
+| Course **descriptions, badges, flags, prerequisites, unlock text**, the **tabs / filters** and **settings** | DA sheet `/en/course-catalog.json` — it holds **all** courses, the Spanish-language ones included; the DEV site reads `/en/course-catalog-dev.json` (see *Environments*). The Spanish *site* (`/es/` pages) is out of scope — see *Spanish* | Authors, in Document Authoring |
 | Badge images | DA `/assets/media/course-catalog/badges/` | Authors |
 
 The block itself has **no rows** — on a page it is an empty `Course Filter` block.
@@ -50,6 +50,106 @@ flowchart TD
 
 ---
 
+## Environments (dev / prod)
+
+The site is **repoless**: one code base, a DEV site and a PROD site, each with its own DA content and
+its own sheets. Course links point at a different LMS (CSOD) per environment — pilot
+`ustacoaching-pilot.csod.com` for DEV, `ustacoaching.csod.com` for PROD — so each environment has
+its own sheet:
+
+| Site | Sheet read |
+|---|---|
+| a site whose name contains `-dev` — `main--coaching-dev--usta-digital.aem.page` / `.aem.live` (any branch) | `/en/course-catalog-dev.json` (pilot links) |
+| every other host (PROD site, its preview, the production domain, local preview) | `/en/course-catalog.json` (production links) |
+
+If a DEV sheet is missing (e.g. Spanish), the DEV site falls back to the PROD sheet. Both sheets have
+the same columns; keep the course content the same and only the links environment-specific.
+
+```mermaid
+flowchart LR
+  H[Host name] --> D{site name<br/>contains -dev?}
+  D -->|yes| S1["course-catalog-dev.json"]
+  S1 -->|missing| S2
+  D -->|no| S2["course-catalog.json"]
+```
+
+---
+
+## Spanish — Spanish courses vs. the Spanish site
+
+Two different things:
+
+**1. Spanish-language courses — in scope, part of the EN course set.** The LMS returns Spanish courses
+alongside the English ones (API `language: "Spanish"`), and the source's **EN** courses page shows them
+as cards. They are ordinary rows of the EN sheets (both `course-catalog.json` and
+`course-catalog-dev.json`):
+
+| Code | Course | Shown today |
+|---|---|---|
+| `PA-NB1022S` | Introduzca a su Hijo al Tenis (Introduce Your Child to Tennis) | yes — Parents tab |
+| `INC-B1001S` | Introducción al Entrenamiento 1 (Intro to Coaching 1) | yes — Coaches tab |
+| `INC-B1002S` | Introducción al Entrenamiento 2 (Intro to Coaching 2) | yes — Coaches tab |
+| `ITC-B1001S`, `ITC-B1002S` | the new Intro to Coaching codes (customer export) | not yet — the API doesn't return them |
+
+Their eyebrow reads `N módulo(s)` (from the API `language`), their description is the Spanish copy in
+the row, and the *Languages → Spanish* filter selects them. Verified against the source EN page
+(2026-11-20): the same Spanish cards on every tab, same totals (Parents 9, School Tennis 9, Coaches 29).
+
+**2. The Spanish site (`/es/` pages) — OUT OF SCOPE for now.** Customer decision: the `/es/` pages will
+be produced by **Smartling** translating the EN pages automatically; no Spanish (ES) content is migrated.
+State left behind for when ES is revisited:
+
+- `/es/course-catalog.json` exists in DA (and on preview): a **one-off export of the live Spanish
+  courses page** (2026-11-19: 48 rows, production links, plain-text descriptions — 5 descriptions are
+  Spanish translations of the EN copy, the rest identical; same tabs / filters / settings). It is **not
+  maintained** and was not rebuilt from the customer's `courses.json`. There is no `/es/course-catalog-dev.json`.
+- On an `/es/` page the block reads `/es/course-catalog.json` (DEV site: `/es/course-catalog-dev.json`,
+  falling back to `/es/course-catalog.json`). **If no Spanish sheet exists it does NOT fall back to the
+  EN sheet**: every API course is then shown without description / badge, and without tabs or filters.
+- To decide when ES comes back:
+  1. Does Smartling translate the catalog **sheet** (JSON) as well as the pages? If yes, the translated
+     `/es/course-catalog.json` simply replaces today's export (same columns; translate `description`,
+     `conditionalDescription`, the `filters` titles and the `settings` labels; keep `code`, flags,
+     paths and links).
+  2. If not: either let `/es/` pages fall back to the EN sheet (a small code change in `loadCatalog()`),
+     or keep a hand-maintained ES sheet (per environment, like EN).
+  3. Labels still hard-coded in English in the block: *Filter By*, *Sort by*, *Apply filters*, the sort
+     options and the close buttons' labels — they need translations (e.g. move them to the `settings`
+     tab or the placeholders sheet). The module words are already Spanish for Spanish courses.
+  4. Spanish course links (`Also available in [Spanish](…)`) are in the EN rows already.
+
+---
+
+## Course data source and open items
+
+The `courses` rows come from the customer's **Content Fragment export** `courses.json` (pilot / QA
+environment; kept in `tools/importer/course-filter/source/courses-fragments-dev.json`): 61 fragments,
+59 with a code (the 2 code-less "electives" fragments can't match a course and are skipped). The tabs /
+filters / settings come from the live courses page (the export has no component config).
+
+- **Coverage (2026-11-19):** every course the public LMS API returns has a row; the export adds 11 codes
+  the API doesn't return yet — `BLV-B1001` (blind & low vision), `CWT-W1010` (wheelchair tennis
+  workshop), `ITC-B1001` / `-S` / `-GC`, `ITC-B1002` / `-S` / `-GC` (new Intro to Coaching codes),
+  `SAS-00001` (athlete-safety course), `YPC-B1001`, `YPP-B1001` (youth pathway). Their rows exist; they
+  appear as soon as the API returns them.
+- **Content:** the export differs from the live page on ~7 courses (e.g. `CWT-B1015` AND instead of OR,
+  `INC-B1001S` now requires the Development Badge + Rally and has a badge) — the export was adopted
+  for all courses (customer decision).
+- **New column:** `isWorkshop` (stored; the 4 workshops).
+
+Open items:
+
+| Item | Status |
+|---|---|
+| 5 badge images that exist only on pilot: `associate-icon-1.png`, `associate-icon-2.png`, `blind-and-visually-impaired-icon`, `youth-pathway-coaches-icon`, `youth-pathway-parents-icon` | to be supplied (rows already point at `/assets/media/course-catalog/badges/<name>.png`; until then those cards show no badge, e.g. Intro to Coaching 1 EN + ES) |
+| PROD links for the "Spanish." links of `ITC-B1001`, `ITC-B1002` (+ `-GC`) | unknown until the courses exist in production — kept as pilot links in the PROD sheet |
+| LMS API per environment | the block calls the production API `services.ustacoaching.com` on every site; a pilot API for DEV, if there is one, can be switched in like the sheet |
+| `general-elective-badge.png` (rasterized from the production DAM) | in the workspace; upload with the sheets |
+| Signed-in states (Start / Continue / Locked / Review) | need EDS sign-in + the user APIs — see *Prerequisites and locks* |
+| Spanish site | out of scope (Smartling) — see *Spanish* |
+
+---
+
 ## The sheet: `/en/course-catalog.json` (and `/es/…`)
 
 One DA spreadsheet with three tabs. Edit it in DA, then **preview** (and **publish**) it — the page
@@ -62,11 +162,12 @@ picks up the change on the next load; no code change, no page edit.
 | `code` | Code | **Join key** | Must equal the LMS course code exactly (e.g. `ACS-B1009`). |
 | `courseName` | — | no (reference only) | The title shown comes from the API. Here only to help authors find the row. |
 | `description` | Description | yes | **Plain text** — see *Writing descriptions*. |
-| `logoPath` | Logo Path | yes | Badge image, e.g. `/assets/media/course-catalog/badges/cardio-tennis.png`. Empty = no badge. |
+| `logoPath` | Logo Path | yes | Badge image, e.g. `/assets/media/course-catalog/badges/cardio-tennis.png`. Empty = no badge; a path whose image isn't uploaded yet shows no badge (not a broken image). |
 | `sourceLogoPath` | (the AEM DAM path) | no | Traceability only. |
 | `isAdvancedMembershipRequired` | "Rally or above" | stored* | `true` / `false` |
 | `ignoreSafePlayForMinors` | Ignore SafePlay for minors (under 18) | stored* | `true` / `false` |
 | `hideModules` | Hide modules | yes | `true` → `0 modules`, no timeline. |
+| `isWorkshop` | Workshop | no (stored) | `true` for workshops (CAR-W1010, INC-W1010-IP, INC-W1010-OD, CWT-W1010). |
 | `constraint` | Constraint | stored* | empty, `Development Badge Required` or `Specific Course Required` |
 | `requiredCourseCode` | Required Course Code | stored* | comma-separated codes, e.g. `DEP-B1005, DEP-B1005-GC` |
 | `logicalOperator` | Logical Operator | stored* | `OR` or `AND` |
@@ -144,7 +245,8 @@ flowchart LR
 - **New filter option or tab** — add a `filters` row with the API value; set `addToTopFilters` for a tab.
   The value must be one the API uses in that field.
 - **Change the default tab** — move `appliedByDefault = true` to another option.
-- **Spanish** — the same changes in `/es/course-catalog.json` (Spanish pages read it automatically).
+- **Spanish-language course** — edit / add its row in the EN sheet like any other course (e.g.
+  `INC-B1001S`); the API's `language` makes it a Spanish card. The `/es/` site is out of scope — see *Spanish*.
 
 ---
 
@@ -196,13 +298,20 @@ user APIs the source calls: `/profile/lightweight`, `/lms/courses/me/achievement
 ## For developers
 
 - Files: `course-filter.js` (data load, join, filters, cards), `course-filter.css`.
-- Catalog URL: `${localePrefix() || '/en'}/course-catalog.json` (multi-sheet JSON: `courses`, `filters`,
-  `settings`).
+- Catalog URL: `${localePrefix() || '/en'}/course-catalog[-dev].json` (multi-sheet JSON: `courses`,
+  `filters`, `settings`); `-dev` on a `-dev` site, falling back to the PROD sheet (`loadCatalog()`).
+  `/es/` pages use the `/es/` sheet and do not fall back to EN.
 - Description cells: plain text + `[text](url)` (rendered with `createElement`, http/https/mailto only);
   a cell that still holds HTML renders through an allow-list — never `innerHTML`.
-- Re-export from the live source: `node tools/importer/course-filter/export-course-catalog.mjs`
-  (reads the AEM props on `/en|es/home/courses.html`). **It overwrites the local sheets** — use it to
-  re-seed, not after authors have edited DA.
+- Re-export: `node tools/importer/course-filter/export-course-catalog.mjs [--fragments <courses.json>]`.
+  Without `--fragments` it reads the AEM props on `/en|es/home/courses.html`. With the customer's
+  Content Fragment export (kept in `tools/importer/course-filter/source/courses-fragments-dev.json`)
+  the EN rows come from that file: `course-catalog-dev.json` as-is (pilot links) and
+  `course-catalog.json` with each pilot link swapped for its production link (learned from the live
+  page; links with no known production counterpart are reported). Tabs / filters / settings always
+  come from the live page. **It overwrites the local sheets** — use it to re-seed, not after authors
+  have edited DA.
+- Site detection: `isDevSite()` — the `--<site>--` part of the host name contains `-dev`.
 - Not authorable yet: the *Filter By* / *Sort by* / *Apply filters* / sort-option labels and the
   module words are in the code (English; Spanish module words).
 - History and parity notes: `MIGRATION.md` (course-filter entries).

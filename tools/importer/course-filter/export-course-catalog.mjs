@@ -10,9 +10,21 @@
  * There is no separate AEM JSON request — the props ARE the export.
  *
  * Output (EDS multi-sheet JSON, upload to DA as-is and preview/publish):
- *   content/en/course-catalog.json   ← /en/home/courses.html
- *   content/es/course-catalog.json   ← /es/home/courses.html
+ *   content/en/course-catalog.json   ← /en/home/courses.html            (PROD sheet)
+ *   content/es/course-catalog.json   ← /es/home/courses.html            (PROD sheet)
  * (authored data lives in the locale folders, never under /blocks/, which is code)
+ *
+ * Environments (repoless: one code base, a DEV site and a PROD site, each with its own
+ * content): the block reads `course-catalog-dev.json` on a site whose name contains
+ * `-dev` (main--coaching-dev--usta-digital) and `course-catalog.json` everywhere else.
+ * With the customer's Content Fragment export (`--fragments <courses.json>`, the
+ * pilot/dev environment) the EN course rows come from that file instead of the live
+ * page, for BOTH environments:
+ *   content/en/course-catalog-dev.json — links as in the file (pilot CSOD)
+ *   content/en/course-catalog.json     — every pilot link swapped for its production
+ *                                        link (learned from the live page); a link with no
+ *                                        known production counterpart is kept and reported
+ * The tabs / filters and settings always come from the live page.
  * Sheets:
  *   courses  — one row per content fragment (code, description, logoPath, flags,
  *              constraint / prerequisite fields, conditionalDescription). Descriptions are
@@ -20,9 +32,9 @@
  *   filters  — one row per filter option (section, data path, value, tab fields)
  *   settings — key/value component settings (page size, See More label, …)
  *
- *   node tools/importer/course-filter/export-course-catalog.mjs [--dry-run]
+ *   node tools/importer/course-filter/export-course-catalog.mjs [--fragments <courses.json>] [--dry-run]
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -111,6 +123,7 @@ function courseRows(fragments, names) {
       isAdvancedMembershipRequired: bool(f.isAdvancedMembershipRequired),
       ignoreSafePlayForMinors: bool(f.ignoreSafePlayForMinors),
       hideModules: bool(f.hideModules),
+      isWorkshop: bool(f.isWorkshop),
       constraint: CONSTRAINTS[f.constraint] || clean(f.constraint),
       requiredCourseCode: clean(f.requiredCourseCode),
       logicalOperator: OPERATORS[f.logicalOperator] || clean(f.logicalOperator),
@@ -140,19 +153,92 @@ function settingRows(props) {
   return keys.filter((k) => k in props).map((k) => ({ key: k, value: String(props[k]) }));
 }
 
+const LINK = /<a\b[^>]*?href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
+const linkText = (t) => t.replace(/<[^>]+>/g, '').trim();
+
+/**
+ * pilot URL → production URL, learned by pairing the links of the same course + field +
+ * link text in the customer file (pilot) and on the live page (production).
+ */
+function linkMap(fileFragments, liveFragments) {
+  const live = new Map(liveFragments.filter((f) => f.code).map((f) => [f.code, f]));
+  const map = new Map();
+  fileFragments.forEach((f) => {
+    ['description', 'conditionalDescription'].forEach((k) => {
+      const prod = [...((live.get(f.code) || {})[k] || '').matchAll(LINK)];
+      [...(f[k] || '').matchAll(LINK)].forEach(([, href, text]) => {
+        const hit = prod.find(([, , t]) => linkText(t) === linkText(text));
+        if (hit && !map.has(href)) map.set(href, hit[1]);
+      });
+    });
+  });
+  return map;
+}
+
+/** The fragments with every mapped link swapped; unmapped links are listed in `missing`. */
+function withProductionLinks(fragments, map) {
+  const missing = [];
+  const swap = (html, code) => (html || '').replace(LINK, (m, href, text) => {
+    if (map.has(href)) return m.replace(href, map.get(href));
+    missing.push(`${code} "${linkText(text)}"`);
+    return m;
+  });
+  return {
+    fragments: fragments.map((f) => ({
+      ...f, description: swap(f.description, f.code), conditionalDescription: swap(f.conditionalDescription, f.code),
+    })),
+    missing,
+  };
+}
+
 const sheet = (data) => ({
   total: data.length, offset: 0, limit: data.length, columns: Object.keys(data[0] || {}), data,
 });
 
+function write(out, workbook) {
+  if (dryRun) return;
+  const file = join(ROOT, out);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, `${JSON.stringify(workbook, null, 2)}\n`);
+  // eslint-disable-next-line no-console
+  console.log(`  → ${out}`);
+}
+
 async function main() {
   const api = await fetch(LMS_API).then((r) => r.json());
   const names = new Map((api.courses || []).map((c) => [c.code, c.name]));
+  const fragmentsArg = process.argv.indexOf('--fragments');
+  const fileFragments = fragmentsArg > 0 ? JSON.parse(readFileSync(process.argv[fragmentsArg + 1], 'utf8')) : null;
 
   // eslint-disable-next-line no-restricted-syntax
   for (const { page, out } of LOCALES) {
     // eslint-disable-next-line no-await-in-loop
     const html = await fetch(`${SOURCE}${page}`, { headers: { 'user-agent': UA } }).then((r) => r.text());
     const props = readProps(html);
+    const book = (rows) => ({
+      ':names': ['courses', 'filters', 'settings'],
+      ':version': 3,
+      ':type': 'multi-sheet',
+      courses: sheet(rows),
+      filters: sheet(filterRows(props.filters || [])),
+      settings: sheet(settingRows(props)),
+    });
+    if (fileFragments && page.startsWith('/en/')) {
+      // the customer's Content Fragment export → DEV (as is) + PROD (production links)
+      const dev = courseRows(fileFragments, names);
+      const prodFragments = withProductionLinks(fileFragments, linkMap(fileFragments, props.fragments || []));
+      const prod = courseRows(prodFragments.fragments, names);
+      // eslint-disable-next-line no-console
+      console.log(`${page} + ${process.argv[fragmentsArg + 1].split('/').pop()}: ${dev.rows.length} course rows `
+        + `(skipped ${dev.skipped.length} without code); not in the public API: `
+        + `${dev.rows.filter((r) => !names.has(r.code)).map((r) => r.code).join(', ') || 'none'}`);
+      // eslint-disable-next-line no-console
+      console.log(`  PROD links with no known production counterpart (kept as pilot): ${prodFragments.missing.join(', ') || 'none'}`);
+      write(out.replace(/\.json$/, '-dev.json'), book(dev.rows));
+      write(out, book(prod.rows));
+      // eslint-disable-next-line no-continue
+      continue;
+    }
     const { rows, skipped } = courseRows(props.fragments || [], names);
     const workbook = {
       ':names': ['courses', 'filters', 'settings'],
@@ -167,13 +253,7 @@ async function main() {
     console.log(`${page}: ${rows.length} course rows, ${workbook.filters.total} filter rows, `
       + `${workbook.settings.total} settings; skipped ${skipped.length} without code`
       + `${skipped.length ? ` (${skipped.join(' | ')})` : ''}; not in the public API: ${notInApi.join(', ') || 'none'}`);
-    if (!dryRun) {
-      const file = join(ROOT, out);
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, `${JSON.stringify(workbook, null, 2)}\n`);
-      // eslint-disable-next-line no-console
-      console.log(`  → ${out}`);
-    }
+    write(out, workbook);
   }
 }
 

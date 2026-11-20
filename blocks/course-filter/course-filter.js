@@ -29,8 +29,20 @@ const LMS_API = 'https://services.ustacoaching.com/v1/lms/courses/all';
 // Locale catalog (authored data, kept in the locale folders — not under /blocks/,
 // which is code): /en/course-catalog.json and /es/course-catalog.json. English
 // pages without a locale prefix (e.g. the homepage) read the /en sheet.
-const CATALOG_NAME = 'course-catalog.json';
-const catalogUrl = () => `${localePrefix() || '/en'}/${CATALOG_NAME}`;
+// Environments (repoless — one code base, a DEV and a PROD site): a site whose name
+// contains `-dev` (main--coaching-dev--usta-digital.aem.page|live) reads the DEV sheet
+// `course-catalog-dev.json` (pilot LMS links); every other host reads the PROD sheet.
+// A missing DEV sheet falls back to the PROD one.
+const isDevSite = () => (window.location.hostname.split('.')[0].split('--')[1] || '').includes('-dev');
+const catalogUrl = (dev) => `${localePrefix() || '/en'}/course-catalog${dev ? '-dev' : ''}.json`;
+const fetchJson = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+async function loadCatalog() {
+  if (isDevSite()) {
+    const dev = await fetchJson(catalogUrl(true));
+    if (dev) return dev;
+  }
+  return fetchJson(catalogUrl(false));
+}
 
 const DEFAULT_SETTINGS = {
   'items-to-display': '16',
@@ -141,7 +153,7 @@ const sheetRows = (json, name) => {
 async function loadData() {
   const [apiJson, catalog] = await Promise.all([
     fetch(LMS_API).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    fetch(catalogUrl()).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    loadCatalog(),
   ]);
   const settings = { ...DEFAULT_SETTINGS };
   sheetRows(catalog, 'settings').forEach((r) => { if (r.key && r.value !== '') settings[r.key] = r.value; });
@@ -406,6 +418,8 @@ function buildCard(course) {
     // Badge = the sheet's logoPath, a root-relative content asset
     // (/assets/media/course-catalog/badges/…)
     // published to DA, so it resolves on every host without a domain or basePath.
+    // a badge image not uploaded yet: no badge rather than a broken image
+    img.addEventListener('error', () => badgeWrap.remove(), { once: true });
     img.src = course.badge;
     img.alt = `${course.name} badge`;
     img.loading = 'lazy';
