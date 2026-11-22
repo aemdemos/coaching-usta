@@ -2221,6 +2221,7 @@ main > .section.columns-container:has(.columns.list) > div {
     flex: 0 0 231px;
     align-self: stretch;
     aspect-ratio: auto; /* stretch to card height instead of forcing 1:1 */
+    min-height: 231px; /* …but never shorter than square (source: a one-line tile is 231) */
   }
 
   .columns.list .columns-list-content {

@@ -9,8 +9,8 @@
  *   section 1 (style: bordered) — the article frame: top image, H1, body copy,
  *     text+image rows (Columns article, media-N), section headings, pull-quotes,
  *     separators (Spacer 42px), Tags + Social row
- *   section 2 — the featured tile: Fragment → /fragments/news/featured-article (the
- *     shared tile), or the tile inline when it differs (the featured story); none on ES
+ *   section 2 — the featured tile: Fragment → /fragments/news/featured-article (one
+ *     index-driven Featured Article block for every article); none on ES
  *   Metadata — Title, Description, Tags (from the source meta keywords), Template: news-article,
  *     Breadcrumb Title, Article Date (YYYY-MM-DD) and Featured (true, featured articles only) —
  *     the last two are AEM page properties the page never renders, taken from the exported
@@ -18,7 +18,8 @@
  * Not authored: the breadcrumb (auto-built from Breadcrumb Title + placeholders).
  *
  * Fragment mode: the same article URL with `#featured-fragment` emits ONLY the
- * shared featured tile as `Columns (media, dark)` at /fragments/news/featured-article.
+ * shared fragment /fragments/news/featured-article = a `Featured Article` block (item 1:
+ * the newest featured story from the news index, never the page it is shown on).
  *
  * All block selectors are stable AEM component / Vue widget classes (no hashes).
  */
@@ -26,7 +27,7 @@
 import columnsArticleParser, { parsePersonText, parseGrid } from './parsers/news-columns-article.js';
 import quoteParser from './parsers/news-quote.js';
 import tagsSocialParser from './parsers/news-tags-social.js';
-import featuredParser, { buildFeaturedTile, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
+import featuredParser, { buildFeaturedBlock, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
 import { articleOf } from './news/news-data.js';
 
@@ -442,7 +443,7 @@ export default {
     if (new URL(url).hash === '#featured-fragment') {
       const tile = main.querySelector('.aem-featured-article');
       const out = document.createElement('div');
-      const block = tile && buildFeaturedTile(tile, document);
+      const block = tile && buildFeaturedBlock(tile, document);
       if (block) out.append(block);
       WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
       return [{ element: out, path: FEATURED_FRAGMENT_PATH, report: { template: `${TEMPLATE}:fragment` } }];
@@ -488,7 +489,7 @@ export default {
     applySectionGaps(out, document);
     out.append(WebImporter.Blocks.createBlock(document, { name: 'Section Metadata', cells: { Style: 'bordered' } }));
 
-    // featured tile: shared fragment, inline tile, or nothing (see news-featured.js)
+    // featured tile: the shared fragment, or nothing on an empty source tile (news-featured.js)
     const featured = main.querySelector('.aem-featured-article');
     if (featured) {
       const holder = document.createElement('div');
@@ -497,6 +498,13 @@ export default {
     }
 
     out.append(metadata(document, frame, url));
+    // AEM DAM documents (PDFs) → absolute source URL here (a site-relative /content/dam/…
+    // link 404s on EDS and the editor Sync rejects the page); the finalize step
+    // tools/assets/fetch-docs.mjs then downloads each into the site's docs folder and points
+    // the link at its absolute aem.live URL
+    out.querySelectorAll('a[href^="/content/dam/"]').forEach((a) => {
+      a.setAttribute('href', new URL(a.getAttribute('href'), new URL(url).origin).href);
+    });
     cleanupTransformer('afterTransform', out, payload);
     WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
 

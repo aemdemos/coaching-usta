@@ -141,7 +141,7 @@ var CustomImportScript = (() => {
   // tools/importer/import-landing-page-v1.js
   var TEMPLATE = "landing-page";
   var BASE = "https://www.ustacoaching.com";
-  var PAGE_THEMES = { "/home/courses": "course-catalog" };
+  var PAGE_THEMES = { "/home/courses": "course-catalog", "/home/news": "news-listing", "/home/news/search-results": "news-search" };
   var themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, "")] || "";
   var IMAGE_PAIR_THEMES = ["course-catalog"];
   var el = (document, tag, html) => {

@@ -1,0 +1,36 @@
+{
+  "template": "landing-page (catalog: listing-hub)",
+  "page": "news",
+  "backedUpOn": "2026-11-20",
+  "url": "https://www.ustacoaching.com/en/home/news.html",
+  "output": "content/en/home/news.plain.html",
+  "theme": "news-listing",
+  "script": {
+    "file": "import-news-listing-v1.js",
+    "sha256": "36930bf3dd5f6b4d",
+    "bundle": "import-news-listing-v1.bundle.js",
+    "bundleSha256": "b1493575aec5048b",
+    "extends": "import-landing-page-v1.js (KINDS + PAGE_THEMES)",
+    "bundleCommand": "npx esbuild tools/importer/import-news-listing-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-news-listing-v1.bundle.js",
+    "runner": "run-bulk-import.js --import-script <bundle> --urls tools/importer/urls-news-listing.txt --force"
+  },
+  "sections": [
+    "Featured Article (display, media-right) Item 1",
+    "Article Search",
+    "Article List Start 1 Count 4",
+    "Featured Article Item 2 Background #A4EE90",
+    "Article List Start 5 Count 4",
+    "Featured Article Item 3 + See More button"
+  ],
+  "data": "index news → /en/home/news/query-index.json (helix-query.yaml); blocks fetch it at runtime",
+  "code": [
+    "blocks/featured-article",
+    "blocks/article-list",
+    "blocks/article-search",
+    "blocks/article-results",
+    "themes/news-listing",
+    "scripts/news.js (fetchNewsArticles, formatArticleDate, currentPagePath, createBlockElement)",
+    "blocks/columns (media dark, list), blocks/cards (news), blocks/breadcrumb"
+  ],
+  "verification": "anchors vs live source @375/768/1024/1280/1440: every widget top/height within 0-3px; gate: lint (baseline), breakpoints, overflow, typography, a11y pass"
+}

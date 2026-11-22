@@ -30,7 +30,7 @@ const BASE = 'https://www.ustacoaching.com';
 
 /* page themes (CSS-only variations, themes/<name>/) by page path without the locale.
    course-catalog: the courses intro's own rhythm + type, and phone / wide image pairs */
-const PAGE_THEMES = { '/home/courses': 'course-catalog' };
+const PAGE_THEMES = { '/home/courses': 'course-catalog', '/home/news': 'news-listing', '/home/news/search-results': 'news-search' };
 const themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, '')] || '';
 /* themes whose pages keep a phone-only image as the `Image` block's mobile row */
 const IMAGE_PAIR_THEMES = ['course-catalog'];

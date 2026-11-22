@@ -1,0 +1,9 @@
+/* Article List — renders the site's `Cards (news)` grid (blocks/cards, `news` option),
+   which owns the whole look (grid, card, arrow, title, date, copy) and the section's
+   news-grid gutters (24 / 52 / 60 / 76). Its wrapper takes no gutter of its own, as
+   the cards wrapper doesn't (cards.css). */
+.cards-container:has(.cards.news) > .article-list-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}

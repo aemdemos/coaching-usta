@@ -230,6 +230,73 @@ var CustomImportScript = (() => {
     if (out.length) element.replaceWith(...out);
   }
 
+  // tools/importer/parsers/news-featured.js
+  var FEATURED_FRAGMENT_PATH = "/fragments/news/featured-article";
+  var tileTitle = (element) => element.querySelector(".v-news-related-tile__title")?.textContent.trim() || "";
+  function buildFeaturedBlock(element, document) {
+    if (!tileTitle(element)) return null;
+    const ctaBtn = [...element.querySelectorAll("button")].find((b) => b.textContent.trim());
+    const rows = [["Item", "1"]];
+    if (ctaBtn) rows.push(["Button", ctaBtn.textContent.trim()]);
+    return WebImporter.Blocks.createBlock(document, { name: "Featured Article", cells: rows });
+  }
+  function parse4(element, { document }) {
+    if (!tileTitle(element)) {
+      element.remove();
+      return false;
+    }
+    const link = document.createElement("a");
+    link.href = FEATURED_FRAGMENT_PATH;
+    link.textContent = FEATURED_FRAGMENT_PATH;
+    const block = WebImporter.Blocks.createBlock(document, { name: "Fragment", cells: [[link]] });
+    element.replaceWith(block);
+    return true;
+  }
+
+  // tools/importer/transformers/coaching-usta-cleanup.js
+  var TransformHook = {
+    beforeTransform: "beforeTransform",
+    afterTransform: "afterTransform"
+  };
+  function transform(hookName, element, payload) {
+    if (hookName === TransformHook.beforeTransform) {
+      WebImporter.DOMUtils.remove(element, [
+        "#onetrust-consent-sdk",
+        ".onetrust-pc-dark-filter",
+        '[id^="onetrust-"]',
+        '[class*="ot-sdk"]'
+      ]);
+      WebImporter.DOMUtils.remove(element, [
+        ".phe-block",
+        ".cmp-text__icon"
+      ]);
+      WebImporter.DOMUtils.remove(element, [
+        ".aem-dynamictable",
+        ".container--no-inner-gutter-paddings.container--inner-full-height--vertical-center"
+      ]);
+    }
+    if (hookName === TransformHook.afterTransform) {
+      WebImporter.DOMUtils.remove(element, [
+        ".cmp-experiencefragment--header-xf",
+        ".cmp-experiencefragment--footer-xf",
+        ".cmp-experiencefragment--modals-xf",
+        ".v-header"
+      ]);
+      WebImporter.DOMUtils.remove(element, [
+        "iframe",
+        "noscript",
+        "link",
+        "source"
+      ]);
+      element.querySelectorAll("*").forEach((el2) => {
+        el2.removeAttribute("data-cmp-data-layer-name");
+        el2.removeAttribute("data-cmp-link-accessibility-enabled");
+        el2.removeAttribute("data-cmp-link-accessibility-text");
+        [...el2.attributes].filter((attr) => attr.name.startsWith("data-cmp-")).forEach((attr) => el2.removeAttribute(attr.name));
+      });
+    }
+  }
+
   // tools/importer/news/news-articles.json
   var news_articles_default = {
     exported: "2026-11-20T07:02:17.315Z",
@@ -788,113 +855,6 @@ var CustomImportScript = (() => {
   }
   var articleOf = (url) => NEWS_ARTICLES[articleSlug(url)] || null;
   var FEATURED = Object.entries(NEWS_ARTICLES).filter(([, a]) => a.featured).sort(([, a], [, b]) => b.articleDate.localeCompare(a.articleDate)).map(([slug, a]) => ({ slug, ...a }));
-  function pathForTitle(title) {
-    const t = (title || "").trim();
-    const hit = Object.values(NEWS_ARTICLES).find((a) => a.title === t);
-    return hit ? hit.pageUrl.replace(/\.html$/, "").replace(/-{2,}/g, "-") : null;
-  }
-
-  // tools/importer/parsers/news-featured.js
-  var FEATURED_FRAGMENT_PATH = "/fragments/news/featured-article";
-  var FRAGMENT_TILE_TITLE = FEATURED[0]?.title || "";
-  var FEATURED_LINKS = {
-    // verified 2026-10-04 by clicking the tile on /en/home/news/zina-garrison-…
-    "Serving Gratitude: Celebrating the Coaches Who Shape Our Game": "/en/home/news/serving-gratitude-celebrating-tennis-coaches",
-    // verified 2026-10-04 by clicking the tile on /en/home/news/serving-gratitude-…
-    "Coach\u2019s Journal by Emma Dell \u2013 Part 3: Changing Sides of the Net": "/en/home/news/coachs-journal-emma-dell-part-3-changing-sides-net"
-  };
-  var tileTitle = (element) => element.querySelector(".v-news-related-tile__title")?.textContent.trim() || "";
-  function buildFeaturedTile(element, document) {
-    const title = element.querySelector(".v-news-related-tile__title");
-    const desc = element.querySelector(".v-news-related-tile__description");
-    const img = element.querySelector(".v-news-related-tile__image");
-    const ctaBtn = [...element.querySelectorAll("button")].find((b) => b.textContent.trim());
-    if (!title || !img) return null;
-    const h2 = document.createElement("h2");
-    h2.textContent = title.textContent.trim();
-    const p = document.createElement("p");
-    p.textContent = desc ? desc.textContent.trim() : "";
-    const content = [h2, p];
-    const href = pathForTitle(h2.textContent) || FEATURED_LINKS[h2.textContent];
-    if (ctaBtn && href) {
-      const cta = document.createElement("p");
-      const a = document.createElement("a");
-      a.href = href;
-      a.textContent = ctaBtn.textContent.trim();
-      cta.append(a);
-      content.push(cta);
-    }
-    const image = document.createElement("img");
-    image.src = img.getAttribute("src");
-    image.alt = img.getAttribute("alt") || "";
-    return WebImporter.Blocks.createBlock(document, {
-      name: "Columns (media, dark)",
-      cells: [[image, content]]
-    });
-  }
-  function parse4(element, { document }) {
-    const title = tileTitle(element);
-    if (!title) {
-      element.remove();
-      return false;
-    }
-    if (title !== FRAGMENT_TILE_TITLE) {
-      const inline = buildFeaturedTile(element, document);
-      if (inline) element.replaceWith(inline);
-      else element.remove();
-      return !!inline;
-    }
-    const link = document.createElement("a");
-    link.href = FEATURED_FRAGMENT_PATH;
-    link.textContent = FEATURED_FRAGMENT_PATH;
-    const block = WebImporter.Blocks.createBlock(document, { name: "Fragment", cells: [[link]] });
-    element.replaceWith(block);
-    return true;
-  }
-
-  // tools/importer/transformers/coaching-usta-cleanup.js
-  var TransformHook = {
-    beforeTransform: "beforeTransform",
-    afterTransform: "afterTransform"
-  };
-  function transform(hookName, element, payload) {
-    if (hookName === TransformHook.beforeTransform) {
-      WebImporter.DOMUtils.remove(element, [
-        "#onetrust-consent-sdk",
-        ".onetrust-pc-dark-filter",
-        '[id^="onetrust-"]',
-        '[class*="ot-sdk"]'
-      ]);
-      WebImporter.DOMUtils.remove(element, [
-        ".phe-block",
-        ".cmp-text__icon"
-      ]);
-      WebImporter.DOMUtils.remove(element, [
-        ".aem-dynamictable",
-        ".container--no-inner-gutter-paddings.container--inner-full-height--vertical-center"
-      ]);
-    }
-    if (hookName === TransformHook.afterTransform) {
-      WebImporter.DOMUtils.remove(element, [
-        ".cmp-experiencefragment--header-xf",
-        ".cmp-experiencefragment--footer-xf",
-        ".cmp-experiencefragment--modals-xf",
-        ".v-header"
-      ]);
-      WebImporter.DOMUtils.remove(element, [
-        "iframe",
-        "noscript",
-        "link",
-        "source"
-      ]);
-      element.querySelectorAll("*").forEach((el2) => {
-        el2.removeAttribute("data-cmp-data-layer-name");
-        el2.removeAttribute("data-cmp-link-accessibility-enabled");
-        el2.removeAttribute("data-cmp-link-accessibility-text");
-        [...el2.attributes].filter((attr) => attr.name.startsWith("data-cmp-")).forEach((attr) => el2.removeAttribute(attr.name));
-      });
-    }
-  }
 
   // tools/importer/import-news-article-v1.js
   var TEMPLATE = "news-article";
@@ -1217,7 +1177,7 @@ var CustomImportScript = (() => {
       if (new URL(url).hash === "#featured-fragment") {
         const tile = main.querySelector(".aem-featured-article");
         const out2 = document.createElement("div");
-        const block = tile && buildFeaturedTile(tile, document);
+        const block = tile && buildFeaturedBlock(tile, document);
         if (block) out2.append(block);
         WebImporter.rules.adjustImageUrls(out2, url, params.originalURL);
         return [{ element: out2, path: FEATURED_FRAGMENT_PATH, report: { template: `${TEMPLATE}:fragment` } }];
@@ -1264,6 +1224,9 @@ var CustomImportScript = (() => {
         if (parse4(featured, { document })) out.append(document.createElement("hr"), holder);
       }
       out.append(metadata(document, frame, url));
+      out.querySelectorAll('a[href^="/content/dam/"]').forEach((a) => {
+        a.setAttribute("href", new URL(a.getAttribute("href"), new URL(url).origin).href);
+      });
       transform("afterTransform", out, payload);
       WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
       return [{

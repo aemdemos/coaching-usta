@@ -310,6 +310,84 @@
           }
         }
       }
+    },
+    "news-listing": {
+      "kind": "theme",
+      "source": "https://www.ustacoaching.com/en/home/news.html",
+      "note": "Theme news-listing (on the landing-page template): the page title is the source text--font-size--80px-32px h1 (USTA Sans) 32 → 40 @768 → 56 @1024 → 80 @1280 — the site h1 scale; the template title is 56. Measured on the live source 2026-11-20.",
+      "scale": {
+        "390": {
+          "h1": {
+            "fontSizePx": 32,
+            "lineHeightPx": 32,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "768": {
+          "h1": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "1024": {
+          "h1": {
+            "fontSizePx": 56,
+            "lineHeightPx": 56,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "1280": {
+          "h1": {
+            "fontSizePx": 80,
+            "lineHeightPx": 80,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        }
+      }
+    },
+    "news-search": {
+      "kind": "theme",
+      "source": "https://www.ustacoaching.com/en/home/news/search-results.html",
+      "note": "Theme news-search (on the landing-page template): the page title is the source text--font-size--64px-28px h1 (USTA Sans) 28 → 40 @768 → 56 @1024 → 64 @1280. Measured on the live source 2026-11-20.",
+      "scale": {
+        "390": {
+          "h1": {
+            "fontSizePx": 28,
+            "lineHeightPx": 28,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "768": {
+          "h1": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "1024": {
+          "h1": {
+            "fontSizePx": 56,
+            "lineHeightPx": 56,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "1280": {
+          "h1": {
+            "fontSizePx": 64,
+            "lineHeightPx": 64,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        }
+      }
     }
   }
 }

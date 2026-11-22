@@ -5347,3 +5347,111 @@ Articles, Search, Search Results) + the live source (news.html, news/search-resu
   manifest). Lint: only the known backups/quiz-results-2026-11-18/accordion.js error.
 - **Open:** DA upload (images need the editor Sync — DA media URLs are not public), preview + publish, index check on
   aem.live; Paul Walker timeline cards; dashboards (step 2).
+- **2026-11-20 — PDF link fix (news importer):** the editor Sync rejected usta-coaching-launches-inaugural-women-coaching-cohort
+  ("image needs fixing": the site-relative `/content/dam/coaching/2026-pdfs/usta-coaching-women-sports-report.pdf` link
+  404s on aem.page; the DA copy had it mangled to `…report-pdf`). The news importer now rewrites `/content/dam/…` links to
+  the absolute source URL (same stop-gap as the landing importer — no /assets/docs pipeline yet). Page re-imported: only
+  that link changed. 0 relative DAM links left in the news pages. Still relative elsewhere:
+  `/content/dam/coaching/public-pages/pdfs/coaching-education-equivalency-graphic.pdf` on the en/home/results pages
+  college-coach, ft-pro-coach, pt-pro-coach, volunteer-emerging-coach (same Sync failure expected there). Backup refreshed.
+- **2026-11-20 — document finalize step (NEW `tools/assets/fetch-docs.mjs`, IMPORTING-GUIDE §5):** source DAM documents
+  linked from a page (`/content/dam/…` pdf / docx / xlsx / pptx / zip, relative or www.ustacoaching.com) → downloaded to
+  `content/assets/docs/<page path>/<normalized name>`; the link is rewritten to the ABSOLUTE
+  `https://main--coaching-usta--aemdemos.aem.live/assets/docs/…` URL (DA strips the extension off relative links). A doc
+  shared by several pages is downloaded once (under the first page given); manifest `tools/importer/asset-manifest.json`
+  (source URL → served path, `twinOf` for the sharers). Pipeline: importer (absolute source URL) → fetch-page-images →
+  fetch-docs. Run on 6 pages: Women in Coaching Report (7.0 MB, 20 pp) →
+  `assets/docs/en/home/news/usta-coaching-launches-inaugural-women-coaching-cohort/usta-coaching-women-sports-report.pdf`;
+  Coaching Education Equivalency graphic (17 KB) → `assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf`,
+  shared by courses + results college / ft-pro / pt-pro / volunteer-emerging. 0 source PDF links left in content/en.
+  **Each PDF needs DA upload → preview → publish on its own, BEFORE the pages are synced** (a page publish doesn't carry
+  the docs binaries; until then the links 404).
+  - Done (on request, 2026-11-20): both PDFs uploaded to DA (201), previewed (200) and published live (200); aem.page and
+    aem.live serve application/pdf byte-identical to local (md5 checked after gzip decoding — the CDN sends them gzipped,
+    so a plain curl shows a smaller size). Pages themselves NOT uploaded (the user Syncs them).
+
+### 2026-11-20 — news dashboards, step 2: news.html + news/search-results (4 index-driven blocks, 2 themes)
+Pages: /en/home/news.html → content/en/home/news.plain.html, /en/home/news/search-results.html →
+content/en/home/news/search-results.plain.html (local only — not in DA, not previewed). Data: the `news` index
+(step 1, /en/home/news/query-index.json — live, 59 / 60 rows until the women-cohort page is republished).
+- **Source → EDS** (the source widgets are Vue components on the `news-search.json` servlet; each EDS block reads the
+  index at runtime, so nothing is republished when an article is added / (un)featured / re-dated):
+  | Source | EDS block (authoring) | Renders as |
+  |---|---|---|
+  | v-featured-article (Displayed Item Number, View, Image position, Background, Button) | **Featured Article** (`display` = view Default, `media-right`) rows `Item` (1-based), `Button`, `Background` (validated colour) | `Columns (media, dark)` |
+  | v-latest-articles-list (offset, limit; not-featured) | **Article List** rows `Start` (1-based), `Count` | `Cards (news)` |
+  | v-search-bar (aria label, placeholder, button, redirect, All, topics) | **Article Search** rows `Label`, `Placeholder`, `Button`, `Results Page` (link), `All Topics`, optional `Topics Label` + repeatable `Topic` | own form |
+  | v-article-search-results (title, sorters, page size, pagination text, template button text, empty message) | **Article Results** rows `Title`, `Sort Label`, repeatable `Sort` (title, desc/asc — first = default), `Page Size`, `Show More`, `Button`, `Empty Message` | `Columns (list)` tiles |
+  | core breadcrumb (search results) | `Breadcrumb` (authored) + metadata `Breadcrumb Title` "News Search Results" | breadcrumb block |
+  Rules reproduced: featured = metadata `Featured: true`, newest article date first, the current page skipped (an
+  article never features itself); latest = not featured, not the current page; search = source hash format
+  `#text=…&topic-id=…&topic-title=…` (source links keep working), results page reacts to hash changes, the bar shows the
+  current query; **matching = every word as a whole word (letters/digits, case-insensitive) in title + page title +
+  navigation title + description** — reproduces the AEM full-text result exactly ("coach" = the same 30 articles,
+  "Person Before Product" = 1); no search → all articles, no heading; heading `<n> Results for "<words>, <topic>"`;
+  10 per page + Show More; sort Newest / Oldest; topic ≠ All → page Tags. Dates "October 13, 2026" (page language).
+  The source topic list is empty (`:topics="[]"`) → the picker only offers "All" until topics are authored.
+- **Shared code:** scripts.js `fetchNewsArticles()` (one index fetch per page, paged, rows without a date dropped,
+  sorted), `formatArticleDate()`, `currentPagePath()` (strips the local /content prefix), `createBlockElement()` (the
+  news blocks build an existing block from data and decorate + load it — no duplicated tile CSS).
+  Block CSS: featured-article = component inset 8 / 12, `display` title USTA Sans 36 / 33 @1024 / 44 @1280 (Graphik 32 on
+  phones), background panel (no outline, black text), image fills the text height from 1024 (the source image is a
+  background; the tile's 644/567 minimum made short panels 28px taller); article-search = stacked on phones (38 / 74 /
+  49, 10 apart), one 678px #1d1d1d bar from 768; article-results = top row (Graphik XXCond Bold 42 + sort picker 45px),
+  30 px to the tiles, tiles 30 / 50 apart, Show More 30 below. **columns (list) fix (all list tiles):** the thumbnail is
+  never shorter than square from 1024 (min-height 231 — a one-line source tile is 231 tall; ours was 207).
+- **Themes (CSS only, user rule: page-specific CSS = theme):** `news-listing` (news.html: h1 32/40/56/80 — the source
+  `80px-32px` title; each widget section +24 top/bottom vs the landing preset; search → first list +12/+12/+20/+36;
+  See More 24 under the tile, 48/50/56 tall) and `news-search` (results page: title 28/40/56/64; the source's 36px
+  container spacing measured gap by gap). Registered in scripts.js THEMES, landing importer PAGE_THEMES;
+  typography.json records `news-listing` / `news-search` (kind theme).
+- **Importer** `tools/importer/import-news-listing-v1.js` (runs the landing importer, news kinds in front of its KINDS;
+  onLoad re-reads the raw page HTML — same-origin XHR — to copy each widget's Vue props onto its live component, since
+  Vue replaces them on mount; a button sharing the last tile's section — "See More" — is kept; the breadcrumb's current
+  item → metadata). URLs `tools/importer/urls-news-listing.txt`. Backups `tools/importer/backups/news-listing/{news,
+  search-results}/`. All bundles that import the landing importer rebuilt (PAGE_THEMES change only).
+- **Parity (anchors vs the live source, 375 / 768 / 1024 / 1280 / 1440):** news.html — title, 3 tiles, bar, both lists,
+  See More: every top and height within 0–3px; search results ("coach") — title, bar, breadcrumb, results heading, sort,
+  tiles, Show More, Currently Trending, list, tile: within 0–2px. Behaviour checked: news → results navigation, hash
+  re-search, Show More 10 → 20, Oldest first, empty message, no-hash listing, breadcrumb, trending, featured item 1.
+- Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ both pages
+  (+ columns-list sample, Zina article) · typography ✓ both · a11y ✓ both (+ columns-list sample). Browser checks with
+  `PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers` (re-installed).
+- **Open / next:** code not pushed (aem.page runs the old code — the blocks don't exist there yet); pages not in DA
+  (Sync); the article footer tile is still the static `/fragments/news/featured-article` — can become `Featured Article`
+  (Item 1) on all 60 articles (source rule: item 1, item 2 on that article itself) so it follows the index; Paul Walker
+  timeline cards; topics list (empty on the source) to confirm with the customer; "Video Article" template (source has
+  a video-page template + "Play Video" button text) — no video articles exist today.
+
+### 2026-11-21 — news articles: the footer tile is dynamic (Featured Article in the shared fragment)
+User decision: keep the shared fragment (option 1 of 2 — the other was a template-level block like the source's
+article-page template, which would need all 60 articles re-imported + republished).
+- `/fragments/news/featured-article` now holds `Featured Article` (Item 1, Button "Read Article") instead of a fixed
+  `Columns (media, dark)` tile → every article shows the newest featured story from the news index, and the next one on
+  that story itself (the block skips the page it is shown on — the source rule). A featured-story change = tick / untick
+  `Featured` on an article and publish that page; no article or fragment edit.
+- Importer (`parsers/news-featured.js`): any non-empty source tile → the Fragment reference (the inline-tile case and
+  FRAGMENT_TILE_TITLE / title→link map removed); fragment mode (`…#featured-fragment`) → the Featured Article block.
+  Re-imported: the fragment, army-veteran-tennis-coach-paul-walker (inline Business Case tile → fragment), and
+  serving-gratitude-celebrating-tennis-coaches (the list-edge blank line of the 2026-11-20 rule fix comes back = its
+  original verified import). Zina re-import = identical. All 60 EN articles now reference the fragment.
+- featured-article.css: the component inset (8 / 12px) moved to the news-listing / news-search themes — at the end of an
+  article the source tile spans the content box.
+- Parity (Zina, Paul Walker, Serving Gratitude vs source @375/768/1024/1280/1440): same story (Paul Walker page → "The
+  Business Case…", others → Paul Walker), same title face/size, image + text box x / width / height identical (±1px
+  rounding at 1024/1280), border → image 48…112 and image → footer identical. news.html + search results re-measured:
+  unchanged (0–3px).
+- Gate: lint (known backup error only) · stylelint clean · breakpoints ✓ · overflow ✓ / typography ✓ / a11y ✓ on Zina,
+  Paul Walker, Serving Gratitude, news. Backup refreshed (backups/news-article/all-news-pages-2026-11-20).
+- Local only: Sync the fragment + the 2 articles (and push the code — the block must be on main first, or aem.page
+  shows an undecorated fragment).
+
+### 2026-11-22 — news helpers moved out of scripts.js into `scripts/news.js` (user review)
+User: the news helpers in scripts.js are news-only — should they live with the template? Not the news-article template:
+it loads only on the 60 article pages, while the helpers serve blocks on landing-page pages (news.html, search results)
+and the fragment tile. → `scripts/news.js` (fetchNewsArticles, currentPagePath, formatArticleDate, createBlockElement),
+imported by the four news blocks only, so it loads only where a news block is shown (verified: home page requests
+neither news.js nor the index; news, search results and an article do). scripts.js keeps only the THEMES entries
+(`news-listing`, `news-search`). Supersedes "Shared code: scripts.js …" in the 2026-11-20 step-2 entry. Behaviour
+unchanged (news: 3 tiles + 8 cards; results "coach" 30 / 10 tiles; Paul Walker footer → Business Case; 0 console
+errors). eslint clean on the moved code; `npm run lint` = the known backup error only.
