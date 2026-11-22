@@ -5455,3 +5455,23 @@ neither news.js nor the index; news, search results and an article do). scripts.
 (`news-listing`, `news-search`). Supersedes "Shared code: scripts.js …" in the 2026-11-20 step-2 entry. Behaviour
 unchanged (news: 3 tiles + 8 cards; results "coach" 30 / 10 tiles; Paul Walker footer → Business Case; 0 console
 errors). eslint clean on the moved code; `npm run lint` = the known backup error only.
+
+### 2026-11-22 — LIVE check of the news dashboards + quirks-mode gotcha (columns list title fix)
+User pushed + published code and both pages. Verified on aem.page / aem.live: pages, fragment, news.js, the 4 blocks
+and 2 themes 200 and byte-identical to the workspace (compare with `curl --compressed` — the CDN gzips); index 60 rows
+(all dated, 11 featured, women cohort back); head meta template / theme / breadcrumb-title correct.
+- **news.html live vs source:** every anchor 0–3px at 375 / 768 / 1024 / 1280 / 1440. **Article footer tile live** (Zina,
+  Paul Walker, Serving Gratitude): same story, x / width / height identical.
+- **search results live: tiles 18–54px taller than local + source.** Cause: **the local dev preview renders pages in
+  QUIRKS mode (no doctype on the served .plain.html — `document.compatMode` = BackCompat), aem.page / aem.live in
+  standards mode.** In standards mode a line box keeps the parent's strut: the list title link (Graphik Semibold 40/44)
+  sits in a Graphik Regular 16px `<p>` → each wrapped line 53px instead of 44. Fix (columns.css, all list tiles): the
+  title wrapper takes the link's font (Graphik Semibold 40px). Proven on live by injecting the rule: tiles 0–2px vs source
+  at all 5 widths. **Rule for future parity work: confirm final measurements on aem.page (standards mode) — local
+  quirks-mode rendering can hide line-height / inline-box differences.**
+- Live functional check: news → results navigation, "Person Before Product" = 1, "coach" = 30, Show More → 20, Oldest
+  first, tile CTA opens the article. a11y ✓ + overflow ✓ on both live pages; stylelint clean.
+- Pre-existing, not news-specific: every aem.live page logs 404s for `/content/nav.plain.html`, `/content/footer.plain.html`,
+  `/content/placeholders.json` (the header / footer / placeholders loaders try the local-preview path first, then the
+  delivered one) — harmless console noise; candidate cleanup: only try `/content/…` on localhost.
+- Pending: push the columns.css fix (local only).

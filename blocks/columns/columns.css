@@ -2118,6 +2118,10 @@ main > .section.columns-container:has(.columns.list) > div {
    is the only space above the excerpt (matches source). */
 .columns.list .columns-list-title-wrapper {
   margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 40px; /* = the title link: in standards mode (aem.page / aem.live) a 16px
+                      Graphik Regular strut made each wrapped title line 53px, not 44 —
+                      the local preview renders in quirks mode and hid it */
   line-height: 44px;
 }
 
