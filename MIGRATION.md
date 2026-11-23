@@ -5475,3 +5475,24 @@ and 2 themes 200 and byte-identical to the workspace (compare with `curl --compr
   `/content/placeholders.json` (the header / footer / placeholders loaders try the local-preview path first, then the
   delivered one) — harmless console noise; candidate cleanup: only try `/content/…` on localhost.
 - Pending: push the columns.css fix (local only).
+
+### 2026-11-23 — news dashboards: typography parity audit (live, standards mode) + 3 fixes
+Comparator `migration-work/news-landing/typo-compare.js` (source vs aem.live, 375 / 768 / 1024 / 1280 / 1440): every
+text element of both pages — page titles + lime accents, 3 featured tiles (title / description / CTA), search bar (topic
+picker, input placeholder, Go), 8 + 4 news cards (title / date / description), See More, breadcrumb link + current item,
+results heading, sort picker, 4 result tiles (title / description / CTA), Show More, Currently Trending + accent, the
+results-page tile — family, size, weight, line-height, letter-spacing, colour, alignment, transform, LINE COUNT, text.
+**3,910 checks: all typography values match** except:
+- control labels (button on the source, `<select>` here): text placement measured instead of `text-align` — topic picker
+  text 20px in, sort text 18px in, Go / Show More / Read Article / See More labels at the identical x / y / width →
+  match. The source's `line-height: normal` vs our 14px on the tile CTA: same label position (no visible difference).
+- **fixed** topic picker 87 → 89px wide (padding-right 48 = the source's 18 + 20px chevron box + 10px gap);
+- **fixed** both chevrons = the source SVGs: topic picker 19×8 filled triangle centred in its 20×12 box 18px from the right;
+  sort picker the 18×12 filled chevron turned down, 16px in; sort border `2px outset #000` (the source <button>'s);
+  screenshots of both controls @1440 / 375 now identical to the source;
+- **fixed** (layout, found in the screenshots) no search in the URL: the empty results heading stays in the layout (was
+  `hidden`) → sort picker stays right from 768 and sits 15px under the empty heading on phones, as on the source.
+- **accepted deviation (user, 2026-11-23) — same-day order:** the source gives same-day articles the same timestamp and orders them by an internal AEM
+  order (not in the page data); ours come out in index order → e.g. news.html list 2 cards 2/3 (both 2026-08-18) are
+  swapped. 8 tie groups / 19 articles. Ours: same-day articles sorted by page path (stable — news.js).
+Local only: article-search.css, article-results.css/js (push needed).

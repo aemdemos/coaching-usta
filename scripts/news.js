@@ -55,7 +55,9 @@ export function fetchNewsArticles() {
           featured: r.featured === 'true',
           tags: tags(r.tags),
         }))
-        .sort((a, b) => b.date.localeCompare(a.date));
+        // newest first; same-day articles by page path (the source's internal AEM order isn't
+        // in the page data — accepted deviation 2026-11-23 — so keep a stable, predictable one)
+        .sort((a, b) => b.date.localeCompare(a.date) || a.path.localeCompare(b.path));
     })();
   }
   return newsPromise;

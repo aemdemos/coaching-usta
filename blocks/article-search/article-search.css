@@ -25,11 +25,14 @@
   box-sizing: border-box;
   height: 38px;
   margin: 0;
-  padding: 0 46px 0 20px;
+  padding: 0 48px 0 20px; /* 89px with "All" = the source button (text 20px in) */
   border: 0;
   border-radius: 12px;
   appearance: none;
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M0 0h14L7 8z' fill='%23000'/%3E%3C/svg%3E") no-repeat right 18px center;
+
+  /* the source chevron: a 19×8 triangle centred in a 20×12 box, 10px after the label,
+     18px from the right edge (padding 48 = 18 + 20 + 10) */
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='19' height='8' viewBox='0 0 19 8'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9.0625 8L0 0H18.125L9.0625 8Z' fill='black'/%3E%3C/svg%3E") no-repeat right 18.5px center / 19px 8px;
   color: #000;
   font-family: "Graphik Semibold", tahoma, sans-serif;
   font-size: 18px;

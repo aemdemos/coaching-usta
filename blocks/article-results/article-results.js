@@ -139,7 +139,8 @@ export default async function decorate(block) {
     heading.textContent = searched
       ? `${results.length} ${config.title || ''} "${[q.text, q.topicTitle].filter(Boolean).join(', ')}"`
       : '';
-    heading.hidden = !searched;
+    // (no search: the heading stays in place, empty — as on the source, it keeps the
+    // sort picker on the right and the row's 15px gap on phones)
     empty.hidden = results.length > 0;
     list.replaceChildren();
     shown = 0;
