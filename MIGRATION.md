@@ -5496,3 +5496,91 @@ results-page tile — family, size, weight, line-height, letter-spacing, colour,
   order (not in the page data); ours come out in index order → e.g. news.html list 2 cards 2/3 (both 2026-08-18) are
   swapped. 8 tie groups / 19 articles. Ours: same-day articles sorted by page path (stable — news.js).
 Local only: article-search.css, article-results.css/js (push needed).
+
+### 2026-11-23 (later) — news implementation: live check after the push + open items
+Code on aem.live = workspace (news.js, article-search/results, columns.css). Same-day order: to be settled with the
+customer (accepted for now).
+- **BROKEN on live — PDF links (6 pages):** the editor Sync re-uploaded the two PDFs into DA `shared-media` folders
+  (`/en/home/news/shared-media/usta-coaching-women-sports-report-8ae8d898.pdf`,
+  `/en/home/shared-media/coaching-education-equivalency-graphic-75546e5e.pdf` (+ `-f3fdd487`),
+  `/en/home/results/shared-media/coaching-education-equivalency-graphic-75546e5e.pdf` (+ `-92026f71`)) and rewrote the
+  page links to them, but did not preview / publish them → 404 on aem.page + aem.live (women cohort, courses, results
+  college / ft-pro / pt-pro / volunteer-emerging). The `/assets/docs/…` copies (published 2026-11-20) are fine but now
+  unused. Fix = preview + publish the shared-media PDFs (on request). Lesson: Sync owns document links — absolute
+  aem.live doc links get re-hosted as `shared-media`.
+- Open (content): Paul Walker timeline cards (179 spacers, not at parity); Alison Ojeda phone-only photos (−1424px @375).
+- Open (customer): same-day order; search topics list (source empty); tile title = Page Title (source today) vs
+  Navigation Title (doc: "probably a bug"); Related Articles / Tags component / Video Article page type (doc: unused);
+  Featured Article "Hide …" options + "Narrow" view (unused on the source — not built); mandatory article properties
+  (EDS can't block saving a page without Article Date — consider a check/report).
+- Housekeeping: block samples / author notes for the 4 news blocks; remove the unused /assets/docs PDF copies once the
+  shared-media ones are live; site-wide console 404s for /content/nav|footer|placeholders on aem.live.
+
+### 2026-11-23 — Paul Walker timeline cards = the existing `Columns (feature)` block (one option: media-N)
+Source: /en/home/news/army-veteran-tennis-coach-paul-walker — 20 year-by-year cards. They are the SAME source
+component as the coaching-community "Women's Coaching Cohort" card (container--padding--medium + #202020 panel, an
+image component, a container--border--gray text container); only author settings differ (image span 3 / 4 / 6, image
+aspect preset, tablet hide, separators). Findings (measured, standards mode):
+- **Card height does not depend on the image** — the source floats image and text card as independent columns; the image
+  keeps its aspect preset at the top, the text card is as tall as its text; at 1280 the card is taller than the image on all
+  20 cards (e.g. 412 vs 554px). Our block reproduces that (image align-self: flex-start).
+- The source Cohort card has been restyled since we built it (one-line heading, larger gaps, image shown side by side on
+  tablets) — our Cohort keeps the original rhythm; the tablet layout now follows the source (was: image hidden).
+**User decisions (2026-11-23):** ONE block, no variant layers — no `timeline`, no per-image crop / focus / visibility
+options (an earlier pass mirrored the source presets landscape-2 / portrait-2 / natural / image-center /
+hide-media-tablet / split-tablet as options — rejected as too many variants); the card uses ONE standard rhythm (the
+block's Cohort rhythm: heading → copy 66, text inset 38/12/80 → 42/16/84 → 50/16/92) — the source's per-card
+separators are not reproduced.
+**Block (blocks/columns, feature — rewritten, not layered):**
+- only option `media-N` (3 / 4 / 6, default 6): the image span from 1024 (same convention as the article rows); JS sets
+  `--media-span`;
+- context decides the rest: landing pages crop the image to the source landscape frame (1.247 / 0.955 / 1.14 / 1.42) and
+  put it beside the card from 768; inside the bordered article frame the panel spans the article column (no landing
+  gutter — the gutter rule now `:not(.bordered)`, which also fixed a regression: the rule had shifted the whole article
+  body 16–64px right once a feature block was in the frame), the image keeps its own shape, image + card stack until 1024,
+  each card carries the source container margin 12 / 20 / 36 / 52 above and below (padding → 24 / 40 / 72 / 104 between
+  cards, copy → first card 50 / 58 / 74 / 90, last card → copy 22 / 30 / 46 / 62 = source);
+- paragraphs in the card a blank line apart (`p + p` 24px); a picture-only cell is the media cell even when the pictures
+  sit in a `<p>`; unframed unchanged (image hidden on tablets, centred from 1024).
+**Importer:** `parsers/news-columns-feature.js` (article: card → `Columns (feature[, media-N])`, cards tagged before
+containerMarginSpacers, parsed after the text normalisation; trailing / leading blank lines dropped) + shared
+`parsers/feature-options.js` (landing + article: only media-N, when ≠ 6). Landing output unchanged (Cohort = plain
+`Columns (feature)`). Paul Walker re-imported: 16 × `Columns (feature)`, 2 × `media-4`, 2 × `media-3`, 0 spacers.
+**Parity (standards mode @375/768/1024/1280/1440):** panel x / width, image width, card x / width, text insets, heading +
+copy typography and line counts identical on all 20 cards; gaps before / between / after identical. Accepted: image heights
+(natural shape vs the source crops; on phones / tablets the stacked card moves with it), card heights (standard rhythm).
+Cohort (coaching-community): panel / image / card boxes = source at 375 / 768 / 1440 (card height ±8–40 from the source
+restyle). Gate: lint (known backup error only) · breakpoints ✓ · overflow / typography / a11y ✓ on Paul Walker,
+coaching-community, columns-feature + columns-feature-unframed samples. Local only. Backup
+tools/importer/backups/news-article/army-veteran-tennis-coach-paul-walker/.
+**Method note:** local verification in STANDARDS mode via `migration-work/news-landing/std-mode.js` (re-writes the page with a
+doctype; the local preview itself is quirks mode).
+
+### 2026-11-23 (later) — GLOBAL image crop options (any block) + `image-crop` block sample
+User: the source "crops" are CSS on its images (AEM image component "aspect ratio" presets) — make them options that work
+on ANY block, not feature-only variants, with one sample page.
+- **styles/styles.css "Image crop options":** `landscape`, `landscape-2`, `landscape-3`, `portrait`, `portrait-2` on any
+  block → its images are cover-cropped, from the top, to the source ratios per breakpoint (custom property
+  `--image-crop`, exact source values: landscape 1.247 / 0.955 / 1.14 / 1.42, landscape-2 1.302 / 1.102, landscape-3
+  1.25 / 1.5 / 2, portrait 1.247 / 0.667 / 0.689 / 0.834, portrait-2 1.279 / 0.5 / 0.734 / 0.952); `image-center` /
+  `image-bottom` = the source image--position--center / --bottom. No option = the image keeps its own shape.
+- **Consolidated:** the `columns (article)` `portrait` crop CSS and the feature block's built-in landing crop removed (same
+  values now global). The feature block has no crop of its own; the Cohort card carries `landscape` (as the source
+  image component) — content/en/home/coaching-community + the columns-feature sample updated (the landing importer
+  writes the same). The testimonials article `columns (person, portrait)` photo unchanged (1.247 / 0.667 / 0.689 / 0.834
+  verified).
+- **Importer:** `parsers/feature-options.js` → `cropOptions()` (source preset + focus) + `featureOptions()` (media-N +
+  crop). Paul Walker re-imported: 12 × landscape-2, 1 × landscape, 1 × landscape + image-center, 1 × media-4 portrait,
+  1 × portrait-2, 1 × media-4, 2 × media-3, 1 plain. Only the block names changed.
+- **Parity (standards mode @375/768/1024/1280/1440):** all 20 photos = source (x / width / height), panel, card x / width,
+  insets, typography, line counts identical; differences left: card 3 at 768–1023 (source hides the photo — no
+  visibility option, user decision), card 4 on phones (source swaps in a phone-only photo; ours the default photo at the
+  same size), card heights (standard rhythm).
+- **Sample** `drafts/block-samples/image-crop` ("Image crop options (any block)"): generated by
+  `import-sample-news-blocks.js` (new `variants` setting: one real block repeated once per option set; URLs
+  `tools/importer/urls-sample-image-crop.txt`) — the Paul Walker card once with no option and once per preset / focus;
+  ratios verified at 375 / 768 / 1024 / 1440. Backup tools/importer/backups/block-sample/image-crop/.
+- Gate: lint (known backup error only) · breakpoints ✓ · overflow / typography / a11y ✓ on Paul Walker, coaching-community,
+  image-crop + columns-feature samples, testimonials, home. Local only.
+- Follow-up candidate: other blocks' source images with presets (e.g. article rows other than portrait, the
+  coaches-open landscape-3 full-width image) can now use the same options via their importers.

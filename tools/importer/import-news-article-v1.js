@@ -7,7 +7,8 @@
  *
  * Output document:
  *   section 1 (style: bordered) — the article frame: top image, H1, body copy,
- *     text+image rows (Columns article, media-N), section headings, pull-quotes,
+ *     text+image rows (Columns article, media-N), feature cards (Columns feature, timeline),
+ *     section headings, pull-quotes,
  *     separators (Spacer 42px), Tags + Social row
  *   section 2 — the featured tile: Fragment → /fragments/news/featured-article (one
  *     index-driven Featured Article block for every article); none on ES
@@ -30,6 +31,7 @@ import tagsSocialParser from './parsers/news-tags-social.js';
 import featuredParser, { buildFeaturedBlock, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
 import { articleOf } from './news/news-data.js';
+import { markFeatureCards, parseFeatureCards } from './parsers/news-columns-feature.js';
 
 const TEMPLATE = 'news-article';
 
@@ -55,6 +57,7 @@ const CONTAINER_PADDINGS = { '12px-4px': [0, 4, 12] };
 function containerMarginSpacers(frame, document) {
   frame.querySelectorAll('.container[class*="-margin--"], .container[class*="container--padding--"]').forEach((c) => {
     if (c.querySelector('.tags, .socialmediasharing')) return;
+    if (c.closest('[data-feature-card]')) return; // a feature card: the block owns its spacing
     // a column of a side-by-side flex row: the row block owns the spacing
     if (c.parentElement && c.parentElement.closest('.container--display--flex-reset-grid')) return;
     // a pull-quote's own container (quote + attribution only): the quote block's margins
@@ -453,6 +456,9 @@ export default {
       || main.querySelector('.container--border--white');
     if (!frame) throw new Error('news-article frame (.container--border--white) not found');
 
+    // feature cards (dark card: image + grey-bordered copy) — tagged before the container
+    // margins become Spacers, parsed once their text is normalised (news-columns-feature.js)
+    markFeatureCards(frame);
     containerMarginSpacers(frame, document);
     convertHeadings(frame, document);
     convertNativeHeadings(frame, document);
@@ -460,6 +466,7 @@ export default {
     textStyleBlocks(frame, document);
     frame.querySelectorAll('.text:not(.text--font-family--graphic-semibold) > .cmp-text')
       .forEach((cmp) => normalizeTextComponent(cmp, document));
+    parseFeatureCards(frame, { document });
 
     // pull-quotes (before rows, so a quote never becomes a column's text cell)
     [...frame.querySelectorAll('.text.text--font-family--graphic-semibold')].forEach((q) => quoteParser(q, { document }));

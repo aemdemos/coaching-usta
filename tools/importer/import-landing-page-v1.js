@@ -21,6 +21,7 @@
  * Measurements the transform needs (column positions, background colours, alignment,
  * button style) only exist on the live page, so onLoad stamps them as data-* attributes.
  */
+import { featureOptions } from './parsers/feature-options.js';
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
 import parsePricing from './parsers/cards-pricing.js';
 import parseEventsBanner from './parsers/columns-cta.js';
@@ -895,7 +896,9 @@ const KINDS = [
       const imgFirst = !!(img.compareDocumentPosition(card) & 4); // the card FOLLOWS the image
       const cells = imgFirst ? [[i], texts] : [texts, [i]];
       const framed = s.getAttribute('data-bg') === 'dark';
-      return [block(document, framed ? 'Columns (feature)' : 'Columns (feature, unframed)', [cells])];
+      // framed: the source image component's author settings → options (feature-options.js)
+      const opts = framed ? featureOptions(img) : ['unframed'];
+      return [block(document, opts.length ? `Columns (feature, ${opts.join(', ')})` : 'Columns (feature)', [cells])];
     },
   },
   {

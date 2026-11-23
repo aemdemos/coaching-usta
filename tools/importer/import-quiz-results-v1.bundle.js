@@ -24,6 +24,23 @@ var CustomImportScript = (() => {
     default: () => import_quiz_results_v1_default
   });
 
+  // tools/importer/parsers/feature-options.js
+  function cropOptions(imgComp) {
+    if (!imgComp) return [];
+    const cls2 = imgComp.className || "";
+    const opts = [];
+    const crop = (cls2.match(/image--aspect-ration--((?:landscape|portrait)(?:-\d)?)(?=\s|$)/) || [])[1];
+    if (crop) opts.push(crop);
+    const pos = (cls2.match(/image--position--(center|bottom)(?=\s|$)/) || [])[1];
+    if (crop && pos) opts.push(`image-${pos}`);
+    return opts;
+  }
+  function featureOptions(imgComp) {
+    if (!imgComp) return [];
+    const span = ((imgComp.className || "").match(/aem-GridColumn--default--(\d+)/) || [])[1];
+    return [...span && span !== "6" && span !== "12" ? [`media-${span}`] : [], ...cropOptions(imgComp)];
+  }
+
   // tools/importer/transformers/coaching-usta-cleanup.js
   var TransformHook = {
     beforeTransform: "beforeTransform",
@@ -1063,7 +1080,8 @@ var CustomImportScript = (() => {
         const imgFirst = !!(img.compareDocumentPosition(card) & 4);
         const cells = imgFirst ? [[i], texts] : [texts, [i]];
         const framed = s.getAttribute("data-bg") === "dark";
-        return [block(document, framed ? "Columns (feature)" : "Columns (feature, unframed)", [cells])];
+        const opts = framed ? featureOptions(img) : ["unframed"];
+        return [block(document, opts.length ? `Columns (feature, ${opts.join(", ")})` : "Columns (feature)", [cells])];
       }
     },
     {

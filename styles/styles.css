@@ -850,3 +850,56 @@ main > .section.inset-px:not(.narrow-cols, .cards-container) > div:not(.full-wid
 @media (width >= 1280px) {
   main > .section.inset-px { --section-gutter: 64px; }
 }
+
+/* ---- Image crop options (any block: `<block> (…, landscape-2)`) ----
+   The source's image "aspect ratio" presets (AEM image component, image--aspect-ration--X),
+   available on every block: the block's images are cover-cropped to the preset's ratio at
+   each breakpoint, from the top (source default `center top`); `image-center` /
+   `image-bottom` move the focus (source image--position--center / --bottom). No preset =
+   the image keeps its own shape (or the block's own crop). Ratios as the source CSS:
+     landscape    1.247   / 0.955 (768) / 1.14 (1024) / 1.42 (1280)
+     landscape-2  1.302   / 1.102 (768)
+     landscape-3  1.25    / 1.5   (768) / 2    (1280)
+     portrait     1.247   / 0.667 (768) / 0.689 (1024) / 0.834 (1280)
+     portrait-2   1.279   / 0.5   (768) / 0.734 (1024) / 0.952 (1280)
+   Sample: drafts/block-samples/image-crop. */
+main .block:is(.landscape, .landscape-2, .landscape-3, .portrait, .portrait-2) img {
+  aspect-ratio: var(--image-crop);
+  object-fit: cover;
+  object-position: center top;
+}
+
+main .block.image-center img {
+  object-position: center center;
+}
+
+main .block.image-bottom img {
+  object-position: center bottom;
+}
+
+main .block.landscape { --image-crop: 1.247; }
+main .block.landscape-2 { --image-crop: 1.302; }
+main .block.landscape-3 { --image-crop: 1.25; }
+main .block.portrait { --image-crop: 1.247; }
+main .block.portrait-2 { --image-crop: 127877 / 100000; }
+
+@media (width >= 768px) {
+  main .block.landscape { --image-crop: 95511 / 100000; }
+  main .block.landscape-2 { --image-crop: 1.102; }
+  main .block.landscape-3 { --image-crop: 1.5; }
+  main .block.portrait { --image-crop: 666667 / 1000000; }
+  main .block.portrait-2 { --image-crop: 0.5; }
+}
+
+@media (width >= 1024px) {
+  main .block.landscape { --image-crop: 1.14; }
+  main .block.portrait { --image-crop: 68918 / 100000; }
+  main .block.portrait-2 { --image-crop: 733676 / 1000000; }
+}
+
+@media (width >= 1280px) {
+  main .block.landscape { --image-crop: 1.42; }
+  main .block.landscape-3 { --image-crop: 2; }
+  main .block.portrait { --image-crop: 834028 / 1000000; }
+  main .block.portrait-2 { --image-crop: 952381 / 1000000; }
+}

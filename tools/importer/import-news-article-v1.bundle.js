@@ -856,6 +856,72 @@ var CustomImportScript = (() => {
   var articleOf = (url) => NEWS_ARTICLES[articleSlug(url)] || null;
   var FEATURED = Object.entries(NEWS_ARTICLES).filter(([, a]) => a.featured).sort(([, a], [, b]) => b.articleDate.localeCompare(a.articleDate)).map(([slug, a]) => ({ slug, ...a }));
 
+  // tools/importer/parsers/feature-options.js
+  function cropOptions(imgComp) {
+    if (!imgComp) return [];
+    const cls = imgComp.className || "";
+    const opts = [];
+    const crop = (cls.match(/image--aspect-ration--((?:landscape|portrait)(?:-\d)?)(?=\s|$)/) || [])[1];
+    if (crop) opts.push(crop);
+    const pos = (cls.match(/image--position--(center|bottom)(?=\s|$)/) || [])[1];
+    if (crop && pos) opts.push(`image-${pos}`);
+    return opts;
+  }
+  function featureOptions(imgComp) {
+    if (!imgComp) return [];
+    const span = ((imgComp.className || "").match(/aem-GridColumn--default--(\d+)/) || [])[1];
+    return [...span && span !== "6" && span !== "12" ? [`media-${span}`] : [], ...cropOptions(imgComp)];
+  }
+
+  // tools/importer/parsers/news-columns-feature.js
+  var CARD = ".container.container--padding--medium";
+  var GRAY = "container--border--gray";
+  var isPanel = (k) => k.classList.contains("container") && k.classList.contains(GRAY);
+  var isFeatureCard = (c) => {
+    const grid = c.querySelector(":scope > .cmp-container > .aem-Grid");
+    if (!grid) return false;
+    const kids = [...grid.children];
+    return kids.some((k) => k.classList.contains("image") && k.querySelector("img")) && kids.some(isPanel);
+  };
+  function markFeatureCards(frame) {
+    frame.querySelectorAll(CARD).forEach((c) => {
+      if (isFeatureCard(c)) c.setAttribute("data-feature-card", "");
+    });
+  }
+  var toImg = (document, src) => {
+    const img = document.createElement("img");
+    img.src = src.currentSrc || src.getAttribute("src") || "";
+    img.alt = src.getAttribute("alt") || "";
+    if (src.getAttribute("title")) img.title = src.getAttribute("title");
+    return img;
+  };
+  function parseFeatureCards(frame, { document }) {
+    frame.querySelectorAll("[data-feature-card]").forEach((card) => {
+      const grid = card.querySelector(":scope > .cmp-container > .aem-Grid");
+      const imgComp = grid.querySelector(":scope > .image");
+      const panel = [...grid.children].find(isPanel);
+      const imgDefault = imgComp && (imgComp.querySelector(".cmp-image__image--default") || imgComp.querySelector("img"));
+      if (!imgDefault || !panel) return;
+      const images = [toImg(document, imgDefault)];
+      const copy = [];
+      panel.querySelectorAll(".cmp-text").forEach((t) => {
+        [...t.children].forEach((e) => {
+          if (e.classList.contains("cmp-text__icon")) return;
+          if (/^(H[1-6]|P|UL|OL|BLOCKQUOTE)$/.test(e.tagName)) copy.push(e);
+        });
+      });
+      const blank = (e) => e.tagName === "P" && !e.querySelector("img, picture") && !e.textContent.replace(/[\s\u00a0\uE000]/g, "");
+      while (copy.length && blank(copy[copy.length - 1])) copy.pop();
+      while (copy.length && blank(copy[0])) copy.shift();
+      if (!copy.length) return;
+      const block = WebImporter.Blocks.createBlock(document, {
+        name: `Columns (${["feature", ...featureOptions(imgComp)].join(", ")})`,
+        cells: [[images, copy]]
+      });
+      card.replaceWith(block);
+    });
+  }
+
   // tools/importer/import-news-article-v1.js
   var TEMPLATE = "news-article";
   var HEADING_SIZES = [
@@ -872,6 +938,7 @@ var CustomImportScript = (() => {
   function containerMarginSpacers(frame, document) {
     frame.querySelectorAll('.container[class*="-margin--"], .container[class*="container--padding--"]').forEach((c) => {
       if (c.querySelector(".tags, .socialmediasharing")) return;
+      if (c.closest("[data-feature-card]")) return;
       if (c.parentElement && c.parentElement.closest(".container--display--flex-reset-grid")) return;
       const cols = c.querySelectorAll(".aem-GridColumn");
       if (c.querySelector(".text--font-family--graphic-semibold") && cols.length <= 2 && !c.querySelector(".container")) return;
@@ -1184,12 +1251,14 @@ var CustomImportScript = (() => {
       }
       const frame = main.querySelector(".container.container--border--white > .cmp-container") || main.querySelector(".container--border--white");
       if (!frame) throw new Error("news-article frame (.container--border--white) not found");
+      markFeatureCards(frame);
       containerMarginSpacers(frame, document);
       convertHeadings(frame, document);
       convertNativeHeadings(frame, document);
       markLimeLinks(frame, document);
       textStyleBlocks(frame, document);
       frame.querySelectorAll(".text:not(.text--font-family--graphic-semibold) > .cmp-text").forEach((cmp) => normalizeTextComponent(cmp, document));
+      parseFeatureCards(frame, { document });
       [...frame.querySelectorAll(".text.text--font-family--graphic-semibold")].forEach((q) => parse2(q, { document }));
       const images = [...frame.querySelectorAll(".aem-GridColumn.image")].filter((i) => i.querySelector("img"));
       images.slice(1).forEach((i) => {

@@ -15,6 +15,7 @@
  *   - columns-article-embed Columns (article, …) with an embedded LinkedIn post (jack-and-jill)
  *   - text-style-label / -center / -large / -intro  Text Style (…)
  *   - quote-marks          Quote (marks)
+ *   - image-crop           the global image crop options (one feature card per option)
  */
 import news from './import-news-article-v1.js';
 
@@ -52,6 +53,20 @@ const SAMPLES = {
     path: 'text-style-intro', title: 'Text Style (intro)', pick: /^Text Style \(intro\)$/i,
     about: 'A centred lime lead-in on 10 of 12 columns: Graphik Semibold 16 → 18 @1024 → 24 @1280 (source: semibold `24px-16px`, centred).',
   },
+  'army-veteran-tennis-coach-paul-walker': {
+    path: 'image-crop', title: 'Image crop options (any block)', pick: /^Columns \(feature, landscape[- ]2\)$/i,
+    about: 'The source\'s image "aspect ratio" presets, available on EVERY block as an option, e.g. `Columns (feature, landscape-2)`: the block\'s images are cover-cropped to the preset\'s ratio at each breakpoint, from the top; `image-center` / `image-bottom` move the focus. No option = the image keeps its own shape. Below: the same card once per option (ratios phones / 768 / 1024 / 1280).',
+    variants: [
+      ['', 'No option — the image keeps its own shape.'],
+      ['landscape', '`landscape` — 1.247 / 0.955 / 1.14 / 1.42.'],
+      ['landscape-2', '`landscape-2` — 1.302 / 1.102 (from 768).'],
+      ['landscape-3', '`landscape-3` — 1.25 / 1.5 / 1.5 / 2.'],
+      ['portrait', '`portrait` — 1.247 / 0.667 / 0.689 / 0.834.'],
+      ['portrait-2', '`portrait-2` — 1.279 / 0.5 / 0.734 / 0.952.'],
+      ['landscape, image-center', '`landscape, image-center` — cropped from the middle instead of the top.'],
+      ['landscape, image-bottom', '`landscape, image-bottom` — cropped from the bottom.'],
+    ],
+  },
   'how-coach-developer-lois-arterberry-is-shaping-the-future-of-coaching': {
     path: 'quote-marks', title: 'Quote (marks)', pick: /^Quote \(marks\)$/i,
     about: 'A pull-quote whose opening and closing quote marks are set large (64px), as typed on the source.',
@@ -71,8 +86,21 @@ export default {
     if (!cfg) throw new Error(`no sample configured for ${key}`);
     const source = `${BASE}${key.split('#')[0]}.html`;
     const [{ element: article }] = news.transform({ ...payload, params: { ...params, originalURL: source } });
-    const picked = [...article.querySelectorAll('table')].filter((t) => cfg.pick.test(blockName(t)));
-    if (!picked.length) throw new Error(`no ${cfg.pick} block in ${key}`);
+    let picked = [...article.querySelectorAll('table')].filter((t) => cfg.pick.test(blockName(t)));
+    if (!picked.length) throw new Error(`no ${cfg.pick} block in ${key} (blocks: ${[...new Set([...article.querySelectorAll("table")].map(blockName))].join(" | ")})`);
+    // `variants`: the first picked block once per option set (its name's options replaced),
+    // each under a one-line explanation — one sample page for a family of options
+    if (cfg.variants) {
+      const base = picked[0];
+      const name = blockName(base).replace(/\s*\(.*\)$/, '');
+      const kind = (blockName(base).match(/\(([^,)]+)/) || [])[1];
+      picked = cfg.variants.flatMap(([opts, note]) => {
+        const t = base.cloneNode(true);
+        const head = t.querySelector('tr > th, tr > td');
+        head.textContent = `${name} (${[kind, opts].filter(Boolean).join(', ')})`;
+        return [el(document, 'p', note.replace(/`([^`]+)`/g, '<code>$1</code>')), t];
+      });
+    }
     const gap = (d, m) => WebImporter.Blocks.createBlock(document, { name: 'Spacer', cells: [['desktop', `${d}px`], ['mobile', `${m}px`]] });
 
     const out = document.createElement('div');
