@@ -1,0 +1,26 @@
+{
+  "template": "news-article",
+  "page": "all EN news articles (60)",
+  "urls": "urls-news-article-en.txt",
+  "output": "content/en/home/news/*.plain.html",
+  "changesSincePrevious": [
+    "Columns (feature, …) cards via parsers/news-columns-feature.js (army-veteran-tennis-coach-paul-walker)",
+    "global image crop options (landscape, landscape-2, landscape-3, portrait, portrait-2, image-center, image-bottom) via parsers/feature-options.js",
+    "Article Date + Featured metadata; /content/dam doc links → assets/docs (absolute aem.live); featured tile = /fragments/news/featured-article"
+  ],
+  "finalize": "after import: fetch-page-images (→ content/media-da/…) + fetch-docs (→ content/assets/docs/…, absolute aem.live links)",
+  "verification": "2026-11-23: current bundle re-imported 58 of 60 articles to a scratch workspace; all 58 identical to content/ except image src (rewritten by the finalize step). Not re-run in this check: 2 articles (run stopped). Paul Walker additionally verified at parity (see backups/news-article/army-veteran-tennis-coach-paul-walker).",
+  "pending": [
+    "same-day article order (customer)",
+    "Related Articles / Tags / Video Article not built (not used on source)"
+  ],
+  "backedUpOn": "2026-11-23",
+  "script": {
+    "file": "import-news-article-v1.js",
+    "sha256": "47d6d6050145dab1",
+    "bundle": "import-news-article-v1.bundle.js",
+    "bundleSha256": "0bea13a399a659f2",
+    "bundleCommand": "npx esbuild tools/importer/import-news-article-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-news-article-v1.bundle.js",
+    "runner": "run-bulk-import.js --import-script <bundle> --urls <urls file> --force"
+  }
+}

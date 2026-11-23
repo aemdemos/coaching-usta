@@ -1,7 +1,7 @@
 {
   "template": "landing-page (catalog: listing-hub)",
   "page": "news",
-  "backedUpOn": "2026-11-20",
+  "backedUpOn": "2026-11-23",
   "url": "https://www.ustacoaching.com/en/home/news.html",
   "output": "content/en/home/news.plain.html",
   "theme": "news-listing",
@@ -9,10 +9,9 @@
     "file": "import-news-listing-v1.js",
     "sha256": "36930bf3dd5f6b4d",
     "bundle": "import-news-listing-v1.bundle.js",
-    "bundleSha256": "b1493575aec5048b",
-    "extends": "import-landing-page-v1.js (KINDS + PAGE_THEMES)",
+    "bundleSha256": "8f994e2919608423",
     "bundleCommand": "npx esbuild tools/importer/import-news-listing-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-news-listing-v1.bundle.js",
-    "runner": "run-bulk-import.js --import-script <bundle> --urls tools/importer/urls-news-listing.txt --force"
+    "runner": "run-bulk-import.js --import-script <bundle> --urls <urls file> --force"
   },
   "sections": [
     "Featured Article (display, media-right) Item 1",
@@ -32,5 +31,19 @@
     "scripts/news.js (fetchNewsArticles, formatArticleDate, currentPagePath, createBlockElement)",
     "blocks/columns (media dark, list), blocks/cards (news), blocks/breadcrumb"
   ],
-  "verification": "anchors vs live source @375/768/1024/1280/1440: every widget top/height within 0-3px; gate: lint (baseline), breakpoints, overflow, typography, a11y pass"
+  "verification": "2026-11-23: re-imported with the current bundle to a scratch workspace — byte-identical to content/en/home/news.plain.html. Bundle changed since 2026-11-20 only through the landing parsers it imports (global image crop options); the script itself is unchanged.",
+  "history": [
+    {
+      "backedUpOn": "2026-11-20",
+      "script": {
+        "file": "import-news-listing-v1.js",
+        "sha256": "36930bf3dd5f6b4d",
+        "bundle": "import-news-listing-v1.bundle.js",
+        "bundleSha256": "b1493575aec5048b",
+        "extends": "import-landing-page-v1.js (KINDS + PAGE_THEMES)",
+        "bundleCommand": "npx esbuild tools/importer/import-news-listing-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-news-listing-v1.bundle.js",
+        "runner": "run-bulk-import.js --import-script <bundle> --urls tools/importer/urls-news-listing.txt --force"
+      }
+    }
+  ]
 }

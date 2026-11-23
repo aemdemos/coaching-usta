@@ -5619,3 +5619,14 @@ on ANY block, not feature-only variants, with one sample page.
   (DA version list). Fix re-applied on request (6 pages uploaded + read back identical; shared-media PDFs + folders
   deleted again). Publish these pages from DA with Preview / Publish — NOT Sync. Making Sync keep docs in assets/docs is
   an editor-tool change (support).
+
+### 2026-11-23 (later) — importer backups refreshed (IMPORTING-GUIDE §11)
+- Audit: all existing backups present and committed; only Paul Walker + the image-crop sample held the CURRENT
+  scripts. Current importers re-run to scratch workspaces first (known-good check):
+  - `import-news-listing-v1` → news + search-results byte-identical to content/;
+  - `import-news-article-v1` → 58 / 60 articles identical except image src (finalize step); 2 not re-run (run stopped);
+  - `import-landing-page-v1` → coaching-community identical except image src + the logged live-source edits.
+- Backups written (script + bundle + manifest with sha256, bundle command, verification; earlier manifest kept under
+  `history`): `backups/news-listing/news`, `backups/news-listing/search-results`,
+  `backups/news-article/all-news-pages-2026-11-23` (+ urls, news-columns-feature.js, feature-options.js),
+  `backups/landing-page/coaching-community`. Older per-page backups left as they were (earlier snapshots; git history).
