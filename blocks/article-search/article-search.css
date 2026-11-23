@@ -21,13 +21,22 @@
   margin: 0 auto;
 }
 
+/* the topic picker: a button + the menu that opens over it */
+.article-search .article-search-picker {
+  position: relative;
+}
+
 .article-search .article-search-topics {
+  display: block;
   box-sizing: border-box;
+  width: 100%;
   height: 38px;
   margin: 0;
   padding: 0 48px 0 20px; /* 89px with "All" = the source button (text 20px in) */
   border: 0;
   border-radius: 12px;
+  text-align: left;
+  white-space: nowrap;
   appearance: none;
 
   /* the source chevron: a 19×8 triangle centred in a 20×12 box, 10px after the label,
@@ -40,6 +49,60 @@
   line-height: 18px;
   letter-spacing: -0.04em;
   cursor: pointer;
+}
+
+.article-search .article-search-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* the open menu (source v-search-bar__topics-menu): 21px below the button's top, as wide
+   as the button but at least 180px; white, radius 12, padding 6, a soft drop shadow */
+.article-search .article-search-menu {
+  position: absolute;
+  top: 21px;
+  left: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 180px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 35%);
+}
+
+.article-search .article-search-menu[hidden] {
+  display: none;
+}
+
+.article-search .article-search-menu:focus {
+  outline: none;
+}
+
+/* an option: 40px tall, Graphik 16 semibold-synthesised (source: Graphik Regular at
+   weight 600), black; grey #f2f2f2 on hover (source: hover only, not the selected one) */
+.article-search .article-search-option {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #000;
+  font-family: "Graphik Regular Synth", tahoma, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.article-search .article-search-option:hover {
+  background-color: #f2f2f2;
 }
 
 .article-search .article-search-field {
@@ -128,8 +191,11 @@
     background-color: #1d1d1d;
   }
 
-  .article-search .article-search-topics {
+  .article-search .article-search-picker {
     flex: 0 0 auto;
+  }
+
+  .article-search .article-search-topics {
     height: 70px;
   }
 
@@ -153,4 +219,12 @@
 .article-search .article-search-go:focus-visible {
   outline: 2px solid var(--usta-lime, #cfff05);
   outline-offset: 2px;
+}
+
+/* the keyboard-highlighted option while the menu has keyboard focus: the hover grey plus
+   an outline (not on the source, whose menu has no keyboard support) */
+.article-search .article-search-menu:focus-visible .article-search-option.active {
+  background-color: #f2f2f2;
+  outline: 2px solid #000;
+  outline-offset: -2px;
 }

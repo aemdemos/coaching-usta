@@ -5584,3 +5584,38 @@ on ANY block, not feature-only variants, with one sample page.
   image-crop + columns-feature samples, testimonials, home. Local only.
 - Follow-up candidate: other blocks' source images with presets (e.g. article rows other than portrait, the
   coaches-open landscape-3 full-width image) can now use the same options via their importers.
+
+### 2026-11-23 — article-search: the topic picker opens the source's custom menu (not the browser list)
+- **Source (search-results @375/768/1440):** `v-search-bar__topics-btn` (aria-expanded) + a `role="listbox"` menu: absolute,
+  21px below the button's top (overlapping it), width 100% of the picker but min 180, white, radius 12, padding 6,
+  shadow `0 10px 28px rgb(0 0 0 / 35%)`, z-index 10; options 40px (padding 10 12), radius 8, Graphik Regular 16 at
+  weight 600, black; grey #f2f2f2 on **hover only** (the selected option is not grey). Closes on pick / outside click;
+  Escape does nothing; no keyboard support. Topic list is empty on the source (`:topics="[]"`) → only "All", same as ours.
+- **Ours:** `blocks/article-search` builds `.article-search-picker` = `button.article-search-topics` (aria-haspopup=listbox,
+  aria-expanded, aria-controls; optional `Topics Label` read before the value) + `ul.article-search-menu[role=listbox]`
+  (aria-labelledby the button, aria-activedescendant). Same closing as the source, plus keyboard: Enter / Space / ↑↓
+  open, ↑↓ Home End move, Enter / Space pick, Escape closes (focus back to the button), Tab leaves. The keyboard-active
+  option gets the hover grey + a 2px black outline. Option font uses the `Graphik Regular Synth` face (weight 600
+  synthesised like the source). Authoring contract + hash format unchanged.
+- **Parity (standards mode):** button, menu and option boxes, text inset, radius, shadow identical at 375 / 768 / 1440;
+  screenshots of the open menu match.
+- Gate: lint (known backup error only) · breakpoints ✓ · overflow / typography / a11y ✓ on news + search-results; axe
+  with the menu open: 0 violations. Local only.
+
+### 2026-11-23 (later) — PDFs: shared-media copies removed, DA pages re-pointed to assets/docs (on request)
+- User decision: documents live ONLY under DA `assets/docs/…` — no `shared-media` folders.
+- The five Sync-made copies (all md5-identical to the assets/docs files) deleted from DA, with their three `shared-media`
+  folders (en/home/news, en/home, en/home/results). 71 DA pages under en/home, en/home/news, en/home/results checked first:
+  none else referenced shared-media.
+- The 6 DA pages (women-coaching-cohort article, courses, results college / ft-pro / pt-pro / volunteer-emerging coach):
+  only the PDF href changed, from `…aem.page/…/shared-media/…-<hash>.pdf` to the absolute
+  `https://main--coaching-usta--aemdemos.aem.live/assets/docs/…` URL — identical to the local content (which never changed).
+  Uploaded (200), read back identical. NOT previewed / published (the user does it).
+- Importer: unchanged. It already downloads docs to `content/assets/docs/<page path>/` and writes the absolute aem.live
+  link; the shared-media copies came from the editor Sync, which re-hosts linked docs. After any Sync of these pages, check
+  DA for `shared-media` again. `assets/docs/en/home/results/coaching-education-equivalency-graphic.pdf` is an older
+  unused copy (kept).
+- Confirmed the same day: a Sync at 11:50 / 12:10 UTC recreated the three shared-media PDFs and re-pointed all six pages
+  (DA version list). Fix re-applied on request (6 pages uploaded + read back identical; shared-media PDFs + folders
+  deleted again). Publish these pages from DA with Preview / Publish — NOT Sync. Making Sync keep docs in assets/docs is
+  an editor-tool change (support).
