@@ -127,7 +127,7 @@ body.landing-page main > .section.spacing-36:has(> .video-wrapper) { padding: 12
 
 /* the compact media cards close the page-title container (fellowship): only its 12px
    bottom padding follows the grid (the cards block's own margin), no section gap */
-body.landing-page main > .section.spacing-36:has(> .cards-wrapper > .cards.compact) {
+body.landing-page main > .section.spacing-36:has(> .cards-wrapper > .cards.media.compact) {
   padding-bottom: 0;
 }
 
@@ -305,25 +305,26 @@ body.landing-page .accordion.accordion-default .accordion-item-body a:any-link {
   body.landing-page .accordion.accordion-default .accordion-item-body { padding-inline: 12px; }
 }
 
-/* a narrow heading section (narrow-N, default content only) introduces the section
-   after it — on the source they are one section: no section gap between them, and the
-   usual 42px separator before the next block (not before a text-style intro or icon
-   cards, as within a section) */
-body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))):has(+ .section) {
+/* a narrow heading section (narrow-N, default content only — or a heading + its
+   text-style intro on the same narrow span, coachtennis "Packages for Every Tennis Coach")
+   introduces the section after it — on the source they are one section: no section gap
+   between them, and the usual 42px separator before the next block (not before a
+   text-style intro or icon cards, as within a section) */
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper, .text-style-wrapper))):has(+ .section) {
   padding-bottom: 0;
 }
 
-body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section {
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper, .text-style-wrapper))) + .section {
   padding-top: 0;
 }
 
-body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > :first-child:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons img)) {
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper, .text-style-wrapper))) + .section > :first-child:not(.text-style-wrapper, .default-content-wrapper, .cards-wrapper:has(.cards.icons img)) {
   margin-top: var(--text-block-gap, 42px);
 }
 
 /* heading → copy: 24px = the heading component's 12px bottom (the heading section's
    wrapper padding) + the copy component's 12px top (source coaching-workshops) */
-body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper))) + .section > .default-content-wrapper:first-child > :first-child {
+body.landing-page main > .section.narrow-cols:not(:has(> :not(.default-content-wrapper, .text-style-wrapper))) + .section > .default-content-wrapper:first-child > :first-child {
   margin-top: var(--heading-copy-gap, 12px);
 }
 
@@ -652,4 +653,19 @@ body.landing-page main > .section:not(.toc-panel) .default-content-wrapper > p.b
   box-sizing: border-box;
   width: 280px;
   max-width: 100%;
+}
+
+/* the stats strip (Banner (stats)) and the compact icon / photo grid (Cards (icons,
+   compact)) on coachtennis are followed by the source's 96px separator preset (8 → 84
+   @1024 → 96 @1280) + the next heading's 12px inset, instead of the section rhythm */
+body.landing-page main > .section:has(.cards.icons.compact) { padding-bottom: 0; }
+
+body.landing-page main > .section:is(:has(.banner.stats), :has(.cards.icons.compact)) + .section { padding-top: 8px; }
+
+@media (width >= 1024px) {
+  body.landing-page main > .section:is(:has(.banner.stats), :has(.cards.icons.compact)) + .section { padding-top: 84px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:is(:has(.banner.stats), :has(.cards.icons.compact)) + .section { padding-top: 96px; }
 }

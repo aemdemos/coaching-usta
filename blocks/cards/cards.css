@@ -2139,6 +2139,7 @@ main > .section.cards-container > .default-content-wrapper {
 .cards.icons .cards-icons-image img {
   width: 55px;
   height: auto;
+  aspect-ratio: auto; /* an icon never takes the block's image crop option */
 }
 
 .cards.icons .cards-icons-card :is(h2, h3, h4) {
@@ -2248,4 +2249,318 @@ main > .section.cards-container > .default-content-wrapper {
    cards variants keep their own section padding (they need the same line to follow). */
 .cards-container.inset-px:has(.cards.quote, .cards.icons) {
   padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
+}
+
+/* photo tiles in an icon-card grid (a row holding only a picture — coachtennis "Why Join":
+   card · photo · card / photo · card · photo). The photo fills its tile, 20px corners;
+   its shape comes from the block's image crop option (`landscape` = the source preset). */
+.cards.icons .cards-icons-photo {
+  margin: 0;
+  line-height: 0;
+}
+
+.cards.icons .cards-icons-photo :is(picture, img) {
+  display: block;
+  width: 100%;
+  border-radius: 20px;
+}
+
+
+/* compact: the source's narrow-text card preset (coachtennis "Why Join"). Cards #1e1e1e,
+   radius 20, padding 24, no top-margin quirk; 16px apart on phones (24 from 768, the
+   columns' 8 / 12px insets), on the content edges (no 8px overhang on phones). Icon = 1/12
+   of the card (28 phones · 14 @768 · 22 @1024 · 30 @1280 · 35 @1440) in its 12px 8px
+   (12px) cell; title Graphik Semibold 20 / 19.2 (21.6 from 1280) 24px under the icon;
+   copy Graphik 16/19.2 −0.03em (14/16.8 at 768–1023) 24px under the title; 62px under the
+   copy on phones (36 from 768). From 768 the cards in a row take the row's height (the
+   photos keep their crop); the grid sits 12px in from the copy above and the block after
+   it, rows 24px apart. */
+.cards.icons.compact > ul {
+  margin: 12px 0;
+  row-gap: 24px;
+}
+
+.cards.icons.compact .cards-icons-card {
+  container-type: inline-size;
+  margin: 0;
+  padding: 24px 24px 62px;
+  background: #1e1e1e;
+}
+
+.cards.icons.compact .cards-icons-image img { width: calc((100cqw + 48px) / 12); }
+
+.cards.icons.compact .cards-icons-card :is(h2, h3, h4) {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 19.2px;
+}
+
+.cards.icons.compact .cards-icons-card p:not(.cards-icons-image) {
+  font-size: 16px;
+  line-height: 19.2px;
+  letter-spacing: -0.03em;
+}
+
+@media (width >= 768px) {
+  .cards.icons.compact .cards-icons-card { padding-bottom: 36px; }
+
+  /* (768–1023: the 14px icon sits in a taller line box on the source — 3px more above and
+     below it) */
+  .cards.icons.compact .cards-icons-image { padding-block: 15px; }
+
+  .cards.icons.compact .cards-icons-image img { width: 14px; }
+
+  .cards.icons.compact .cards-icons-card p:not(.cards-icons-image) {
+    font-size: 14px;
+    line-height: 16.8px;
+  }
+}
+
+@media (width >= 1024px) {
+  .cards.icons.compact .cards-icons-image { padding-block: 12px; }
+
+  .cards.icons.compact .cards-icons-image img { width: 22px; }
+
+  .cards.icons.compact .cards-icons-card p:not(.cards-icons-image) {
+    font-size: 16px;
+    line-height: 19.2px;
+  }
+}
+
+@media (width >= 1280px) {
+  .cards.icons.compact .cards-icons-image img { width: calc((100cqw + 48px) / 12); }
+
+  .cards.icons.compact .cards-icons-card :is(h2, h3, h4) { line-height: 21.6px; }
+}
+
+/* ---------------------------------------------------------- pricing packages --
+   The package cards (coachtennis "Packages for Every Tennis Coach"; `packages` option of
+   pricing — its own markup, no tab UI). Source (measured 375 / 768 / 1024 / 1280 / 1440):
+   one column below 1024, four from 1024, cards 24px apart, 8px (12px from 768) inside
+   the cards grid; card 1px white, radius 20, #131313 (the highlighted tier #0d1522),
+   content 8px (12px) in. Top to bottom: tier icon (40px) + name 62px down (the label pill
+   instead on the highlighted tier, 12px down, then 24px), price 24px under the icon, tagline
+   24px under the price, CTA 66px under the tagline (50 on the highlighted tier), features
+   66px under the CTA, 26px apart, 38px of card under the last one. Name Graphik Semibold
+   16/19.2 (18/21.6 from 1280) in the tier accent, 10px after the icon, 0.6em down; price
+   USTA Sans 56/56, period 14px #a8a8a8; tagline USTA Sans 14/14 (18/18 from 1280); CTA /
+   label Graphik Semibold 14 → 16 (768) → 18px (1280), line 20, 40px tall, 14px side padding (280px minimum
+   on phones), CTA 2px accent outline + accent text, radius 12 (filled on the highlighted
+   tier), 120px minimum from 768, label a lime pill (16px side padding); labels at normal
+   tracking (the source's 1px sits on the button box, its label resets it); features Graphik 14/18 with the accent check (20px) 30px in.
+   Equal heights per row from 1024. Standardised: the source's per-card blank lines between
+   some features and its trailing spacers (cards 0–16px apart in height) are not copied. */
+.cards.pricing.packages > ul {
+  grid-template-columns: 1fr;
+  padding: 24px 8px; /* the cards container's 12px + the tier column's 12px */
+}
+
+.cards.pricing.packages .cards-packages-card {
+  --packages-accent: #fff;
+  --packages-check: url("../../icons/check-white.png");
+
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 62px 8px 38px;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  background: #131313;
+  color: #fff;
+}
+
+.cards.pricing.packages .cards-packages-blue {
+  --packages-accent: #0373f3;
+  --packages-check: url("../../icons/check-blue.png");
+}
+
+/* (the source blue on the #131313 card is 4.2:1 — the name text takes the nearest blue that
+   meets WCAG AA 4.5:1; the outline, label and checks keep #0373f3) */
+.cards.pricing.packages .cards-packages-blue .cards-packages-name { color: #167cf4; }
+
+.cards.pricing.packages .cards-packages-lime {
+  --packages-accent: var(--usta-lime);
+  --packages-check: url("../../icons/check-lime.png");
+}
+
+.cards.pricing.packages .cards-packages-green {
+  --packages-accent: #a4ee90;
+  --packages-check: url("../../icons/check-green.png");
+}
+
+.cards.pricing.packages .cards-packages-card.featured {
+  padding-top: 12px;
+  background: #0d1522;
+}
+
+.cards.pricing.packages .cards-packages-card :where(p, h1, h2, h3, h4, h5, h6, ul) { margin: 0; }
+
+.cards.pricing.packages .cards-packages-label {
+  align-self: center;
+  box-sizing: border-box;
+  min-width: 280px;
+  max-width: 100%;
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: normal; /* the source's 1px sits on the button box; its label resets it */
+  text-align: center;
+}
+
+.cards.pricing.packages .cards-packages-tier {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cards.pricing.packages .cards-packages-icon {
+  flex: 0 0 40px;
+  line-height: 0;
+}
+
+.cards.pricing.packages .cards-packages-icon :is(picture, img) {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+
+.cards.pricing.packages .cards-packages-name {
+  margin-top: 0.6em;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19.2px;
+  letter-spacing: normal;
+  color: var(--packages-accent);
+}
+
+.cards.pricing.packages .cards-packages-price {
+  margin-top: 24px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 56px;
+  line-height: 56px;
+  color: #fff;
+}
+
+.cards.pricing.packages .cards-packages-per {
+  font-size: 14px;
+  line-height: 14px;
+  color: #a8a8a8;
+}
+
+.cards.pricing.packages .cards-packages-tagline {
+  margin-top: 24px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+.cards.pricing.packages .cards-packages-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 66px;
+}
+
+.cards.pricing.packages .featured .cards-packages-cta { margin-top: 50px; }
+
+.cards.pricing.packages a.cards-packages-button:any-link {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 280px;
+  max-width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border: 2px solid var(--packages-accent);
+  border-radius: 12px;
+  background: #000;
+  color: var(--packages-accent);
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: normal;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cards.pricing.packages .featured a.cards-packages-button:any-link {
+  background: var(--packages-accent);
+  color: #000;
+}
+
+.cards.pricing.packages a.cards-packages-button:hover {
+  background: var(--packages-accent);
+  color: #000;
+}
+
+.cards.pricing.packages .featured a.cards-packages-button:hover {
+  border-color: #fff;
+  background: #fff;
+}
+
+.cards.pricing.packages a.cards-packages-button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cards.pricing.packages .cards-packages-features {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-top: 66px;
+  padding: 0;
+  list-style: none;
+}
+
+.cards.pricing.packages .cards-packages-features li {
+  padding-left: 30px;
+  background: var(--packages-check) left -1px / 20px 20px no-repeat;
+  font-family: var(--body-font-family);
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: normal;
+  color: #fff;
+}
+
+@media (width >= 768px) {
+  .cards.pricing.packages > ul { padding-inline: 12px; }
+
+  .cards.pricing.packages .cards-packages-label,
+  .cards.pricing.packages a.cards-packages-button:any-link { font-size: 16px; }
+
+  .cards.pricing.packages .cards-packages-card { padding-inline: 12px; }
+
+  .cards.pricing.packages .cards-packages-label { min-width: 0; }
+
+  .cards.pricing.packages a.cards-packages-button:any-link { min-width: 120px; }
+}
+
+@media (width >= 1024px) {
+  .cards.pricing.packages > ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (width >= 1280px) {
+  .cards.pricing.packages .cards-packages-label,
+  .cards.pricing.packages a.cards-packages-button:any-link { font-size: 18px; }
+
+  .cards.pricing.packages .cards-packages-name {
+    font-size: 18px;
+    line-height: 21.6px;
+  }
+
+  .cards.pricing.packages .cards-packages-tagline {
+    font-size: 18px;
+    line-height: 18px;
+  }
 }

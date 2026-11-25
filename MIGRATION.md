@@ -4504,6 +4504,7 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 | results ×6 | Join / Get Started for Free `wizard`; Package Required pop-up (logged-in, no package); certification accordions (badges / progress?) | wizard; pop-up; verify personal data with a test login |
 | courses, learning-pathway | Package Required pop-up; course list → LMS; certification accordions | pop-up; verify personal data |
 | membership-benefits, coachtennis | "Start the Quiz" / "Take the Quiz" `quiz` | quiz |
+| coachtennis | hero "Get started for free" (`wizard`) + the 4 package CTAs → /en/home/membership-benefits (plain links) | wizard / Join flow |
 | account area (12 gated + 3 personalised) | everything personal; Package Required v2–v7; Achievements modals | decision A (rebuild) / B (link to existing platform) |
 
 ### Phase 2 — dynamic & login-dependent features (after Phase 1)
@@ -4594,7 +4595,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 |---|---|---|---|
 | /en/home/news (news index: latest articles, featured, tags — list from the EDS query index) | H | /en/home/about (Cards text, Columns profile / Cards profile, Cards logos, Contact) | M |
 | /en/home/news/search-results (search bar + results → Columns list; client-side search on the query index) | H | /en/home/learning-pathway/usta-coaching-equivalency-application (Form application + Tabs application — built) | M |
-| /en/home/coachtennis (quiz CTAs → static links for now) | M | /en/home/job-board (tiers + job content) | L |
+| /en/home/coachtennis (quiz CTAs → static links for now) — ✅ DONE 2026-11-25 (drafts/meet, local; 4 new block options) | M | /en/home/job-board (tiers + job content) | L |
 | /en/home/workshops | M | /en/home/membership-benefits (Cards pricing, Banner centered, FAQ) | M |
 | /en/home/workshops/education-center-locations (location list + Google map — largest page, 245 instances) | H | /en/maintenance-page (standalone) | L |
 
@@ -5675,3 +5676,103 @@ not previewed). Importer: `import-landing-page-v1.js`, unchanged (URLs `tools/im
   section-bottom, accordion-courses, banner-grant, banner-default (all still in DA + local `content/`: a Sync
   would re-upload them), and `accordion-base`, served from git `drafts/block-samples/` (repo code, not DA). Local
   copies kept for now (user stopped the deletion).
+
+### 2026-11-25 — coachtennis imported (drafts/meet) — 4 new block options, landing importer kinds
+Source https://www.ustacoaching.com/en/home/coachtennis.html (paid-media landing page) → local
+`drafts/meet/coachtennis` (local only — not in DA, not previewed; the real `en/home/coachtennis` page gets created
+after review). Template `landing-page`, no theme. Importer `import-landing-page-v1.js` (URLs
+`tools/importer/urls-coachtennis.txt`; backup `tools/importer/backups/landing-page/coachtennis/`); images finalized
+(13, `media-da/drafts/meet/coachtennis/`).
+
+**Page → blocks:** `Hero (content, wide)` · `Banner (stats)` · "Why Join USTA Coaching?" h2 (`center, narrow-10`) ·
+Text Style (lead) + `Cards (icons, compact, landscape)` (`center`) · "Packages for Every Tennis Coach" h2 + intro
+(`center, narrow-10`) · `Cards (pricing, packages)` · "Find your perfect fit" h2 + intro (`center, narrow-10,
+inset-4`) · `Columns (photos)` + Take the Quiz CTA (`center, inset-4`). The "Get on the list" form is the site
+footer's (not imported). Decisions (user, 2026-11-25): hero = Hero (content) + an option; stats strip = a Banner
+option (no existing banner matches: Banner (info) is heading + label/body pairs); Why Join = Cards (icons, compact);
+packages = a new Cards (pricing) option (this design is on coachtennis only — home / membership-benefits /
+learning-pathway / courses / results still use the v-tiers design of Cards (pricing)).
+
+**New options (each with a block sample from `import-sample-landing-blocks.js`, urls-sample-coachtennis.txt):**
+- `Hero (content, wide)` (hero.css; sample `hero-content-wide`): copy on the full panel — 47px in on phones (title
+  11/12, intro 10/12 columns), 29 (768) / 37px (1024) from both edges; title → intro 108 (66 from 1024), intro → CTA
+  66; top 75/87/129/141; intro Graphik 16 → 18 → 24; ONE centred CTA, label 14 → 16 → 18 at normal tracking, 48 / 50 /
+  56 tall, 24px sides, 280 minimum on phones. The title doesn't break a long word (source: "COMMMUNITY" runs past its
+  293px box at 375 — the base hero's `overflow-wrap: anywhere` broke it into a 5th line).
+- `Banner (stats)` (banner.js `decorateStats` + banner.css; sample `banner-stats`): one row, one cell per figure
+  (figure paragraph + label). Grey gradient (360deg #202020 → rgb(72 72 72 / 90%)), no outline / radius, on the
+  HERO's width (8/28/36/52 gutters, not the cards grid); 4-up from 1280, stacked below; figure USTA Sans lime 28 →
+  32 → 40, label USTA Sans 14/18; 24 between, 38 above / below; 12/12/20/36 under the hero.
+- `Cards (icons, compact)` + photo tiles (cards.js `decorateIcons`: a row holding only a picture = `.cards-icons-photo`
+  tile, in ANY icon cards; cards.css; sample `cards-icons-compact`): compact = #1e1e1e cards, icon 1/12 of the card
+  (container units; 14px @768, 22 @1024), title Graphik Semibold 20/19.2 (21.6 from 1280), copy 16/19.2 −0.03em (14/16.8
+  at 768–1023), 62 / 36px under the copy; grid 12px in, rows 24 apart, cards share the row height from 768 (photos keep
+  their crop). Photos take the GLOBAL `landscape` crop option (importer `cropOptions()` of the source image preset).
+  Icons never take a block crop (`aspect-ratio: auto` on `.cards-icons-image img`).
+- `Cards (pricing, packages)` (cards.js `decoratePackages`, cards.css; sample `cards-pricing-packages`; 4 check icons
+  `icons/check-{white,blue,lime,green}.png` = the source PNGs, 20px): one row per tier — cell 1 [label] · icon · name
+  (h3) · price ("$49/yr", the block splits the period) · tagline (h4) · CTA link · feature list; cell 2 the accent
+  `blue` / `lime` / `green` (empty = white; the importer reads it from the CTA's author border colour). A tier with a
+  label = the highlighted #0d1522 card, filled CTA, 50px tagline → CTA (66 otherwise). 1-up below 1024, 4-up from 1024,
+  24 apart, 24px inside the cards grid; all paddings / gaps / type measured per breakpoint (see the CSS header).
+  Labels 14 → 16 → 18px at NORMAL tracking (the source's 1px letter-spacing sits on the button box; its label span
+  resets it — same as the 2026-10-19 finding), 120px minimum from 768, 280px on phones.
+
+**Importer (`import-landing-page-v1.js`):** new kinds `cards-packages`, `banner-stats` (onLoad stamps gradient panels
+`data-bg="gradient"`), `cards-icons-tiles`; `hero-content` adds `wide` when the copy sits < 48px from the panel edge;
+`columns-photos` also matches photos + CTA only (its heading + intro already split off); prepareSections no longer splits
+a container of package tiers into sections (each has a 56px USTA Sans price) and marks loose heading runs
+(`data-loose-text`, read later because emitting moves the nodes); a loose run that is all centred lead (heading + intro
+on one narrow span) right before a block section → ONE narrow heading section (the next section doesn't join it).
+**Regression:** 21 existing pages (13 landing, 6 results, news + search results) re-imported with the HEAD bundles and
+the new ones — byte-identical. All bundles that import the landing importer rebuilt.
+
+**Landing template (landing-page.css):** the "narrow heading section introduces the next section" rules now accept a
+text-style intro in the heading section (no other page has one); after the stats strip and after the compact icon grid
+the next section starts on the source's 96px separator preset (8 → 84 @1024 → 96 @1280) instead of the section rhythm.
+
+**Verified** (standards mode, `migration-work/coachtennis/compare.mjs`) vs source @375/768/1024/1280/1440: hero (panel,
+title box + line count, intro, CTA), stats panel + figure / label rows, every heading and intro, Why Join tiles (x / w /
+h, icon, title, copy), package card internals (icon, name, price, tagline, CTA, label, first features), photos = source
+(0–2px); from 1280 every anchor down to the package cards is identical.
+
+**Accepted deviations (standardised):**
+1. Package cards 35–48px shorter: the source author's blank lines after some features (and trailing spacers) are not
+   copied — features are 26px apart throughout. Everything below shifts up by that much.
+2. Stats below 1280: the source sets each figure in a 3-of-12 column at the LEFT while its label is centred (and "4
+   OPTIONS" wraps there) — here every figure is centred over its label (panel 28 / 32 / 40px shorter at 375 / 768 /
+   1024).
+3. Pro tier header (icon + name) left-aligned on phones / tablets like the other tiers (the source centres only Pro's).
+4. Baseline price 56px at every width like the other tiers (the source's "FREE" uses the 32/40 preset below 1280).
+5. "Take the Quiz" uses the landing lone-CTA standard (280px, as coaching-community's "Learn More" after its photos); the
+   source picked a label-width preset here (187px desktop).
+6. Rally name #167cf4 instead of #0373f3 (the source blue on the #131313 card is 4.2:1; AA needs 4.5) — outline, label
+   and checks keep #0373f3.
+7. Landing h2 28px on phones (source 32) — the template's existing scale.
+
+**Phase 2 hooks:** hero "Get started for free" (`wizard`) and the 4 package CTAs link to /en/home/membership-benefits;
+"Take the Quiz" (`quiz`) likewise (Phase 2 inventory updated).
+
+Gate (2026-11-25): lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · svg ✓ ·
+overflow ✓ / typography ✓ / a11y ✓ on drafts/meet/coachtennis, the 4 new samples, en/home, en/home/coach-mentorship,
+en/home/coaching-community, drafts/meet inclusion-summit + results/school-coach, samples cards-icons / cards-pricing /
+hero-content / columns-photos / banner; en/home/courses a11y only the known cards-comparison contrast finding.
+Browser checks with PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers (a copy of the installed headless shell under the
+version the repo's Playwright expects).
+- **Placed at its real path (user, 2026-11-25):** `en/home/coachtennis` = the same import output (identical to
+  `drafts/meet/coachtennis` apart from the image folder), images finalized to `media-da/en/home/coachtennis/` (per-page
+  convention). The drafts/meet copy stays as the review copy. Gate at the real path: overflow ✓ · typography ✓ · a11y ✓;
+  parity @1440 unchanged. Package features keep the even 26px spacing (user decision 2026-11-25: deviation 1 stays).
+  LOCAL only — not uploaded to DA, not previewed / published.
+
+### 2026-11-25 — `compact` stays a Cards option (not site-wide) + block samples for the coachtennis options
+- Audit: `compact` exists only on the Cards block — `Cards (media, stacked, compact)` (fellowship) and
+  `Cards (icons, compact)` (coachtennis); no other block uses it (other "compact" hits are comment wording). Both come from
+  the source's `text--letter-spacing--narrow` preset, but only the copy style is shared (16/19.2 −0.03em, 14/16.8 at
+  768–1023); the rest is per variant → **user decision: keep `compact` scoped to Cards**, no site-wide option.
+- Tidy-up: the fellowship rule "compact media cards close the page-title container" (landing-page.css) now targets
+  `.cards.media.compact` (was any `.cards.compact`, which would also have caught the icon cards in a `spacing-36` section).
+- Block samples (drafts/block-samples, generated by `import-sample-landing-blocks.js` from coachtennis):
+  `hero-content-wide`, `banner-stats`, `cards-icons-compact` (with `landscape`), `cards-pricing-packages`; with the
+  existing `cards-media-stacked-compact` and `image-crop` (the crop options). Local only — not in DA.
+- Gate: stylelint ✓ · breakpoints ✓ · overflow ✓ / a11y ✓ on fellowship + the 5 compact / new samples.

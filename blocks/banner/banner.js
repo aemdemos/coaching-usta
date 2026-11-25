@@ -79,7 +79,37 @@ function decorateInfo(block) {
   block.replaceChildren(inner);
 }
 
+/*
+ * stats — a strip of headline figures (coachtennis "16,700+ Community members" …).
+ * Authoring: one row, one cell per figure; in each cell the first paragraph is the
+ * figure, the rest its label.
+ */
+function decorateStats(block) {
+  const list = document.createElement('div');
+  list.className = 'banner-stats';
+  [...block.children].forEach((row) => [...row.children].forEach((cell) => {
+    let paras = [...cell.querySelectorAll('p')];
+    if (!paras.length && cell.textContent.trim()) {
+      const p = document.createElement('p');
+      p.append(...cell.childNodes);
+      paras = [p];
+    }
+    paras = paras.filter((p) => p.textContent.trim());
+    if (!paras.length) return;
+    const stat = document.createElement('div');
+    stat.className = 'banner-stat';
+    paras.forEach((p, i) => { p.className = i === 0 ? 'banner-stat-figure' : 'banner-stat-label'; });
+    stat.append(...paras);
+    list.append(stat);
+  }));
+  block.replaceChildren(list);
+}
+
 export default function decorate(block) {
+  if (block.classList.contains('stats')) {
+    decorateStats(block);
+    return;
+  }
   if (block.classList.contains('info')) {
     decorateInfo(block);
     return;
