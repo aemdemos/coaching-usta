@@ -138,6 +138,19 @@ main > .section.banner-container > div {
   color: #fff;
 }
 
+/* lime: lime panel, black text, black pill + white label (source inclusion-summit
+   "EDUCATION GRANTS AVAILABLE": #cfff05 panel, black 56px CTA with a white label) */
+.banner.lime {
+  background-color: var(--usta-lime);
+  color: #000;
+  border: 0;
+}
+
+.banner.lime .banner-cta {
+  background-color: #000;
+  color: #fff;
+}
+
 /* ---- tablet+: two-column centered row --------------------------------------
    the source switches to the horizontal layout at tablet already: HEADING on the
    left, a CONTENT column on the right (body copy with the CTA stacked below it),
@@ -638,6 +651,13 @@ main > .section.banner-container > div {
     grid-area: action;
     width: 100%;
   }
+
+  /* filled stacked banners (blue / lime) carry longer CTA labels ("Request a Workshop" —
+     the source gives it 4 of 12 columns): the CTA column grows to the label and the
+     text column gives way, so the button never runs out of the panel */
+  .banner.stacked:is(.blue, .lime) .banner-inner {
+    grid-template-columns: minmax(0, calc((100% + 24px) * 9 / 12 - 24px)) minmax(max-content, 1fr);
+  }
 }
 
 @media (width >= 1024px) {
@@ -645,6 +665,10 @@ main > .section.banner-container > div {
 
   .banner.stacked .banner-inner {
     grid-template-columns: calc((100% + 24px) * 10 / 12 - 24px) minmax(0, 1fr);
+  }
+
+  .banner.stacked:is(.blue, .lime) .banner-inner {
+    grid-template-columns: minmax(0, calc((100% + 24px) * 10 / 12 - 24px)) minmax(max-content, 1fr);
   }
 
   .banner.stacked .banner-heading {

@@ -4485,7 +4485,8 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 |---|---|
 | ✅ Done + verified | home (`import-home`); news articles ×56 (`import-news-article-v1`) |
 | ✅ Re-imported + verified (`en/home` replaced 2026-11-17; old versions in `drafts/meet/backup/`) | coach-mentorship, coaching-community |
-| 🟡 First pass in `drafts/meet` — mapping still needed | coaching-community/{coaching-workshops, fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit}, courses, learning-pathway, membership terms (complete text), gallagher-disclaimer {pro, pro-plus, rally} (form sheet mapping), account/flag-profile (Formstack form) — gap list in the 2026-11-16 first-pass log entry |
+| ✅ Verified vs live source (2026-11-20; authored `Form` pages, not importer output) | gallagher-disclaimer {pro, pro-plus, rally} — see the 2026-11-20 Gallagher entry |
+| 🔵 Mapped + imported, placed at `en/home` (local), gates run — design / parity pass next (2026-11-20) | coaching-community/usta-coaches-inclusion-summit, membership terms, account/flag-profile, courses, learning-pathway — see the 2026-11-20 log entries |
 | 🟠 In content but never imported / parity-checked (authored in DA) | results ×5 (college, ft-pro, pt-pro, school, volunteer-emerging), about/faqs, gallagher-disclaimer-baseline, settings/lead-interests, settings/unsubscribe |
 | ⬜ Not started | results/guardian-coach (+ the results set via an importer); listing-hub: news index, news search results, coachtennis, workshops, workshops/education-center-locations; about; learning-pathway/usta-coaching-equivalency-application; job-board; membership-benefits; maintenance-page |
 | ⛔ Not Phase 1 | account area (dashboard, my-*, edit-profile, coach-achievements, learning, myschools/* incl. renew/*) — client-rendered app screens; decision A/B in Phase 2. auth-error pages. |
@@ -4503,6 +4504,8 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 | coaching-workshops | section "Unlock On-Demand Workshops" `nonLogged`; Join `wizard` | audience setting; wizard |
 | results ×6 | Join / Get Started for Free `wizard`; Package Required pop-up (logged-in, no package); certification accordions (badges / progress?) | wizard; pop-up; verify personal data with a test login |
 | courses, learning-pathway | Package Required pop-up; course list → LMS; certification accordions | pop-up; verify personal data |
+| inclusion-summit | "Coming Soon" CTA has no target (`href="#"`); a hidden "Register Now" (cvent) twin is authored for later | swap to Register when the source does |
+| flag-profile | Formstack form → `Form` on the DA sheet `/forms/flag-form.json` (submission target = the sheet's) | confirm the sheet with the authors |
 | membership-benefits, coachtennis | "Start the Quiz" / "Take the Quiz" `quiz` | quiz |
 | account area (12 gated + 3 personalised) | everything personal; Package Required v2–v7; Achievements modals | decision A (rebuild) / B (link to existing platform) |
 
@@ -4607,7 +4610,9 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 importer run (never hand-built) → images finalized (reuse existing media; new ones to `media-da/<path>/`) →
 parity vs source at 375 / 768 / 1024 / 1280 / 1440 (+ wide) → quality gate (lint, breakpoints, overflow,
 typography, a11y) → importer backup → migration-log entry → dynamic hooks added to the Phase 2 inventory.
-Import into `drafts/meet/<source path>` first; replace the real page only after review (back it up first).
+~~Import into `drafts/meet/<source path>` first; replace the real page only after review (back it up first).~~
+**Changed (user, 2026-11-20):** import straight to the real path (`en/home/<source path>`); back up an existing page
+first (`drafts/meet/backup/<path>-<date>`). The drafts-first step is no longer required.
 
 ### Risks / dependencies
 - Day 1 Person A + Day 3 Person A carry the H items; if they slip, move flag-profile / terms (Day 1) or
@@ -4958,3 +4963,117 @@ The PR build (`npm run lint`) failed with `import/no-unresolved` in
 `tools/importer/backups/quiz-results-2026-11-18/accordion.js`. Backups are verbatim snapshots of live blocks, so their
 relative imports (`../../scripts/scripts.js`) only resolve from `blocks/<name>/`. Don't "fix" the path in the backup
 (that breaks a restore); `tools/importer/backups` is now in `.eslintignore`. Gate: lint 0 errors.
+
+### 2026-11-20 — five landing pages mapped + imported (drafts/meet): inclusion-summit, terms, flag-profile, courses, learning-pathway
+**Scope (user, 2026-11-20):** import into the review area (`drafts/meet/<source path>`), fix the mapping gaps in the
+importers; design / parity refinement is a later pass. gallagher-disclaimer-pro kept as is (done 11-18). LOCAL only —
+not uploaded to DA, not previewed / published. The earlier first-pass drafts of inclusion-summit / terms / flag-profile
+were replaced (copies kept outside content in the scratch folder for the session). `en/home/*` pages untouched.
+**Importers:** inclusion-summit, terms, flag-profile → `import-landing-page-v1.js`; courses, learning-pathway →
+`import-quiz-results-v1.js` (the landing importer + the education kinds: certification accordions, course lists,
+tiers — both pages use the same components as the results pages). Template: landing-page. Backup:
+`tools/importer/backups/landing-page/five-pages-2026-11-20/` (both importers + bundles, cleanup, urls, manifest).
+
+**New / changed mappings (all to existing blocks):**
+| Source | → EDS | Pages |
+|---|---|---|
+| `navigation` sub-nav (Courses / Workshops / Education Centers) | `Tabs`, one link row per page | courses |
+| Formstack embed (`flag_coach_profile`) | `Form` → `/forms/flag-form.json` (`FORM_SHEETS` map; unknown Formstack forms stay a plain link) | flag-profile |
+| `v-cost-card` fragment + its two notes | `Cards (comparison)`: logo \| h3, subtitle, price label + value, description, total label + value; coming-soon = title twice; one row per note | courses, learning-pathway |
+| fragment holding one colour panel ("Explore workshops & events") | `Banner (blue)` | courses, learning-pathway |
+| background-photo panel + text panel ("Discover our learning pathway") | `Columns (media)` | courses |
+| blue / lime filled panel: text column + one CTA | `Banner (stacked, blue)` / **`Banner (stacked, lime)` (new `lime` colour option)** | courses, inclusion-summit |
+| gray-outlined italic quote cards | `Cards (quote)` | inclusion-summit |
+| rounded blue panel, centred heading + lime CTA ("Advance Your Coaching Career") | `Banner (spotlight)` (existing rule: blue + lime CTA + h2) | inclusion-summit |
+| colour panel after the FAQ ("More questions? Visit Coach Care.") | `Banner (centered, blue)` after the accordion | learning-pathway |
+| course catalog (`v-course-list__top-filters`) | empty `Course Filter` (loads the LMS itself) | courses |
+| several certification accordions in one section | one Accordion each (pathway = 2-up course grid, else timeline), copy between them as default content | learning-pathway |
+| a second source h1 ("Courses and Workshops") | h2 (one h1 per page) | courses |
+
+**CSS:** banner.css `lime` colour option (lime panel, black text, black CTA + white label = the blue one's CTA);
+filled stacked banners (`.stacked:is(.blue, .lime)`) let the CTA column grow to its label from 768 — "Request a
+Workshop" ran 16px out of the viewport at 1280 (the source gives it 4 of 12 columns); the outlined stacked banner is
+unchanged. styles.css: default-content image cap `max-width: min(360px, 100%)` (was 360px — wider than a 328px phone
+column, the courses pathway graphic overflowed at 360).
+**Tooling:** `tools/assets/fetch-page-images.mjs` reuses a copy already in the folder under its DA-upload name
+(`<stem>-<md5>-<suffix>.<ext>`) instead of downloading a duplicate (inclusion-summit: 5 reused, 0 downloaded).
+
+**Regression:** the 7 other landing pages (CM, CC, CW, fellowship, gallagher ×3) and the 6 results pages re-imported
+with the new importers = **byte-identical** to the previous importer output.
+**Gate (2026-11-20):** lint 0 errors (8 old warnings) · breakpoints ✓ · overflow ✓ at 360/768/1024/1280/1920 on the 5
+drafts + en/home, en/home/courses, en/home/coaching-community · typography ✓ (5 drafts) · a11y ✓ inclusion-summit,
+terms, flag-profile; ✘ courses + learning-pathway: `color-contrast` in `Cards (comparison)` (white 12–18px text on
+#0373F3 ≈ 4.4:1 — the source's colours; the same failure is on en/home/courses and the block sample, so it predates
+this import). **Decision (user, 2026-11-20): keep the source colours — a logged, accepted a11y exception** for
+`Cards (comparison)` (PER YEAR pill + TOTAL footer); the a11y check stays red on pages with that block. The project's Playwright browser (1187) isn't installed in this environment: overflow /
+typography ran from copies of the checkers loading the importer's Playwright, a11y from the same axe scan
+(config tags + failing impacts) — logic unchanged.
+
+**Known gaps / for the design pass:**
+- courses: the pathway graphic shows the desktop image only (source swaps a phone image; no responsive-image block)
+  and is capped at 360px wide as default content (source: full width); 5 cost cards wrap 4 + 1 (source 5 columns);
+  "SET YOUR PATHWAY" section not centred (source text component has no centre flag — check visually).
+- courses: the live source has **no tier cards** under "PACKAGES FOR EVERY KIND OF COACH" (heading + "See all
+  benefits" only) — the older en/home/courses page has `Cards (pricing)` there; the import follows the live page.
+- courses / learning-pathway: the equivalency-chart PDF link stays `/content/dam/…pdf` (as on the results drafts) —
+  finalize to `/assets/docs/…` before publishing.
+- learning-pathway: the coming-soon Specialist / Master accordions have no course list → `Accordion (timeline)`
+  header-only rows.
+- terms: same text / 32 paragraphs / 49 breaks / 22 links as en/home (only collapsed double spaces + `narrow-8`
+  instead of the retired `narrow-desktop-8, heading-80` classes).
+
+### 2026-11-20 — the five pages placed at their real paths (local) + tabs ARIA fix
+User decision: no drafts-first step — pages go to their real path (the Definition of done above is updated).
+- Copied unchanged (byte-identical) from `drafts/meet/` to `en/home/`: coaching-community/usta-coaches-inclusion-summit,
+  membership-benefits/coaching-membership-terms-and-conditions, account/flag-profile (new folder), courses,
+  learning-pathway. inclusion-summit, flag-profile and learning-pathway did not exist there before.
+- Backups of the replaced pages (byte-identical): `drafts/meet/backup/courses-2026-11-20`,
+  `drafts/meet/backup/membership-benefits/coaching-membership-terms-and-conditions-2026-11-20` (the older
+  undated terms backup is kept). The drafts/meet copies stay as review copies.
+- **tabs.js (link mode):** the active page link no longer gets `aria-selected="true"` (only valid on role=tab — axe
+  `aria-allowed-attr`, critical, on en/home/courses where the Courses tab is current); `aria-current="page"` already
+  marks and styles it (tabs.css). Verified: active pill still lime / black; tabs sample a11y ✓.
+- Gate at the real paths: overflow ✓ (360–1920) on all 5 · a11y ✓ inclusion-summit, terms, flag-profile; courses +
+  learning-pathway only the accepted `Cards (comparison)` contrast exception. LOCAL only — not uploaded to DA, not
+  previewed / published.
+
+### 2026-11-20 — gallagher-disclaimer pro-plus + rally: already migrated — verified against the live source
+Both pages were already at `en/home/membership-benefits/gallagher-disclaimer-{pro-plus,rally}` in the agreed
+authoring (same as pro / baseline): h1 + intro as default content, then `Form` → `/forms/gallagher-disclaimer-<tier>.json`
+(published DA sheet) in a `split, intro-text` section. Nothing re-imported (the landing importer still emits the
+disclaimers as a plain accordion — the Form-on-a-sheet authoring is DA-authored; no importer mapping added).
+- **Content check vs live source:** intro (h1 + 2 paragraphs) identical; form text word-for-word = the sheet (rally:
+  1 disclaimer — AJG GAIS; pro-plus: AJG GAIS, General Everest, General Players Health, Electronic Delivery of Policy
+  Documents + the mandatory opt-in checkbox; eligibility copy; Submit). The only diffs were tag-join artefacts of the
+  comparison script.
+- **Render:** form block loads every disclaimer, the opt-in checkbox (pro-plus) and Submit.
+- **Type:** h1 32/32 → 40 (1024) → 64 (1280), intro 16/19.2 → 18/21.6 → 24/28.8 = source at 390/768/1024/1280.
+  `tools/quality/typography-check.mjs` now skips `main > .section.intro-text` (the source's 64px-32px title + 24px-16px
+  lead presets, like `heading-64` / `.intro-statement`) — it had flagged 10 false drifts on every Gallagher page
+  incl. the parity-checked pro.
+- Gate: overflow ✓ (360–1920) · typography ✓ (rally, pro-plus, pro, baseline) · a11y ✓ (rally, pro-plus). Local only.
+
+### 2026-11-23 — eight en/home pages uploaded to DA + previewed + published (user request)
+Pages: coaching-community/usta-coaches-inclusion-summit, membership-benefits/coaching-membership-terms-and-conditions,
+account/flag-profile, courses, learning-pathway, membership-benefits/gallagher-disclaimer-{pro,rally,pro-plus}.
+- **Workspace state found:** inclusion-summit, flag-profile and learning-pathway were missing from `content/en/home/`
+  (the 2026-11-20 copies were gone). Re-imported at their real paths with the unchanged importers (byte-identical to
+  `tools/importer/backups/landing-page/five-pages-2026-11-20/`) + `fetch-page-images.mjs`. Content = the validated
+  drafts/meet copies (only image file-name suffixes differ).
+- **Uploaded to DA:** those 3 + terms (DA still had the 2026-11-06 version). Courses + the 3 Gallagher pages already
+  matched DA (only `<p>` cell wrappers / image URLs differ) → preview + publish only. Inline images uploaded to
+  `<dir>/.<page>/<file>`; the upload doc points `<img>` at `content.da.live/...` (same layout the editor Sync used
+  for courses); local `content/` keeps `/media-da/...` (the only local↔DA difference). Readback: 0 diffs.
+  Helpers: `migration-work/preview-publish/{build-da-doc.cjs,norm.cjs,rasterize-svg.mjs}`.
+- **Gotcha — EDS rejects SVG images > 40KB on preview** (409 `AEM_BACKEND_FETCH_FAILED`, "Image N failed validation:
+  SVG is larger than 40KB"). learning-pathway's `delivering-competition` badge is 91KB → rasterized to a 400×400 PNG
+  (37KB) and the page points at the PNG. **Persisted generically (user OK):** `tools/assets/fetch-page-images.mjs`
+  now rasterizes any localized SVG > 40KB to a same-name 400px-wide transparent PNG (Playwright Chromium; `CHROME_BIN`
+  overrides the binary) and points the `<img>` at it; an existing PNG is reused. Proof: fresh import of
+  learning-pathway + the image step in an empty scratch folder → page and PNG byte-identical to content/
+  (`migration-work/persist-edit/20261123-103044/`); baseline recorded (state `unchanged`).
+- Verified: all 8 → 200 on aem.page + aem.live, 0 broken images (5 / 8 / 24 on inclusion-summit / courses / LP).
+- `/forms/gallagher-disclaimer-{pro,rally,pro-plus}.json` were previewed but not published → published (user OK),
+  200 on aem.live (flag-form.json was already live).
+- **Open:** uncommitted code (banner `lime` + filled-stacked CTA
+  column, tabs ARIA, image cap) is not on main → inclusion-summit's lime banner renders unstyled on aem.page/live.

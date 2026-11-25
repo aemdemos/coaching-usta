@@ -594,11 +594,12 @@ main > .section.center > .default-content-wrapper {
 
 /* loose (default-content) images inside a section — e.g. the Success Stories
    headshot authored as a bare picture — are centered and size-capped so they
-   don't blow up to full width. Block-owned images set their own sizing. */
+   don't blow up to full width. Block-owned images set their own sizing. The cap
+   never exceeds the column (a 328px phone column must not get a 360px image). */
 main > .section > div > picture img,
 main > .section > div > p > picture img {
   display: block;
-  max-width: 360px;
+  max-width: min(360px, 100%);
   height: auto;
   margin: 0 auto;
   border-radius: 12px;
