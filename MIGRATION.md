@@ -4485,8 +4485,8 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 |---|---|
 | ✅ Done + verified | home (`import-home`); news articles ×56 (`import-news-article-v1`) |
 | ✅ Re-imported + verified (`en/home` replaced 2026-11-17; old versions in `drafts/meet/backup/`) | coach-mentorship, coaching-community |
-| ✅ Verified vs live source (2026-11-20; authored `Form` pages, not importer output) | gallagher-disclaimer {pro, pro-plus, rally} — see the 2026-11-20 Gallagher entry |
-| 🔵 Mapped + imported, placed at `en/home` (local), gates run — design / parity pass next (2026-11-20) | coaching-community/usta-coaches-inclusion-summit, membership terms, account/flag-profile, courses, learning-pathway — see the 2026-11-20 log entries |
+| 🟡 First pass in `drafts/meet` — mapping still needed | coaching-community/{coaching-workshops, fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit}, courses, learning-pathway, membership terms (complete text), account/flag-profile (Formstack form) — gap list in the 2026-11-16 first-pass log entry |
+| ✅ Verified vs live source (authored `Form` pages, not importer output) | gallagher-disclaimer {pro, pro-plus, rally} — see the 2026-11-18 Gallagher entries |
 | 🟠 In content but never imported / parity-checked (authored in DA) | results ×5 (college, ft-pro, pt-pro, school, volunteer-emerging), about/faqs, gallagher-disclaimer-baseline, settings/lead-interests, settings/unsubscribe |
 | ⬜ Not started | results/guardian-coach (+ the results set via an importer); listing-hub: news index, news search results, coachtennis, workshops, workshops/education-center-locations; about; learning-pathway/usta-coaching-equivalency-application; job-board; membership-benefits; maintenance-page |
 | ⛔ Not Phase 1 | account area (dashboard, my-*, edit-profile, coach-achievements, learning, myschools/* incl. renew/*) — client-rendered app screens; decision A/B in Phase 2. auth-error pages. |
@@ -4504,8 +4504,6 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 | coaching-workshops | section "Unlock On-Demand Workshops" `nonLogged`; Join `wizard` | audience setting; wizard |
 | results ×6 | Join / Get Started for Free `wizard`; Package Required pop-up (logged-in, no package); certification accordions (badges / progress?) | wizard; pop-up; verify personal data with a test login |
 | courses, learning-pathway | Package Required pop-up; course list → LMS; certification accordions | pop-up; verify personal data |
-| inclusion-summit | "Coming Soon" CTA has no target (`href="#"`); a hidden "Register Now" (cvent) twin is authored for later | swap to Register when the source does |
-| flag-profile | Formstack form → `Form` on the DA sheet `/forms/flag-form.json` (submission target = the sheet's) | confirm the sheet with the authors |
 | membership-benefits, coachtennis | "Start the Quiz" / "Take the Quiz" `quiz` | quiz |
 | account area (12 gated + 3 personalised) | everything personal; Package Required v2–v7; Achievements modals | decision A (rebuild) / B (link to existing platform) |
 
@@ -4610,9 +4608,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 importer run (never hand-built) → images finalized (reuse existing media; new ones to `media-da/<path>/`) →
 parity vs source at 375 / 768 / 1024 / 1280 / 1440 (+ wide) → quality gate (lint, breakpoints, overflow,
 typography, a11y) → importer backup → migration-log entry → dynamic hooks added to the Phase 2 inventory.
-~~Import into `drafts/meet/<source path>` first; replace the real page only after review (back it up first).~~
-**Changed (user, 2026-11-20):** import straight to the real path (`en/home/<source path>`); back up an existing page
-first (`drafts/meet/backup/<path>-<date>`). The drafts-first step is no longer required.
+Import into `drafts/meet/<source path>` first; replace the real page only after review (back it up first).
 
 ### Risks / dependencies
 - Day 1 Person A + Day 3 Person A carry the H items; if they slip, move flag-profile / terms (Day 1) or
@@ -5635,3 +5631,51 @@ on ANY block, not feature-only variants, with one sample page.
   `history`): `backups/news-listing/news`, `backups/news-listing/search-results`,
   `backups/news-article/all-news-pages-2026-11-23` (+ urls, news-columns-feature.js, feature-options.js),
   `backups/landing-page/coaching-community`. Older per-page backups left as they were (earlier snapshots; git history).
+
+### 2026-11-18 — gallagher-disclaimer-pro: verified as migrated (kept, not re-imported)
+`en/home/membership-benefits/gallagher-disclaimer-pro` already holds the agreed authoring (h1 + 2 intro paragraphs +
+`Form` → `/forms/gallagher-disclaimer-pro.json` in a `split, intro-text` section; Title metadata). User decision: KEEP it —
+the landing-page importer still has no mapping to the sheet and would re-create the disclaimers as a plain `accordion`
+(its 11-16 report: `default | accordion`), so **do not re-import this page (or pro-plus / rally / baseline) with
+import-landing-page-v1 until a Gallagher → Form mapping exists**.
+- Sheet `/forms/gallagher-disclaimer-pro.json` (10 rows) renders: 3 disclaimer items = source (AJG GAIS, General Everest,
+  Electronic Delivery of Policy Documents), the `gallagher-optin` checkbox, eligibility copy, lime Submit.
+- **Parity vs source** (375 / 768 / 1024 / 1280 / 1440): h1, intro paragraph, first accordion header and Submit — x, y,
+  width, height and font size identical at every width (Submit 1px higher at 375). Accordion title text = source
+  (Graphik Semibold 32px white @1280).
+- Gate: lint 0 errors (8 pre-existing warnings) · breakpoint-check ✓ · overflow ✓ (360–1920) · a11y ✓ · typography: the
+  10 known `intro-text` drifts (h1 32/40/64, copy 16/18/24 — intentional source values, see 2026-10-01; the checker has
+  no exception mechanism).
+- **Tooling gotcha:** the browser checks failed to launch ("Executable doesn't exist … chromium_headless_shell-1187"); the
+  machine only has build 1254. Ran them with a Node preload that sets `executablePath` to the installed headless shell
+  (no repo change). A fix in the repo would be updating Playwright / reinstalling browsers.
+- Local only — NOT uploaded to DA, not previewed or published.
+
+### 2026-11-18 — Gallagher form: Submit disabled while the opt-in is unchecked (source behaviour)
+User report: on the source, unticking "Opt-In for Electronic Delivery of Policy Documents" disables Submit. Ours kept it
+active (only the grey `:disabled` CSS existed — see 2026-09-30). Added `gateSubmitOnOptIn()` in `blocks/form/form.js`:
+every `.gallagher-optin` checkbox gates `button[type=submit]` (disabled while any is unchecked; re-evaluated on change
+and after form reset; skipped while a submit is in flight). Keyed on the existing sheet Style, so no sheet / DA change —
+applies to Pro and Pro-Plus; Rally / Baseline (no opt-in) untouched. The doc-based rule engine was not used: it only
+supports Value / Visible expressions and skips rules when the changed field is invalid (an unchecked required box is).
+Verified vs source on Pro and Pro-Plus: load (checked, lime) → untick (disabled, #bdbdb9 / #4c4c4c, default cursor, no
+hover change) → re-tick (enabled, lime) — identical. Gate: lint 0 errors · breakpoints ✓ · overflow ✓ · a11y ✓ (pro).
+
+**2026-11-25 — PR scoped to the 4 Gallagher pages (user):** this branch now carries only the Gallagher changes (this
+`form.js` opt-in gate + README, these log entries) plus the `.eslintignore` build fix (lint fails on
+`tools/importer/backups` without it). The inclusion-summit banner styles (`lime`, stacked blue/lime CTA column) and the
+loose-image cap `max-width: min(360px, 100%)` in styles.css were removed from this PR; saved for a separate PR in
+`migration-work/split-pr/non-gallagher-code-2026-11-25.patch` (local, git-ignored).
+
+### 2026-11-25 — OPEN: form submit fails on every doc-based form ("Something went wrong…")
+Reported on `/en/home/membership-benefits/gallagher-disclaimer-pro` (branch aem.page). Not a front-end bug: the form
+POSTs to the Adobe Forms Submission Service (`forms.adobe.com/adobe/forms/af/submit/<base64 /forms/<name>.json>`), which
+answers **400** `Submit action URL not found in form definition for …/forms/gallagher-disclaimer-pro.json`.
+- Cause: the service reads the submit row's **`Action`** column = link to the spreadsheet that receives the data. No
+  form sheet here has an `Action` column (checked: gallagher-disclaimer-{pro,rally,pro-plus,baseline}, flag-form,
+  subscribe, education-equivalency, industry-experience).
+- Requirements (Experience League "Forms Submission Service"): target = **Google Sheets, OneDrive Excel or SharePoint**
+  (DA sheets are not a supported destination), shared with `forms@adobe.com` as **Editor**, with an `incoming` sheet whose
+  column headers = the form field names; its link goes in the submit row's `Action` column; then re-preview/publish.
+  Alternative: post to a customer endpoint (change the URL in `prepareRequest()`, submit.js).
+- **User decision (2026-11-25): leave as is for now.** Needs a destination spreadsheet or endpoint from the customer.
