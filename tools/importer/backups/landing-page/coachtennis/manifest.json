@@ -1,0 +1,22 @@
+{
+  "page": "coachtennis",
+  "locales": ["en"],
+  "date": "2026-11-25",
+  "source": "https://www.ustacoaching.com/en/home/coachtennis.html",
+  "output": "content/drafts/meet/coachtennis.plain.html (review copy; the real path en/home/coachtennis is not created yet)",
+  "importer": "import-landing-page-v1.js — new kinds cards-packages, banner-stats, cards-icons-tiles; hero-content `wide`; columns-photos also matches photos + CTA only; prepareSections keeps package tiers together and marks loose heading runs; a centred heading + intro run before a block section → one narrow heading section",
+  "sha256": {
+    "import-landing-page-v1.js": "0b1eb46e15b709791cfad9f14c2bec986d162c398ece2412c411d81198c02460",
+    "import-landing-page-v1.bundle.js": "9e15c5409a0e8bd363f11b235b4964dc2f429a4d86186f36ae2355b40fd92d13",
+    "import-sample-landing-blocks.js": "f45f29ae8e3dcdcaaf03e160ec1f8b068d7a6463882ca36db691c2ca4be5d0d6",
+    "import-sample-landing-blocks.bundle.js": "3730b9c055fc5385f13f9212e7877795ad0d7eb44531ba14d99db2dde78e1f7d",
+    "output content/drafts/meet/coachtennis.plain.html": "01e4bf0c985cc5d89b171ff5c3530ec707794320240e7e3e5128444a07729203"
+  },
+  "bundle": "npx esbuild tools/importer/import-landing-page-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-landing-page-v1.bundle.js (rebuild import-quiz-results-v1, import-news-listing-v1, import-sample-landing-blocks, import-sample-landing-sections, import-sample-results-blocks too — they import it)",
+  "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-coachtennis.txt --force with WORKSPACE_PATH set to a scratch folder; copy to content/drafts/meet/coachtennis.plain.html",
+  "finalize": "node tools/assets/fetch-page-images.mjs drafts/meet/coachtennis (13 images → content/media-da/drafts/meet/coachtennis/)",
+  "samples": "import-sample-landing-blocks.bundle.js with tools/importer/urls-sample-coachtennis.txt → drafts/block-samples/{hero-content-wide, banner-stats, cards-icons-compact, cards-pricing-packages}",
+  "blocks": "Hero (content, wide) · Banner (stats) · h2 (center, narrow-10) · Text Style (lead, center) + Cards (icons, compact, landscape) · h2 + Text Style (center, narrow-10) · Cards (pricing, packages) · h2 + Text Style (center, narrow-10, inset-4) · Columns (photos) + CTA (center, inset-4)",
+  "regression": "21 existing pages (13 landing, 6 results, news + search results) re-imported with the old (HEAD) and the new bundles: byte-identical",
+  "verified": "migration-work/coachtennis/compare.mjs (standards mode) @375/768/1024/1280/1440: hero, stats panel, all headings, Why Join tiles, package card internals, photos = source (0–2px) from 1280 down to the package cards; accepted: package cards 35–48px shorter (source blank lines between some features not copied), stacked stats figures centred (source: narrow left column) — panel 28–40px shorter below 1280, landing h2 28px on phones (source 32), Pro tier header left-aligned on phones/tablets (source centred), Baseline price 56px at every width (source 32/40 below 1280), Take the Quiz = the landing 280px lone CTA (source label width), Rally name #167cf4 (source #0373f3, below AA)"
+}

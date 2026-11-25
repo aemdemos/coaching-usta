@@ -4505,6 +4505,7 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 | results ×6 | Join / Get Started for Free `wizard`; Package Required pop-up (logged-in, no package); certification accordions (badges / progress?) | wizard; pop-up; verify personal data with a test login |
 | courses, learning-pathway | Package Required pop-up; course list → LMS; certification accordions | pop-up; verify personal data |
 | membership-benefits, coachtennis | "Start the Quiz" / "Take the Quiz" `quiz` | quiz |
+| coachtennis | hero "Get started for free" (`wizard`) + the 4 package CTAs → /en/home/membership-benefits (plain links) | wizard / Join flow |
 | account area (12 gated + 3 personalised) | everything personal; Package Required v2–v7; Achievements modals | decision A (rebuild) / B (link to existing platform) |
 
 ### Phase 2 — dynamic & login-dependent features (after Phase 1)
@@ -4585,7 +4586,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 | Person A — results importer | Eff. | Person B — utility pages | Eff. |
 |---|---|---|---|
 | /en/home/results/college-coach (builds the importer: tiers, Accordion pathway, Cards media stacked, Columns media) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | M | /en/home/results/volunteer-emerging-coach (reuses A's importer — after A's first page) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L |
-| /en/home/results/ft-pro-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/about/faqs (Accordion `faq` — option has no code yet) | M |
+| /en/home/results/ft-pro-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/about/faqs (plain `Accordion`, first item open — no `faq` option needed) — ✅ DONE 2026-11-25 (drafts/meet/about, local) | M |
 | /en/home/results/pt-pro-coach (Accordion timeline) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/membership-benefits/gallagher-disclaimer-baseline (same form as Day 1) | L |
 | /en/home/results/school-coach (headless Accordion timeline — not `courses`; Cards icons) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | M | /en/home/settings/lead-interests (Form) | L |
 | /en/home/results/guardian-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/settings/unsubscribe (`unsubscribe` block does not exist yet) | M |
@@ -4595,7 +4596,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 |---|---|---|---|
 | /en/home/news (news index: latest articles, featured, tags — list from the EDS query index) | H | /en/home/about (Cards text, Columns profile / Cards profile, Cards logos, Contact) | M |
 | /en/home/news/search-results (search bar + results → Columns list; client-side search on the query index) | H | /en/home/learning-pathway/usta-coaching-equivalency-application (Form application + Tabs application — built) | M |
-| /en/home/coachtennis (quiz CTAs → static links for now) | M | /en/home/job-board (tiers + job content) | L |
+| /en/home/coachtennis (quiz CTAs → static links for now) — ✅ DONE 2026-11-25 (drafts/meet, local; 4 new block options) | M | /en/home/job-board (tiers + job content) | L |
 | /en/home/workshops | M | /en/home/membership-benefits (Cards pricing, Banner centered, FAQ) | M |
 | /en/home/workshops/education-center-locations (location list + Google map — largest page, 245 instances) | H | /en/maintenance-page (standalone) | L |
 
@@ -5632,50 +5633,147 @@ on ANY block, not feature-only variants, with one sample page.
   `backups/news-article/all-news-pages-2026-11-23` (+ urls, news-columns-feature.js, feature-options.js),
   `backups/landing-page/coaching-community`. Older per-page backups left as they were (earlier snapshots; git history).
 
-### 2026-11-18 — gallagher-disclaimer-pro: verified as migrated (kept, not re-imported)
-`en/home/membership-benefits/gallagher-disclaimer-pro` already holds the agreed authoring (h1 + 2 intro paragraphs +
-`Form` → `/forms/gallagher-disclaimer-pro.json` in a `split, intro-text` section; Title metadata). User decision: KEEP it —
-the landing-page importer still has no mapping to the sheet and would re-create the disclaimers as a plain `accordion`
-(its 11-16 report: `default | accordion`), so **do not re-import this page (or pro-plus / rally / baseline) with
-import-landing-page-v1 until a Gallagher → Form mapping exists**.
-- Sheet `/forms/gallagher-disclaimer-pro.json` (10 rows) renders: 3 disclaimer items = source (AJG GAIS, General Everest,
-  Electronic Delivery of Policy Documents), the `gallagher-optin` checkbox, eligibility copy, lime Submit.
-- **Parity vs source** (375 / 768 / 1024 / 1280 / 1440): h1, intro paragraph, first accordion header and Submit — x, y,
-  width, height and font size identical at every width (Submit 1px higher at 375). Accordion title text = source
-  (Graphik Semibold 32px white @1280).
-- Gate: lint 0 errors (8 pre-existing warnings) · breakpoint-check ✓ · overflow ✓ (360–1920) · a11y ✓ · typography: the
-  10 known `intro-text` drifts (h1 32/40/64, copy 16/18/24 — intentional source values, see 2026-10-01; the checker has
-  no exception mechanism).
-- **Tooling gotcha:** the browser checks failed to launch ("Executable doesn't exist … chromium_headless_shell-1187"); the
-  machine only has build 1254. Ran them with a Node preload that sets `executablePath` to the installed headless shell
-  (no repo change). A fix in the repo would be updating Playwright / reinstalling browsers.
-- Local only — NOT uploaded to DA, not previewed or published.
+### 2026-11-25 — FAQs page imported (drafts/meet) on the landing importer — 3 landing-template fixes
+Source https://www.ustacoaching.com/en/home/about/faqs.html → local `drafts/meet/about/faqs` (local only; NOT in DA,
+not previewed). Importer: `import-landing-page-v1.js`, unchanged (URLs `tools/importer/urls-faqs.txt`; backup
+`tools/importer/backups/landing-page/faqs/`). Template `landing-page`; no theme, no new block or option.
+- **Page = heading + one accordion.** h1 (source `56px-32px` USTA Sans, centred, 10 of 12 columns) → `Style: center,
+  narrow-10`; `Accordion` with 3 items (PE Teachers & School Coordinators · School Partner Coaches · General — All
+  Users), 23 Q&As. The source opens the FIRST item → plain `Accordion` (the block opens item 1 by default; the
+  importer writes `closed` only when the source opens none). No images or documents.
+- **The page previously in DA** (`/en/home/about/faqs`, authored in DA, never imported) uses `heading-56` and
+  `accordion faq`: neither has code (no CSS / JS / importer rule, not in git history) — they rendered as fallbacks
+  (80px 3-line title from the global h1 token, answers without the panel inset, no gaps between Q&As, lime links).
+  Not section styles or variants of this project. The import replaces both with existing styles.
+- **Template fixes (landing-page.css):**
+  1. Answer paragraphs one authored blank line apart (`.accordion-item-body p + p` 24px). Source: question + answer
+     touch (one paragraph with a line break after import) then `<p>&nbsp;</p>`; the text component's paragraphs
+     have no margin. Open first item was 216px short at 1440 (9 lost lines) → now = source. No other landing
+     accordion has multi-paragraph answers.
+  2. Page-title spacing decided by the section style (user's suggestion): the +12px title-section padding now
+     applies only to `spacing-36` title sections (fellowship — the importer sets it from the source's 36px margin
+     preset). Plain titles use the standard 24px first-section spacing. Measured title → header gap, source vs ours
+     (ours − 24px for our shorter header) @375/1440: FAQs, learning-pathway, terms, flag-profile, Gallagher pro were
+     all 12px low → now = source; fellowship unchanged (= source); news / search results own the rule in their themes.
+  3. Bold runs in accordion answers = "Graphik Regular Synth" (the source's `<b>` on a weight-normal Graphik face
+     is a synthesized bold — verified in the source @font-face). Was rendering regular.
+- **Kept (user decision 2026-11-25):** the shared +10px above every accordion item after the first (from
+  coach-mentorship, whose source item headers are h4 — the source CSS gives h3 headers 0, h4 10px). FAQs (h3) closed
+  items are 10px taller than the source each.
+- **Verified** (standards mode, `migration-work/faqs/compare.mjs`) vs source @375/768/1024/1280/1440/1728/1920: h1
+  box / size / line count, accordion box, label font, answer text inset (x / y), open-item height — identical;
+  accepted: +10px per closed item (above); 375 open item −24px (one answer line wraps differently — the content
+  pipeline turns the source's `&nbsp;` around links into spaces).
+- **Phase 2:** no dynamic hooks on this page (the "PE Program registration page" link goes to the account area
+  `/en/home/account/schools-journey`).
+- Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ ·
+  typography ✓ (faqs, fellowship, coach-mentorship, learning-pathway, terms) · a11y ✓ on faqs, fellowship,
+  coach-mentorship, terms; learning-pathway only the known cards-comparison contrast ("COMING 2026 / 2027").
+- **Placed at its real path (user, 2026-11-25):** the DA-authored page backed up to `drafts/meet/backup/about/faqs`
+  (byte-identical), then `drafts/meet/about/faqs` copied unchanged to `en/home/about/faqs`. Re-checked there:
+  overflow ✓ · typography ✓ · a11y ✓ · parity @375 / 1440 unchanged. LOCAL only — DA / aem.page still serve the
+  old `heading-56` / `accordion faq` version until the page is uploaded (on request) or synced.
+- Stale samples (user removes them from the CDN): section-inset, section-inset-small, section-heading-narrow,
+  section-bottom, accordion-courses, banner-grant, banner-default (all still in DA + local `content/`: a Sync
+  would re-upload them), and `accordion-base`, served from git `drafts/block-samples/` (repo code, not DA). Local
+  copies kept for now (user stopped the deletion).
 
-### 2026-11-18 — Gallagher form: Submit disabled while the opt-in is unchecked (source behaviour)
-User report: on the source, unticking "Opt-In for Electronic Delivery of Policy Documents" disables Submit. Ours kept it
-active (only the grey `:disabled` CSS existed — see 2026-09-30). Added `gateSubmitOnOptIn()` in `blocks/form/form.js`:
-every `.gallagher-optin` checkbox gates `button[type=submit]` (disabled while any is unchecked; re-evaluated on change
-and after form reset; skipped while a submit is in flight). Keyed on the existing sheet Style, so no sheet / DA change —
-applies to Pro and Pro-Plus; Rally / Baseline (no opt-in) untouched. The doc-based rule engine was not used: it only
-supports Value / Visible expressions and skips rules when the changed field is invalid (an unchecked required box is).
-Verified vs source on Pro and Pro-Plus: load (checked, lime) → untick (disabled, #bdbdb9 / #4c4c4c, default cursor, no
-hover change) → re-tick (enabled, lime) — identical. Gate: lint 0 errors · breakpoints ✓ · overflow ✓ · a11y ✓ (pro).
+### 2026-11-25 — coachtennis imported (drafts/meet) — 4 new block options, landing importer kinds
+Source https://www.ustacoaching.com/en/home/coachtennis.html (paid-media landing page) → local
+`drafts/meet/coachtennis` (local only — not in DA, not previewed; the real `en/home/coachtennis` page gets created
+after review). Template `landing-page`, no theme. Importer `import-landing-page-v1.js` (URLs
+`tools/importer/urls-coachtennis.txt`; backup `tools/importer/backups/landing-page/coachtennis/`); images finalized
+(13, `media-da/drafts/meet/coachtennis/`).
 
-**2026-11-25 — PR scoped to the 4 Gallagher pages (user):** this branch now carries only the Gallagher changes (this
-`form.js` opt-in gate + README, these log entries) plus the `.eslintignore` build fix (lint fails on
-`tools/importer/backups` without it). The inclusion-summit banner styles (`lime`, stacked blue/lime CTA column) and the
-loose-image cap `max-width: min(360px, 100%)` in styles.css were removed from this PR; saved for a separate PR in
-`migration-work/split-pr/non-gallagher-code-2026-11-25.patch` (local, git-ignored).
+**Page → blocks:** `Hero (content, wide)` · `Banner (stats)` · "Why Join USTA Coaching?" h2 (`center, narrow-10`) ·
+Text Style (lead) + `Cards (icons, compact, landscape)` (`center`) · "Packages for Every Tennis Coach" h2 + intro
+(`center, narrow-10`) · `Cards (pricing, packages)` · "Find your perfect fit" h2 + intro (`center, narrow-10,
+inset-4`) · `Columns (photos)` + Take the Quiz CTA (`center, inset-4`). The "Get on the list" form is the site
+footer's (not imported). Decisions (user, 2026-11-25): hero = Hero (content) + an option; stats strip = a Banner
+option (no existing banner matches: Banner (info) is heading + label/body pairs); Why Join = Cards (icons, compact);
+packages = a new Cards (pricing) option (this design is on coachtennis only — home / membership-benefits /
+learning-pathway / courses / results still use the v-tiers design of Cards (pricing)).
 
-### 2026-11-25 — OPEN: form submit fails on every doc-based form ("Something went wrong…")
-Reported on `/en/home/membership-benefits/gallagher-disclaimer-pro` (branch aem.page). Not a front-end bug: the form
-POSTs to the Adobe Forms Submission Service (`forms.adobe.com/adobe/forms/af/submit/<base64 /forms/<name>.json>`), which
-answers **400** `Submit action URL not found in form definition for …/forms/gallagher-disclaimer-pro.json`.
-- Cause: the service reads the submit row's **`Action`** column = link to the spreadsheet that receives the data. No
-  form sheet here has an `Action` column (checked: gallagher-disclaimer-{pro,rally,pro-plus,baseline}, flag-form,
-  subscribe, education-equivalency, industry-experience).
-- Requirements (Experience League "Forms Submission Service"): target = **Google Sheets, OneDrive Excel or SharePoint**
-  (DA sheets are not a supported destination), shared with `forms@adobe.com` as **Editor**, with an `incoming` sheet whose
-  column headers = the form field names; its link goes in the submit row's `Action` column; then re-preview/publish.
-  Alternative: post to a customer endpoint (change the URL in `prepareRequest()`, submit.js).
-- **User decision (2026-11-25): leave as is for now.** Needs a destination spreadsheet or endpoint from the customer.
+**New options (each with a block sample from `import-sample-landing-blocks.js`, urls-sample-coachtennis.txt):**
+- `Hero (content, wide)` (hero.css; sample `hero-content-wide`): copy on the full panel — 47px in on phones (title
+  11/12, intro 10/12 columns), 29 (768) / 37px (1024) from both edges; title → intro 108 (66 from 1024), intro → CTA
+  66; top 75/87/129/141; intro Graphik 16 → 18 → 24; ONE centred CTA, label 14 → 16 → 18 at normal tracking, 48 / 50 /
+  56 tall, 24px sides, 280 minimum on phones. The title doesn't break a long word (source: "COMMMUNITY" runs past its
+  293px box at 375 — the base hero's `overflow-wrap: anywhere` broke it into a 5th line).
+- `Banner (stats)` (banner.js `decorateStats` + banner.css; sample `banner-stats`): one row, one cell per figure
+  (figure paragraph + label). Grey gradient (360deg #202020 → rgb(72 72 72 / 90%)), no outline / radius, on the
+  HERO's width (8/28/36/52 gutters, not the cards grid); 4-up from 1280, stacked below; figure USTA Sans lime 28 →
+  32 → 40, label USTA Sans 14/18; 24 between, 38 above / below; 12/12/20/36 under the hero.
+- `Cards (icons, compact)` + photo tiles (cards.js `decorateIcons`: a row holding only a picture = `.cards-icons-photo`
+  tile, in ANY icon cards; cards.css; sample `cards-icons-compact`): compact = #1e1e1e cards, icon 1/12 of the card
+  (container units; 14px @768, 22 @1024), title Graphik Semibold 20/19.2 (21.6 from 1280), copy 16/19.2 −0.03em (14/16.8
+  at 768–1023), 62 / 36px under the copy; grid 12px in, rows 24 apart, cards share the row height from 768 (photos keep
+  their crop). Photos take the GLOBAL `landscape` crop option (importer `cropOptions()` of the source image preset).
+  Icons never take a block crop (`aspect-ratio: auto` on `.cards-icons-image img`).
+- `Cards (pricing, packages)` (cards.js `decoratePackages`, cards.css; sample `cards-pricing-packages`; 4 check icons
+  `icons/check-{white,blue,lime,green}.png` = the source PNGs, 20px): one row per tier — cell 1 [label] · icon · name
+  (h3) · price ("$49/yr", the block splits the period) · tagline (h4) · CTA link · feature list; cell 2 the accent
+  `blue` / `lime` / `green` (empty = white; the importer reads it from the CTA's author border colour). A tier with a
+  label = the highlighted #0d1522 card, filled CTA, 50px tagline → CTA (66 otherwise). 1-up below 1024, 4-up from 1024,
+  24 apart, 24px inside the cards grid; all paddings / gaps / type measured per breakpoint (see the CSS header).
+  Labels 14 → 16 → 18px at NORMAL tracking (the source's 1px letter-spacing sits on the button box; its label span
+  resets it — same as the 2026-10-19 finding), 120px minimum from 768, 280px on phones.
+
+**Importer (`import-landing-page-v1.js`):** new kinds `cards-packages`, `banner-stats` (onLoad stamps gradient panels
+`data-bg="gradient"`), `cards-icons-tiles`; `hero-content` adds `wide` when the copy sits < 48px from the panel edge;
+`columns-photos` also matches photos + CTA only (its heading + intro already split off); prepareSections no longer splits
+a container of package tiers into sections (each has a 56px USTA Sans price) and marks loose heading runs
+(`data-loose-text`, read later because emitting moves the nodes); a loose run that is all centred lead (heading + intro
+on one narrow span) right before a block section → ONE narrow heading section (the next section doesn't join it).
+**Regression:** 21 existing pages (13 landing, 6 results, news + search results) re-imported with the HEAD bundles and
+the new ones — byte-identical. All bundles that import the landing importer rebuilt.
+
+**Landing template (landing-page.css):** the "narrow heading section introduces the next section" rules now accept a
+text-style intro in the heading section (no other page has one); after the stats strip and after the compact icon grid
+the next section starts on the source's 96px separator preset (8 → 84 @1024 → 96 @1280) instead of the section rhythm.
+
+**Verified** (standards mode, `migration-work/coachtennis/compare.mjs`) vs source @375/768/1024/1280/1440: hero (panel,
+title box + line count, intro, CTA), stats panel + figure / label rows, every heading and intro, Why Join tiles (x / w /
+h, icon, title, copy), package card internals (icon, name, price, tagline, CTA, label, first features), photos = source
+(0–2px); from 1280 every anchor down to the package cards is identical.
+
+**Accepted deviations (standardised):**
+1. Package cards 35–48px shorter: the source author's blank lines after some features (and trailing spacers) are not
+   copied — features are 26px apart throughout. Everything below shifts up by that much.
+2. Stats below 1280: the source sets each figure in a 3-of-12 column at the LEFT while its label is centred (and "4
+   OPTIONS" wraps there) — here every figure is centred over its label (panel 28 / 32 / 40px shorter at 375 / 768 /
+   1024).
+3. Pro tier header (icon + name) left-aligned on phones / tablets like the other tiers (the source centres only Pro's).
+4. Baseline price 56px at every width like the other tiers (the source's "FREE" uses the 32/40 preset below 1280).
+5. "Take the Quiz" uses the landing lone-CTA standard (280px, as coaching-community's "Learn More" after its photos); the
+   source picked a label-width preset here (187px desktop).
+6. Rally name #167cf4 instead of #0373f3 (the source blue on the #131313 card is 4.2:1; AA needs 4.5) — outline, label
+   and checks keep #0373f3.
+7. Landing h2 28px on phones (source 32) — the template's existing scale.
+
+**Phase 2 hooks:** hero "Get started for free" (`wizard`) and the 4 package CTAs link to /en/home/membership-benefits;
+"Take the Quiz" (`quiz`) likewise (Phase 2 inventory updated).
+
+Gate (2026-11-25): lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · svg ✓ ·
+overflow ✓ / typography ✓ / a11y ✓ on drafts/meet/coachtennis, the 4 new samples, en/home, en/home/coach-mentorship,
+en/home/coaching-community, drafts/meet inclusion-summit + results/school-coach, samples cards-icons / cards-pricing /
+hero-content / columns-photos / banner; en/home/courses a11y only the known cards-comparison contrast finding.
+Browser checks with PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers (a copy of the installed headless shell under the
+version the repo's Playwright expects).
+- **Placed at its real path (user, 2026-11-25):** `en/home/coachtennis` = the same import output (identical to
+  `drafts/meet/coachtennis` apart from the image folder), images finalized to `media-da/en/home/coachtennis/` (per-page
+  convention). The drafts/meet copy stays as the review copy. Gate at the real path: overflow ✓ · typography ✓ · a11y ✓;
+  parity @1440 unchanged. Package features keep the even 26px spacing (user decision 2026-11-25: deviation 1 stays).
+  LOCAL only — not uploaded to DA, not previewed / published.
+
+### 2026-11-25 — `compact` stays a Cards option (not site-wide) + block samples for the coachtennis options
+- Audit: `compact` exists only on the Cards block — `Cards (media, stacked, compact)` (fellowship) and
+  `Cards (icons, compact)` (coachtennis); no other block uses it (other "compact" hits are comment wording). Both come from
+  the source's `text--letter-spacing--narrow` preset, but only the copy style is shared (16/19.2 −0.03em, 14/16.8 at
+  768–1023); the rest is per variant → **user decision: keep `compact` scoped to Cards**, no site-wide option.
+- Tidy-up: the fellowship rule "compact media cards close the page-title container" (landing-page.css) now targets
+  `.cards.media.compact` (was any `.cards.compact`, which would also have caught the icon cards in a `spacing-36` section).
+- Block samples (drafts/block-samples, generated by `import-sample-landing-blocks.js` from coachtennis):
+  `hero-content-wide`, `banner-stats`, `cards-icons-compact` (with `landscape`), `cards-pricing-packages`; with the
+  existing `cards-media-stacked-compact` and `image-crop` (the crop options). Local only — not in DA.
+- Gate: stylelint ✓ · breakpoints ✓ · overflow ✓ / a11y ✓ on fellowship + the 5 compact / new samples.

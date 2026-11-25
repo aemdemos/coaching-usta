@@ -18,6 +18,7 @@ const CC = 'coaching-community';
 const CW = 'coaching-workshops';
 const FEL = 'fellowship-in-coaching-and-leadership';
 const CO = 'courses';
+const CT = 'coachtennis';
 
 const SAMPLES = {
   image: {
@@ -163,6 +164,30 @@ const SAMPLES = {
       { anchor: 'Benefits of the usta coaching network', pick: 'Text Style' },
       { anchor: 'How the Program Works', pick: 'Text Style' },
     ],
+  },
+  'hero-content-wide': {
+    page: CT,
+    title: 'Hero (Content, Wide)',
+    intro: 'The content hero with the <code>wide</code> option (same authoring as <code>hero (content)</code>: row 1 the image, row 2 the copy — H1, intro paragraph, one CTA link): the copy runs the full panel — 47px in on phones (title on 11 of 12 columns, intro on 10), 29px (768), 37px from 1024 — and the lime CTA is centred. Title USTA Sans 32 → 40 → 56 → 80; title → intro 108px (66 from 1024); intro Graphik 16 → 18 (1024) → 24px (1280); CTA 48 / 50 / 56px tall, label 14 → 16 → 18px, 280px minimum on phones. A long title word runs past its column instead of breaking (source).',
+    examples: [{ anchor: 'JOIN THE USTA' }],
+  },
+  'banner-stats': {
+    page: CT,
+    title: 'Banner (Stats)',
+    intro: 'A strip of headline figures (<code>banner (stats)</code>; one row, one cell per figure: the figure paragraph, then its label): a grey gradient panel (no outline, square corners) on the hero\'s width, 4-up from 1280 and stacked below; figure USTA Sans lime 28 → 32 (768) → 40px (1024), label USTA Sans 14/18; 24px between figure and label, 38px above and below. Every figure is centred over its label (the source sets the stacked figures in a narrow left column — standardised).',
+    examples: [{ anchor: '16,700+' }],
+  },
+  'cards-icons-compact': {
+    page: CT,
+    title: 'Cards (Icons, Compact, Landscape)',
+    intro: 'Icon cards with the <code>compact</code> option and photo tiles (<code>cards (icons, compact, landscape)</code>; one row per tile in reading order: a card row = icon paragraph, title, copy; a photo row = the image alone). Compact = the source\'s narrow-text card: #1e1e1e, icon 1/12 of the card, title Graphik Semibold 20px, copy Graphik 16/19.2 −0.03em (14/16.8 at 768–1023). <code>landscape</code> is the global image crop option (any block): the photos crop to 1.247 / 0.955 / 1.14 / 1.42. 1-up on phones, 3-up from 768; the cards in a row share its height.',
+    examples: [{ anchor: 'EDUCATION' }],
+  },
+  'cards-pricing-packages': {
+    page: CT,
+    title: 'Cards (Pricing, Packages)',
+    intro: 'The package cards option of pricing (<code>cards (pricing, packages)</code>; one row per tier — cell 1: an optional label paragraph ("Most popular"), the tier icon, the tier name heading, the price ("$49/yr": the part from "/" is the period), the tagline heading, the CTA link and the feature list; cell 2: the accent — <code>blue</code>, <code>lime</code> or <code>green</code>, empty = white). The accent colours the name, the CTA outline and the feature checks; a tier with a label is the highlighted navy card with a filled CTA. 1-up below 1024, 4-up from 1024; no tab UI.',
+    examples: [{ anchor: 'BASELINE' }],
   },
 };
 
