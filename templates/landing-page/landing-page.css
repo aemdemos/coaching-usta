@@ -197,9 +197,11 @@ body.landing-page main > .section.narrow-cols .default-content-wrapper > h2 + h2
   margin-top: 0;
 }
 
-/* a page-title section (default-content h1, fellowship) sits in the source's title
-   container: its 12px top padding comes on top of the hero spacing */
-body.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
+/* a page-title section (default-content h1) on the source's 36px margin preset
+   (`spacing-36`, fellowship) sits 12px lower than a plain title (FAQs, learning-pathway,
+   terms, flag-profile, Gallagher: the standard 24px first-section spacing) — the section
+   style decides, set by the importer from the source container */
+body.landing-page main > .section.spacing-36:first-child:has(> .default-content-wrapper > h1) {
   padding-top: 36px;
 }
 
@@ -285,6 +287,13 @@ body.landing-page .accordion.accordion-default .accordion-item-body p {
   font-size: 18px;
   line-height: 24px;
   letter-spacing: normal;
+}
+
+/* separate paragraphs in an answer are one authored blank line apart (source FAQs page:
+   question + answer touch — one paragraph with a line break — then `<p>&nbsp;</p>`; the
+   text component's paragraphs have no margin, so the importer's paragraph gap = 1 line) */
+body.landing-page .accordion.accordion-default .accordion-item-body p + p {
+  margin-top: 24px;
 }
 
 body.landing-page .accordion.accordion-default .accordion-item-body a:any-link {
@@ -594,8 +603,9 @@ body.landing-page main .default-content-wrapper > h1 + p:has(> picture) img {
 }
 
 /* bold runs in landing copy = the source's synthesized bold of Graphik Regular (a <b> on a
-   weight-normal face; the "Synth" face in fonts.css reproduces it — fellowship intro) */
-body.landing-page main :is(.default-content-wrapper, .text-style) strong {
+   weight-normal face; the "Synth" face in fonts.css reproduces it — fellowship intro, the
+   FAQs page's questions in the accordion answers) */
+body.landing-page main :is(.default-content-wrapper, .text-style, .accordion.accordion-default .accordion-item-body) strong {
   font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
 }
 

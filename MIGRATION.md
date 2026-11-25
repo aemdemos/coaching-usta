@@ -4584,7 +4584,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 | Person A — results importer | Eff. | Person B — utility pages | Eff. |
 |---|---|---|---|
 | /en/home/results/college-coach (builds the importer: tiers, Accordion pathway, Cards media stacked, Columns media) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | M | /en/home/results/volunteer-emerging-coach (reuses A's importer — after A's first page) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L |
-| /en/home/results/ft-pro-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/about/faqs (Accordion `faq` — option has no code yet) | M |
+| /en/home/results/ft-pro-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/about/faqs (plain `Accordion`, first item open — no `faq` option needed) — ✅ DONE 2026-11-25 (drafts/meet/about, local) | M |
 | /en/home/results/pt-pro-coach (Accordion timeline) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/membership-benefits/gallagher-disclaimer-baseline (same form as Day 1) | L |
 | /en/home/results/school-coach (headless Accordion timeline — not `courses`; Cards icons) — ✅ DONE 2026-11-18 (drafts/meet/results, local) | M | /en/home/settings/lead-interests (Form) | L |
 | /en/home/results/guardian-coach — ✅ DONE 2026-11-18 (drafts/meet/results, local) | L | /en/home/settings/unsubscribe (`unsubscribe` block does not exist yet) | M |
@@ -5630,3 +5630,48 @@ on ANY block, not feature-only variants, with one sample page.
   `history`): `backups/news-listing/news`, `backups/news-listing/search-results`,
   `backups/news-article/all-news-pages-2026-11-23` (+ urls, news-columns-feature.js, feature-options.js),
   `backups/landing-page/coaching-community`. Older per-page backups left as they were (earlier snapshots; git history).
+
+### 2026-11-25 — FAQs page imported (drafts/meet) on the landing importer — 3 landing-template fixes
+Source https://www.ustacoaching.com/en/home/about/faqs.html → local `drafts/meet/about/faqs` (local only; NOT in DA,
+not previewed). Importer: `import-landing-page-v1.js`, unchanged (URLs `tools/importer/urls-faqs.txt`; backup
+`tools/importer/backups/landing-page/faqs/`). Template `landing-page`; no theme, no new block or option.
+- **Page = heading + one accordion.** h1 (source `56px-32px` USTA Sans, centred, 10 of 12 columns) → `Style: center,
+  narrow-10`; `Accordion` with 3 items (PE Teachers & School Coordinators · School Partner Coaches · General — All
+  Users), 23 Q&As. The source opens the FIRST item → plain `Accordion` (the block opens item 1 by default; the
+  importer writes `closed` only when the source opens none). No images or documents.
+- **The page previously in DA** (`/en/home/about/faqs`, authored in DA, never imported) uses `heading-56` and
+  `accordion faq`: neither has code (no CSS / JS / importer rule, not in git history) — they rendered as fallbacks
+  (80px 3-line title from the global h1 token, answers without the panel inset, no gaps between Q&As, lime links).
+  Not section styles or variants of this project. The import replaces both with existing styles.
+- **Template fixes (landing-page.css):**
+  1. Answer paragraphs one authored blank line apart (`.accordion-item-body p + p` 24px). Source: question + answer
+     touch (one paragraph with a line break after import) then `<p>&nbsp;</p>`; the text component's paragraphs
+     have no margin. Open first item was 216px short at 1440 (9 lost lines) → now = source. No other landing
+     accordion has multi-paragraph answers.
+  2. Page-title spacing decided by the section style (user's suggestion): the +12px title-section padding now
+     applies only to `spacing-36` title sections (fellowship — the importer sets it from the source's 36px margin
+     preset). Plain titles use the standard 24px first-section spacing. Measured title → header gap, source vs ours
+     (ours − 24px for our shorter header) @375/1440: FAQs, learning-pathway, terms, flag-profile, Gallagher pro were
+     all 12px low → now = source; fellowship unchanged (= source); news / search results own the rule in their themes.
+  3. Bold runs in accordion answers = "Graphik Regular Synth" (the source's `<b>` on a weight-normal Graphik face
+     is a synthesized bold — verified in the source @font-face). Was rendering regular.
+- **Kept (user decision 2026-11-25):** the shared +10px above every accordion item after the first (from
+  coach-mentorship, whose source item headers are h4 — the source CSS gives h3 headers 0, h4 10px). FAQs (h3) closed
+  items are 10px taller than the source each.
+- **Verified** (standards mode, `migration-work/faqs/compare.mjs`) vs source @375/768/1024/1280/1440/1728/1920: h1
+  box / size / line count, accordion box, label font, answer text inset (x / y), open-item height — identical;
+  accepted: +10px per closed item (above); 375 open item −24px (one answer line wraps differently — the content
+  pipeline turns the source's `&nbsp;` around links into spaces).
+- **Phase 2:** no dynamic hooks on this page (the "PE Program registration page" link goes to the account area
+  `/en/home/account/schools-journey`).
+- Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ ·
+  typography ✓ (faqs, fellowship, coach-mentorship, learning-pathway, terms) · a11y ✓ on faqs, fellowship,
+  coach-mentorship, terms; learning-pathway only the known cards-comparison contrast ("COMING 2026 / 2027").
+- **Placed at its real path (user, 2026-11-25):** the DA-authored page backed up to `drafts/meet/backup/about/faqs`
+  (byte-identical), then `drafts/meet/about/faqs` copied unchanged to `en/home/about/faqs`. Re-checked there:
+  overflow ✓ · typography ✓ · a11y ✓ · parity @375 / 1440 unchanged. LOCAL only — DA / aem.page still serve the
+  old `heading-56` / `accordion faq` version until the page is uploaded (on request) or synced.
+- Stale samples (user removes them from the CDN): section-inset, section-inset-small, section-heading-narrow,
+  section-bottom, accordion-courses, banner-grant, banner-default (all still in DA + local `content/`: a Sync
+  would re-upload them), and `accordion-base`, served from git `drafts/block-samples/` (repo code, not DA). Local
+  copies kept for now (user stopped the deletion).
