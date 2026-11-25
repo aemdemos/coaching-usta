@@ -107,10 +107,13 @@ for (const u of urls) {
       await page.goto(toUrl(u), { waitUntil: 'networkidle', timeout: 25000 });
       await page.waitForTimeout(300);
       // a page template with its own source-measured scale (typography.json
-      // `templates.<body class>.scale`) overrides the site scale tag by tag
+      // `templates.<body class>.scale`) overrides the site scale tag by tag; a page
+      // theme (record `"kind": "theme"`) is layered on top of its template
       const bodyClasses = await page.evaluate(() => [...document.body.classList]);
-      const tpl = bodyClasses.find((c) => record.templates?.[c]);
-      if (tpl) want = { ...want, ...(record.templates[tpl].scale?.[w] || {}) };
+      const isTheme = (c) => record.templates[c].kind === 'theme';
+      bodyClasses.filter((c) => record.templates?.[c])
+        .sort((a, b) => Number(isTheme(a)) - Number(isTheme(b)))
+        .forEach((c) => { want = { ...want, ...(record.templates[c].scale?.[w] || {}) }; });
       const got = await page.evaluate(measure, TAGS);
       for (const tag of TAGS) {
         if (!want[tag] || !got[tag]) continue;

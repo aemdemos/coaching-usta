@@ -1,0 +1,147 @@
+/* news-search theme (page metadata `Theme: news-search`, CSS only) — layered on the
+   landing-page template for the news search results page (source
+   /en/home/news/search-results.html): page title, Article Search, Breadcrumb + Article
+   Results, "Currently Trending" + Article List, Featured Article. The blocks match the
+   source component by component (see blocks/article-*); this theme sets the page's
+   spacing, measured on the live source at 375 / 768 / 1024 / 1280 / 1440 (2026-11-20).
+   Selectors start with `body.news-search.landing-page main > .section` so they outrank
+   the template's rules. (news.html: theme news-listing.) */
+
+/* Its source widgets sit in the 36px container preset; measured gaps (375 / 768 / 1024 /
+   1280): page top → title 48 / 56 / 72 / 88; title → search bar +12 / +20 / +28 / +28 on
+   the landing rhythm; search bar → breadcrumb 48 / 48 / 56 / 72; breadcrumb → results
+   heading +12; Show More → "Currently Trending" 60 / 68 / 92 / 124;
+   heading → list 24 / 24 / 32 / 48; list → featured tile 36 / 36 / 44 / 60.
+   Title: the source `text--font-size--64px-28px` h1 (28 / 40 / 56 / 64). */
+
+body.news-search.landing-page main > .section.heading-64 .default-content-wrapper > h1 {
+  font-size: 28px;
+  line-height: 1;
+}
+
+body.news-search.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
+  padding-top: 48px;
+}
+
+body.news-search.landing-page main > .section.article-search-container {
+  padding-top: 48px;
+  padding-bottom: 24px;
+}
+
+body.news-search.landing-page main > .section.article-results-container {
+  padding-top: 24px;
+  padding-bottom: 48px;
+}
+
+body.news-search.landing-page main .breadcrumb-wrapper {
+  margin-bottom: 12px;
+}
+
+body.news-search.landing-page main > .section.heading-64:not(:first-child) {
+  padding-bottom: 12px;
+}
+
+body.news-search.landing-page main > .section.article-list-container {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* the featured tile; → footer as the other dashboard widgets (36 / 44 / 60 / 76) */
+body.news-search.landing-page main > .section.featured-article-container {
+  padding-top: 24px;
+  padding-bottom: 36px;
+}
+
+@media (width >= 768px) {
+  body.news-search.landing-page main > .section.heading-64 .default-content-wrapper > h1 {
+    font-size: 40px;
+  }
+
+  body.news-search.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
+    padding-top: 56px;
+  }
+
+  body.news-search.landing-page main > .section.article-search-container {
+    padding-top: 56px;
+  }
+}
+
+@media (width >= 1024px) {
+  body.news-search.landing-page main > .section.heading-64 .default-content-wrapper > h1 {
+    font-size: 56px;
+  }
+
+  body.news-search.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
+    padding-top: 72px;
+  }
+
+  body.news-search.landing-page main > .section.article-search-container {
+    padding-top: 72px;
+    padding-bottom: 28px;
+  }
+
+  body.news-search.landing-page main > .section.article-results-container {
+    padding-top: 28px;
+    padding-bottom: 56px;
+  }
+
+  body.news-search.landing-page main > .section.heading-64:not(:first-child) {
+    padding-bottom: 20px;
+  }
+
+  body.news-search.landing-page main > .section.article-list-container {
+    padding-bottom: 20px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.news-search.landing-page main > .section.heading-64 .default-content-wrapper > h1 {
+    font-size: 64px;
+  }
+
+  body.news-search.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
+    padding-top: 88px;
+  }
+
+  body.news-search.landing-page main > .section.article-search-container {
+    padding-top: 88px;
+    padding-bottom: 36px;
+  }
+
+  body.news-search.landing-page main > .section.article-results-container {
+    padding-top: 36px;
+    padding-bottom: 72px;
+  }
+
+  body.news-search.landing-page main > .section.heading-64:not(:first-child) {
+    padding-bottom: 36px;
+  }
+
+  body.news-search.landing-page main > .section.article-list-container {
+    padding-bottom: 36px;
+  }
+}
+
+@media (width >= 768px) {
+  body.news-search.landing-page main > .section.featured-article-container { padding-bottom: 44px; }
+}
+
+@media (width >= 1024px) {
+  body.news-search.landing-page main > .section.featured-article-container { padding-bottom: 60px; }
+}
+
+@media (width >= 1280px) {
+  body.news-search.landing-page main > .section.featured-article-container { padding-bottom: 76px; }
+}
+
+/* the dashboard tiles sit in the source component's inset: 8px, 12px from 768 (on an
+   article page the same block spans the content box) */
+body.news-search.landing-page main .featured-article {
+  padding-inline: 8px;
+}
+
+@media (width >= 768px) {
+  body.news-search.landing-page main .featured-article {
+    padding-inline: 12px;
+  }
+}

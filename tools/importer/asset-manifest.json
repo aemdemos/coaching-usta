@@ -1,0 +1,46 @@
+{
+  "assets": [
+    {
+      "page": "en/home/courses",
+      "sourceUrl": "https://www.ustacoaching.com/content/dam/coaching/public-pages/pdfs/coaching-education-equivalency-graphic.pdf",
+      "servedPath": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf",
+      "localPath": "content/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf",
+      "normalizedName": "coaching-education-equivalency-graphic.pdf",
+      "bytes": 17680,
+      "contentType": "application/pdf"
+    },
+    {
+      "page": "en/home/news/usta-coaching-launches-inaugural-women-coaching-cohort",
+      "sourceUrl": "https://www.ustacoaching.com/content/dam/coaching/2026-pdfs/usta-coaching-women-sports-report.pdf",
+      "servedPath": "/assets/docs/en/home/news/usta-coaching-launches-inaugural-women-coaching-cohort/usta-coaching-women-sports-report.pdf",
+      "localPath": "content/assets/docs/en/home/news/usta-coaching-launches-inaugural-women-coaching-cohort/usta-coaching-women-sports-report.pdf",
+      "normalizedName": "usta-coaching-women-sports-report.pdf",
+      "bytes": 6976391,
+      "contentType": "application/pdf"
+    },
+    {
+      "page": "en/home/results/college-coach",
+      "sourceUrl": "https://www.ustacoaching.com/content/dam/coaching/public-pages/pdfs/coaching-education-equivalency-graphic.pdf",
+      "servedPath": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf",
+      "twinOf": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf"
+    },
+    {
+      "page": "en/home/results/ft-pro-coach",
+      "sourceUrl": "https://www.ustacoaching.com/content/dam/coaching/public-pages/pdfs/coaching-education-equivalency-graphic.pdf",
+      "servedPath": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf",
+      "twinOf": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf"
+    },
+    {
+      "page": "en/home/results/pt-pro-coach",
+      "sourceUrl": "https://www.ustacoaching.com/content/dam/coaching/public-pages/pdfs/coaching-education-equivalency-graphic.pdf",
+      "servedPath": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf",
+      "twinOf": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf"
+    },
+    {
+      "page": "en/home/results/volunteer-emerging-coach",
+      "sourceUrl": "https://www.ustacoaching.com/content/dam/coaching/public-pages/pdfs/coaching-education-equivalency-graphic.pdf",
+      "servedPath": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf",
+      "twinOf": "/assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf"
+    }
+  ]
+}

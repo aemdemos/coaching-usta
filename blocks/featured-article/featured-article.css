@@ -1,0 +1,55 @@
+/* Featured Article — renders the site's `Columns (media, dark)` tile (blocks/columns)
+   from the news index; this file only adds what the source's featured tile does on
+   top of it (measured on /en/home/news @375/768/1024/1280/1440):
+   - (the component inset of the news dashboards — 8px / 12px in from the content box —
+     is set by their themes, news-listing / news-search; at the end of an article the tile
+     spans the content box, as on the source);
+   - `display` (source view "Default"): the title in USTA Sans from 768 — 36 / 33
+     @1024 / 44 @1280, line-height 1, normal tracking (Graphik Semibold 32 on phones,
+     as the tile);
+   - a background colour (authored `Background`) fills the text panel: no outline,
+     black text. */
+
+.featured-article.has-background .columns.media.dark .columns-media-content {
+  border: 0;
+  background-color: var(--featured-article-background);
+  color: #000;
+}
+
+.featured-article.has-background .columns.media.dark .columns-media-content :is(h1, h2, h3, p) {
+  color: #000;
+}
+
+@media (width >= 768px) {
+  .featured-article.display .columns.media.dark .columns-media-content :is(h1, h2, h3) {
+    font-family: var(--heading-font-family);
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: normal;
+  }
+}
+
+@media (width >= 1024px) {
+  .featured-article.display .columns.media.dark .columns-media-content :is(h1, h2, h3) {
+    font-size: 33px;
+  }
+
+  /* side by side the source image is a background: it takes the text panel's height
+     (no ratio of its own — the tile's 644/567 minimum made short panels 28px taller) */
+  .featured-article .columns.media.dark .columns-media-media {
+    position: relative;
+    aspect-ratio: auto;
+  }
+
+  .featured-article .columns.media.dark .columns-media-media picture {
+    position: absolute;
+    inset: 0;
+  }
+}
+
+@media (width >= 1280px) {
+  .featured-article.display .columns.media.dark .columns-media-content :is(h1, h2, h3) {
+    font-size: 44px;
+  }
+}

@@ -1,0 +1,55 @@
+version: 1
+
+# News article index — the data source of the news dashboards (news.html, news/search-results).
+# One row per PUBLISHED article under /en/home/news (rebuilt by Edge Delivery on every publish /
+# unpublish, so a new or re-dated article shows up on the dashboards without touching them).
+# Replaces the source's AEM servlet (/coaching/news-search.json). Values come from the page
+# metadata the news importer writes (see templates/news-article and MIGRATION.md):
+#   Title, Description, Breadcrumb Title (= AEM Navigation Title), Article Date (YYYY-MM-DD),
+#   Featured (true), Tags; image = the page image (og:image = the article's top image).
+# The selectors run on the delivered HTML (head meta + main markup), not the rendered DOM.
+indices:
+  news:
+    include:
+      - '/en/home/news/**'
+    exclude:
+      - '/en/home/news'
+      - '/en/home/news/search-results'
+    target: /en/home/news/query-index.json
+    properties:
+      title:
+        select: head > meta[property="og:title"]
+        value: attribute(el, "content")
+      headline:
+        selectFirst: main h1
+        value: textContent(el)
+      navTitle:
+        select: head > meta[name="breadcrumb-title"]
+        value: attribute(el, "content")
+      description:
+        select: head > meta[name="description"]
+        value: attribute(el, "content")
+      image:
+        select: head > meta[property="og:image"]
+        value: attribute(el, "content")
+      imageAlt:
+        select: head > meta[property="og:image:alt"]
+        value: attribute(el, "content")
+      articleDate:
+        select: head > meta[name="article-date"]
+        value: attribute(el, "content")
+      featured:
+        select: head > meta[name="featured"]
+        value: attribute(el, "content")
+      tags:
+        select: head > meta[property="article:tag"]
+        values: attribute(el, "content")
+      template:
+        select: head > meta[name="template"]
+        value: attribute(el, "content")
+      robots:
+        select: head > meta[name="robots"]
+        value: attribute(el, "content")
+      lastModified:
+        select: none
+        value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")

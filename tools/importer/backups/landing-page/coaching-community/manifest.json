@@ -1,8 +1,26 @@
 {
   "page": "coaching-community",
-  "locales": ["en", "es"],
+  "locales": [
+    "en",
+    "es"
+  ],
   "date": "2026-10-21",
   "importer": "import-landing-page-v1.js",
   "blocks": "Hero (content, title) · Columns (feature, unframed) x2 · Columns (feature) · Columns (photos) x2 · Discussion Boards · Cards (quote, testimonial) · Banner (spotlight, narrow)",
-  "verified": "text-anchor parity at 375/768/1024/1280; residual: per-card separator variance in the testimonial cards (source authors each card differently, up to ~60px at 375)"
+  "verified": "text-anchor parity at 375/768/1024/1280; residual: per-card separator variance in the testimonial cards (source authors each card differently, up to ~60px at 375)",
+  "history": [
+    {
+      "backedUpOn": "2026-10-21"
+    }
+  ],
+  "backedUpOn": "2026-11-23",
+  "script": {
+    "file": "import-landing-page-v1.js",
+    "sha256": "13773d5636ae95f3",
+    "bundle": "import-landing-page-v1.bundle.js",
+    "bundleSha256": "6dbad55e2f72ad7b",
+    "bundleCommand": "npx esbuild tools/importer/import-landing-page-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-landing-page-v1.bundle.js",
+    "runner": "run-bulk-import.js --import-script <bundle> --urls <urls file> --force"
+  },
+  "verification": "2026-11-23: current bundle re-imported en/home/coaching-community to a scratch workspace — identical to content/ except image src and the known live-source edits made after the import (Career Center band, inset-4 on 6 sections, new photo, Book Now → calendly; logged in MIGRATION.md, deliberately not re-imported). Cohort card = Columns (feature, landscape) — the global crop option."
 }

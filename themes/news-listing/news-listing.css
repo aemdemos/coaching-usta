@@ -1,0 +1,118 @@
+/* news-listing theme (page metadata `Theme: news-listing`, CSS only) — layered on the
+   landing-page template for the news dashboards (source /en/home/news.html and
+   /en/home/news/search-results.html). The dashboard blocks (Featured Article, Article
+   Search, Article List, Article Results) match the source component by component; the
+   source spaces them wider than the landing rhythm (each widget's container carries
+   its own margins). Measured on the live source at 375 / 768 / 1024 / 1280 / 1440
+   (2026-11-20), our gap vs source between neighbouring widgets:
+     every widget edge                      24px short → +24 per section edge
+     search bar → first list (news)         a further 12 / 12 / 20 / 36 short
+     second list → last tile (news)         0 / 8 / 16 / 16 too much after the +24s
+     last tile → See More                   30px too much
+     page title                             12px low; 80px from 1280 (h1 32/40/56/80 —
+                                            the site h1 scale; the template's title is 56)
+   The search results page has its own theme (news-search).
+   Selectors start with `body.news-listing.landing-page main > .section` so they outrank
+   the template's rules. */
+
+/* every dashboard widget section: 24px more above and below (section padding preset
+   12 / 20 / 36 / 52 → 36 / 44 / 60 / 76; the search bar's 36 preset 12 / 12 / 20 / 36 →
+   36 / 36 / 44 / 60) */
+body.news-listing.landing-page main > .section:is(.featured-article-container, .article-list-container, .article-search-container) {
+  padding-block: 36px;
+}
+
+/* search bar → first list: the source's extra 12 / 12 / 20 / 36 */
+body.news-listing.landing-page main > .section.article-search-container:has(+ .article-list-container) {
+  padding-bottom: 48px;
+}
+
+/* page title (news.html: the source `text--font-size--80px-32px` h1) */
+body.news-listing.landing-page main > .section:first-child:has(> .default-content-wrapper > h1) {
+  padding-top: 24px;
+}
+
+/* the last tile + See More (news.html): 0 / 8 / 16 / 16 less above it; the button 24px
+   under the tile (12 more than the template's CTA gap), 48 / 50 (1024) / 56 (1280) tall */
+body.news-listing.landing-page main > .section.featured-article-container:has(> .default-content-wrapper) .default-content-wrapper {
+  margin-top: 12px;
+}
+
+body.news-listing.landing-page main > .section.featured-article-container .default-content-wrapper a.button {
+  box-sizing: border-box;
+  height: 48px;
+}
+
+@media (width >= 768px) {
+  body.news-listing.landing-page main > .section:is(.featured-article-container, .article-list-container) {
+    padding-block: 44px;
+  }
+
+  body.news-listing.landing-page main > .section.featured-article-container:has(> .default-content-wrapper) {
+    padding-top: 36px;
+  }
+}
+
+@media (width >= 1024px) {
+  body.news-listing.landing-page main > .section:is(.featured-article-container, .article-list-container) {
+    padding-block: 60px;
+  }
+
+  body.news-listing.landing-page main > .section.article-search-container {
+    padding-block: 44px;
+  }
+
+  body.news-listing.landing-page main > .section.article-search-container:has(+ .article-list-container) {
+    padding-bottom: 64px;
+  }
+
+  body.news-listing.landing-page main > .section.featured-article-container:has(> .default-content-wrapper) {
+    padding-top: 44px;
+  }
+
+  body.news-listing.landing-page main > .section:not(.heading-64) .default-content-wrapper > h1 {
+    font-size: 56px;
+  }
+
+  body.news-listing.landing-page main > .section.featured-article-container .default-content-wrapper a.button {
+    height: 50px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.news-listing.landing-page main > .section:is(.featured-article-container, .article-list-container) {
+    padding-block: 76px;
+  }
+
+  body.news-listing.landing-page main > .section.article-search-container {
+    padding-block: 60px;
+  }
+
+  body.news-listing.landing-page main > .section.article-search-container:has(+ .article-list-container) {
+    padding-bottom: 96px;
+  }
+
+  body.news-listing.landing-page main > .section.featured-article-container:has(> .default-content-wrapper) {
+    padding-top: 60px;
+  }
+
+  body.news-listing.landing-page main > .section.featured-article-container .default-content-wrapper a.button {
+    height: 56px;
+  }
+
+  body.news-listing.landing-page main > .section:not(.heading-64) .default-content-wrapper > h1 {
+    font-size: 80px;
+  }
+}
+
+/* the dashboard tiles sit in the source component's inset: 8px, 12px from 768 (on an
+   article page the same block spans the content box) */
+body.news-listing.landing-page main .featured-article {
+  padding-inline: 8px;
+}
+
+@media (width >= 768px) {
+  body.news-listing.landing-page main .featured-article {
+    padding-inline: 12px;
+  }
+}

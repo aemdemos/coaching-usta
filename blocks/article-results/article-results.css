@@ -1,0 +1,122 @@
+/* Article Results — news search results (source v-article-search-results, measured
+   on /en/home/news/search-results @375/768/1024/1440). The tiles are the site's
+   `Columns (list)` block (blocks/columns, `list`); this file styles the frame:
+   - the tiles carry the source's 8px (12px from 768) inset themselves (columns list);
+   - top row: "<n> Results for …" in Graphik XXCond Bold 42 white, and the sort picker
+     (white, 2px black border, radius 12, 12px 45px 12px 16px, Graphik Semibold 18
+     black, 45px tall) — stacked 15px apart on phones, one row from 768 (picker right);
+   - 30px from the top row to the tiles; tiles 30px apart (50 from 768);
+   - Show More: 30px below, centred lime button (2px black border, radius 12,
+     16px 24px, Graphik Semibold 16 → 18 from 768). */
+
+.article-results .article-results-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.article-results .article-results-top,
+.article-results .article-results-more {
+  padding-inline: 8px;
+}
+
+.article-results .article-results-title {
+  margin: 0;
+  color: #fff;
+  font-family: "Graphik XXCond Bold", tahoma, sans-serif;
+  font-size: 42px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+}
+
+.article-results .article-results-sort {
+  box-sizing: border-box;
+  height: 45px;
+  margin: 0;
+  padding: 12px 45px 12px 16px;
+  border: 2px outset #000; /* the source's <button> default border style */
+  border-radius: 12px;
+  appearance: none;
+
+  /* the source chevron: its 18×12 filled chevron turned to point down, 16px in */
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12'%3E%3Cpath transform='rotate(180 9 6)' fill-rule='evenodd' clip-rule='evenodd' d='M8.98542 4.74346L2.62146 11.1074L0.500141 8.9861L8.98542 0.500819L17.4707 8.9861L15.3494 11.1074L8.98542 4.74346Z' fill='%23000'/%3E%3C/svg%3E") no-repeat right 16px center / 18px 12px;
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: normal;
+  cursor: pointer;
+}
+
+.article-results .article-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.article-results .article-results-empty {
+  margin: 0;
+  color: #fff;
+}
+
+.article-results .article-results-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.article-results .article-results-more[hidden],
+.article-results .article-results-empty[hidden] {
+  display: none;
+}
+
+.article-results .article-results-more button {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 16px 24px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background-color: var(--usta-lime, #cfff05);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.03em;
+  cursor: pointer;
+}
+
+.article-results .article-results-more button:hover {
+  opacity: 0.9;
+}
+
+@media (width >= 768px) {
+  .article-results .article-results-top,
+  .article-results .article-results-more {
+    padding-inline: 12px;
+  }
+
+  .article-results .article-results-top {
+    flex-direction: row;
+    align-items: stretch; /* source: heading and picker share the 45px row, top-aligned */
+    justify-content: space-between;
+  }
+
+  .article-results .article-results-list {
+    gap: 50px;
+  }
+
+  .article-results .article-results-more button {
+    font-size: 18px;
+  }
+}
+
+/* keyboard focus (after the base rules it extends) */
+.article-results .article-results-sort:focus-visible,
+.article-results .article-results-more button:focus-visible {
+  outline: 2px solid var(--usta-lime, #cfff05);
+  outline-offset: 2px;
+}

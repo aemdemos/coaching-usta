@@ -658,13 +658,14 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    "PER YEAR" pill + a 28px price, a checkmarked included-modules list, workshop
    cost lines, and a highlighted blue (#0373F3) TOTAL footer bar flush to the
    card's bottom edge. Coming-soon cards render a dimmed/disabled state. Below
-   1024 the row stacks to 1-up. Section gutters 16/40/48/64 plus the source
-   component's own 8px (12px from 768) inset → panel at 24/52/60/76. */
+   1024 the row stacks to 1-up. The panel spans the content box (site gutters
+   16/40/48/64, re-measured on the live courses page 2026-11-18 — it no longer
+   carries the component's extra 8/12px inset). */
 .cards-container:has(.cards.comparison) {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
-  padding-inline: 24px;
+  padding-inline: 16px;
 }
 
 .cards-container:has(.cards.comparison) > .cards-wrapper {
@@ -703,9 +704,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   background-color: #1d1d1d;
   color: #fff;
 
-  /* source: the 24px inset lives on the SHELL; children align to the 24px edge
-     and the TOTAL bar bleeds back out with negative side margins. */
-  padding: 24px;
+  /* source: the inset lives on the SHELL (16px at every width — re-measured on the
+     live 5-tier courses page 2026-11-18); children align to that edge and the TOTAL
+     bar bleeds back out with negative side margins. */
+  padding: 16px;
 }
 
 /* logo box — source: full content width × 150 fixed, image fills it, mb 16 */
@@ -860,10 +862,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   display: flex;
   align-items: center;
   column-gap: 16px;
-  height: 24px; /* source: fixed — a wrapped item (narrow 1024 cards) overflows its row, the list doesn't grow */
+  min-height: 24px; /* source: a 24px row; a wrapped item grows it (24px lines) */
   padding: 0;
   font-size: 14px;
-  line-height: 1.2;
+  line-height: 24px;
   letter-spacing: -0.42px;
   color: #fff;
 }
@@ -889,7 +891,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   justify-content: center;
   min-height: 70px;
   gap: 5px; /* source: 5px between the TOTAL label and value */
-  margin: auto -24px 0; /* auto top pins near bottom; bleed sides; keep 24px below */
+  margin: auto -16px 0; /* auto top pins near bottom; bleed sides; keep the shell padding below */
   padding: 0;
   border: 1px solid #fff; /* source: the blue bar carries a 1px white outline */
   background-color: var(--usta-blue); /* source #0373F3 */
@@ -925,6 +927,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    flame graphic, and a faint "COMING 202x" line pinned at the bottom. The source
    does NOT dim the logo (the specialist/master wordmarks are natively grey art);
    keep the logo at full opacity so the lime accents show. */
+
+/* a coming-soon card is at least 595px tall (source) — visible when it shares a row
+   with no active card (768: row 3, 1024: row 2); otherwise the row stretches it */
+.cards.comparison .cards-comparison-card.is-coming-soon { min-height: 595px; }
 
 /* the title is the "COMING 202x" heading — 16px, sits where the price would */
 .cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-body h1,
@@ -1000,7 +1006,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   align-items: center;
   justify-content: center;
   min-height: 70px;
-  margin: 0 -24px; /* the flame above grows to pin this to the TOTAL-bar row; bleed sides */
+  margin: 0 -16px; /* the flame above grows to pin this to the TOTAL-bar row; bleed sides */
   border: 1px solid #fff; /* source: full 1px white border (dimmed by the 0.2 opacity below) */
   background-color: #000; /* source: black band */
   opacity: 0.2; /* source: whole band dimmed to 20% → faint border + faint text */
@@ -1058,7 +1064,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* tablet: 2×2. Source lays the cards on a grid whose columns carry a 12px
    inset on every edge — 12px panel padding + 24px between cards. */
 @media (width >= 768px) {
-  .cards-container:has(.cards.comparison) { padding-inline: 52px; }
+  .cards-container:has(.cards.comparison) { padding-inline: 40px; }
 
   .cards.comparison { padding: 12px; }
 
@@ -1067,18 +1073,18 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   .cards.comparison > ul { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* desktop: 4-up. At 1024–1279 the source's auto-sized columns come out
-   216/216/235/235 (the coming-soon pair is wider); equal from 1280. */
+/* 1024–1279: 3-up (source, 5 tiers: 3 + 2); from 1280 every tier on ONE row —
+   the column count is the number of tiers (--cards-count, set by cards.js). */
 @media (width >= 1024px) {
-  .cards-container:has(.cards.comparison) { padding-inline: 60px; }
+  .cards-container:has(.cards.comparison) { padding-inline: 48px; }
 
-  .cards.comparison > ul { grid-template-columns: 192fr 192fr 211fr 211fr; }
+  .cards.comparison > ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (width >= 1280px) {
-  .cards-container:has(.cards.comparison) { padding-inline: 76px; }
+  .cards-container:has(.cards.comparison) { padding-inline: 64px; }
 
-  .cards.comparison > ul { grid-template-columns: repeat(4, 1fr); }
+  .cards.comparison > ul { grid-template-columns: repeat(var(--cards-count, 4), minmax(0, 1fr)); }
 }
 
 /* ------------------------------------------------------------------- news --

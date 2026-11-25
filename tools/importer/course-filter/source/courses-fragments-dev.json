@@ -1,0 +1,611 @@
+[
+  {
+    "code" : "PET-B1024",
+    "description" : "\u003cp\u003eWhether you\u0027re brand new to tennis or looking to enhance your current curriculum, this course equips you with the tools, activities, and confidence to deliver inclusive, skill-based tennis lessons right in your PE class—no court required.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "CHS-B1012",
+    "description" : "\u003cp\u003eThis badge signifies expertise in guiding high school athletes with an athlete-centered approach, focusing on pre-season preparation, parent and team management, effective practice execution, match play strategies, and post-season planning.\u003cbr\u003e\n\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/coaching-high-school-tennis.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "CWB-B1016",
+    "description" : "\u003cp\u003eCreated by the USOPC, this badge helps coaches build practical, personal strategies to prevent burnout and sustain well-being in the demanding world of coaching.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/coach-well-being.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "RR2-B1027",
+    "description" : "\u003cp\u003eThis badge covers the yearly changes to the rules and regulations of tennis, its point penalty system, and an overview of medical timeouts.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/rules-of-tennis-2.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "CFA-B1028",
+    "description" : "\u003cp\u003eCreated by Coaching Her, this badge provides coaches insight into how the menstrual cycle impacts athletes\u0027 physical and emotional well-being, providing coaches with the knowledge and confidence to support girls, reduce stigma, foster trust, and enhance overall performance and participation.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/empowering-girls.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "RR3-B1028",
+    "description" : "\u003cp\u003eThis badge reviews \u0026quot;The Code,\u0026quot; the athlete\u0027s guide to fair play, and includes a summary of the unwritten rules of tennis.\u0026nbsp;\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/rules-of-tennis-3.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isSpecificCourseRequired",
+    "requiredCourseCode" : "DEP-B1005, DEP-B1005-GC",
+    "logicalOperator" : "||",
+    "courseNameForLocker" : "Developing Junior and Adult Players Badge",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the Developing Junior and Adult Players Badge and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "ACS-B1009",
+    "description" : "\u003cp\u003eBeginner and intermediate group lessons focused on building foundational skills and introducing basic strategies.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/applied-coaching-skills-group.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "description" : "\u003cp\u003eCompleting two electives will fulfill requirements towards the USTA Professional Coach Certification.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/general-elective-badge.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "TCB-B1017",
+    "description" : "\u003cp\u003eThis badge highlights proficiency in managing the key aspects of coaching as a business, including team leadership, programming, facility operations, financial management, and effective sales and marketing strategies.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/intro-to-tennis-coaching-business.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "EVE-B1013",
+    "description" : "\u003cp\u003eThis badge showcases skills in fostering participation and community engagement by understanding the importance and types of play, creating inclusive experiences, and utilizing various formats for individual and team activities.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/events-and-social-play.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "RR1-B1026",
+    "description" : "\u003cp\u003eThis introductory badge covers the 31 rules of tennis established by the International Tennis Federation (ITF), including who governs the rules and the process for how they are officially changed.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/rules-of-tennis-1.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "ADV-B1007",
+    "description" : "\u003cp\u003eEquipping players with the skills, mindset, and physical foundation needed for success.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/athletic-development.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "DCO-B1018",
+    "description" : "\u003cp\u003eThis badge represents proficiency in navigating the USTA Competition Pathway, leveraging Serve Tennis tools, understanding ratings and rankings, and effectively organizing tournaments, team events, and advanced competitive opportunities like Pro Circuit and collegiate events.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/delivering-competition.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "SFC-B1004",
+    "description" : "\u003cp\u003eCPR/AED and First Aid equips coaches with essential CPR, First Aid, and AED awareness to ensure safe and responsive environments for all players.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/safety-coach.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "ACS-B1009-GC",
+    "description" : "\u003cp\u003eBeginner and intermediate group lessons focused on building foundational skills and introducing basic strategies.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/applied-coaching-skills-group.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "ELE-M1001-GC",
+    "description" : "\u003cp\u003eSpecialized credentials earned by completing at least 2 of 5 focused elective courses. This badge demonstrates expertise in specific coaching areas aligned with your professional interests and goals needed to earn the Professional Certification.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/general-elective-badge.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "ADV-B1007-GC",
+    "description" : "\u003cp\u003eEquipping players with the skills, mindset, and physical foundation needed for success.\u003c/p\u003e\n\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/athletic-development.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "SFC-B1004-GC",
+    "description" : "\u003cp\u003eCPR/AED First Aid equips coaches with essential CPR, First Aid, and AED awareness to ensure safe and responsive environments for all players.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/safety-coach.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "ACS-B1008-GC",
+    "description" : "\u003cp\u003ePrivate lessons focused on building foundational skills and introducing basic strategies for all levels.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/applied-coaching-skills-private.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "CAR-B1014-GC",
+    "description" : "\u003cp\u003eThis badge represents foundational knowledge and skills for delivering engaging Cardio Tennis sessions, mastering progressive triples formats, and effectively organizing activations to inspire participation and community involvement.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/cardio-tennis.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "DEP-B1005-GC",
+    "description" : "\u003cp\u003eCultivate young athletes\u0027 skills through progressive, age-appropriate training. Enhancing adult players\u0027 skills through progressive, tailored training that emphasizes technical fundamentals.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/developing-junior-and-adult-players.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "ELE-M1002-GC",
+    "description" : "\u003cp\u003eSpecialized credentials earned by completing at least 2 of 5 focused elective courses. This badge demonstrates expertise in specific coaching areas aligned with your professional interests and goals needed to earn the Professional Certification.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/general-elective-badge.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isSpecificCourseRequired",
+    "requiredCourseCode" : "DEP-B1005, DEP-B1005-GC",
+    "logicalOperator" : "||",
+    "courseNameForLocker" : "Developing Junior and Adult Players Badge",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the Developing Junior and Adult Players Badge and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "ACS-B1008",
+    "description" : "\u003cp\u003eBeginner and intermediate individual lessons focused on building foundational skills and introducing basic strategies.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/applied-coaching-skills-private.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "CAR-B1014",
+    "description" : "\u003cp\u003eThis badge represents foundational knowledge and skills for delivering engaging Cardio Tennis sessions, mastering progressive triples formats, and effectively organizing activations to inspire participation and community involvement.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/cardio-tennis.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "PME-B1019",
+    "description" : "\u003cp\u003eThis badge represents mastery in fostering motivation through understanding self-determination theory, creating a supportive environment, effective communication, promoting a growth mindset, and using leadership to inspire and engage players.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/player-motivation-and-engagement.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "IPR-B1024",
+    "description" : "\u003cp\u003eThis badge supports USTA\u0027s mission to inspire healthier people and communities everywhere. It is designed to introduce parents, volunteers, coaches, and instructors to the Park and Recreation industry, equipping them with the necessary knowledge, tools, and confidence to successfully contribute to tennis programming.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/parks-and-recreation-badge-icon.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\" target\u003d\"_blank\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "DEP-B1005",
+    "description" : "\u003cp\u003eCultivate young athletes\u0027 skills through progressive, age-appropriate training. Enhancing adult players\u0027 skills through progressive, tailored training that emphasizes technical fundamentals.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/developing-junior-and-adult-players.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "description" : "\u003cp\u003eCompleting two electives will fulfill requirements towards the USTA Professional Coach Certification.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/general-elective-badge.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "PA-NB1022",
+    "description" : "\u003cp\u003eThis module empowers parents to introduce tennis to their children. Also available in \u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d76f2f752-853d-4262-b59e-55c68f1bf0bc\" target\u003d\"_blank\"\u003e\u003cu\u003eSpanish\u003c/u\u003e.\u003c/a\u003e\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "PC-NB1023",
+    "description" : "\u003cp\u003eEnhancing the parent and child relationship in competition.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "SAS-00001",
+    "description" : "\u003cp\u003eDeveloped by the USTA Junior Competition and Athlete Safety Departments, this required course is designed to empower both junior players and their parents/guardians to succeed in the tournament pathway. You\u0027ll gain a comprehensive understanding of essential topics including junior regulations, rankings, and ratings, appropriate behavior for parents and players as well as information specific to the selection process for USTA National Championships and quota. The course also covers the USTA Safe Play program along with how to recognize and prevent misconduct in tennis. Upon completion, you\u0027ll be better equipped to effectively navigate the junior competitive experience.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "PA-NB1022S",
+    "description" : "\u003cp\u003eEste módulo permite a los padres introducir a sus hijos en el tenis.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "CWT-B1015-GC",
+    "description" : "\u003cp\u003eThis badge involves coaching athletes with disabilities, focusing on sport chair setup, mobility patterns, technical skills, and strategic approaches for singles and doubles play.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/coaching-wheelchair-tennis.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "SCC-C1001-GC",
+    "description" : "\u003cp\u003eRecognizes coaches who have demonstrated advanced expertise in a specialized area of player development through an approved equivalent credential or pathway.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "MCC-C1001-GC",
+    "description" : "\u003cp\u003eRecognizes experienced coaches who have demonstrated the highest level of coaching expertise through an approved equivalent credential or pathway. This pinnacle designation reflects a commitment to lifelong learning, leadership, and coaching excellence.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "ACC-B1003-GC",
+    "description" : "\u003cp\u003eThis badge reflects mastery of USTA\u0027s coaching philosophy, including playful learning, the 5C\u0027s, communication skills, and effective equipment use for athlete development.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/athlete-centered-coaching.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "CLC-B1011-GC",
+    "description" : "\u003cp\u003eEquipping coaches with emotional intelligence, empathy, and effective strategies for engaging and supporting Gen Z athletes through social and emotional learning and conflict resolution.\u003cbr\u003e\n\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/inclusive-coaching.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "ACC-B1003",
+    "description" : "\u003cp\u003eThis badge reflects mastery of USTA\u0027s coaching philosophy, including playful learning, the 5C\u0027s, communication skills, and effective equipment use for athlete development.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/athlete-centered-coaching.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "CLC-B1011",
+    "description" : "\u003cp\u003eEquipping coaches with emotional intelligence, empathy, and effective strategies for engaging and supporting Gen Z athletes through social and emotional learning and conflict resolution.\u003cbr\u003e\n\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/inclusive-coaching.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "code" : "EMG-B1010",
+    "description" : "\u003cp\u003eThis badge highlights expertise in fostering girls\u0027 participation in sports by challenging gender stereotypes, recognizing their unique identities, addressing their needs, and employing strategies to engage, support, and empower them through coaching.\u003cbr\u003e\n\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/empowering-girls.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "YPP-B1001",
+    "description" : "\u003cp\u003eThis badge consists of one online module designed to inform parents of the youth pathway that exists within the non-ranking space.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/youth-pathway-parents-icon.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "CAR-W1010",
+    "description" : "\u003cp\u003eThis workshop is designed to give on court foundational knowledge and skills for delivering engaging Cardio Tennis sessions, mastering progressive triples formats, and effectively organizing activations to inspire participation and community involvement.to help coaches organize players of all ages, provide basic coaching in a group setting, and establish an athlete-centered environment.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : true,
+    "isWorkshop" : true
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "INC-W1010-IP",
+    "description" : "\u003cp\u003eThis workshop is designed to help coaches organize players of all ages, provide basic coaching in a group setting, and establish an athlete-centered environment.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : true,
+    "isWorkshop" : true
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "INC-W1010-OD",
+    "description" : "\u003cp\u003eLearn at your own pace with this on-demand workshop. Start whenever you’re ready, pause and return at any time, and revisit lessons as often as you need. This workshop is designed to help coaches organize players of all ages, provide basic coaching in a group setting, and establish an athlete-centered environment.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : true,
+    "isWorkshop" : true
+  },
+  {
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "IDD-B1025",
+    "description" : "\u003cp\u003eThis badge equips tennis coaches with a comprehensive framework for supporting athletes with Coaching Intellectual and Developmental Disabilities Tennis (IDD), covering everything from foundational inclusion and behavioral strategies to on-court skill delivery and long-term program design.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/people-with-disabilities-intellectual-developmental-disability.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "ITC-B1002S",
+    "description" : "\u003cp\u003ePara acceder a esta insignia es necesario contar con la aprobación de Safe Play. Proporciona a los entrenadores habilidades fundamentales, como juegos basados en el juego, técnicas eficaces de retroalimentación a través de «Stop-Show-Go» y la aplicación práctica de las 5 C para fomentar el desarrollo integral de los jugadores.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/intro-to-coaching.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : true,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "ITC-B1001S",
+    "description" : "\u003cp\u003eEstos módulos presentan los fundamentos del entrenamiento, ayudan a las personas a explorar su potencial como entrenadores, adoptar principios de entrenamiento positivos e implementar técnicas de juego basadas en el intercambio de pelotas para crear sesiones atractivas y adecuadas para el desarrollo.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isSpecificCourseRequired",
+    "requiredCourseCode" : "ACC-B1003, ACC-B1003-GC",
+    "logicalOperator" : "\u0026\u0026",
+    "courseNameForLocker" : "Athlete Centered Coaching Badge",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the\u0026nbsp;Athlete Centered Coaching Badge\u0026nbsp;and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "CWT-B1015",
+    "description" : "\u003cp\u003eThis badge involves coaching athletes with disabilities, focusing on sport chair setup, mobility patterns, technical skills, and strategic approaches for singles and doubles play.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/coaching-wheelchair-tennis.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isSpecificCourseRequired",
+    "requiredCourseCode" : "ACC-B1003",
+    "logicalOperator" : "\u0026\u0026",
+    "courseNameForLocker" : "Athlete Centered Coaching",
+    "conditionalDescription" : "\u003cp\u003eAthlete Centered Coaching required\u003c/p\u003e\n",
+    "code" : "BLV-B1001",
+    "description" : "\u003cp\u003eThis badge outlines evidence-based coaching strategies for blind and low vision (BLV) athletes. To unlock the course, complete the Athlete Centered Coaching Badge and have a Rally or higher package.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/blind-and-visually-impaired-icon.svg",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "YPC-B1001",
+    "description" : "\u003cp\u003eThis badge has one online module that informs coaches about the youth pathway in the non-ranking space, including digital tools and best practices.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/youth-pathway-coaches-icon.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isSpecificCourseRequired",
+    "requiredCourseCode" : "INC-B1001, INC-B1001-GC, INC-B1001S",
+    "logicalOperator" : "||",
+    "courseNameForLocker" : "Asociado 1",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eCompleta la\u0026nbsp;Asociado 1 y actualiza al Paquete Rally para obtener acceso.\u003c/p\u003e\n",
+    "code" : "INC-B1002S",
+    "description" : "\u003cp\u003ePara acceder a esta insignia es necesario contar con la aprobación de Safe Play. Proporciona a los entrenadores habilidades fundamentales, como juegos basados en el juego, técnicas eficaces de retroalimentación a través de «Stop-Show-Go» y la aplicación práctica de las 5 C para fomentar el desarrollo integral de los jugadores.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/associate-icon-2.png",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "logicalOperator" : "\u0026\u0026",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eCompleta la\u0026nbsp;\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e\u0026nbsp;y actualiza al Paquete Rally para obtener acceso.\u003c/p\u003e\n",
+    "code" : "INC-B1001S",
+    "description" : "\u003cp\u003eEstos módulos presentan los fundamentos del entrenamiento, ayudan a las personas a explorar su potencial como entrenadores, adoptar principios de entrenamiento positivos e implementar técnicas de juego basadas en el intercambio de pelotas para crear sesiones atractivas y adecuadas para el desarrollo.\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/associate-icon-1.png",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isSpecificCourseRequired",
+    "requiredCourseCode" : "INC-B1001, INC-B1001-GC, INC-B1001S",
+    "logicalOperator" : "||",
+    "courseNameForLocker" : "Associate 1",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the Associate 1 and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "INC-B1002-GC",
+    "description" : "\u003cp\u003eAccess to this badge requires Safe Play approval. It equips coaches with foundational skills, including play-based games, effective feedback techniques through \u0027Stop-Show-Go,\u0027 and practical application of the 5C\u0027s to foster holistic player development. Also available in\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d9820ed45-f9b6-4227-a3c9-ecb6fa3c5661\" target\u003d\"_blank\" rel\u003d\"noopener noreferrer\"\u003e \u003cu\u003eSpanish.\u003c/u\u003e\u003c/a\u003e\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/associate-icon-2.png",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isSpecificCourseRequired",
+    "requiredCourseCode" : "INC-B1001, INC-B1001-GC, INC-B1001S",
+    "logicalOperator" : "||",
+    "courseNameForLocker" : "Associate 1",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the Associate 1 and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "INC-B1002",
+    "description" : "\u003cp\u003eAccess to this badge requires Safe Play approval. It equips coaches with foundational skills, including play-based games, effective feedback techniques through \u0027Stop-Show-Go,\u0027 and practical application of the 5C\u0027s to foster holistic player development. Also available in\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d9820ed45-f9b6-4227-a3c9-ecb6fa3c5661\" target\u003d\"_blank\" rel\u003d\"noopener noreferrer\"\u003e \u003cu\u003eSpanish.\u003c/u\u003e\u003c/a\u003e\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/associate-icon-2.png",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "logicalOperator" : "\u0026\u0026",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the \u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "INC-B1001-GC",
+    "description" : "\u003cp\u003eThese modules introduce the essentials of coaching, helping individuals explore their potential as a coach, embrace positive coaching principles, and implement play-based rally techniques to create engaging and developmentally-appropriate sessions. Also available in \u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253de452ca39-fa56-4590-9214-51ea98752622\"\u003e\u003cu\u003eSpanish\u003c/u\u003e.\u003c/a\u003e\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/associate-icon-1.png",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "constraint" : "isDevelopmentBadgeRequired",
+    "logicalOperator" : "\u0026\u0026",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to complete the \u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253d38\"\u003e\u003cu\u003eUSTA Coaching Development Coach Badge\u003c/u\u003e\u003c/a\u003e and have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "INC-B1001",
+    "description" : "\u003cp\u003eThese modules introduce the essentials of coaching, helping individuals explore their potential as a coach, embrace positive coaching principles, and implement play-based rally techniques to create engaging and developmentally-appropriate sessions. Also available in \u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253de452ca39-fa56-4590-9214-51ea98752622\" target\u003d\"_blank\" rel\u003d\"noopener noreferrer\"\u003e\u003cu\u003eSpanish\u003c/u\u003e.\u003c/a\u003e\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/associate-icon-1.png",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "ITC-B1002-GC",
+    "description" : "\u003cp\u003eAccess to this badge requires Safe Play approval. It equips coaches with foundational skills, including play-based games, effective feedback techniques through \u0027Stop-Show-Go,\u0027 and practical application of the 5C\u0027s to foster holistic player development. Also available in\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d1ca01134-4b0c-459a-847e-5b88ade496fb\"\u003e \u003cu\u003eSpanish.\u003c/u\u003e\u003c/a\u003e\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/intro-to-coaching.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "ITC-B1002",
+    "description" : "\u003cp\u003eAccess to this badge requires Safe Play approval. It equips coaches with foundational skills, including play-based games, effective feedback techniques through \u0027Stop-Show-Go,\u0027 and practical application of the 5C\u0027s to foster holistic player development. Also available in\u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d1ca01134-4b0c-459a-847e-5b88ade496fb\" target\u003d\"_blank\" rel\u003d\"noopener noreferrer\"\u003e \u003cu\u003eSpanish.\u003c/u\u003e\u003c/a\u003e\u003c/p\u003e\n",
+    "logoPath" : "/content/dam/coaching/course-catalog/badges/intro-to-coaching.svg",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : true,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "ITC-B1001-GC",
+    "description" : "\u003cp\u003eThese modules introduce the essentials of coaching, helping individuals explore their potential as a coach, embrace positive coaching principles, and implement play-based rally techniques to create engaging and developmentally-appropriate sessions. Also available in \u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d683c3526-929e-4c1e-b522-9fa5e2340e2e\"\u003e\u003cu\u003eSpanish\u003c/u\u003e.\u003c/a\u003e\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "code" : "ITC-B1001",
+    "description" : "\u003cp\u003eThese modules introduce the essentials of coaching, helping individuals explore their potential as a coach, embrace positive coaching principles, and implement play-based rally techniques to create engaging and developmentally-appropriate sessions. Also available in \u003ca href\u003d\"https://ustacoaching-pilot.csod.com/samldefault.aspx?returnurl\u003d%252fDeepLink%252fProcessRedirect.aspx%253fmodule%253dlodetails%2526lo%253d683c3526-929e-4c1e-b522-9fa5e2340e2e\" target\u003d\"_blank\" rel\u003d\"noopener noreferrer\"\u003e\u003cu\u003eSpanish\u003c/u\u003e.\u003c/a\u003e\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : false,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : false,
+    "isWorkshop" : false
+  },
+  {
+    "logicalOperator" : "\u0026\u0026",
+    "conditionalDescription" : "\u003cp\u003e\u0026nbsp;\u003c/p\u003e\n\u003cp\u003eTo unlock this course you will have to have a Rally or above package.\u003c/p\u003e\n",
+    "code" : "CWT-W1010",
+    "description" : "\u003cp\u003eThis workshop is designed to give on court foundational knowledge and skills for coaching athletes with disabilities, focusing on sport chair setup, mobility patterns, technical skills, and strategic approaches for singles and doubles play.\u003c/p\u003e\n",
+    "isAdvancedMembershipRequired" : true,
+    "ignoreSafePlayForMinors" : false,
+    "hideModules" : true,
+    "isWorkshop" : true
+  }
+]

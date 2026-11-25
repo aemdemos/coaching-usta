@@ -7,16 +7,20 @@
  *
  * Output document:
  *   section 1 (style: bordered) — the article frame: top image, H1, body copy,
- *     text+image rows (Columns article, media-N), section headings, pull-quotes,
+ *     text+image rows (Columns article, media-N), feature cards (Columns feature, timeline),
+ *     section headings, pull-quotes,
  *     separators (Spacer 42px), Tags + Social row
- *   section 2 — the featured tile: Fragment → /fragments/news/featured-article (the
- *     shared tile), or the tile inline when it differs (the featured story); none on ES
+ *   section 2 — the featured tile: Fragment → /fragments/news/featured-article (one
+ *     index-driven Featured Article block for every article); none on ES
  *   Metadata — Title, Description, Tags (from the source meta keywords), Template: news-article,
- *     Breadcrumb Title
+ *     Breadcrumb Title, Article Date (YYYY-MM-DD) and Featured (true, featured articles only) —
+ *     the last two are AEM page properties the page never renders, taken from the exported
+ *     news list (tools/importer/news/news-articles.json); they feed the news index
  * Not authored: the breadcrumb (auto-built from Breadcrumb Title + placeholders).
  *
  * Fragment mode: the same article URL with `#featured-fragment` emits ONLY the
- * shared featured tile as `Columns (media, dark)` at /fragments/news/featured-article.
+ * shared fragment /fragments/news/featured-article = a `Featured Article` block (item 1:
+ * the newest featured story from the news index, never the page it is shown on).
  *
  * All block selectors are stable AEM component / Vue widget classes (no hashes).
  */
@@ -24,8 +28,10 @@
 import columnsArticleParser, { parsePersonText, parseGrid } from './parsers/news-columns-article.js';
 import quoteParser from './parsers/news-quote.js';
 import tagsSocialParser from './parsers/news-tags-social.js';
-import featuredParser, { buildFeaturedTile, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
+import featuredParser, { buildFeaturedBlock, FEATURED_FRAGMENT_PATH } from './parsers/news-featured.js';
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
+import { articleOf } from './news/news-data.js';
+import { markFeatureCards, parseFeatureCards } from './parsers/news-columns-feature.js';
 
 const TEMPLATE = 'news-article';
 
@@ -51,6 +57,7 @@ const CONTAINER_PADDINGS = { '12px-4px': [0, 4, 12] };
 function containerMarginSpacers(frame, document) {
   frame.querySelectorAll('.container[class*="-margin--"], .container[class*="container--padding--"]').forEach((c) => {
     if (c.querySelector('.tags, .socialmediasharing')) return;
+    if (c.closest('[data-feature-card]')) return; // a feature card: the block owns its spacing
     // a column of a side-by-side flex row: the row block owns the spacing
     if (c.parentElement && c.parentElement.closest('.container--display--flex-reset-grid')) return;
     // a pull-quote's own container (quote + attribution only): the quote block's margins
@@ -79,7 +86,7 @@ function spacer(document, px, variant) {
   });
 }
 
-function metadata(document, frame) {
+function metadata(document, frame, url) {
   const meta = (sel) => document.querySelector(sel)?.getAttribute('content') || '';
   const crumb = document.querySelector('.cmp-breadcrumb__item--active');
   const cells = {
@@ -96,6 +103,12 @@ function metadata(document, frame) {
     cells.Image = img;
   }
   if (crumb) cells['Breadcrumb Title'] = crumb.textContent.trim();
+  // page properties the article never renders (news index → dashboards)
+  const article = articleOf(url);
+  if (article) {
+    cells['Article Date'] = article.articleDate;
+    if (article.featured) cells.Featured = 'true';
+  }
   Object.keys(cells).forEach((k) => { if (cells[k] === '') delete cells[k]; });
   return WebImporter.Blocks.createBlock(document, { name: 'Metadata', cells });
 }
@@ -292,7 +305,8 @@ function markNbsp(root, document) {
  *   - leading/trailing blanks, blanks around a list → all kept;
  *   - a list that starts/ends its component → a blank line for the component edge
  *     (the list itself only carries its 18px margin; see news-article.css) — none
- *     after a list followed by a separator (the separator's gap covers that edge).
+ *     after a list followed by a separator in a row column (the separator's gap covers
+ *     that edge there).
  * Kept blanks hold the nbsp sentinel so the converter doesn't drop them.
  */
 const isListEl = (e) => !!e && (e.tagName === 'UL' || e.tagName === 'OL');
@@ -332,10 +346,16 @@ function normalizeTextComponent(cmpEl, document) {
   const first = kids[content[0]];
   const last = kids[content[content.length - 1]];
   if (isListEl(first) && content[0] === 0) first.before(blankLine());
-  // …but not before a separator: its 12 + 42 + 12 already holds that component edge
-  const nextCmp = cmpEl.closest('.text')?.nextElementSibling;
+  // …but not before a separator inside a side-by-side row column (a partial-width
+  // aem-Grid, e.g. learning-hub's 7/12 text column → columns (article) cell): the cell's
+  // list spacing + the separator already hold that edge. In the full-width article grid
+  // (aem-Grid--12) the blank line stays (wecoach, how-one-coach… = source, re-measured
+  // 2026-11-20).
+  const textCmp = cmpEl.closest('.text');
+  const nextCmp = textCmp?.nextElementSibling;
+  const inRowColumn = !textCmp?.parentElement?.closest('.aem-Grid')?.classList.contains('aem-Grid--12');
   if (isListEl(last) && content[content.length - 1] === kids.length - 1
-    && !nextCmp?.classList.contains('separator')) last.after(blankLine());
+    && !(inRowColumn && nextCmp?.classList.contains('separator'))) last.after(blankLine());
   wrapIndentedRuns(cmp, document);
 }
 
@@ -426,7 +446,7 @@ export default {
     if (new URL(url).hash === '#featured-fragment') {
       const tile = main.querySelector('.aem-featured-article');
       const out = document.createElement('div');
-      const block = tile && buildFeaturedTile(tile, document);
+      const block = tile && buildFeaturedBlock(tile, document);
       if (block) out.append(block);
       WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
       return [{ element: out, path: FEATURED_FRAGMENT_PATH, report: { template: `${TEMPLATE}:fragment` } }];
@@ -436,6 +456,9 @@ export default {
       || main.querySelector('.container--border--white');
     if (!frame) throw new Error('news-article frame (.container--border--white) not found');
 
+    // feature cards (dark card: image + grey-bordered copy) — tagged before the container
+    // margins become Spacers, parsed once their text is normalised (news-columns-feature.js)
+    markFeatureCards(frame);
     containerMarginSpacers(frame, document);
     convertHeadings(frame, document);
     convertNativeHeadings(frame, document);
@@ -443,6 +466,7 @@ export default {
     textStyleBlocks(frame, document);
     frame.querySelectorAll('.text:not(.text--font-family--graphic-semibold) > .cmp-text')
       .forEach((cmp) => normalizeTextComponent(cmp, document));
+    parseFeatureCards(frame, { document });
 
     // pull-quotes (before rows, so a quote never becomes a column's text cell)
     [...frame.querySelectorAll('.text.text--font-family--graphic-semibold')].forEach((q) => quoteParser(q, { document }));
@@ -472,7 +496,7 @@ export default {
     applySectionGaps(out, document);
     out.append(WebImporter.Blocks.createBlock(document, { name: 'Section Metadata', cells: { Style: 'bordered' } }));
 
-    // featured tile: shared fragment, inline tile, or nothing (see news-featured.js)
+    // featured tile: the shared fragment, or nothing on an empty source tile (news-featured.js)
     const featured = main.querySelector('.aem-featured-article');
     if (featured) {
       const holder = document.createElement('div');
@@ -480,7 +504,14 @@ export default {
       if (featuredParser(featured, { document })) out.append(document.createElement('hr'), holder);
     }
 
-    out.append(metadata(document, frame));
+    out.append(metadata(document, frame, url));
+    // AEM DAM documents (PDFs) → absolute source URL here (a site-relative /content/dam/…
+    // link 404s on EDS and the editor Sync rejects the page); the finalize step
+    // tools/assets/fetch-docs.mjs then downloads each into the site's docs folder and points
+    // the link at its absolute aem.live URL
+    out.querySelectorAll('a[href^="/content/dam/"]').forEach((a) => {
+      a.setAttribute('href', new URL(a.getAttribute('href'), new URL(url).origin).href);
+    });
     cleanupTransformer('afterTransform', out, payload);
     WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
 

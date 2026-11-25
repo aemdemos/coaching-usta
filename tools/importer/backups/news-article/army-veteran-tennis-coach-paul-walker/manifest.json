@@ -1,0 +1,26 @@
+{
+  "template": "news-article",
+  "page": "army-veteran-tennis-coach-paul-walker",
+  "backedUpOn": "2026-11-23",
+  "url": "https://www.ustacoaching.com/en/home/news/army-veteran-tennis-coach-paul-walker.html",
+  "script": {
+    "file": "import-news-article-v1.js",
+    "sha256": "47d6d6050145dab1",
+    "bundle": "import-news-article-v1.bundle.js",
+    "bundleSha256": "0b9c020581ae577e",
+    "parsers": [
+      "parsers/news-columns-feature.js",
+      "parsers/feature-options.js"
+    ]
+  },
+  "output": {
+    "blocks": "20 x Columns (feature) — 16 plain, 2 media-4, 2 media-3; 0 spacers"
+  },
+  "decisions": [
+    "one Columns (feature) block, only media-N (user 2026-11-23)",
+    "no per-image crop/focus/visibility options; article photos at natural shape",
+    "standard card rhythm (heading->copy 66, Cohort insets); source per-card separators not reproduced",
+    "phone-only image copy (card 4) not carried over"
+  ],
+  "verification": "standards-mode vs source @375/768/1024/1280/1440: panel width/x, photo width, card x/width, text insets, typography, line counts identical; gaps before/between/after cards identical; photo heights differ (natural vs source crops, accepted)"
+}

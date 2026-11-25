@@ -1,136 +1,54 @@
 /*
  * course-filter — the USTA "Courses and Workshops" browser.
  *
- * Recreated from the source's bespoke Vue component (.v-course-list) for EDS
- * parity. Data is assembled at runtime from a 3-way merge (see loadCourses):
- *   1. LMS API      — fresh STRUCTURED data (name/code/modules/filters/sort).
- *   2. DA sheet      — author-owned ENRICHMENT (badge/description/unlock/Spanish),
- *                      editable in Document Authoring, keyed by course `code`.
- *   3. WORKSHOP_CARDS — the two workshop-only cards the API doesn't return
- *                      (their irreducible structure; enrichment still comes from
- *                      the sheet).
+ * Recreated from the source's bespoke Vue component (.v-course-list). Same data
+ * model as the source, matched by course `code`:
+ *   1. LMS API  — titles, module lists, filter tags, sort order (live, public).
+ *   2. Course catalog sheet (DA, one per locale) — the export of the AEM
+ *      "Coaching Course" Content Fragments + the component config. Sheets:
+ *        courses  — description, logoPath (badge), hideModules, access flags,
+ *                   constraint / prerequisite fields, conditionalDescription
+ *        filters  — filter groups and options; addToTopFilters rows are the
+ *                   persona tabs, appliedByDefault rows are pre-selected
+ *        settings — items-to-display, show-more-button-title, empty-message, …
+ *      Regenerate from the source with
+ *      tools/importer/course-filter/export-course-catalog.mjs.
+ * Only courses the API returns are shown (as on the source); a course without a
+ * sheet row renders structure-only.
  *
- * UI: 3 persona tabs (Parents / School Tennis / Coaches), a Filter By dropdown
- * (4 checkbox groups → removable chips), a Sort dropdown (Default / A–Z / Z–A),
- * a responsive card grid where each card expands to a module timeline, and a
- * "See More" pager.
+ * UI: persona tabs, a Filter By dropdown (checkbox groups → removable chips), a
+ * Sort dropdown (Default / A–Z / Z–A), a responsive card grid where each card
+ * expands to a module timeline, and a "See More" pager.
  */
+import { localePrefix } from '../../scripts/scripts.js';
 
-const PAGE_SIZE = 16;
-
-// Live LMS API — the same endpoint the source site calls. CORS-open
-// (access-control-allow-origin: *); returns { courses: [...] } with STRUCTURED
-// data only (name, code, language, filters, modules, sort). No authored copy.
+// Live LMS API — the endpoint the source calls for signed-out visitors.
+// CORS-open; returns { courses: [...] }.
 const LMS_API = 'https://services.ustacoaching.com/v1/lms/courses/all';
 
-// Author-editable enrichment sheet in Document Authoring (edit → preview →
-// publish in DA). Root-relative so it resolves on every host. EDS serves a
-// published sheet as { columns, data:[…] }; each row is keyed by course `code`
-// and carries badge/description/unlock/Spanish. All course-filter content lives
-// under one folder so authors know where to look:
-//   /blocks/course-filter/course-enrichment.json  ← this sheet
-//   /blocks/course-filter/media/*.png             ← the badge images it references
-const ENRICHMENT_SHEET = '/blocks/course-filter/course-enrichment.json';
+// Locale catalog (authored data, kept in the locale folders — not under /blocks/,
+// which is code): /en/course-catalog.json and /es/course-catalog.json. English
+// pages without a locale prefix (e.g. the homepage) read the /en sheet.
+// Environments (repoless — one code base, a DEV and a PROD site): a site whose name
+// contains `-dev` (main--coaching-dev--usta-digital.aem.page|live) reads the DEV sheet
+// `course-catalog-dev.json` (pilot LMS links); every other host reads the PROD sheet.
+// A missing DEV sheet falls back to the PROD one.
+const isDevSite = () => (window.location.hostname.split('.')[0].split('--')[1] || '').includes('-dev');
+const catalogUrl = (dev) => `${localePrefix() || '/en'}/course-catalog${dev ? '-dev' : ''}.json`;
+const fetchJson = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+async function loadCatalog() {
+  if (isDevSite()) {
+    const dev = await fetchJson(catalogUrl(true));
+    if (dev) return dev;
+  }
+  return fetchJson(catalogUrl(false));
+}
 
-// The two workshop cards the LMS API does NOT return. Only their irreducible
-// STRUCTURE lives here (code/name/sort/tags/moduleCount) — NOT authored copy,
-// which still comes from the enrichment sheet by `code`. This is the sole bit of
-// course data left in code, because it's structural and the API can't supply it.
-const COACH_ALL = ['COLLEGE_COACH', 'FT_PROF_COACH', 'PT_PROF_COACH', 'VOLUNTEER_OR_EMERGING_COACH'];
-const WORKSHOP_CARDS = [
-  {
-    code: 'INC-W1010',
-    name: 'Intro to Coaching Workshop',
-    language: 'English',
-    safePlay: false,
-    sort: 7,
-    badgeName: null,
-    coachTypes: [...COACH_ALL, 'PARENT_GUARDIAN_COACH', 'SCHOOL_COACH'],
-    certifications: [],
-    membershipPackages: ['BASELINE', 'RALLY', 'PRO', 'PRO_PLUS'],
-    modules: [],
-  },
-  {
-    code: 'CAR-W1010C',
-    name: 'Cardio Tennis Workshop',
-    language: 'English',
-    safePlay: true,
-    sort: 31.5,
-    badgeName: null,
-    coachTypes: COACH_ALL,
-    certifications: ['USTA Professional Coach Certification'],
-    membershipPackages: ['RALLY', 'PRO', 'PRO_PLUS'],
-    modules: [],
-  },
-];
-
-// Persona tabs → the coachType values each maps to (from the API taxonomy).
-const TABS = [
-  {
-    key: 'PARENT_GUARDIAN_COACH',
-    title: 'Parents',
-    description: 'I am teaching my child.',
-    chip: 'For Parents',
-    coachTypes: ['PARENT_GUARDIAN_COACH'],
-  },
-  {
-    key: 'SCHOOL_COACH',
-    title: 'School Tennis',
-    description: 'I am a PE teacher or coach a school team.',
-    chip: 'For School Coaches',
-    coachTypes: ['SCHOOL_COACH'],
-  },
-  {
-    key: 'COACHES',
-    title: 'Coaches',
-    description: 'I coach a team or individuals.',
-    chip: 'For Coaches',
-    coachTypes: ['COLLEGE_COACH', 'FT_PROF_COACH', 'PT_PROF_COACH', 'VOLUNTEER_OR_EMERGING_COACH'],
-  },
-];
-
-// Filter groups. `match(course, value)` decides whether a course carries a value.
-const FILTER_GROUPS = [
-  {
-    legend: 'Coach type',
-    options: [
-      { label: 'For Parents', value: 'PARENT_GUARDIAN_COACH' },
-      { label: 'For School Coaches', value: 'SCHOOL_COACH' },
-      { label: 'For Coaches', value: 'COACHES' },
-    ],
-    match: (course, value) => {
-      if (value === 'COACHES') return course.coachTypes.some((c) => TABS[2].coachTypes.includes(c));
-      return course.coachTypes.includes(value);
-    },
-  },
-  {
-    legend: 'Certification',
-    options: [
-      { label: 'USTA Coaching Professional', value: 'USTA Professional Coach Certification' },
-      { label: 'USTA Coaching Specialist (Coming Soon)', value: '__specialist__', disabled: true },
-      { label: 'USTA Coaching Masters (Coming Soon)', value: '__masters__', disabled: true },
-    ],
-    match: (course, value) => course.certifications.includes(value),
-  },
-  {
-    legend: 'Membership package',
-    options: [
-      { label: 'Baseline', value: 'BASELINE' },
-      { label: 'Rally', value: 'RALLY' },
-      { label: 'Pro', value: 'PRO' },
-      { label: 'Pro Plus', value: 'PRO_PLUS' },
-    ],
-    match: (course, value) => course.membershipPackages.includes(value),
-  },
-  {
-    legend: 'Languages',
-    options: [
-      { label: 'English', value: 'English' },
-      { label: 'Spanish', value: 'Spanish' },
-    ],
-    match: (course, value) => course.language === value,
-  },
-];
+const DEFAULT_SETTINGS = {
+  'items-to-display': '16',
+  'show-more-button-title': 'See More',
+  'empty-message': 'No courses were found',
+};
 
 const CHEVRON = '<svg viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.98542 4.74346L2.62146 11.1074L0.500141 8.9861L8.98542 0.500819L17.4707 8.9861L15.3494 11.1074L8.98542 4.74346Z" fill="currentColor"/></svg>';
 
@@ -144,129 +62,273 @@ function moduleLabel(n, language) {
   return `${n} ${n === 1 ? one : many}`;
 }
 
-const clean = (arr) => (arr || []).filter((v) => v !== null && v !== undefined);
+const isTrue = (v) => v === true || String(v).trim().toLowerCase() === 'true';
+const list = (v) => String(v || '').split(',').map((s) => s.trim()).filter(Boolean);
 
-/** Normalizes a raw LMS-API course into the block's structural shape. */
-function normalizeApiCourse(c) {
+/** Values of a course at a sheet `filtersDataPath` (e.g. "filters.coachTypes", "language"). */
+function valuesAt(course, path) {
+  const v = String(path || '').split('.').reduce((o, k) => (o == null ? o : o[k]), course.api);
+  if (Array.isArray(v)) return v.filter((x) => x !== null && x !== undefined).map(String);
+  return v === null || v === undefined ? [] : [String(v)];
+}
+
+/**
+ * Filter groups from the sheet's `filters` rows, in authored order. An option
+ * matches a course when ANY of its comma-separated values is among the course's
+ * values at the group's data path. Options no course carries are disabled
+ * (the source's "Coming Soon" certifications).
+ */
+function buildFilterGroups(rows, courses) {
+  const groups = [];
+  rows.forEach((r) => {
+    if (!r.sectionTitle || !r.filterValue) return;
+    let group = groups.find((g) => g.legend === r.sectionTitle);
+    if (!group) {
+      group = { legend: r.sectionTitle, path: r.filtersDataPath, options: [] };
+      groups.push(group);
+    }
+    group.options.push({
+      label: r.filterTitle || r.filterValue,
+      value: r.filterValue,
+      values: list(r.filterValue),
+      top: isTrue(r.addToTopFilters),
+      byDefault: isTrue(r.appliedByDefault),
+      topTitle: r.topFilterTitle || r.filterTitle,
+      topDescription: r.topFilterDescription || '',
+    });
+  });
+  groups.forEach((group) => {
+    group.match = (course, value) => {
+      const opt = group.options.find((o) => o.value === value);
+      const have = valuesAt(course, group.path);
+      return !!opt && opt.values.some((v) => have.includes(v));
+    };
+    group.options.forEach((opt) => {
+      opt.disabled = !courses.some((c) => group.match(c, opt.value));
+    });
+  });
+  return groups;
+}
+
+/** Joins an LMS-API course with its catalog row (matched by `code`). */
+function toCourse(api, row = {}) {
+  const hideModules = isTrue(row.hideModules);
+  const modules = hideModules ? [] : (api.modules || []).map((m) => m.name).filter(Boolean);
   return {
-    name: c.name,
-    code: c.code,
-    language: c.language,
-    safePlay: c.isSafePlayRequired,
-    sort: c.sortSequence,
-    badgeName: c.badgeName,
-    coachTypes: clean(c.filters?.coachTypes),
-    certifications: clean(c.filters?.certifications),
-    membershipPackages: clean(c.filters?.membershipPackages),
-    moduleCount: (c.modules || []).length,
-    modules: (c.modules || []).map((m) => m.name).filter(Boolean),
+    api,
+    code: api.code,
+    name: api.name,
+    language: api.language,
+    sort: api.sortSequence,
+    moduleCount: modules.length,
+    modules,
+    description: row.description || '',
+    conditionalDescription: row.conditionalDescription || '',
+    badge: row.logoPath || '',
+    // Authored access rules, kept for the signed-in states (Start / Continue /
+    // Locked / Review), which need the user-status API.
+    rules: {
+      isAdvancedMembershipRequired: isTrue(row.isAdvancedMembershipRequired),
+      ignoreSafePlayForMinors: isTrue(row.ignoreSafePlayForMinors),
+      constraint: row.constraint || '',
+      requiredCourseCodes: list(row.requiredCourseCode),
+      logicalOperator: row.logicalOperator || '',
+      courseNameForLocker: row.courseNameForLocker || '',
+    },
   };
 }
 
-/**
- * Merges a structural course (from the API or WORKSHOP_CARDS) with the
- * author-owned enrichment row from the DA sheet, matched by `code`. If no sheet
- * row exists (e.g. a brand-new API course not yet authored), the card still
- * renders with empty badge/description — it degrades gracefully.
- */
-function applyEnrichment(course, enrichmentByCode) {
-  const e = enrichmentByCode.get(course.code) || {};
-  return {
-    ...course,
-    moduleCount: course.moduleCount ?? (course.modules || []).length,
-    description: e.description || '',
-    unlock: e.unlock || '',
-    unlockLink: e.unlockLinkText && e.unlockLinkHref
-      ? { text: e.unlockLinkText, href: e.unlockLinkHref } : null,
-    spanishLink: !!e.spanishHref,
-    spanishHref: e.spanishHref || '',
-    badge: e.badge || '',
-  };
-}
+/** Rows of one sheet from a multi-sheet (or single-sheet) EDS JSON. */
+const sheetRows = (json, name) => {
+  if (Array.isArray(json?.[name]?.data)) return json[name].data;
+  if (name === 'courses' && Array.isArray(json?.data)) return json.data;
+  return [];
+};
 
 /**
- * Loads the author-editable enrichment sheet from DA and returns a Map keyed by
- * course `code`. Returns an empty Map (not an error) if the sheet is unreachable
- * or malformed — cards then render structure-only, never blank the whole block.
+ * Loads the API and the locale catalog in parallel. The catalog failing is not
+ * fatal (cards render structure-only, no tabs/filters); the API failing leaves
+ * nothing to show.
  */
-async function loadEnrichment() {
-  try {
-    const res = await fetch(ENRICHMENT_SHEET);
-    if (!res.ok) throw new Error(`enrichment sheet ${res.status}`);
-    const json = await res.json();
-    const rows = Array.isArray(json?.data) ? json.data : [];
-    return new Map(rows.filter((r) => r.code).map((r) => [r.code, r]));
-  } catch (e) {
-    return new Map();
-  }
-}
-
-/**
- * Assembles the course list at runtime from three sources:
- *   • LMS API      — fresh structured data (always current).
- *   • DA sheet      — author-owned enrichment (badge/description/unlock/Spanish).
- *   • WORKSHOP_CARDS — the two workshop cards the API omits.
- * The API + sheet are fetched in parallel; each course is enriched by `code`.
- * If the API fails, we still render the workshop cards (enriched from the sheet)
- * rather than nothing.
- */
-async function loadCourses() {
-  const [apiResult, enrichmentByCode] = await Promise.all([
+async function loadData() {
+  const [apiJson, catalog] = await Promise.all([
     fetch(LMS_API).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    loadEnrichment(),
+    loadCatalog(),
   ]);
+  const settings = { ...DEFAULT_SETTINGS };
+  sheetRows(catalog, 'settings').forEach((r) => { if (r.key && r.value !== '') settings[r.key] = r.value; });
 
-  const apiCourses = Array.isArray(apiResult?.courses) ? apiResult.courses : [];
-  const structural = apiCourses.map(normalizeApiCourse);
-
-  // Append workshop cards the API doesn't return (dedupe by code, just in case).
-  const apiCodes = new Set(structural.map((c) => c.code));
-  const workshops = WORKSHOP_CARDS.filter((w) => !apiCodes.has(w.code));
-
-  return [...structural, ...workshops]
-    .map((c) => applyEnrichment(c, enrichmentByCode))
+  // Source (getMergedCourses): only API courses that HAVE a fragment row are
+  // shown — removing a row hides the course. Order = the API's sortSequence when
+  // use-response-order is true, else the row order. Without a catalog at all,
+  // fall back to every API course, structure-only, in API order.
+  const rows = sheetRows(catalog, 'courses').filter((r) => r.code);
+  const rowIndex = new Map(rows.map((r, i) => [r.code, i]));
+  const byResponse = !catalog || isTrue(settings['use-response-order']);
+  const courses = (Array.isArray(apiJson?.courses) ? apiJson.courses : [])
+    .filter((c) => c && c.code && c.name && (!catalog || rowIndex.has(c.code)))
+    .map((c, i) => {
+      const course = toCourse(c, rows[rowIndex.get(c.code)]);
+      course.sort = byResponse ? (c.sortSequence ?? i) : rowIndex.get(c.code);
+      return course;
+    })
     .sort((a, b) => a.sort - b.sort);
-}
-
-/**
- * State for one block instance. The persona is NOT separate from the filters —
- * the "Coach type" filter group IS the persona (source behaviour): the tab, the
- * panel checkbox, and the removable chip all reflect `filters['Coach type']`.
- * Defaults to {COACHES} so the Coaches tab is active, "For Coaches" is checked,
- * and a removable "For Coaches" chip shows on load. Other groups intersect
- * across groups and union within a group.
- */
-function createState() {
+  const pageSize = Number.parseInt(settings['items-to-display'], 10);
   return {
-    filters: { 'Coach type': new Set(['COACHES']) }, // legend -> Set(values)
-    sort: 'Default',
-    visible: PAGE_SIZE,
+    courses,
+    groups: buildFilterGroups(sheetRows(catalog, 'filters'), courses),
+    labels: { seeMore: settings['show-more-button-title'], empty: settings['empty-message'] },
+    pageSize: pageSize > 0 ? pageSize : 16,
   };
 }
 
-/** The tab key whose single value the Coach-type selection currently equals (or null). */
-function activeTabKey(state) {
-  const chosen = state.filters['Coach type'];
-  if (chosen && chosen.size === 1) return [...chosen][0];
-  return null;
+/** Persona tabs = the options flagged addToTopFilters, with their group. */
+const topFilters = (groups) => groups.flatMap((g) => g.options
+  .filter((o) => o.top).map((o) => ({ legend: g.legend, option: o })));
+
+/**
+ * State for one block instance. The persona tab is NOT separate from the
+ * filters (source behaviour): a tab is one option of its filter group, so the
+ * tab, the panel checkbox and the removable chip all reflect the same set.
+ * Options marked appliedByDefault (Coaches) start selected.
+ */
+function createState(groups, pageSize) {
+  const filters = {}; // legend -> Set(values)
+  groups.forEach((g) => g.options.filter((o) => o.byDefault).forEach((o) => {
+    filters[g.legend] = filters[g.legend] || new Set();
+    filters[g.legend].add(o.value);
+  }));
+  return {
+    filters, sort: 'Default', pageSize, visible: pageSize,
+  };
 }
 
 /** Returns the courses passing the filter selection, sorted. */
-function selectCourses(courses, state) {
-  let list = courses.slice();
+function selectCourses(courses, groups, state) {
+  let selected = courses.slice();
 
-  FILTER_GROUPS.forEach((group) => {
+  groups.forEach((group) => {
     const chosen = state.filters[group.legend];
     if (chosen && chosen.size) {
-      list = list.filter((c) => [...chosen].some((v) => group.match(c, v)));
+      selected = selected.filter((c) => [...chosen].some((v) => group.match(c, v)));
     }
   });
 
-  if (state.sort === 'A to Z') list = [...list].sort((a, b) => a.name.localeCompare(b.name));
-  else if (state.sort === 'Z to A') list = [...list].sort((a, b) => b.name.localeCompare(a.name));
-  else list = [...list].sort((a, b) => a.sort - b.sort);
+  if (state.sort === 'A to Z') selected.sort((a, b) => a.name.localeCompare(b.name));
+  else if (state.sort === 'Z to A') selected.sort((a, b) => b.name.localeCompare(a.name));
+  else selected.sort((a, b) => a.sort - b.sort);
 
-  return list;
+  return selected;
+}
+
+// Authored description HTML is rebuilt node by node from an allow-list (no
+// innerHTML): text, paragraphs, line breaks, inline emphasis and links.
+const ALLOWED_TAGS = new Set(['P', 'BR', 'A', 'U', 'STRONG', 'B', 'EM', 'I', 'SPAN', 'UL', 'OL', 'LI']);
+const DROPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'TEMPLATE', 'NOSCRIPT', 'SVG', 'MATH']);
+
+function safeHref(href) {
+  try {
+    const url = new URL(href, window.location.href);
+    return ['http:', 'https:', 'mailto:'].includes(url.protocol) ? url.href : '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function copySafe(from, to) {
+  from.childNodes.forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      to.append(document.createTextNode(node.textContent));
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE || DROPPED_TAGS.has(node.tagName)) return;
+    if (!ALLOWED_TAGS.has(node.tagName)) {
+      copySafe(node, to); // unknown wrapper: keep its content
+      return;
+    }
+    const el = document.createElement(node.tagName.toLowerCase());
+    if (node.tagName === 'A') {
+      const href = safeHref(node.getAttribute('href') || '');
+      if (!href) {
+        copySafe(node, to);
+        return;
+      }
+      el.href = href;
+      if (node.getAttribute('target') === '_blank') {
+        el.target = '_blank';
+        el.rel = 'noopener';
+      }
+    }
+    copySafe(node, el);
+    to.append(el);
+  });
+}
+
+/** Appends authored HTML (sheet cell) to `parent`, sanitized. Plain text becomes one <p>. */
+function appendAuthoredHtml(parent, html) {
+  if (!html) return;
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const holder = document.createElement('div');
+  copySafe(doc.body, holder);
+  if (![...holder.children].some((c) => c.tagName === 'P' || c.tagName === 'UL' || c.tagName === 'OL')) {
+    const p = document.createElement('p');
+    p.append(...holder.childNodes);
+    parent.append(p);
+    return;
+  }
+  parent.append(...holder.childNodes);
+}
+
+// a link in a plain-text sheet cell: [link text](https://…)
+const CELL_LINK = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+
+/** Appends one line of cell text to `p`, turning [text](url) into links. */
+function appendLinkedText(p, text) {
+  let last = 0;
+  [...text.matchAll(CELL_LINK)].forEach((m) => {
+    const [match, label, target] = m;
+    if (m.index > last) p.append(document.createTextNode(text.slice(last, m.index)));
+    const href = safeHref(target);
+    if (href) {
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = label;
+      // links that leave the site open in a new tab (source)
+      if (new URL(href).origin !== window.location.origin) {
+        a.target = '_blank';
+        a.rel = 'noopener';
+      }
+      p.append(a);
+    } else {
+      p.append(document.createTextNode(label));
+    }
+    last = m.index + match.length;
+  });
+  if (last < text.length) p.append(document.createTextNode(text.slice(last)));
+}
+
+/**
+ * Appends a sheet cell (description / conditional description) to `parent`.
+ * Authoring format: plain text; a blank line starts a new paragraph, a line break
+ * stays a line break; links as [link text](https://…). No HTML needed. (A cell that
+ * still holds HTML — the first export — renders through the HTML allow-list.)
+ */
+function appendAuthoredText(parent, value, className) {
+  const text = String(value || '').trim();
+  if (!text) return;
+  if (/<\/?[a-z][^>]*>/i.test(text)) {
+    appendAuthoredHtml(parent, text);
+    return;
+  }
+  text.split(/\n\s*\n/).map((para) => para.trim()).filter(Boolean).forEach((para) => {
+    const p = document.createElement('p');
+    if (className) p.classList.add(className);
+    para.split('\n').forEach((line, i) => {
+      if (i) p.append(document.createElement('br'));
+      appendLinkedText(p, line.trim());
+    });
+    parent.append(p);
+  });
 }
 
 /**
@@ -325,50 +387,18 @@ function buildCard(course) {
   name.setAttribute('aria-level', '3');
   name.textContent = course.name;
 
-  // Appends an underlined external link (opens in a new tab) to a container.
-  const appendLink = (parent, text, href) => {
-    const a = document.createElement('a');
-    a.textContent = text;
-    a.href = href;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    parent.append(a);
-  };
-
   // The source renders the description in TWO positions, one shown per viewport:
   //  • Desktop (>=768): INLINE inside the info column, beside the badge.
   //  • Mobile (<768): FULL-WIDTH below the badge/title/expand row.
   // Only one is visible at a time (CSS), so build a fresh copy for each place.
+  // Content = the fragment's description, then its conditional description (the
+  // "To unlock this course…" note, which the source shows to signed-out visitors).
   const buildDescription = () => {
     const desc = document.createElement('div');
     desc.className = 'course-filter-card-description';
-
-    const p = document.createElement('p');
-    // Source ends the copy with "Also available in Spanish." where "Spanish." is
-    // a link. Render the text up to that word, then the linked "Spanish."
-    if (course.spanishLink && course.spanishHref && / Spanish\.?$/.test(course.description)) {
-      const lead = course.description.replace(/Spanish\.?$/, '');
-      p.textContent = lead;
-      appendLink(p, 'Spanish.', course.spanishHref);
-    } else {
-      p.textContent = course.description;
-    }
-    desc.append(p);
-
-    if (course.unlock) {
-      const u = document.createElement('p');
-      u.className = 'course-filter-card-unlock';
-      // Some unlock lines contain an inline link (e.g. the Development Coach Badge).
-      if (course.unlockLink && course.unlock.includes(course.unlockLink.text)) {
-        const [before, after] = course.unlock.split(course.unlockLink.text);
-        u.append(document.createTextNode(before));
-        appendLink(u, course.unlockLink.text, course.unlockLink.href);
-        u.append(document.createTextNode(after));
-      } else {
-        u.textContent = course.unlock;
-      }
-      desc.append(u);
-    }
+    appendAuthoredText(desc, course.description);
+    // the "To unlock this course…" note, one blank line below the description
+    appendAuthoredText(desc, course.conditionalDescription, 'course-filter-card-unlock');
     return desc;
   };
 
@@ -385,8 +415,11 @@ function buildCard(course) {
     const badgeWrap = document.createElement('div');
     badgeWrap.className = 'course-filter-card-badge';
     const img = document.createElement('img');
-    // Badge is a root-relative content asset (/assets/media/blocks/course-filter/…)
+    // Badge = the sheet's logoPath, a root-relative content asset
+    // (/assets/media/course-catalog/badges/…)
     // published to DA, so it resolves on every host without a domain or basePath.
+    // a badge image not uploaded yet: no badge rather than a broken image
+    img.addEventListener('error', () => badgeWrap.remove(), { once: true });
     img.src = course.badge;
     img.alt = `${course.name} badge`;
     img.loading = 'lazy';
@@ -458,11 +491,17 @@ function buildCard(course) {
 }
 
 /** Renders the cards grid + See More for the current state. */
-function renderCourses(grid, seeMoreWrap, courses, state) {
-  const selected = selectCourses(courses, state);
+function renderCourses(grid, seeMoreWrap, data, state) {
+  const selected = selectCourses(data.courses, data.groups, state);
   const shown = selected.slice(0, state.visible);
   const cards = shown.map((c) => buildCard(c));
   grid.replaceChildren(...cards);
+  if (!selected.length) {
+    const empty = document.createElement('p');
+    empty.className = 'course-filter-empty';
+    empty.textContent = data.labels.empty;
+    grid.append(empty);
+  }
 
   seeMoreWrap.hidden = selected.length <= state.visible;
   // Clamp descriptions after layout (needs measured heights).
@@ -470,11 +509,11 @@ function renderCourses(grid, seeMoreWrap, courses, state) {
 }
 
 /** Chip row — one removable chip per ticked filter option (Coach type included). */
-function renderChips(chipsWrap, state, onRemove) {
+function renderChips(chipsWrap, groups, state, onRemove) {
   chipsWrap.replaceChildren();
   const chips = [];
 
-  FILTER_GROUPS.forEach((group) => {
+  groups.forEach((group) => {
     const chosen = state.filters[group.legend];
     if (chosen) {
       chosen.forEach((value) => {
@@ -496,9 +535,9 @@ function renderChips(chipsWrap, state, onRemove) {
 }
 
 export default async function decorate(block) {
-  let courses = [];
+  let data;
   try {
-    courses = await loadCourses();
+    data = await loadData();
   } catch (e) {
     // Data assembly failed entirely — render nothing rather than error.
     block.textContent = '';
@@ -506,7 +545,14 @@ export default async function decorate(block) {
   }
 
   block.textContent = '';
-  const state = createState();
+  const { groups } = data;
+  const state = createState(groups, data.pageSize);
+  const tabs = topFilters(groups);
+  // A tab is active when its group's selection is exactly that one option.
+  const isActiveTab = ({ legend, option }) => {
+    const chosen = state.filters[legend];
+    return !!chosen && chosen.size === 1 && chosen.has(option.value);
+  };
 
   // ---- Tabs ----
   const tabsWrap = document.createElement('div');
@@ -515,25 +561,26 @@ export default async function decorate(block) {
   tabsRow.className = 'course-filter-tabs-row';
   tabsRow.setAttribute('role', 'tablist');
 
-  const tabButtons = TABS.map((t) => {
+  const tabButtons = tabs.map((t) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'course-filter-tab';
     b.setAttribute('role', 'tab');
-    const active = t.key === activeTabKey(state);
+    const active = isActiveTab(t);
     b.setAttribute('aria-selected', String(active));
     const title = document.createElement('span');
     title.className = 'course-filter-tab-title';
-    title.textContent = t.title;
+    title.textContent = t.option.topTitle;
     const desc = document.createElement('span');
     desc.className = 'course-filter-tab-description';
-    desc.textContent = t.description;
+    desc.textContent = t.option.topDescription;
     b.append(title, desc);
     if (active) b.classList.add('is-active');
     tabsRow.append(b);
     return { tab: t, el: b };
   });
   tabsWrap.append(tabsRow);
+  tabsWrap.hidden = !tabs.length; // no catalog filter rows → no persona tabs
 
   // ---- Filter bar ----
   const bar = document.createElement('div');
@@ -550,6 +597,7 @@ export default async function decorate(block) {
   filterBtn.className = 'course-filter-toggle course-filter-toggle-filter';
   filterBtn.setAttribute('aria-expanded', 'false');
   filterBtn.innerHTML = `Filter By ${CHEVRON}`;
+  filterBtn.hidden = !groups.length;
   leftGroup.append(filterBtn);
 
   const chipsWrap = document.createElement('div');
@@ -582,7 +630,7 @@ export default async function decorate(block) {
 
   const groupsWrap = document.createElement('div');
   groupsWrap.className = 'course-filter-groups';
-  FILTER_GROUPS.forEach((group) => {
+  groups.forEach((group) => {
     const fs = document.createElement('fieldset');
     fs.className = 'course-filter-group';
     const legend = document.createElement('legend');
@@ -657,7 +705,7 @@ export default async function decorate(block) {
   const seeMore = document.createElement('button');
   seeMore.type = 'button';
   seeMore.className = 'course-filter-see-more';
-  seeMore.textContent = 'See More';
+  seeMore.textContent = data.labels.seeMore;
   seeMoreWrap.append(seeMore);
   coursesWrap.append(grid, seeMoreWrap);
 
@@ -667,35 +715,35 @@ export default async function decorate(block) {
   // Keep the tab pills in sync with the Coach-type selection (they are the same
   // state): a tab is active only when Coach type == exactly that one value.
   const syncTabs = () => {
-    const key = activeTabKey(state);
     tabButtons.forEach(({ tab, el }) => {
-      const active = tab.key === key;
+      const active = isActiveTab(tab);
       el.classList.toggle('is-active', active);
       el.setAttribute('aria-selected', String(active));
     });
   };
 
   const rerender = () => {
-    renderChips(chipsWrap, state, (legend, value) => {
+    renderChips(chipsWrap, groups, state, (legend, value) => {
       state.filters[legend]?.delete(value);
       const input = groupsWrap.querySelector(`input[data-legend="${legend}"][data-value="${value}"]`);
       if (input) input.checked = false;
-      state.visible = PAGE_SIZE;
+      state.visible = state.pageSize;
       rerender();
     });
     syncTabs();
-    renderCourses(grid, seeMoreWrap, courses, state);
+    renderCourses(grid, seeMoreWrap, data, state);
   };
 
   // Selecting a persona tab sets Coach type to exactly that value (replacing any
   // prior coach-type selection) and mirrors it into the panel checkboxes.
   tabButtons.forEach(({ tab, el }) => {
     el.addEventListener('click', () => {
-      state.filters['Coach type'] = new Set([tab.key]);
-      groupsWrap.querySelectorAll('input[data-legend="Coach type"]').forEach((input) => {
-        input.checked = input.dataset.value === tab.key;
+      state.filters[tab.legend] = new Set([tab.option.value]);
+      groupsWrap.querySelectorAll('input[data-legend]').forEach((input) => {
+        if (input.dataset.legend !== tab.legend) return;
+        input.checked = input.dataset.value === tab.option.value;
       });
-      state.visible = PAGE_SIZE;
+      state.visible = state.pageSize;
       rerender();
     });
   });
@@ -732,7 +780,7 @@ export default async function decorate(block) {
     else state.filters[legend].delete(value);
   });
   applyBtn.addEventListener('click', () => {
-    state.visible = PAGE_SIZE;
+    state.visible = state.pageSize;
     closePanels();
     rerender();
   });
@@ -747,13 +795,13 @@ export default async function decorate(block) {
       o.setAttribute('aria-checked', String(sel));
     });
     sortBtn.querySelector('.course-filter-sort-value').textContent = state.sort;
-    state.visible = PAGE_SIZE;
+    state.visible = state.pageSize;
     closePanels();
     rerender();
   });
 
   seeMore.addEventListener('click', () => {
-    state.visible += PAGE_SIZE;
+    state.visible += state.pageSize;
     rerender();
   });
 

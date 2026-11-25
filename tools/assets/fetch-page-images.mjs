@@ -62,8 +62,23 @@ for (const page of pages) {
     }
     html = html.split(`src="${raw}"`).join(`src="/media-da/${page}/${name}"`);
   }
+  // inline SVG data URIs (e.g. the cost cards' coming-soon flame) → a file, named
+  // `inline-<md5 first 8>.svg`, so DA serves it like any other image
+  const inline = [...new Set([...html.matchAll(/<img[^>]*\ssrc="(data:image\/svg\+xml[^"]+)"/g)].map((m) => m[1]))];
+  for (const raw of inline) {
+    const uri = decode(raw);
+    const comma = uri.indexOf(',');
+    const meta = uri.slice(0, comma);
+    const data = uri.slice(comma + 1);
+    const svg = /;base64/.test(meta) ? Buffer.from(data, 'base64') : Buffer.from(decodeURIComponent(data), 'utf8');
+    const name = `inline-${createHash('md5').update(svg).digest('hex').slice(0, 8)}.svg`;
+    const target = join(dir, name);
+    if (existsSync(target)) reused += 1;
+    else { mkdirSync(dir, { recursive: true }); writeFileSync(target, svg); downloaded += 1; }
+    html = html.split(`src="${raw}"`).join(`src="/media-da/${page}/${name}"`);
+  }
   writeFileSync(file, html);
-  console.log(`✓ ${page}: ${srcs.length} image(s) localized`);
+  console.log(`✓ ${page}: ${srcs.length + inline.length} image(s) localized`);
 }
 console.log(`done — ${pages.length} page(s), ${downloaded} downloaded, ${reused} already present, ${failed} failed`);
 process.exit(failed ? 1 : 0);

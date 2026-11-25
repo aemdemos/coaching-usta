@@ -1,0 +1,196 @@
+/* course-catalog theme (page metadata `Theme: course-catalog`, CSS only) — layered on
+   the landing-page template for the courses page (source /en/home/courses.html).
+   It reproduces the intro ("SET YOUR PATHWAY" … "Courses and Workshops"), whose source
+   text components and separators differ from the standard landing-page rhythm. Measured
+   on the live source at 375 / 768 / 1024 / 1280 / 1440 (2026-11-19):
+     sub-nav → h1          20 / 20 / 96 / 108   (a 96px separator from 1024)
+     h1 → copy             66                   (12 + 42px separator + 12)
+     copy → copy / image   24
+     image → 2nd h1        32 / 32 / 108 / 120  (a 96px separator from 1024)
+     2nd h1 → copy         66
+     copy → course filter  60 / 68 / 84 / 100
+   Copy: Graphik Semibold 20/24 under the first h1, 18/24 under the second (the
+   source's `graphic-semibold` text components). The source has TWO h1s: the second,
+   "Courses and Workshops", is the `56px-32px` style = the landing template's
+   default-content h1 (32 → 40 → 56). The first, "SET YOUR PATHWAY" = the USTA Sans text
+   component WITHOUT a size class: 28 → 40 (768) → 56 (1024) → 64 (1280) (the template's
+   default-content h1 is the `56px-32px` title of fellowship / inclusion summit). The
+   infographic is a 12-column image component: it spans the content box, square corners.
+   The infographic is an `Image` block (desktop / mobile rows): the wide graphic from
+   768px, the source's phone-only portrait graphic below.
+   Selectors start with `body.course-catalog.landing-page … > .section` so they outrank
+   the template's `:is()` type rules. */
+
+/* "Bring a USTA Coaching Workshop to Your Facility" — `banner (stacked, blue)` on the
+   courses page. The block's stacked variant is the coaching-community "Career Center"
+   band (black, 9|10 + 3|2 columns, Graphik 18/24 copy); the courses instance differs
+   (measured 375 / 768 / 1024 / 1280 / 1440, 2026-11-18): heading + copy on 8 of 12
+   columns, the CTA centred in the other 4 (`safe center`: from its track edge while the
+   280px button is wider than the track, 768–1023: the tracks never grow for it), 54px
+   below the top inset (42px source separator + the button's 12px inset); each item keeps the component inset (12px 8px → 12px); panel padding
+   12px 16px → 12px (768) → 36px 12px (1280); copy Graphik Semibold 28/24; lime CTA
+   (not the blue banner's black pill), 280×56 (257 wide, centred, on phones), label 18. */
+body.course-catalog main .banner.stacked {
+  padding: 12px 16px;
+}
+
+body.course-catalog main .banner.stacked .banner-inner {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: none;
+  gap: 0;
+}
+
+body.course-catalog main .banner.stacked .banner-heading { padding: 12px 8px 0; }
+
+body.course-catalog main .banner.stacked .banner-body { padding: 24px 8px 12px; }
+
+body.course-catalog main .banner.stacked .banner-body p {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 28px;
+  line-height: 24px;
+}
+
+body.course-catalog main .banner.stacked .banner-action {
+  place-self: start center;
+  width: auto;
+  padding: 54px 8px 12px; /* 42px separator + the button component's 12px inset */
+}
+
+body.course-catalog main .banner.stacked .banner-cta {
+  width: 257px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 14px;
+  background-color: var(--usta-lime);
+  color: #000;
+  font-size: 18px;
+  white-space: normal;
+}
+
+@media (width >= 768px) {
+  body.course-catalog main .banner.stacked { padding: 12px; }
+
+  body.course-catalog main .banner.stacked .banner-inner {
+    grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+    grid-template-areas: none;
+    gap: 0;
+  }
+
+  body.course-catalog main .banner.stacked .banner-heading {
+    grid-area: auto;
+    grid-column: 1;
+    padding: 12px 12px 0;
+  }
+
+  body.course-catalog main .banner.stacked .banner-body {
+    grid-area: auto;
+    grid-column: 1;
+    padding: 24px 12px 12px;
+  }
+
+  body.course-catalog main .banner.stacked .banner-action {
+    display: flex;
+    grid-area: auto;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-content: safe center;
+    justify-self: stretch;
+    width: auto;
+    padding: 54px 12px 12px;
+  }
+
+  /* a 280px button; at 768–1023 its track is narrower — the source button runs past the
+     panel there (page overflow), ours stays inside its track (project rule, as columns promo) */
+  body.course-catalog main .banner.stacked .banner-cta {
+    flex: none;
+    width: 280px;
+    max-width: 100%;
+  }
+}
+
+@media (width >= 1024px) {
+  body.course-catalog main .banner.stacked { padding: 12px; }
+
+  body.course-catalog main .banner.stacked .banner-cta { font-size: 18px; }
+}
+
+@media (width >= 1280px) {
+  body.course-catalog main .banner.stacked { padding: 36px 12px; }
+
+  body.course-catalog main .banner.stacked .banner-cta { font-size: 18px; }
+}
+
+/* the intro section = page title + copy, the infographic `Image` block, section heading
+   + copy (authored: default content | Image (desktop / mobile) | default content) */
+body.course-catalog.landing-page main > .section:has(> .image-wrapper) {
+  --intro-top-pad: 8px;
+  --intro-image-gap: 32px;
+  --text-block-gap: 12px;
+
+  padding-top: var(--intro-top-pad);
+
+  /* last copy → course-filter tabs 60 / 68 / 84 / 100 (source): the authored trailing
+     blank line (24px, kept by the importer) + 12px */
+  padding-bottom: 12px;
+}
+
+body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper > h1 + p {
+  margin-top: 66px;
+}
+
+/* copy → image 24px: the copy wrapper's 12px bottom + the template's copy → block
+   separator set to 12px (--text-block-gap, instead of 42); image → heading: the heading's
+   own margin (the template's 42px block → copy separator is dropped here) */
+body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .image-wrapper + .default-content-wrapper {
+  margin-top: 0;
+}
+
+body.course-catalog.landing-page main > .section > .image-wrapper + .default-content-wrapper > h1:first-child {
+  margin-top: var(--intro-image-gap);
+}
+
+/* copy: Graphik Semibold, 20/24 under the page title, 18/24 under the section heading */
+body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper > h1 ~ p:not([class]) {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 20px;
+  line-height: 24px;
+}
+
+body.course-catalog.landing-page main > .section > .image-wrapper + .default-content-wrapper > h1 ~ p:not([class]) {
+  font-size: 18px;
+}
+
+/* the page title (first h1); the second h1 keeps the template's 56px-32px page title */
+body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper:first-child > h1:first-child {
+  font-size: 28px;
+  line-height: 1;
+  overflow-wrap: break-word;
+}
+
+@media (width >= 768px) {
+  body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper:first-child > h1:first-child {
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1024px) {
+  body.course-catalog.landing-page main > .section:has(> .image-wrapper) {
+    --intro-top-pad: 84px;
+    --intro-image-gap: 108px;
+  }
+
+  body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper:first-child > h1:first-child {
+    font-size: 56px;
+  }
+}
+
+@media (width >= 1280px) {
+  body.course-catalog.landing-page main > .section:has(> .image-wrapper) {
+    --intro-top-pad: 96px;
+    --intro-image-gap: 120px;
+  }
+
+  body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper:first-child > h1:first-child {
+    font-size: 64px;
+  }
+}

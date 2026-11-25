@@ -232,53 +232,18 @@ var CustomImportScript = (() => {
 
   // tools/importer/parsers/news-featured.js
   var FEATURED_FRAGMENT_PATH = "/fragments/news/featured-article";
-  var FRAGMENT_TILE_TITLE = "Serving Gratitude: Celebrating the Coaches Who Shape Our Game";
-  var FEATURED_LINKS = {
-    // verified 2026-10-04 by clicking the tile on /en/home/news/zina-garrison-…
-    "Serving Gratitude: Celebrating the Coaches Who Shape Our Game": "/en/home/news/serving-gratitude-celebrating-tennis-coaches",
-    // verified 2026-10-04 by clicking the tile on /en/home/news/serving-gratitude-…
-    "Coach\u2019s Journal by Emma Dell \u2013 Part 3: Changing Sides of the Net": "/en/home/news/coachs-journal-emma-dell-part-3-changing-sides-net"
-  };
   var tileTitle = (element) => element.querySelector(".v-news-related-tile__title")?.textContent.trim() || "";
-  function buildFeaturedTile(element, document) {
-    const title = element.querySelector(".v-news-related-tile__title");
-    const desc = element.querySelector(".v-news-related-tile__description");
-    const img = element.querySelector(".v-news-related-tile__image");
+  function buildFeaturedBlock(element, document) {
+    if (!tileTitle(element)) return null;
     const ctaBtn = [...element.querySelectorAll("button")].find((b) => b.textContent.trim());
-    if (!title || !img) return null;
-    const h2 = document.createElement("h2");
-    h2.textContent = title.textContent.trim();
-    const p = document.createElement("p");
-    p.textContent = desc ? desc.textContent.trim() : "";
-    const content = [h2, p];
-    const href = FEATURED_LINKS[h2.textContent];
-    if (ctaBtn && href) {
-      const cta = document.createElement("p");
-      const a = document.createElement("a");
-      a.href = href;
-      a.textContent = ctaBtn.textContent.trim();
-      cta.append(a);
-      content.push(cta);
-    }
-    const image = document.createElement("img");
-    image.src = img.getAttribute("src");
-    image.alt = img.getAttribute("alt") || "";
-    return WebImporter.Blocks.createBlock(document, {
-      name: "Columns (media, dark)",
-      cells: [[image, content]]
-    });
+    const rows = [["Item", "1"]];
+    if (ctaBtn) rows.push(["Button", ctaBtn.textContent.trim()]);
+    return WebImporter.Blocks.createBlock(document, { name: "Featured Article", cells: rows });
   }
   function parse4(element, { document }) {
-    const title = tileTitle(element);
-    if (!title) {
+    if (!tileTitle(element)) {
       element.remove();
       return false;
-    }
-    if (title !== FRAGMENT_TILE_TITLE) {
-      const inline = buildFeaturedTile(element, document);
-      if (inline) element.replaceWith(inline);
-      else element.remove();
-      return !!inline;
     }
     const link = document.createElement("a");
     link.href = FEATURED_FRAGMENT_PATH;
@@ -332,6 +297,631 @@ var CustomImportScript = (() => {
     }
   }
 
+  // tools/importer/news/news-articles.json
+  var news_articles_default = {
+    exported: "2026-11-20T07:02:17.315Z",
+    source: "https://www.ustacoaching.com/coaching/news-search.json (en)",
+    articles: {
+      "army-veteran-tennis-coach-paul-walker": {
+        articleDate: "2026-10-19",
+        featured: true,
+        title: "The Journey of Army Veteran, Wheelchair Tennis Player and Coach Paul Walker",
+        pageUrl: "/en/home/news/army-veteran-tennis-coach-paul-walker.html",
+        image: "/content/dam/coaching/public-pages/news/paul-walker-header.jpg",
+        imageAltText: "Wheelchair tennis coach Paul Walker celebrates with Team USA women's wheelchair tennis athletes holding a trophy and medals on a tournament court.",
+        tags: []
+      },
+      "why-hiring-certified-tennis-coaches-is-good-business": {
+        articleDate: "2026-10-14",
+        featured: true,
+        title: "The Business Case for Hiring Certified Coaches",
+        pageUrl: "/en/home/news/why-hiring-certified-tennis-coaches-is-good-business.html",
+        image: "/content/dam/coaching/public-pages/news/racquet-sports-development.jpg",
+        imageAltText: "Simon Gale, Senior Director of Racquet Sports Development at the USTA National Campus, giving a presentation",
+        tags: []
+      },
+      "coachs-journal-emma-dell-part-3-changing-sides-net": {
+        articleDate: "2026-08-28",
+        featured: true,
+        title: "Coach\u2019s Journal by Emma Dell \u2013 Part 3: Changing Sides of the Net",
+        pageUrl: "/en/home/news/coachs-journal-emma-dell-part-3-changing-sides-net.html",
+        image: "/content/dam/coaching/public-pages/news/usta-tennis-team-community-event.jpg",
+        imageAltText: "2026 USTA Coaching Fellowship participants at a bowling alley",
+        tags: []
+      },
+      "how-usta-coaching-benefits-college-tennis-coaches": {
+        articleDate: "2026-08-25",
+        featured: true,
+        title: "Why USTA Coaching Matters for College Coaches",
+        pageUrl: "/en/home/news/how-usta-coaching-benefits-college-tennis-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/tennis-coach-david-roditi.jpg",
+        imageAltText: "",
+        tags: []
+      },
+      "usta-ceo-craig-tileys-vision-for-american-tennis": {
+        articleDate: "2026-07-21",
+        featured: true,
+        title: "Incoming USTA CEO Craig Tiley Shares His Vision for the Future of American Tennis",
+        pageUrl: "/en/home/news/usta-ceo-craig-tileys-vision-for-american-tennis.html",
+        image: "/content/dam/coaching/public-pages/news/craig-tiley.jpeg",
+        imageAltText: "Craig Tiley, New USTA CEO",
+        tags: []
+      },
+      "coachs-journal-emma-dell-part-2-serve-your-passion": {
+        articleDate: "2026-07-14",
+        featured: true,
+        title: "Coach\u2019s Journal by Emma Dell \u2013 Part 2: What Does It Mean to Serve Your Passion?",
+        pageUrl: "/en/home/news/coachs-journal-emma-dell-part-2-serve-your-passion.html",
+        image: "/content/dam/coaching/public-pages/news/pic-with-fellowship-at-ks.jpg",
+        imageAltText: "Emma Dell with group at 2026 USTA Coaching Coach Inclusion Summit",
+        tags: []
+      },
+      "usta-school-tennis-programs-guide-for-coaches": {
+        articleDate: "2026-07-14",
+        featured: true,
+        title: "Partner With Schools and Put More Kids in the Game",
+        pageUrl: "/en/home/news/usta-school-tennis-programs-guide-for-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/youth-tennis-program-school-gym.jpg",
+        imageAltText: "Tony Stingley leads a youth group learning tennis through the USTA Schools Program",
+        tags: []
+      },
+      "coachs-journal-emma-dell-first-impressions": {
+        articleDate: "2026-06-11",
+        featured: true,
+        title: "Coach\u2019s Journal by Emma Dell \u2013 Part 1: First Impressions",
+        pageUrl: "/en/home/news/coachs-journal-emma-dell-first-impressions.html",
+        image: "/content/dam/coaching/public-pages/news/emma-dell-fellowship-photo.jpg",
+        imageAltText: "2026 USTA Coaching Fellowship in Tennis Coaching & Leadership participants",
+        tags: []
+      },
+      "michael-harpers-advice-for-tennis-parents-and-coaches": {
+        articleDate: "2026-06-02",
+        featured: true,
+        title: "Michael Harper\u2019s Message to Coaches and Parents: Play the Long Game",
+        pageUrl: "/en/home/news/michael-harpers-advice-for-tennis-parents-and-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/michael-harper.jpeg",
+        imageAltText: "coach Michael Harper with his daughter at a tennis event",
+        tags: []
+      },
+      "vania-king-inclusion-culture-pathway-pro": {
+        articleDate: "2026-05-04",
+        featured: true,
+        title: "Vania King: Building Bridges Between Culture, Coaching and Championship Tennis",
+        pageUrl: "/en/home/news/vania-king-inclusion-culture-pathway-pro.html",
+        image: "/content/dam/coaching/public-pages/news/vania-king-teaching.jpg",
+        imageAltText: "Vania King, founder of Serving Up Hope, coaches youth in Uganda",
+        tags: []
+      },
+      "dr-larry-lauer-on-mental-health-and-performance-in-tennis": {
+        articleDate: "2026-04-28",
+        featured: true,
+        title: "Coaching the Whole Player: Mental Health and the Modern Tennis Coach",
+        pageUrl: "/en/home/news/dr-larry-lauer-on-mental-health-and-performance-in-tennis.html",
+        image: "/content/dam/coaching/public-pages/news/larry-lauer.jpg",
+        imageAltText: "Dr. Larry Lauer, Director of Mental Performance for USA Tennis",
+        tags: []
+      },
+      "alison-ojeda-winning-women-coaches": {
+        articleDate: "2026-11-19",
+        featured: false,
+        title: "Alison Ojeda on Winning and Women Coaches",
+        pageUrl: "/en/home/news/alison-ojeda-winning-women-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/alison-ojeda-tennis-coach-with-players.jpg",
+        imageAltText: "Tennis coach Alison Ojeda smiles as she talks with two players at an indoor tennis court.",
+        tags: []
+      },
+      "building-culture-before-chasing-results": {
+        articleDate: "2026-10-13",
+        featured: false,
+        title: "Person Before Product \u2013 Josh Goffi on Building a Culture That Lasts",
+        pageUrl: "/en/home/news/building-culture-before-chasing-results.html",
+        image: "/content/dam/coaching/public-pages/news/josh-goffi.jpg",
+        imageAltText: "University of South Carolina head coach Josh Goffi with players",
+        tags: []
+      },
+      "serving-gratitude-celebrating-tennis-coaches": {
+        articleDate: "2026-09-28",
+        featured: false,
+        title: "Serving Gratitude: Celebrating the Coaches Who Shape Our Game",
+        pageUrl: "/en/home/news/serving-gratitude-celebrating-tennis-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/ustc-coach-appreciation.jpg",
+        imageAltText: "",
+        tags: []
+      },
+      "coaches-open-2026": {
+        articleDate: "2026-09-09",
+        featured: false,
+        title: "Inaugural Coaches Open Brings Energy, Connection and Inspiration to New York",
+        pageUrl: "/en/home/news/coaches-open-2026.html",
+        image: "/content/dam/coaching/public-pages/news/coaches-open-2026.jpg",
+        imageAltText: "2026 Coaches Open attendees at Louis Armstrong Stadium in New York",
+        tags: []
+      },
+      "usta-coaching-butch-staples-award-2026-coaches-open": {
+        articleDate: "2026-08-31",
+        featured: false,
+        title: "A Coach of Coaches \u2013 Celebrating Butch Staples",
+        pageUrl: "/en/home/news/usta-coaching-butch-staples-award-2026-coaches-open.html",
+        image: "/content/dam/coaching/public-pages/news/usta-coaching-butch-staples-award-2026-coaches-open.jpg",
+        imageAltText: "USTA Coaching CEO Craig Morris on stage with Butch Staples after presenting award at Coaches Open",
+        tags: []
+      },
+      "from-qualifier-to-champion-tina-lee-jordan-wimbledon-triumph": {
+        articleDate: "2026-08-18",
+        featured: false,
+        title: "From Qualifier to Champion \u2013 Tina Lee on the Grit Behind Jordan\u2019s Wimbledon Triumph",
+        pageUrl: "/en/home/news/from-qualifier-to-champion-tina-lee-jordan-wimbledon-triumph.html",
+        image: "/content/dam/coaching/public-pages/news/tina-lee-with-her-son-jordan-lee.jpg",
+        imageAltText: "Tina Lee with her son Jordan Lee after his Boys\u2019 Wimbledon win",
+        tags: []
+      },
+      "how-usta-coaching-helps-parks-recreation-coaches": {
+        articleDate: "2026-08-18",
+        featured: false,
+        title: "How USTA Coaching Helps Park & Recreation Coaches",
+        pageUrl: "/en/home/news/how-usta-coaching-helps-parks-recreation-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/jodie-adams.jpg",
+        imageAltText: "Tennis veteran, Parks & Rec administrator and Racquet Sports Industry Magazine\u2019s 2025 Person of the Year, Jodie Adams",
+        tags: []
+      },
+      "junior-usa-tennis-shows-true-sportsmanship-at-world-team-cup": {
+        articleDate: "2026-08-17",
+        featured: false,
+        title: "More Than a Medal \u2013 Junior USA Team Honors Their Opponents",
+        pageUrl: "/en/home/news/junior-usa-tennis-shows-true-sportsmanship-at-world-team-cup.html",
+        image: "/content/dam/coaching/public-pages/news/usa-junior-tennis-team.jpeg",
+        imageAltText: "Screenshot",
+        tags: []
+      },
+      "how-blind-tennis-builds-confidence-independence": {
+        articleDate: "2026-07-30",
+        featured: false,
+        title: "Beyond Sight \u2013 How Blind Tennis Builds Confidence and Independence",
+        pageUrl: "/en/home/news/how-blind-tennis-builds-confidence-independence.html",
+        image: "/content/dam/coaching/public-pages/news/domiana-practicing-in-a-blind-and-low-vision-tennis-class.jpg",
+        imageAltText: "Dana Squelch-Costa\u2019s daughter Domiana practicing in a blind and low vision tennis class",
+        tags: []
+      },
+      "gordon-reid-making-tennis-welcoming": {
+        articleDate: "2026-07-29",
+        featured: false,
+        title: "From Tour Player to Mentor: Gordon Reid on Building a Court for Everyone",
+        pageUrl: "/en/home/news/gordon-reid-making-tennis-welcoming.html",
+        image: "/content/dam/coaching/public-pages/news/gordon-reid.jpeg",
+        imageAltText: "Gordon Reid, Life Time National Tennis Manager",
+        tags: []
+      },
+      "advantage-coaches-celebrating-one-year-of-usta-coaching": {
+        articleDate: "2026-07-16",
+        featured: false,
+        title: "Advantage, Coaches \u2013 Celebrating USTA Coaching\u2019s Breakthrough First Year",
+        pageUrl: "/en/home/news/advantage-coaches-celebrating-one-year-of-usta-coaching.html",
+        image: "/content/dam/coaching/public-pages/news/coaching-workshop-usta.jpg",
+        imageAltText: "USTA Coaching workshop",
+        tags: []
+      },
+      "jim-loehr-lasting-lessons-for-tennis-coaches": {
+        articleDate: "2026-07-13",
+        featured: false,
+        title: "Jim Loehr\u2019s Lasting Lessons for Tennis Coaches",
+        pageUrl: "/en/home/news/jim-loehr-lasting-lessons-for-tennis-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/co-founders-of-the-human-performance-institutes.jpg",
+        imageAltText: "Dr. Jim Loehr and Dr. Jack Groppel, co-founders of the Human Performance Institute",
+        tags: []
+      },
+      "paul-annacone-2026-us-open-american-stars-to-watch": {
+        articleDate: "2026-07-13",
+        featured: false,
+        title: "Paul Annacone\u2019s 2026 US Open Preview: American Stars to Watch",
+        pageUrl: "/en/home/news/paul-annacone-2026-us-open-american-stars-to-watch.html",
+        image: "/content/dam/coaching/public-pages/news/usta-arthur-ashe-stadium.jpg",
+        imageAltText: "Fans cheer at the US Open in Arthur Ashe Stadium",
+        tags: []
+      },
+      "make-tennis-more-welcoming-for-everybody": {
+        articleDate: "2026-07-08",
+        featured: false,
+        title: "How Coaches Can Make Tennis More Welcoming for Everybody",
+        pageUrl: "/en/home/news/make-tennis-more-welcoming-for-everybody.html",
+        image: "/content/dam/coaching/public-pages/news/laura-puryear-teaching.jpg",
+        imageAltText: "Laura Puryear, Senior Manager of Coach Development and Training for USTA Missouri Valley",
+        tags: []
+      },
+      "women-coaches-french-open-immersion-experience": {
+        articleDate: "2026-06-22",
+        featured: false,
+        title: "Women Coaches Build Confidence and Connection at French Open Immersion Experience",
+        pageUrl: "/en/home/news/women-coaches-french-open-immersion-experience.html",
+        image: "/content/dam/coaching/public-pages/news/roland-garros-award-recipients-group-photo.jpg",
+        imageAltText: "",
+        tags: []
+      },
+      "coach-guide-to-tennis-hydration": {
+        articleDate: "2026-06-18",
+        featured: false,
+        title: "10 Hydration Tips Every Tennis Coach Should Know",
+        pageUrl: "/en/home/news/coach-guide-to-tennis-hydration.html",
+        image: "/content/dam/coaching/public-pages/news/female-tennis-player-drinking-water-on-court.jpg",
+        imageAltText: "Tennis player drinks from water bottle",
+        tags: []
+      },
+      "thomas-judd-coaching-across-continents-ncaa-recruiting-and-business-of-tennis": {
+        articleDate: "2026-06-02",
+        featured: false,
+        title: "The Transatlantic Coach: Thomas Judd\u2019s Modern Vision for Player Development",
+        pageUrl: "/en/home/news/thomas-judd-coaching-across-continents-ncaa-recruiting-and-business-of-tennis.html",
+        image: "/content/dam/coaching/public-pages/news/thomas-judd.jpg",
+        imageAltText: "Thomas Judd, Tennis Director at Sportsplex New Windsor in New York",
+        tags: []
+      },
+      "sportimes-playbook-for-the-modern-tennis-coach": {
+        articleDate: "2026-05-19",
+        featured: false,
+        title: "Sportime\u2019s Playbook for the Modern Coach",
+        pageUrl: "/en/home/news/sportimes-playbook-for-the-modern-tennis-coach.html",
+        image: "/content/dam/coaching/public-pages/news/sportime-roslyn.jpg",
+        imageAltText: "Sportime coach feeds tennis balls",
+        tags: []
+      },
+      "southlake-tennis-center-coaching-excellence-world-class-facilities": {
+        articleDate: "2026-05-18",
+        featured: false,
+        title: "Southlake Tennis Center: A Public Facility Built for Coaching Growth",
+        pageUrl: "/en/home/news/southlake-tennis-center-coaching-excellence-world-class-facilities.html",
+        image: "/content/dam/coaching/public-pages/news/southlake-tennis-center-players.jpg",
+        imageAltText: "Group of Southlake Tennis Center players",
+        tags: []
+      },
+      "usta-coaching-collaborates-with-ptm-programs-to-develop-next-generation-tennis-coaches": {
+        articleDate: "2026-05-06",
+        featured: false,
+        title: "The PTM Advantage: Preparing the Next Generation to Grow the Game They Love",
+        pageUrl: "/en/home/news/usta-coaching-collaborates-with-ptm-programs-to-develop-next-generation-tennis-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/ptm-graphic.png",
+        imageAltText: "USTA Coaching graphic showing partnerships with Ferris State University Professional Tennis Management, Hope College Racquet Sports Management, and Methodist University Professional Tennis Management programs",
+        tags: []
+      },
+      "practical-strategies-and-tips-for-tennis-coaches": {
+        articleDate: "2026-04-28",
+        featured: false,
+        title: "Coaching the Mind: Practical Mental Health Strategies for Tennis Coaches",
+        pageUrl: "/en/home/news/practical-strategies-and-tips-for-tennis-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/michele-cleere.jpg",
+        imageAltText: "Dr. Michelle Cleere, performance psychologist, coaches a group of tennis players",
+        tags: []
+      },
+      "how-one-coach-helped-change-community-through-usta-coaching-education": {
+        articleDate: "2026-04-20",
+        featured: false,
+        title: "From Players to Coaches: A Scalable Model for High School Tennis Programs",
+        pageUrl: "/en/home/news/how-one-coach-helped-change-community-through-usta-coaching-education.html",
+        image: "/content/dam/coaching/public-pages/news/kerriann-jannotte-hinkley.jpg",
+        imageAltText: "KerriAnn Jannotte-Hinkley with a group at the US Open",
+        tags: []
+      },
+      "cardio-tennis-makes-business-sense-for-tennis-coaches": {
+        articleDate: "2026-04-14",
+        featured: false,
+        title: "Why Cardio Tennis Makes Business Sense for Tennis Coaches",
+        pageUrl: "/en/home/news/cardio-tennis-makes-business-sense-for-tennis-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/cardio-tennis.jpg",
+        imageAltText: "Cardio Tennis participants on the court before the match between Ajla Tomljanovic and Coco Gauff during a women's singles match at the 2025 US Open on Tuesday, Aug. 26, 2025 in Flushing, NY. (Simon Bruty/USTA)",
+        tags: []
+      },
+      "usta-coaching-wecoach": {
+        articleDate: "2026-04-02",
+        featured: false,
+        title: "Explore a Future in Tennis Coaching with USTA Coaching Serving All: Aspiring Coaches powered by WeCOACH",
+        pageUrl: "/en/home/news/usta-coaching-wecoach.html",
+        image: "/content/dam/coaching/public-pages/news/aspiring-women-coaches.jpg",
+        imageAltText: "USTA Coaching Serving All: Aspiring Coaches powered by WeCOACH Program - Player getting ready to hit a tennis ball",
+        tags: []
+      },
+      "janet-pinkett-building-opportunity-and-joy-in-youth-tennis-thro": {
+        articleDate: "2026-04-01",
+        featured: false,
+        title: "Janet Pinkett\u2019s Playbook: Fun First, Access Always and a Pathway for Every Kid",
+        pageUrl: "/en/home/news/janet-pinkett--building-opportunity-and-joy-in-youth-tennis-thro.html",
+        image: "/content/dam/coaching/public-pages/news/janet-pinket-on-court.jpg",
+        imageAltText: "Janet Pinkett of USTA Mid-Atlantic on court with group of tennis players",
+        tags: []
+      },
+      "emilio-sanchez-academy-building-coaches-and-players-through-spanish-system": {
+        articleDate: "2026-03-31",
+        featured: false,
+        title: "Inside Emilio S\xE1nchez Academy: A Proven System for Developing Players and Coaches",
+        pageUrl: "/en/home/news/emilio-sanchez-academy-building-coaches-and-players-through-spanish-system.html",
+        image: "/content/dam/coaching/public-pages/news/emilio-sanchez.jpg",
+        imageAltText: "Emilio S\xE1nchez smiling in front of a Spanish flag at his tennis academy",
+        tags: []
+      },
+      "new-usta-coaching-upgrades": {
+        articleDate: "2026-03-24",
+        featured: false,
+        title: "Level Up with New USTA Coaching Upgrades",
+        pageUrl: "/en/home/news/new-usta-coaching-upgrades.html",
+        image: "/content/dam/coaching/decorative/get-early-access.jpg",
+        imageAltText: "",
+        tags: []
+      },
+      "sportsmen-tennis-enrichment-center-njtl-leader-boston": {
+        articleDate: "2026-03-17",
+        featured: false,
+        title: "Building Community Through Tennis and Education",
+        pageUrl: "/en/home/news/sportsmen-tennis-enrichment-center-njtl-leader-boston.html",
+        image: "/content/dam/coaching/public-pages/news/marton-balla.jpg",
+        imageAltText: "Marton Balla, Director of Tennis at Sportsmen\u2019s Tennis & Enrichment Center, in snowy neighborhood",
+        tags: []
+      },
+      "love-serving-autism-coaches-lead-with-acceptance-on-tennis-court": {
+        articleDate: "2026-03-17",
+        featured: false,
+        title: "More Than Awareness \u2013 Coaching with Acceptance",
+        pageUrl: "/en/home/news/love-serving-autism-coaches-lead-with-acceptance-on-tennis-court.html",
+        image: "/content/dam/coaching/public-pages/news/lisa-love-serving-autism.jpg",
+        imageAltText: "Love Serving Autism founder Lisa Pugliese-LaCroix on the tennis court",
+        tags: []
+      },
+      "coaching-promising-junior-tennis-players-troy-hahn": {
+        articleDate: "2026-03-16",
+        featured: false,
+        title: "Trust the Process: Troy Hahn\u2019s Advice for Parents of Promising Junior Players",
+        pageUrl: "/en/home/news/coaching-promising-junior-tennis-players-troy-hahn.html",
+        image: "/content/dam/coaching/public-pages/news/troy-hahn.jpg",
+        imageAltText: "Troy Hahn, USTA Lead National Coach, Men\u2019s Tennis Programs, on court",
+        tags: []
+      },
+      "10-tennis-coaching-tips-for-coaches-and-parents": {
+        articleDate: "2026-03-11",
+        featured: false,
+        title: "10 Coach-Approved Tips to Help High School Players Thrive",
+        pageUrl: "/en/home/news/10-tennis-coaching-tips-for-coaches-and-parents.html",
+        image: "/content/dam/coaching/public-pages/news/coach-mike-moriarty-with-players.jpg",
+        imageAltText: "Tennis Coach Mike Moriarty, Director of Racquet Sports at Dalton Ranch Golf Club in Durango, Colorado, on court, with players",
+        tags: []
+      },
+      "women-coaches-on-the-mentors-who-shaped-them": {
+        articleDate: "2026-02-18",
+        featured: false,
+        title: "11 Women Coaches on the Mentors Who Inspired Them",
+        pageUrl: "/en/home/news/women-coaches-on-the-mentors-who-shaped-them.html",
+        image: "/content/dam/coaching/public-pages/news/alex-pointing.jpeg",
+        imageAltText: "Alexandra de Guzman, Founder and Head Coach, APEX Performance Center",
+        tags: []
+      },
+      "how-dana-matthewson-relearned-the-game-as-a-coach": {
+        articleDate: "2026-02-12",
+        featured: false,
+        title: "From Tour to Teaching: How Dana Mathewson Relearned the Game as a Coach",
+        pageUrl: "/en/home/news/how-dana-matthewson-relearned-the-game-as-a-coach.html",
+        image: "/content/dam/coaching/public-pages/news/relearned-the-game-as-a-coach.jpg",
+        imageAltText: "Wheelchair tennis coach Dana Mathewson coaching on court",
+        tags: []
+      },
+      "usta-dinkins-hbcu-coaching-grant-helped-2-student-athletes-become-coaches": {
+        articleDate: "2026-02-09",
+        featured: false,
+        title: "The USTA Dinkins Grant\u2019s Impact",
+        pageUrl: "/en/home/news/usta-dinkins-hbcu-coaching-grant-helped-2-student-athletes-become-coaches.html",
+        image: "/content/dam/coaching/public-pages/news/hbcu-student-athlete.jpg",
+        imageAltText: "A female HBCU student athlete smiling holding a tennis racquet on the court",
+        tags: []
+      },
+      "black-girls-tennis-club-redefining-who-belongs-on-court": {
+        articleDate: "2026-02-04",
+        featured: false,
+        title: "Black Girls Tennis Club Is Redefining Who Belongs on the Court",
+        pageUrl: "/en/home/news/black-girls-tennis-club-redefining-who-belongs-on-court.html",
+        image: "/content/dam/coaching/public-pages/news/bgtc-aug-niantic-park-clinic.jpg",
+        imageAltText: 'The Black Girls Tennis Club smiling and posing in front of a sign saying "Black Girls Tennis Club" on a tennis court.',
+        tags: []
+      },
+      "ghanaian-coachs-journey-through-coach-inclusion-summit": {
+        articleDate: "2026-02-03",
+        featured: false,
+        title: "From Ball Boy to Coach: Emmanuel Kwesi Frimpong\u2019s Tennis Origin Story",
+        pageUrl: "/en/home/news/ghanaian-coachs-journey-through-coach-inclusion-summit.html",
+        image: "/content/dam/coaching/public-pages/news/ghana-coach-story.jpg",
+        imageAltText: "Emmanuel Kwesi Frimpong smiles while holding a tennis racquet on a tennis court.",
+        tags: []
+      },
+      "usta-coaching-launches-inaugural-women-coaching-cohort": {
+        articleDate: "2026-02-02",
+        featured: false,
+        title: "New USTA Coaching Women in Coaching Cohort Aims to Strengthen Pathways and Leadership",
+        pageUrl: "/en/home/news/usta-coaching-launches-inaugural-women-coaching-cohort.html",
+        image: "/content/dam/coaching/public-pages/news/inaugural-women-in-coaching-cohort.jpg",
+        imageAltText: "USTA Coaching\u2019s new national program brings together 25 women coaches to overcome career barriers, build community and strengthen leadership pathways in tennis.",
+        tags: []
+      },
+      "john-wilkersons-50-year-coaching-legacy": {
+        articleDate: "2026-02-02",
+        featured: false,
+        title: "The Enduring Impact of John Wilkerson\u2019s 50-Year Coaching Career",
+        pageUrl: "/en/home/news/john-wilkersons-50-year-coaching-legacy.html",
+        image: "/content/dam/coaching/public-pages/news/john-wilkerson.jpg",
+        imageAltText: "A community tennis coach talks with two young Black women players at MacGregor Park, holding a tennis racket and ball during a coaching moment in Houston.",
+        tags: []
+      },
+      "growth-and-success-of-wta-female-coaching-initiatives": {
+        articleDate: "2026-01-29",
+        featured: false,
+        title: "Building Pathways, Changing the Game: The WTA Coach Inclusion Program",
+        pageUrl: "/en/home/news/growth-and-success-of-wta-female-coaching-initiatives.html",
+        image: "/content/dam/coaching/public-pages/news/wta-female-coaching-initiatives.jpg",
+        imageAltText: "Group standing on a blue tennis court in front of large lettering reading \u2018I \u2665 Tennis,\u2019 with the heart shown as a tennis ball, highlighting pathways and opportunities for women coaches in tennis.",
+        tags: []
+      },
+      "inspiring-story-of-brittany-odom-dennis-quaye": {
+        articleDate: "2026-01-29",
+        featured: false,
+        title: "Serving Love: How Brittany Odom and Dennis Quaye Lead With Heart",
+        pageUrl: "/en/home/news/inspiring-story-of-brittany-odom-dennis-quaye.html",
+        image: "/content/dam/coaching/public-pages/news/brittany-odom-dennis-quaye.jpg",
+        imageAltText: "Brittany Odom & Dennis Quaye embracing each other as they lead with heart on and off the court.",
+        tags: []
+      },
+      "inside-the-coach-inclusion-summit-powered-by-usta-coaching": {
+        articleDate: "2026-01-28",
+        featured: false,
+        title: "A New Name, A Shared Mission \u2013 Coach Inclusion Summit",
+        pageUrl: "/en/home/news/inside-the-coach-inclusion-summit-powered-by-usta-coaching.html",
+        image: "/content/dam/coaching/public-pages/news/coach-summit-group-picture.jpg",
+        imageAltText: "From Los Angeles to Orlando, the 2025 Coach Inclusion Summit provided coaches with advanced drills, business acumen and a powerful network to help tennis thrive.",
+        tags: []
+      },
+      "how-coach-developer-lois-arterberry-is-shaping-the-future-of-coaching": {
+        articleDate: "2026-01-06",
+        featured: false,
+        title: "From Grenada to the Big Ten: How Coach Developer Lois Arterberry Is Shaping the Future of Coaching",
+        pageUrl: "/en/home/news/how-coach-developer-lois-arterberry-is-shaping-the-future-of-coaching.html",
+        image: "/content/dam/coaching/public-pages/news/tennis-coach-lois-arterberry.jpg",
+        imageAltText: "Tennis coach Lois Arterberry, participant in USTA Coaching\u2019s Coach Developer Pathway",
+        tags: []
+      },
+      "coaches-reveal-their-game-changing-goals-for-2026": {
+        articleDate: "2026-01-06",
+        featured: false,
+        title: "Net Gains \u2013 Coaches Reveal Their Game-Changing Goals for 2026",
+        pageUrl: "/en/home/news/coaches-reveal-their-game-changing-goals-for-2026.html",
+        image: "/content/dam/coaching/public-pages/news/larry-dillon.jpg",
+        imageAltText: "Tennis coach Larry Dillon shares his 2026 coaching goals with USTA Coaching",
+        tags: []
+      },
+      "women-in-coaching-advancing-female-tennis-coach-development": {
+        articleDate: "2026-01-06",
+        featured: false,
+        title: "Building a Bench of Women Coaches: Inside USTA Coaching\u2019s New Women in Coaching Cohort",
+        pageUrl: "/en/home/news/women-in-coaching-advancing-female-tennis-coach-development.html",
+        image: "/content/dam/coaching/public-pages/news/nancy-abrams.jpg",
+        imageAltText: "Women in coaching advocate Nancy Abrams at the US Open tennis tournament",
+        tags: []
+      },
+      "usta-coaching-gives-tennis-coaches-tips-how-to-create-2026-vision-board": {
+        articleDate: "2026-01-06",
+        featured: false,
+        title: "The Power of Vision Boarding for Coaches",
+        pageUrl: "/en/home/news/usta-coaching-gives-tennis-coaches-tips-how-to-create-2026-vision-board.html",
+        image: "/content/dam/coaching/public-pages/news/natalia-pedroza.jpg",
+        imageAltText: "Natalia Pedroza, USTA Senior Director, Leadership & Development headshot",
+        tags: []
+      },
+      "zina-garrison-star-player-to-community-builder": {
+        articleDate: "2025-12-17",
+        featured: false,
+        title: "From Center Court to Service: The Zina Garrison Legacy",
+        pageUrl: "/en/home/news/zina-garrison-star-player-to-community-builder.html",
+        image: "/content/dam/coaching/public-pages/news/usta-fed-cup-team-2007.jpg",
+        imageAltText: "Zina Garrison (center), with (L to R) Venus Williams, Lisa Raymond, Vania King, and Serena Williams in front of the American flag at the 2007 Fed Cup, where the team reached the semifinals.",
+        tags: [
+          "tennis coaching"
+        ]
+      },
+      "jack-and-jill-usta-coaching-tennis-for-black-families": {
+        articleDate: "2025-12-03",
+        featured: false,
+        title: "Jack and Jill of America Introduces a New Generation to Tennis with USTA Coaching",
+        pageUrl: "/en/home/news/jack-and-jill-usta-coaching-tennis-for-black-families.html",
+        image: "/content/dam/coaching/public-pages/news/members-of-jack-and-jill-america.jpg",
+        imageAltText: "Nine moms and members of Jack and Jill of America visited USTA Coaching on October 18, 2025, to learn easy drills and skills to introduce their children to tennis.",
+        tags: []
+      },
+      "usta-coaching-online-learning-hub-is-live": {
+        articleDate: "2025-12-03",
+        featured: false,
+        title: "Now Streaming Knowledge \u2013 The USTA Coaching Learning Hub Is Live!",
+        pageUrl: "/en/home/news/usta-coaching-online-learning-hub-is-live.html",
+        image: "/content/dam/coaching/public-pages/news/online-learning-hub-website-graphic.jpg",
+        imageAltText: "Graphic showing the USTA Coaching Learning Hub with icons representing course categories such as Intro to Coaching, Athlete-Centered Coaching, Safety Coach, Cardio Tennis, and other coaching development topics.",
+        tags: []
+      },
+      "usta-coaching-testimonials-7-coaches-share-their-experience": {
+        articleDate: "2025-12-03",
+        featured: false,
+        title: "See What 7 Top Tennis Coaches Really Think About USTA Coaching \u2013 Plus Their Best Coaching Tips",
+        pageUrl: "/en/home/news/usta-coaching-testimonials-7-coaches-share-their-experience.html",
+        image: "/content/dam/coaching/public-pages/news/celia-quintero.jpg",
+        imageAltText: "USTA Coaching Serve & Lead Coach Celia Quintero with large racquet",
+        tags: []
+      }
+    }
+  };
+
+  // tools/importer/news/news-data.js
+  var NEWS_ARTICLES = news_articles_default.articles;
+  function articleSlug(url) {
+    const { pathname } = new URL(url, "https://www.ustacoaching.com");
+    return pathname.split("/").pop().replace(/\.html$/, "").replace(/-{2,}/g, "-");
+  }
+  var articleOf = (url) => NEWS_ARTICLES[articleSlug(url)] || null;
+  var FEATURED = Object.entries(NEWS_ARTICLES).filter(([, a]) => a.featured).sort(([, a], [, b]) => b.articleDate.localeCompare(a.articleDate)).map(([slug, a]) => ({ slug, ...a }));
+
+  // tools/importer/parsers/feature-options.js
+  function cropOptions(imgComp) {
+    if (!imgComp) return [];
+    const cls = imgComp.className || "";
+    const opts = [];
+    const crop = (cls.match(/image--aspect-ration--((?:landscape|portrait)(?:-\d)?)(?=\s|$)/) || [])[1];
+    if (crop) opts.push(crop);
+    const pos = (cls.match(/image--position--(center|bottom)(?=\s|$)/) || [])[1];
+    if (crop && pos) opts.push(`image-${pos}`);
+    return opts;
+  }
+  function featureOptions(imgComp) {
+    if (!imgComp) return [];
+    const span = ((imgComp.className || "").match(/aem-GridColumn--default--(\d+)/) || [])[1];
+    return [...span && span !== "6" && span !== "12" ? [`media-${span}`] : [], ...cropOptions(imgComp)];
+  }
+
+  // tools/importer/parsers/news-columns-feature.js
+  var CARD = ".container.container--padding--medium";
+  var GRAY = "container--border--gray";
+  var isPanel = (k) => k.classList.contains("container") && k.classList.contains(GRAY);
+  var isFeatureCard = (c) => {
+    const grid = c.querySelector(":scope > .cmp-container > .aem-Grid");
+    if (!grid) return false;
+    const kids = [...grid.children];
+    return kids.some((k) => k.classList.contains("image") && k.querySelector("img")) && kids.some(isPanel);
+  };
+  function markFeatureCards(frame) {
+    frame.querySelectorAll(CARD).forEach((c) => {
+      if (isFeatureCard(c)) c.setAttribute("data-feature-card", "");
+    });
+  }
+  var toImg = (document, src) => {
+    const img = document.createElement("img");
+    img.src = src.currentSrc || src.getAttribute("src") || "";
+    img.alt = src.getAttribute("alt") || "";
+    if (src.getAttribute("title")) img.title = src.getAttribute("title");
+    return img;
+  };
+  function parseFeatureCards(frame, { document }) {
+    frame.querySelectorAll("[data-feature-card]").forEach((card) => {
+      const grid = card.querySelector(":scope > .cmp-container > .aem-Grid");
+      const imgComp = grid.querySelector(":scope > .image");
+      const panel = [...grid.children].find(isPanel);
+      const imgDefault = imgComp && (imgComp.querySelector(".cmp-image__image--default") || imgComp.querySelector("img"));
+      if (!imgDefault || !panel) return;
+      const images = [toImg(document, imgDefault)];
+      const copy = [];
+      panel.querySelectorAll(".cmp-text").forEach((t) => {
+        [...t.children].forEach((e) => {
+          if (e.classList.contains("cmp-text__icon")) return;
+          if (/^(H[1-6]|P|UL|OL|BLOCKQUOTE)$/.test(e.tagName)) copy.push(e);
+        });
+      });
+      const blank = (e) => e.tagName === "P" && !e.querySelector("img, picture") && !e.textContent.replace(/[\s\u00a0\uE000]/g, "");
+      while (copy.length && blank(copy[copy.length - 1])) copy.pop();
+      while (copy.length && blank(copy[0])) copy.shift();
+      if (!copy.length) return;
+      const block = WebImporter.Blocks.createBlock(document, {
+        name: `Columns (${["feature", ...featureOptions(imgComp)].join(", ")})`,
+        cells: [[images, copy]]
+      });
+      card.replaceWith(block);
+    });
+  }
+
   // tools/importer/import-news-article-v1.js
   var TEMPLATE = "news-article";
   var HEADING_SIZES = [
@@ -348,6 +938,7 @@ var CustomImportScript = (() => {
   function containerMarginSpacers(frame, document) {
     frame.querySelectorAll('.container[class*="-margin--"], .container[class*="container--padding--"]').forEach((c) => {
       if (c.querySelector(".tags, .socialmediasharing")) return;
+      if (c.closest("[data-feature-card]")) return;
       if (c.parentElement && c.parentElement.closest(".container--display--flex-reset-grid")) return;
       const cols = c.querySelectorAll(".aem-GridColumn");
       if (c.querySelector(".text--font-family--graphic-semibold") && cols.length <= 2 && !c.querySelector(".container")) return;
@@ -372,7 +963,7 @@ var CustomImportScript = (() => {
       cells: [["desktop", `${px}px`], ["mobile", `${px}px`]]
     });
   }
-  function metadata(document, frame) {
+  function metadata(document, frame, url) {
     const meta = (sel) => document.querySelector(sel)?.getAttribute("content") || "";
     const crumb = document.querySelector(".cmp-breadcrumb__item--active");
     const cells = {
@@ -389,6 +980,11 @@ var CustomImportScript = (() => {
       cells.Image = img;
     }
     if (crumb) cells["Breadcrumb Title"] = crumb.textContent.trim();
+    const article = articleOf(url);
+    if (article) {
+      cells["Article Date"] = article.articleDate;
+      if (article.featured) cells.Featured = "true";
+    }
     Object.keys(cells).forEach((k) => {
       if (cells[k] === "") delete cells[k];
     });
@@ -565,8 +1161,10 @@ var CustomImportScript = (() => {
     const first = kids[content[0]];
     const last = kids[content[content.length - 1]];
     if (isListEl(first) && content[0] === 0) first.before(blankLine());
-    const nextCmp = cmpEl.closest(".text")?.nextElementSibling;
-    if (isListEl(last) && content[content.length - 1] === kids.length - 1 && !nextCmp?.classList.contains("separator")) last.after(blankLine());
+    const textCmp = cmpEl.closest(".text");
+    const nextCmp = textCmp?.nextElementSibling;
+    const inRowColumn = !textCmp?.parentElement?.closest(".aem-Grid")?.classList.contains("aem-Grid--12");
+    if (isListEl(last) && content[content.length - 1] === kids.length - 1 && !(inRowColumn && nextCmp?.classList.contains("separator"))) last.after(blankLine());
     wrapIndentedRuns(cmp, document);
   }
   function styleKey(p) {
@@ -646,19 +1244,21 @@ var CustomImportScript = (() => {
       if (new URL(url).hash === "#featured-fragment") {
         const tile = main.querySelector(".aem-featured-article");
         const out2 = document.createElement("div");
-        const block = tile && buildFeaturedTile(tile, document);
+        const block = tile && buildFeaturedBlock(tile, document);
         if (block) out2.append(block);
         WebImporter.rules.adjustImageUrls(out2, url, params.originalURL);
         return [{ element: out2, path: FEATURED_FRAGMENT_PATH, report: { template: `${TEMPLATE}:fragment` } }];
       }
       const frame = main.querySelector(".container.container--border--white > .cmp-container") || main.querySelector(".container--border--white");
       if (!frame) throw new Error("news-article frame (.container--border--white) not found");
+      markFeatureCards(frame);
       containerMarginSpacers(frame, document);
       convertHeadings(frame, document);
       convertNativeHeadings(frame, document);
       markLimeLinks(frame, document);
       textStyleBlocks(frame, document);
       frame.querySelectorAll(".text:not(.text--font-family--graphic-semibold) > .cmp-text").forEach((cmp) => normalizeTextComponent(cmp, document));
+      parseFeatureCards(frame, { document });
       [...frame.querySelectorAll(".text.text--font-family--graphic-semibold")].forEach((q) => parse2(q, { document }));
       const images = [...frame.querySelectorAll(".aem-GridColumn.image")].filter((i) => i.querySelector("img"));
       images.slice(1).forEach((i) => {
@@ -692,7 +1292,10 @@ var CustomImportScript = (() => {
         holder.append(featured);
         if (parse4(featured, { document })) out.append(document.createElement("hr"), holder);
       }
-      out.append(metadata(document, frame));
+      out.append(metadata(document, frame, url));
+      out.querySelectorAll('a[href^="/content/dam/"]').forEach((a) => {
+        a.setAttribute("href", new URL(a.getAttribute("href"), new URL(url).origin).href);
+      });
       transform("afterTransform", out, payload);
       WebImporter.rules.adjustImageUrls(out, url, params.originalURL);
       return [{

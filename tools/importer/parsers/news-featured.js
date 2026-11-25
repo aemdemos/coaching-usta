@@ -1,77 +1,39 @@
 /* eslint-disable */
 /* global WebImporter */
 /**
- * Parser: the news "featured article" tile (`.aem-featured-article`, Vue
- * `.v-news-related-tile--simple`).
+ * Parser: the news "featured article" tile at the end of every article
+ * (`.aem-featured-article`, Vue `.v-news-related-tile--simple`).
  *
- * The source tile is dynamic (Vue `v-featured-article`: the news section's featured
- * story, never the current page). Rendered on all 112 articles (2026-10-04):
- *   - 55 EN articles show the SAME tile (FRAGMENT_TILE_TITLE) → authored ONCE as a
- *     fragment (/fragments/news/featured-article); those articles reference it;
- *   - the featured story itself shows a different tile → built inline on the page;
- *   - ES articles render an empty tile → nothing is imported.
- * Fragment mode builds the shared fragment's `Columns (media, dark)` (image |
- * title, description, CTA).
- *
- * The tile's CTA is a JS <button> with no href (navigation happens in Vue), so its
- * target can't be read from the DOM. Targets are resolved once by clicking the
- * live tile and recorded here (title → path); extend when the featured story changes.
+ * The source tile is dynamic (Vue `v-featured-article`, defined on the article page
+ * template: featured item 0 — the newest featured story — or item 1 on that story
+ * itself). On EDS the shared fragment /fragments/news/featured-article holds ONE
+ * `Featured Article` block (blocks/featured-article: reads the news index, skips the
+ * page it is shown on), so every article references the fragment and the tile follows
+ * the index — a featured-story change needs no page edit (decision 2026-11-21).
+ *   - article mode: any non-empty source tile → `Fragment /fragments/news/featured-article`
+ *     (the featured story itself included — the block skips the current page);
+ *   - ES articles render an empty tile → nothing is imported;
+ *   - fragment mode (the fragment page): `Featured Article` — Item 1, Button = the source
+ *     tile's CTA label.
  */
 export const FEATURED_FRAGMENT_PATH = '/fragments/news/featured-article';
 
-/** the tile shared by every article except the featured story itself */
-const FRAGMENT_TILE_TITLE = 'Serving Gratitude: Celebrating the Coaches Who Shape Our Game';
-
-const FEATURED_LINKS = {
-  // verified 2026-10-04 by clicking the tile on /en/home/news/zina-garrison-…
-  'Serving Gratitude: Celebrating the Coaches Who Shape Our Game': '/en/home/news/serving-gratitude-celebrating-tennis-coaches',
-  // verified 2026-10-04 by clicking the tile on /en/home/news/serving-gratitude-…
-  'Coach’s Journal by Emma Dell – Part 3: Changing Sides of the Net': '/en/home/news/coachs-journal-emma-dell-part-3-changing-sides-net',
-};
-
 const tileTitle = (element) => element.querySelector('.v-news-related-tile__title')?.textContent.trim() || '';
 
-export function buildFeaturedTile(element, document) {
-  const title = element.querySelector('.v-news-related-tile__title');
-  const desc = element.querySelector('.v-news-related-tile__description');
-  const img = element.querySelector('.v-news-related-tile__image');
+/** the fragment's content: the index-driven Featured Article block */
+export function buildFeaturedBlock(element, document) {
+  if (!tileTitle(element)) return null;
   const ctaBtn = [...element.querySelectorAll('button')].find((b) => b.textContent.trim());
-  if (!title || !img) return null;
-
-  const h2 = document.createElement('h2');
-  h2.textContent = title.textContent.trim();
-  const p = document.createElement('p');
-  p.textContent = desc ? desc.textContent.trim() : '';
-  const content = [h2, p];
-  const href = FEATURED_LINKS[h2.textContent];
-  if (ctaBtn && href) {
-    const cta = document.createElement('p');
-    const a = document.createElement('a');
-    a.href = href;
-    a.textContent = ctaBtn.textContent.trim();
-    cta.append(a);
-    content.push(cta);
-  }
-  const image = document.createElement('img');
-  image.src = img.getAttribute('src');
-  image.alt = img.getAttribute('alt') || '';
-  return WebImporter.Blocks.createBlock(document, {
-    name: 'Columns (media, dark)',
-    cells: [[image, content]],
-  });
+  const rows = [['Item', '1']];
+  if (ctaBtn) rows.push(['Button', ctaBtn.textContent.trim()]);
+  return WebImporter.Blocks.createBlock(document, { name: 'Featured Article', cells: rows });
 }
 
 /**
  * Article mode. Returns false when the tile is empty (nothing to import).
  */
 export default function parse(element, { document }) {
-  const title = tileTitle(element);
-  if (!title) { element.remove(); return false; }
-  if (title !== FRAGMENT_TILE_TITLE) {
-    const inline = buildFeaturedTile(element, document);
-    if (inline) element.replaceWith(inline); else element.remove();
-    return !!inline;
-  }
+  if (!tileTitle(element)) { element.remove(); return false; }
   const link = document.createElement('a');
   link.href = FEATURED_FRAGMENT_PATH;
   link.textContent = FEATURED_FRAGMENT_PATH;

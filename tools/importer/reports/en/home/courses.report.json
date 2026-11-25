@@ -2,9 +2,9 @@
   "status": "success",
   "url": "https://www.ustacoaching.com/en/home/courses.html",
   "path": "en/home/courses",
-  "timestamp": "2026-11-16T04:43:49.520Z",
+  "timestamp": "2026-11-19T10:20:33.351Z",
   "title": "Courses",
   "template": "landing-page",
-  "sections": "columns-media-row | default | default | default | default",
-  "importScript": "f767b0bdf7f8"
+  "sections": "sub-nav | title-photo | course-filter | banner-stacked-colour | columns-media-bg | cards-comparison | default | +cards-pricing | banner-events",
+  "importScript": "36a5ff54d18f"
 }

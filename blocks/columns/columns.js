@@ -139,7 +139,9 @@ function decorateFeature(block) {
 
   [...row.children].forEach((cell) => {
     const pic = cell.querySelector('picture');
-    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6, p:not(.button-container)');
+    // pictures only (also when wrapped in a <p> — two pictures: default + phone) = media
+    const hasText = !!cell.querySelector('h1, h2, h3, h4, h5, h6')
+      || [...cell.querySelectorAll('p:not(.button-container)')].some((p) => p.textContent.trim());
     if (pic && !hasText) {
       cell.classList.add('columns-feature-media');
     } else {
@@ -150,6 +152,10 @@ function decorateFeature(block) {
   block.querySelectorAll('.columns-feature-media img').forEach((img) => {
     img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '900' }]));
   });
+
+  // `media-N`: the image grid span from 1024 (columns.css --media-span; default 6)
+  const span = [...block.classList].map((c) => c.match(/^media-(\d+)$/)).find(Boolean);
+  if (span) block.style.setProperty('--media-span', span[1]);
 }
 
 /*

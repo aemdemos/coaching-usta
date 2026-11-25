@@ -4957,123 +4957,681 @@ Verified vs source: PT Pro at 375 / 768 / 1024 / 1440 (card, eyebrow, title, des
 open card at 375, School cards at all widths, College pathway unchanged. Gate: lint 0 errors · breakpoints ✓ ·
 overflow / typography / a11y ✓ on the six results pages + the course-list sample.
 
-## 2026-11-19 — CI build fix: importer backups excluded from ESLint
+### 2026-11-18 — courses page: analysis of the course-filter data sources (before import)
+Source: /en/home/courses.html (+ /es/). Analysis only, no code change yet.
+- **Page sections (in order):** sub-nav strip (Courses · Workshops · Education Centers) → intro
+  ("SET YOUR PATHWAY" / "Courses and Workshops", text + pathway infographic image) → **course list**
+  (`.aem-course-list` → Vue `<v-course-list>`) → "Bring a USTA Coaching Workshop to Your Facility" CTA band →
+  "Discover our learning pathway—now live!" banner → 2026 Badge & Certification Costs (`v-cost-card` = cards
+  comparison) → "PACKAGES FOR EVERY KIND OF COACH" + tiers XF (`v-tiers` = cards pricing) → "EXPLORE WORKSHOPS &
+  EVENTS" CTA → "GET ON THE LIST" subscribe form.
+- **The "AEM JSON" is in the page HTML.** `<v-course-list>` gets its config as Vue props: `:filters` (the 4
+  filter groups: labels, values, `addToTopFilters` → the persona tabs + tab descriptions, `appliedByDefault` →
+  Coaches), `:fragments` (50 entries keyed by course `code`: `description` HTML, `logoPath` badge, flags
+  `hideModules` / `isAdvancedMembershipRequired` / `ignoreSafePlayForMinors`, and on 14 courses
+  `conditionalDescription` + `constraint` / `requiredCourseCode` / `courseNameForLocker` = the "To unlock…" copy),
+  `:api-configuration` (public `/lms/courses/all`, logged-in `/lms/courses/me/all`), `items-to-display` 16,
+  `show-more-button-title`, `empty-message`, `url-filter-parameter` `tab`. The only data request is the LMS API.
+  15 `*-GC` fragment codes are for the logged-in call only. The ES page carries its own copy (5 of 48 descriptions differ).
+- **Card part → source:** eyebrow "N modules" = API `modules.length`, **but 0 when the fragment has `hideModules`**
+  (workshops: the API returns 1 placeholder module); title = API `name`; description + Spanish link + badge =
+  AEM fragment; unlock paragraph = fragment `conditionalDescription`; module timeline = API `modules[].name`
+  (hidden by `hideModules`); filters/tabs/sort = API `filters` + AEM `:filters`.
+- **Drift found (our block vs source, Coaches tab @1440): 31 cards vs 29.** The API now returns the workshops
+  itself (`INC-W1010-IP`, new `INC-W1010-OD` On-Demand, `CAR-W1010`), but the block still appends its hard-coded
+  `WORKSHOP_CARDS` (`INC-W1010`, `CAR-W1010C`) and the enrichment sheet is keyed by those old codes → duplicate
+  workshop cards, the API copies show "1 module" and no description. All other 26 cards match.
 
-The PR build (`npm run lint`) failed with `import/no-unresolved` in
-`tools/importer/backups/quiz-results-2026-11-18/accordion.js`. Backups are verbatim snapshots of live blocks, so their
-relative imports (`../../scripts/scripts.js`) only resolve from `blocks/<name>/`. Don't "fix" the path in the backup
-(that breaks a restore); `tools/importer/backups` is now in `.eslintignore`. Gate: lint 0 errors.
+### 2026-11-18 — course-filter: course catalog sheet = export of the AEM Content Fragments (customer strategy)
+Customer strategy: every AEM "Coaching Course" Content Fragment parameter goes into a spreadsheet that becomes the
+single source of truth on EDS. The front end keeps calling the APIs for titles, modules and (later) user progress.
+- **Export:** `tools/importer/course-filter/export-course-catalog.mjs` reads the `<v-course-list>` props from the live
+  `/en|es/home/courses.html` and writes one EDS multi-sheet workbook per locale:
+  `content/blocks/course-filter/course-catalog.json` (EN) and `content/es/blocks/course-filter/course-catalog.json` (ES).
+  Sheets: **courses** (48 rows: code, courseName [reference only, from the API], description HTML, logoPath →
+  `/blocks/course-filter/media/*.png`, sourceLogoPath [AEM DAM], isAdvancedMembershipRequired, ignoreSafePlayForMinors,
+  hideModules, constraint [CF labels: Development Badge Required / Specific Course Required], requiredCourseCode,
+  logicalOperator [AND/OR], courseNameForLocker, conditionalDescription), **filters** (12 rows = the component's
+  filter config incl. tab title/description, addToTopFilters, appliedByDefault), **settings** (items-to-display,
+  show-more-button-title, empty-message, url-filter-parameter, …). Skipped: 2 code-less "electives" fragments (can't
+  match a course). The 15 `*-GC` rows are kept (logged-in call only). The CF "Workshop" checkbox is not in the page
+  JSON, so it isn't exported (the workshops are recognised by `hideModules`).
+- **Block:** reads `${localePrefix()}/blocks/course-filter/course-catalog.json` + the LMS API, matched by `code`. Only
+  API courses show (source behaviour). Removed: the hard-coded WORKSHOP_CARDS (they duplicated the API's workshops),
+  TABS and FILTER_GROUPS (now built from the filters sheet, with any-of-the-comma-values matching on
+  `filtersDataPath`; options no course carries are disabled = the "Coming Soon" certs), the Spanish/unlock text
+  splicing. `hideModules` → "0 modules" + no timeline (toggle on phones only). Description + conditionalDescription
+  render as authored HTML, rebuilt from an allow-list with createElement (no innerHTML; http/https/mailto links
+  only). Paragraph margin 0 (source); the authored `<p>&nbsp;</p>` makes the blank line. Empty state shows
+  `empty-message`. The access rules are parsed onto each course (`course.rules`) for the signed-in states.
+- **Verified vs source @1440:** Coaches 29 = 29 cards (same order, eyebrows, titles, descriptions, badges, module
+  counts); Parents 9 = 9; School 9 = 9; Coach Well-Being paragraph heights 108/22/86 = source; links identical.
+- **Not done / open:** signed-in states (Start / Continue / Locked / Review, card turns black) need sign-in on EDS +
+  the user-status and `/lms/courses/me/all` APIs. Nothing uploaded to DA yet: the new block code needs the catalog
+  sheets published first, or it shows structure-only cards with no tabs. The old `course-enrichment.json` sheet and
+  `build-courses-json.mjs` are superseded. The courses page itself is not imported yet.
+- Gates (block sample): lint 0 errors · breakpoints ✓ · overflow ✓ 360–1920 · typography ✓ · a11y ✓. Browser checks
+  ran with `PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers` (this machine only had a newer Chromium build than
+  Playwright 1.55 expects).
 
-### 2026-11-20 — five landing pages mapped + imported (drafts/meet): inclusion-summit, terms, flag-profile, courses, learning-pathway
-**Scope (user, 2026-11-20):** import into the review area (`drafts/meet/<source path>`), fix the mapping gaps in the
-importers; design / parity refinement is a later pass. gallagher-disclaimer-pro kept as is (done 11-18). LOCAL only —
-not uploaded to DA, not previewed / published. The earlier first-pass drafts of inclusion-summit / terms / flag-profile
-were replaced (copies kept outside content in the scratch folder for the session). `en/home/*` pages untouched.
-**Importers:** inclusion-summit, terms, flag-profile → `import-landing-page-v1.js`; courses, learning-pathway →
-`import-quiz-results-v1.js` (the landing importer + the education kinds: certification accordions, course lists,
-tiers — both pages use the same components as the results pages). Template: landing-page. Backup:
-`tools/importer/backups/landing-page/five-pages-2026-11-20/` (both importers + bundles, cleanup, urls, manifest).
+### 2026-11-18 (later) — course-filter: source backend logic read from the Vue bundle (clientlib-vue)
+- **APIs (base services.ustacoaching.com/v1):** public `GET /lms/courses/all` (signed out); signed in
+  `GET /lms/courses/me/all` (same shape + startDate / completionDate / deepLink per course and module),
+  `GET /profile/lightweight` (dateOfBirth, safePlayStatus, membership.status + packageCode),
+  `GET /lms/courses/me/achievements` (completedBadges), `GET /lms/courses/me/{courseCode}/status` (prerequisite
+  check, status COMPLETED). Sign-in is AEM-backed: the IdP code is exchanged at `/etc/usta/idpcoderesponse…json`
+  and refreshed at `/etc/usta/getrefreshtoken.secure.coaching.json` (AEM servlets) → EDS needs its own token
+  service before any signed-in state can work.
+- **Merge (getMergedCourses):** API course + fragment by `code`; API courses WITHOUT a fragment are dropped; order
+  = sortSequence when use-response-order, else fragment order. Signed in: an ES twin (same coursePrefix) replaces
+  the EN course when it has progress; `GC` (grandfathered) courses are appended. → Block now drops API courses
+  with no catalog row and applies the same ordering rule (structure-only fallback only if the catalog fails).
+- **Lock rules (signed in only):** SafePlay lock = API isSafePlayRequired && safePlayStatus ≠ APPROVED, unless
+  under 18 && ignoreSafePlayForMinors; package lock = isAdvancedMembershipRequired && packageCode = BASELINE;
+  development-badge lock = constraint isDevelopmentBadgeRequired && the Development badge isn't completed;
+  specific-course lock = constraint isSpecificCourseRequired: requiredCourseCode list, OR (`||`) locks when ALL are
+  incomplete, AND locks when ANY is incomplete; the locker name = courseNameForLocker || the first missing
+  course's API name. Button / status labels (Start Course, Continue Course, Review Content, Course Completed, In
+  progress, Not started, "Complete the {name} and upgrade to a Rally Package to Access", …) are hard-coded EN + ES
+  in the bundle, NOT authored. The CF "Workshop" checkbox is never read by the front end (not in the page JSON).
 
-**New / changed mappings (all to existing blocks):**
-| Source | → EDS | Pages |
-|---|---|---|
-| `navigation` sub-nav (Courses / Workshops / Education Centers) | `Tabs`, one link row per page | courses |
-| Formstack embed (`flag_coach_profile`) | `Form` → `/forms/flag-form.json` (`FORM_SHEETS` map; unknown Formstack forms stay a plain link) | flag-profile |
-| `v-cost-card` fragment + its two notes | `Cards (comparison)`: logo \| h3, subtitle, price label + value, description, total label + value; coming-soon = title twice; one row per note | courses, learning-pathway |
-| fragment holding one colour panel ("Explore workshops & events") | `Banner (blue)` | courses, learning-pathway |
-| background-photo panel + text panel ("Discover our learning pathway") | `Columns (media)` | courses |
-| blue / lime filled panel: text column + one CTA | `Banner (stacked, blue)` / **`Banner (stacked, lime)` (new `lime` colour option)** | courses, inclusion-summit |
-| gray-outlined italic quote cards | `Cards (quote)` | inclusion-summit |
-| rounded blue panel, centred heading + lime CTA ("Advance Your Coaching Career") | `Banner (spotlight)` (existing rule: blue + lime CTA + h2) | inclusion-summit |
-| colour panel after the FAQ ("More questions? Visit Coach Care.") | `Banner (centered, blue)` after the accordion | learning-pathway |
-| course catalog (`v-course-list__top-filters`) | empty `Course Filter` (loads the LMS itself) | courses |
-| several certification accordions in one section | one Accordion each (pathway = 2-up course grid, else timeline), copy between them as default content | learning-pathway |
-| a second source h1 ("Courses and Workshops") | h2 (one h1 per page) | courses |
+### 2026-11-18 (later) — course catalog sheets uploaded to DA + previewed (on user request)
+- DA source POST 201 + preview 200: `/blocks/course-filter/course-catalog.json` (EN) and
+  `/es/blocks/course-filter/course-catalog.json` (ES). Verified DA source and aem.page both equal the local files
+  cell for cell (courses 48 · filters 12 · settings 9 rows, each locale). NOT published live.
+- The new block code is still local (not pushed): aem.page / aem.live keep running the old block, which reads the
+  old course-enrichment.json. Publish the two sheets live together with (or before) the code going to main.
 
-**CSS:** banner.css `lime` colour option (lime panel, black text, black CTA + white label = the blue one's CTA);
-filled stacked banners (`.stacked:is(.blue, .lime)`) let the CTA column grow to its label from 768 — "Request a
-Workshop" ran 16px out of the viewport at 1280 (the source gives it 4 of 12 columns); the outlined stacked banner is
-unchanged. styles.css: default-content image cap `max-width: min(360px, 100%)` (was 360px — wider than a 328px phone
-column, the courses pathway graphic overflowed at 360).
-**Tooling:** `tools/assets/fetch-page-images.mjs` reuses a copy already in the folder under its DA-upload name
-(`<stem>-<md5>-<suffix>.<ext>`) instead of downloading a duplicate (inclusion-summit: 5 reused, 0 downloaded).
+### 2026-11-18 (later) — course catalog sheets moved out of /blocks/ (user decision)
+`/blocks/…` maps onto the code folder in Git, so authored data must not live there. The catalog sheets are now
+**`/en/course-catalog.json`** and **`/es/course-catalog.json`** (locale folders). The block reads
+`${localePrefix() || '/en'}/course-catalog.json` (English pages without a prefix, e.g. the homepage, use /en); the
+exporter writes `content/en|es/course-catalog.json`. Old local copies under content/blocks + content/es/blocks
+removed. Verified locally: Parents 9 · School 9 · Coaches 29, 29 descriptions, 24 badges. The badge PNGs are still
+served from `/blocks/course-filter/media/` in DA (same concern; not moved yet — logoPath values point there).
 
-**Regression:** the 7 other landing pages (CM, CC, CW, fellowship, gallagher ×3) and the 6 results pages re-imported
-with the new importers = **byte-identical** to the previous importer output.
-**Gate (2026-11-20):** lint 0 errors (8 old warnings) · breakpoints ✓ · overflow ✓ at 360/768/1024/1280/1920 on the 5
-drafts + en/home, en/home/courses, en/home/coaching-community · typography ✓ (5 drafts) · a11y ✓ inclusion-summit,
-terms, flag-profile; ✘ courses + learning-pathway: `color-contrast` in `Cards (comparison)` (white 12–18px text on
-#0373F3 ≈ 4.4:1 — the source's colours; the same failure is on en/home/courses and the block sample, so it predates
-this import). **Decision (user, 2026-11-20): keep the source colours — a logged, accepted a11y exception** for
-`Cards (comparison)` (PER YEAR pill + TOTAL footer); the a11y check stays red on pages with that block. The project's Playwright browser (1187) isn't installed in this environment: overflow /
-typography ran from copies of the checkers loading the importer's Playwright, a11y from the same axe scan
-(config tags + failing impacts) — logic unchanged.
+### 2026-11-18 (later) — badges moved to /assets/media (mirrors the AEM DAM) + sheets moved in DA
+- **Badge location:** `/assets/media/coaching/course-catalog/badges/<name>.png` — same convention as
+  `/assets/media/coaching/videos` (the AEM DAM path with `/content/dam/` → `/assets/media/`, `.svg` → `.png`), so a
+  sheet `logoPath` is a direct translation of the fragment's AEM `logoPath` (kept in `sourceLogoPath`). Exporter
+  `damToMedia()`. 22 PNGs fetched from the published copies into content/assets/media/coaching/course-catalog/badges/,
+  uploaded to DA (22/22) and previewed (22/22, byte-identical). Missing: `general-elective-badge` — only on
+  ELE-M1001-GC / ELE-M1002-GC (signed-in grandfathered electives, never shown signed out).
+- **Sheets in DA:** `/en/course-catalog.json` + `/es/course-catalog.json` uploaded (201) + previewed (200); DA and
+  aem.page equal local (48 / 12 / 9 rows each). Local block: 29 cards, 24 badges from the new folder, 0 broken.
+- **Pending (blocked by the remote-content guard — needs an explicit user request):** unpreview + delete the old
+  `/blocks/course-filter/course-catalog.json` and `/es/blocks/course-filter/course-catalog.json`. Kept on purpose:
+  the old badges in `/blocks/course-filter/media/` + `course-enrichment.json` — the deployed (old) block still uses
+  them; remove only after the new code is on main and live. Nothing published live.
 
-**Known gaps / for the design pass:**
-- courses: the pathway graphic shows the desktop image only (source swaps a phone image; no responsive-image block)
-  and is capped at 360px wide as default content (source: full width); 5 cost cards wrap 4 + 1 (source 5 columns);
-  "SET YOUR PATHWAY" section not centred (source text component has no centre flag — check visually).
-- courses: the live source has **no tier cards** under "PACKAGES FOR EVERY KIND OF COACH" (heading + "See all
-  benefits" only) — the older en/home/courses page has `Cards (pricing)` there; the import follows the live page.
-- courses / learning-pathway: the equivalency-chart PDF link stays `/content/dam/…pdf` (as on the results drafts) —
-  finalize to `/assets/docs/…` before publishing.
-- learning-pathway: the coming-soon Specialist / Master accordions have no course list → `Accordion (timeline)`
-  header-only rows.
-- terms: same text / 32 paragraphs / 49 breaks / 22 links as en/home (only collapsed double spaces + `narrow-8`
-  instead of the retired `narrow-desktop-8, heading-80` classes).
+### 2026-11-18 (later) — courses page imported (EN) on the landing-page importer
+Source /en/home/courses.html → content/en/home/courses.plain.html (local only; ES not yet). Importer
+`import-landing-page-v1.js` (backup tools/importer/backups/landing-page/courses/), URLs
+`tools/importer/urls-courses-en.txt`, then `node tools/assets/fetch-page-images.mjs en/home/courses`.
+**Local preview path is /content/en/home/courses** (the dev server serves html-folder pages under /content/;
+plain paths proxy to aem.page).
+- **Section → block:** sub-nav → **`Sub Nav` (NEW block)** · intro (SET YOUR PATHWAY, copy, infographic, Courses
+  and Workshops, copy) → default content, `center` · course list → `Course Filter` (empty) · "Bring a USTA Coaching
+  Workshop…" → `Banner (stacked, blue)` · learning pathway → `Columns (media)` (bg-image tile + white card) · 2026
+  costs → h2 + `Cards (comparison)` (5 tiers + equivalency + notes rows), `center` · packages → h2 + See all benefits
+  + `Cards (pricing)` (joined into one section, as on home), `center` · Explore → `Banner (events, blue)` · GET ON THE
+  LIST → dropped (the footer renders the subscribe form).
+- **Importer changes (all pages):** new kinds sub-nav, course-filter, cards-comparison (reads the live v-cost-card
+  DOM, incl. texts inside the XF), cards-pricing + banner-events (reuse the home parsers, renamed to current block
+  names via `reparse()`), banner-stacked, columns-media-bg; `joinPrevious` kinds; the pricing-tiers XF no longer
+  skipped; USTA Sans text without a size class = h2; touching heading paragraphs = one heading with <br>; a section
+  opening with a display heading takes `center` from its copy; later h1s → h2 (one h1 per page); `/content/dam/` doc
+  links → absolute source URLs (stop-gap — no /assets/docs pipeline yet); columns-media-row only when the image sits
+  beside the text (different measured x). **Regression-checked:** coach-mentorship + coaching-community EN/ES
+  re-imported to a scratch folder → identical to the old importer's output (only live-source edits differ:
+  community "Career Center is Live" band + new photo/booking link, ES mentorship CTA label — NOT re-imported).
+- **Blocks / styles:**
+  - `blocks/sub-nav` (NEW): one link per row; link to the current page = lime pill + aria-current; label from the
+    placeholders sheet key `Sub Nav Label` (EN "Helpful Links", added to content/placeholders.json — ES pending).
+    Phones: full-bleed scroll strip of dark pills (gap 8); ≥768 one #2d2d2d r20 track, equal pills (gap 16); 56px,
+    r20, Graphik bold 16/18 via the weight-normal "Graphik Regular Synth" face (source synthesises the bold).
+  - `banner (stacked)` styles written (the sample existed, its CSS was missing): 8 + 4 of 12 columns, item insets
+    12px 8px → 12px, panel −8/−12 margin, padding 12 16 → 12 → 36 12 (1280); heading 28/32/40; copy Graphik
+    Semibold 28/24; lime 280×56 r12 CTA (257 centred on phones) `safe center` in its track. ⚠ The banner-stacked
+    sample (coaching-community "Career Center") describes a 3/12 → 2/12 CTA column and 18px copy — different from
+    the courses instance; not reconciled (the community page doesn't use it yet).
+  - `cards (comparison)` re-measured on the live 5-tier page: panel = content box (gutters 16/40/48/64, no extra
+    inset), card padding 16, columns 1 / 2 (768) / 3 (1024) / all tiers in one row (1280, `--cards-count` set by
+    cards.js), module rows min-height 24 with 24px lines (wrap grows), coming-soon min-height 595; the coming-soon
+    flame is drawn by the block (`icons/flame-ball.svg`, 2.7KB, from the source component's inline SVG) when not
+    authored. Verified card-by-card = source at 768/1024/1440 (width, height, title, price, every module row).
+    The 4-tier block sample now lays out 3-up at 1024 (follows the live source).
+  - landing-page template: default-content h1 28/40/56/64 (typography.json `templates.landing-page` gained h1);
+    standalone default-content images span the content box (no 360 cap, square); the section-heading h2 rule
+    skips Columns (media) (its card heading 32/40/64 was being forced to 40).
+  - fetch-page-images.mjs also writes inline `data:image/svg+xml` images to files.
+- **Open (needs a decision):** (1) phones: the source swaps the pathway infographic for a tall portrait version
+  (ustac-pathway-mobile.jpeg, 343×1235) — we show the desktop image scaled down (unreadable on phones); (2) intro
+  vertical rhythm: the source has 42px / 96px separators between heading, copy, image (and 96px under the sub-nav)
+  — our template uses 24px between default-content items, so the intro is ~40–100px shorter per gap; (3) intro
+  type: copy is Graphik Semibold 20/24 + 18/24 on the source (ours Graphik Regular 18/24), "Courses and Workshops"
+  is the 56px-32px style (32/40/40/56) vs our landing h2 28/32/40; (4) cost badge alt text is the source's
+  "Badge"; infographic alt "pathway_web_graphic"; (5) PDF links point at www.ustacoaching.com.
+- Gates (courses page): lint 0 errors · breakpoints ✓ · svg ✓ · overflow ✓ (courses, coach-mentorship,
+  coaching-community, home, comparison / banner-stacked / columns-media samples) · typography ✓ (courses,
+  coach-mentorship, coaching-community) · a11y ✗ only the known cards-comparison contrast finding (white on
+  #0373F3 PER YEAR / TOTAL, dim COMING text — same on the existing sample; source colours).
 
-### 2026-11-20 — the five pages placed at their real paths (local) + tabs ARIA fix
-User decision: no drafts-first step — pages go to their real path (the Definition of done above is updated).
-- Copied unchanged (byte-identical) from `drafts/meet/` to `en/home/`: coaching-community/usta-coaches-inclusion-summit,
-  membership-benefits/coaching-membership-terms-and-conditions, account/flag-profile (new folder), courses,
-  learning-pathway. inclusion-summit, flag-profile and learning-pathway did not exist there before.
-- Backups of the replaced pages (byte-identical): `drafts/meet/backup/courses-2026-11-20`,
-  `drafts/meet/backup/membership-benefits/coaching-membership-terms-and-conditions-2026-11-20` (the older
-  undated terms backup is kept). The drafts/meet copies stay as review copies.
-- **tabs.js (link mode):** the active page link no longer gets `aria-selected="true"` (only valid on role=tab — axe
-  `aria-allowed-attr`, critical, on en/home/courses where the Courses tab is current); `aria-current="page"` already
-  marks and styles it (tabs.css). Verified: active pill still lime / black; tabs sample a11y ✓.
-- Gate at the real paths: overflow ✓ (360–1920) on all 5 · a11y ✓ inclusion-summit, terms, flag-profile; courses +
-  learning-pathway only the accepted `Cards (comparison)` contrast exception. LOCAL only — not uploaded to DA, not
-  previewed / published.
+### 2026-11-19 — `course-catalog` THEME (CSS only) for the courses intro + phone infographic
+User decision: page-specific styling that is CSS-only goes in a **theme** (page metadata `Theme`), not a template;
+a template only when JS is needed. A theme is the place for a page's major CSS changes.
+- **Theme mechanism (new, generic):** scripts.js `THEMES = ['course-catalog']` + `loadTheme()` (after loadTemplate,
+  before decorateMain) loads `themes/<name>/<name>.css`; aem.js already adds the theme body class. lint:css and
+  breakpoint-check now scan `themes/`. typography-check layers a record with `"kind": "theme"` on top of its
+  template (typography.json `templates.course-catalog`: p Graphik Semibold 20/24, h2 32/40/40/56).
+- **themes/course-catalog/course-catalog.css** (selectors prefixed `body.course-catalog.landing-page … > .section`
+  to outrank the template's `:is()` rules): intro gaps sub-nav→h1 20/20/96/108, h1→copy 66, image→h2
+  32/32/108/120, h2→copy 66, copy→course filter 60/68/84/100 (section padding 8/8/84/96 top, 36 bottom); copy
+  Graphik Semibold 20/24 (18/24 under the h2); h2 32 → 40 (768) → 56 (1280). **Image pair:** one paragraph with two
+  pictures = [wide, phone]; phones (<768) show the second, 768+ the first.
+- **Importer:** `PAGE_THEMES` (`/home/courses` → `course-catalog`, locale-free) writes `Theme` metadata; on themes in
+  `IMAGE_PAIR_THEMES` a desktop-hidden image right before a visible one is kept as its phone copy
+  (`data-phone-image` → second img in the same paragraph). Other landing pages unchanged (re-import diff 0).
+- Template fix: the h2 rule's Columns (media) exclusion wrapped in `:where()` (it had raised that rule's specificity).
+- **Verified:** intro identical to the source at 375/768/1024/1280/1440 — all 7 gaps, h1/h2/copy/image sizes, fonts,
+  and the phone image (343×1235) below 768. Gates: lint 0 errors · breakpoints ✓ · svg ✓ · overflow ✓ (courses,
+  coach-mentorship, coaching-community) · typography ✓ (same 3) · a11y: only the known cards-comparison contrast
+  finding. Importer backup refreshed (tools/importer/backups/landing-page/courses/).
+- Still open on this page: cost-badge / infographic alt text are the source's ("Badge", "pathway_web_graphic"); PDF
+  links point at www.ustacoaching.com; banner (stacked) community variant not reconciled; ES not imported (user:
+  not now). Nothing uploaded to DA.
 
-### 2026-11-20 — gallagher-disclaimer pro-plus + rally: already migrated — verified against the live source
-Both pages were already at `en/home/membership-benefits/gallagher-disclaimer-{pro-plus,rally}` in the agreed
-authoring (same as pro / baseline): h1 + intro as default content, then `Form` → `/forms/gallagher-disclaimer-<tier>.json`
-(published DA sheet) in a `split, intro-text` section. Nothing re-imported (the landing importer still emits the
-disclaimers as a plain accordion — the Form-on-a-sheet authoring is DA-authored; no importer mapping added).
-- **Content check vs live source:** intro (h1 + 2 paragraphs) identical; form text word-for-word = the sheet (rally:
-  1 disclaimer — AJG GAIS; pro-plus: AJG GAIS, General Everest, General Players Health, Electronic Delivery of Policy
-  Documents + the mandatory opt-in checkbox; eligibility copy; Submit). The only diffs were tag-join artefacts of the
-  comparison script.
-- **Render:** form block loads every disclaimer, the opt-in checkbox (pro-plus) and Submit.
-- **Type:** h1 32/32 → 40 (1024) → 64 (1280), intro 16/19.2 → 18/21.6 → 24/28.8 = source at 390/768/1024/1280.
-  `tools/quality/typography-check.mjs` now skips `main > .section.intro-text` (the source's 64px-32px title + 24px-16px
-  lead presets, like `heading-64` / `.intro-statement`) — it had flagged 10 false drifts on every Gallagher page
-  incl. the parity-checked pro.
-- Gate: overflow ✓ (360–1920) · typography ✓ (rally, pro-plus, pro, baseline) · a11y ✓ (rally, pro-plus). Local only.
+### 2026-11-19 (later) — courses sub-nav = existing `Tabs` (navigation mode); `Sub Nav` block REMOVED
+User: "why a new sub-nav — the tabs block does the same". Validated: tabs.js already has a navigation mode (every tab
+label a link → a `<nav>` of page links, the current page's tab active; its samples are Courses · Workshops ·
+Education Centers). The importer's sub-nav kind now emits `Tabs` (one link per row, no panel); `blocks/sub-nav` and the
+`Sub Nav Label` placeholder were removed (supersedes the Sub Nav notes in the 2026-11-18 entries).
+- **Tabs fixes (navigation mode only, `.tabs:has(> nav.tabs-list)` / `> nav.tabs-list`; application tabs unchanged):**
+  re-measured the source .cmp-navigation on courses, workshops and education-center-locations (identical): 12px
+  above/below the pill row; phone strip starts at the gutter (first pill 16px in — was 24); from 768 the track spans
+  the content box (no 12px inset — was 12); an empty navigation panel takes no space (the active one had a 24px top
+  margin). Labels stay Graphik Semibold (its pill widths 120/136/193 match the source exactly; the Synth face didn't).
+  tabs.js no longer sets `aria-selected` on the current page link (axe aria-allowed-attr, critical — exposed now that
+  a page links to itself); `aria-current="page"` marks it. Hard-coded nav aria-label "Section navigation" unchanged
+  (source: "Helpful Links") — localization follow-up.
+- **Verified:** pills/track/colours/active state and the h1 below identical to the source at 375/768/1024/1440.
+  Gates: lint 0 errors · breakpoints ✓ · overflow ✓ (courses, tabs, tabs-application samples) · typography ✓ ·
+  a11y ✓ tabs + tabs-application samples; courses only the known cards-comparison contrast finding.
 
-### 2026-11-23 — eight en/home pages uploaded to DA + previewed + published (user request)
-Pages: coaching-community/usta-coaches-inclusion-summit, membership-benefits/coaching-membership-terms-and-conditions,
-account/flag-profile, courses, learning-pathway, membership-benefits/gallagher-disclaimer-{pro,rally,pro-plus}.
-- **Workspace state found:** inclusion-summit, flag-profile and learning-pathway were missing from `content/en/home/`
-  (the 2026-11-20 copies were gone). Re-imported at their real paths with the unchanged importers (byte-identical to
-  `tools/importer/backups/landing-page/five-pages-2026-11-20/`) + `fetch-page-images.mjs`. Content = the validated
-  drafts/meet copies (only image file-name suffixes differ).
-- **Uploaded to DA:** those 3 + terms (DA still had the 2026-11-06 version). Courses + the 3 Gallagher pages already
-  matched DA (only `<p>` cell wrappers / image URLs differ) → preview + publish only. Inline images uploaded to
-  `<dir>/.<page>/<file>`; the upload doc points `<img>` at `content.da.live/...` (same layout the editor Sync used
-  for courses); local `content/` keeps `/media-da/...` (the only local↔DA difference). Readback: 0 diffs.
-  Helpers: `migration-work/preview-publish/{build-da-doc.cjs,norm.cjs,rasterize-svg.mjs}`.
-- **Gotcha — EDS rejects SVG images > 40KB on preview** (409 `AEM_BACKEND_FETCH_FAILED`, "Image N failed validation:
-  SVG is larger than 40KB"). learning-pathway's `delivering-competition` badge is 91KB → rasterized to a 400×400 PNG
-  (37KB) and the page points at the PNG. **Persisted generically (user OK):** `tools/assets/fetch-page-images.mjs`
-  now rasterizes any localized SVG > 40KB to a same-name 400px-wide transparent PNG (Playwright Chromium; `CHROME_BIN`
-  overrides the binary) and points the `<img>` at it; an existing PNG is reused. Proof: fresh import of
-  learning-pathway + the image step in an empty scratch folder → page and PNG byte-identical to content/
-  (`migration-work/persist-edit/20261123-103044/`); baseline recorded (state `unchanged`).
-- Verified: all 8 → 200 on aem.page + aem.live, 0 broken images (5 / 8 / 24 on inclusion-summit / courses / LP).
-- `/forms/gallagher-disclaimer-{pro,rally,pro-plus}.json` were previewed but not published → published (user OK),
-  200 on aem.live (flag-form.json was already live).
-- **Open:** uncommitted code (banner `lime` + filled-stacked CTA
-  column, tabs ARIA, image cap) is not on main → inclusion-summit's lime banner renders unstyled on aem.page/live.
+### 2026-11-19 (later) — PR #53 (aem-20261119-1212 → main): merged `main` in, conflicts resolved
+`main` had moved 8 commits (coaching-workshops, fellowship, results pages, Toc, banner standardization, ES out of
+scope). 8 files conflicted; resolution keeps both sides — rule: `main`'s pages must import exactly as before.
+- **banner.css:** `main`'s file as-is (its `banner (stacked)` = the coaching-community "Career Center" band). The
+  courses "Bring a USTA Coaching Workshop" instance differs (blue, 8 + 4 columns, Graphik Semibold 28/24 copy, lime
+  280px CTA) → moved into the `course-catalog` THEME as page overrides (user rule: page-specific CSS = theme).
+  At 768–1023 the CTA stays inside its track (the source's runs off the panel — project rule, as columns promo).
+- **Events banner:** `main` removed the `events` variant (one banner) → the importer emits `Banner (blue)` for
+  "Explore workshops & events" (was `Banner (events, blue)`).
+- **h1:** `main`'s landing template styles every default-content h1 as the `56px-32px` page title (32 → 40 → 56) and
+  keeps the source's h1s → our importer's "later h1 → h2" rule was REMOVED. Courses keeps both source h1s: the second
+  ("Courses and Workshops") gets the template h1 (= source); the theme styles only the first (`h1:first-child`,
+  28 → 40 → 56 → 64) and the template no longer carries our h1 / standalone-image rules (moved to the theme).
+  typography.json: `landing-page` = main's record; `course-catalog` (kind theme) = h1 28/40/56/64 + p 20/24 semibold.
+- **Importer (`import-landing-page-v1.js`) merged by hand:** main's blank-line keeping + our touching-heading join;
+  both helper sets; main's centring / inset-N / spacing-36 / heading-64 logic + our display-heading centring rule;
+  `join` + `meta` in the section loop. Two `banner-stacked` kinds → ours renamed `banner-stacked-colour` and limited
+  to BLUE panels (main's handles white-outlined ones; the lime inclusion-summit band stays main's default content).
+  `course-filter` kind only for the v-course-list WITH a filter bar (learning-pathway's list is a different instance:
+  certifications API, 6 fragments, no filters, redirect button — not this block). `cards-pricing` keeps the copy /
+  buttons sharing its section and joins the previous section only when the tiers XF stands alone. Bundles rebuilt:
+  landing, quiz-results, sample-landing-sections, sample-landing-blocks (all import the landing importer).
+- **Regression (main's importer vs merged, same live pages):** 13 of 14 landing pages + guardian-coach identical;
+  learning-pathway only GAINS (cost cards, pricing tiers, events band — main dropped them) and its PDF link is absolute;
+  results pages differ only by the absolute PDF link and school-coach's two touching h2 lines → one h2 with <br>
+  (main's `h2 + h2 { margin-top: 0 }` made them touch; same lines). Courses re-imported into content/ with the merged
+  importer and re-verified = source at 375/768/1024/1440 (intro gaps / sizes / fonts, sub-nav pills, workshop banner).
+- Reports regenerated by the merged importers. Gates after the merge: breakpoints ✓ · svg ✓ · overflow ✓ (courses,
+  fellowship, coaching-workshops, results ×2, CM, CC, index, 4 samples) · typography ✓ (same) · a11y ✓ except the known
+  cards-comparison contrast + school-coach's `accordion (courses)` findings (main: "has NO code" yet) · lint: 1 error
+  from main's `tools/importer/backups/quiz-results-2026-11-18/accordion.js` (a block backup whose import path doesn't
+  resolve from the backups folder — present on main; not changed here).
+
+### 2026-11-19 (later) — NEW `image` block (desktop / mobile art direction) + badges moved to /assets/media/course-catalog/badges
+PR #53 merged to main (6179c79, merge commit 3b6ad85 kept main as a parent). On aem.page the courses infographic showed
+BOTH images: DA → Edge Delivery put the two pictures of the image-pair paragraph into separate paragraphs, so the
+theme's `p:has(> picture + picture)` rule never matched. Paragraph structure is not a contract → a block.
+- **`blocks/image`** (new): rows `desktop | <image>` and `mobile | <image>` (Spacer-style labels; unlabelled rows =
+  desktop, mobile in order; a single image = that image at every width). Renders ONE <picture>: media-gated
+  `(width >= 768px)` desktop sources (webp + own format, built directly — a helper picture's <img> would start the
+  wide download on phones; per-source width/height) + the phone image as the fallback <img>. Alt = desktop alt, else
+  mobile. CSS: full column width, own aspect, square corners. On aem.page images are lazy, so each device downloads
+  only its own file (the local preview serves authored images eagerly — both load there; preview-only artefact).
+- **Importer:** an image with a phone copy (themes in IMAGE_PAIR_THEMES = course-catalog) → `Image` block with
+  desktop / mobile rows (was one paragraph with two pictures). Courses re-imported.
+- **course-catalog theme:** the intro is now copy wrapper | image block | copy wrapper — rules keyed on
+  `.section:has(> .image-wrapper)`: copy → image 24 (template `--text-block-gap: 12px` + the copy wrapper's 12),
+  the template's 42px block → copy separator dropped, the second h1 carries the image gap; first wrapper's h1 =
+  28/40/56/64. Old image-pair rules removed. Verified = source at 375/768/1024/1440 (all gaps, sizes, fonts; the phone
+  image below 768, the wide one from 768).
+- **Badges path (user decision):** `/assets/media/course-catalog/badges/` (the AEM DAM path minus its
+  `/content/dam/coaching/` root; was `/assets/media/coaching/course-catalog/badges/`). Exporter `damToMedia` updated,
+  EN + ES sheets regenerated, local files moved (content/assets/media/course-catalog/badges, 22 PNGs). Local: 24/24
+  badges load from the new folder. **DA / preview NOT updated yet** (blocked by the remote-content guard — needs an
+  explicit request): upload the 22 badges + both sheets (+ the re-imported courses page with the Image block).
+  The old DA copies under /assets/media/coaching/course-catalog/ stay until removed on request.
+- Gates (courses): overflow ✓ · typography ✓ · breakpoints ✓ · a11y: only the known cards-comparison contrast · lint:
+  only main's known backups/quiz-results-2026-11-18/accordion.js error.
+- **2026-11-19 (later):** uploaded to DA (on request): the 22 badges at `/assets/media/course-catalog/badges/` (22/22,
+  byte-identical) and both sheets (`/en|es/course-catalog.json`, cell-for-cell = local, new badge paths). NOT
+  previewed (the preview step was blocked — needs an explicit request); the courses page itself not uploaded.
+- **2026-11-19 (later) — course catalog descriptions are PLAIN TEXT (no HTML for authors).** User: authors shouldn't
+  write HTML in the sheet. The AEM rich text only ever used one paragraph per cell, stray <br>s, links (13, wrapped in
+  <u>) and an empty <p>&nbsp;</p> before the unlock note. New cell format: plain text, a blank line = new paragraph,
+  links as `[link text](https://…)` (trailing punctuation outside the link, e.g. `[Spanish](…).`). The block
+  (`appendAuthoredText`) builds the paragraphs + links (external → new tab; http/https/mailto only) and adds the blank
+  line before the "To unlock…" note itself (`.course-filter-card-unlock { margin-top: 1lh }`); a cell that still holds
+  HTML renders through the old allow-list. Exporter `htmlToText()`; EN + ES sheets regenerated (0 cells with HTML).
+  Verified = source at 1440 (Coach Well-Being 20+108 / 150+86, Applied Coaching Skills 20+86 / 128+86, links). Local
+  only — the DA sheets still hold the HTML version until re-uploaded.
+- **2026-11-19 (later):** plain-text EN + ES course-catalog sheets uploaded to DA (on request; cell-for-cell = local,
+  0 HTML cells, 13 links) — NOT previewed. Badges confirmed on aem.page at the new path (22/22, previewed by the
+  user). aem.page courses still showed BOTH infographics: the deployed code is current (image block + theme served =
+  workspace), but the DA courses PAGE is the old import (two loose pictures, no `Image` block) → the re-imported
+  content/en/home/courses.plain.html (with the Image block) must be uploaded to DA + previewed (on request).
+
+### 2026-11-19 (later) — block / variant inventory + `image` block sample
+- **Inventory (code, 2026-11-19):** 23 blocks, 68 variant options defined in block CSS / JS (`.block.option` selectors
+  + `block.classList.contains()`): accordion 3 (closed, pathway, timeline) · banner 7 (blue, centered, header, info,
+  narrow, spotlight, stacked) · cards 13 (compact, comparison, course, icons, logos, media, news, pricing, profile,
+  quote, stacked, testimonial, text) · columns 29 (article, checklist, cta, dark, dates, embed, events, feature, grid,
+  large, lime, list, media, media-12 [= the generic media-N], media-left, media-right, mobile, no-photo, outlined,
+  person, photos, portrait, profile, promo, quote, stacked, tablet, text, unframed) · form 2 (application, edit-mode
+  [a runtime state, not authored]) · hero 3 (content, title, video) · quote 1 (marks) · social 2 (center, left) ·
+  spacer 1 (line) · tabs 1 (application) · text-style 6 (center, intro, label, large, lead, subhead); no options:
+  breadcrumb, contact, course-filter, discussion-boards, footer, fragment, header, image, tags, toc, video, widget.
+  → 66 authorable options; 80 block sample pages (81 with `image`). No recorded baseline of 47 found in the log.
+- **`image` sample** (drafts/block-samples/image): new key in `import-sample-landing-blocks.js` (page `courses`,
+  anchor "SET YOUR PATHWAY", `pick: 'Image'`, `noHeadings`, `phoneImages`). The phone-image step is now a shared
+  helper `markPhoneImages(main)` exported by the landing importer (the landing transform calls it for themed pages;
+  the sample importer when a sample sets `phoneImages`). URL list `tools/importer/urls-sample-image.txt`; images
+  finalized. Courses import byte-identical after the refactor; all 5 bundles rebuilt. Verified: phone graphic 343×1235
+  at 375, wide graphic 688 / 1312 at 768 / 1440 (one picture, 3 sources); overflow ✓ · a11y ✓ · breakpoints ✓.
+  Local only (not in DA). Backups refreshed: block-sample/landing-blocks, landing-page/courses.
+- **2026-11-19 (later) — `blocks/course-filter/README.md`** (team doc; `*.md` is not served): how the block works
+  (Mermaid data-flow, task and lock-evaluation charts), the sheet's three tabs column by column with the AEM fragment
+  field each mirrors, authoring tasks (edit / show / hide / brand-new course via the LMS first / badge / filter / tab /
+  default tab / Spanish), the plain-text description format, and the prerequisite model using "Applied Coaching
+  Skills: Group" (ACS-B1009) — all its Constraint fields are sheet columns; signed-out visitors see the unlock note,
+  the signed-in lock states need EDS sign-in + the user APIs (not built).
+
+### 2026-11-19 (later) — course catalog from the customer's Content Fragment export + DEV / PROD sheets
+Customer `courses.json` (61 fragments, 59 with a code; pilot/QA environment — every link on
+`ustacoaching-pilot.csod.com`) → kept at `tools/importer/course-filter/source/courses-fragments-dev.json`.
+- **Coverage:** every public-API course has a fragment; every row we had is in the file; the file adds 11 codes the
+  live API doesn't return yet (BLV-B1001, CWT-W1010 workshop, ITC-B1001/-S/-GC, ITC-B1002/-S/-GC, SAS-00001,
+  YPC-B1001, YPP-B1001) — rows exist, they show once the API returns them. New field `isWorkshop` (4 workshops) →
+  new sheet column (stored; the front end doesn't use it). ~7 courses differ from the live page in real content
+  (e.g. CWT-B1015 AND vs OR, INC-B1001S constraint + Rally + badge); user decision: take ALL courses from the file.
+- **Environments (user decision — repoless: one code base; the DEV site has its own content):** a site whose name
+  contains `-dev` (`main--coaching-dev--usta-digital.aem.page|live`) reads `/en/course-catalog-dev.json`, every
+  other host `/en/course-catalog.json`; a missing DEV sheet falls back to PROD (`isDevSite()` / `loadCatalog()`).
+  DEV sheet = the file's links (pilot); PROD sheet = each pilot link swapped for its production link (learned by
+  pairing course + field + link text with the live page: 16 / 20 mapped, e.g. the Development Coach Badge pilot
+  module=38 → production module=33 + ouid=2). Unmapped (kept as pilot, flagged): the "Spanish." links of ITC-B1001,
+  ITC-B1002 and their -GC copies (not in production yet). ES: unchanged (live ES export; ES out of scope).
+- **Badges:** 5 of the file's badges exist only on pilot (associate-icon-1/2.png, blind-and-visually-impaired-icon,
+  youth-pathway-coaches/parents-icon) — 404 on the production DAM; their rows point at the expected
+  /assets/media/course-catalog/badges/*.png, and the block now hides a badge whose image doesn't load (no broken
+  image). general-elective-badge rasterized to a 296px PNG (local). Intro to Coaching 1 EN/ES show no badge until
+  associate-icon-1/2 are supplied.
+- Verified locally (PROD sheet): Coaches 29 · Parents 9 · School 9 (unchanged), 22 badges shown / 0 broken.
+  Local only — DA upload of `en/course-catalog.json`, `en/course-catalog-dev.json` (+ the new badge PNG) pending.
+  README updated (Environments, isWorkshop, export options).
+- **2026-11-20 — course-filter README: Spanish + data source.** Clarified (user): Spanish-language COURSES are part
+  of the EN course set (PA-NB1022S, INC-B1001S, INC-B1002S shown on the EN page; ITC-B1001S / ITC-B1002S rows waiting
+  for the API) — verified = source EN page on all tabs (Parents 9 · School 9 · Coaches 29, same Spanish cards). The
+  Spanish SITE (/es/ pages) stays out of scope — Smartling will translate the EN pages; no ES content migrated
+  (see 2026-11-16 SCOPE DECISION). README now documents: the two Spanish meanings, the state of
+  /es/course-catalog.json (one-off export of the live ES page, not maintained, no -dev copy), that /es/ pages do NOT
+  fall back to the EN sheet, the decisions for when ES returns (Smartling-translated sheet vs EN fallback vs own
+  sheet; hard-coded English labels), the customer export as the course data source (coverage, 11 new codes,
+  adopted content changes, isWorkshop) and an open-items table (pilot-only badges, ITC prod links, LMS API per
+  environment, general-elective badge upload, signed-in states).
+- **2026-11-20 — uploaded (on request):** `/en/course-catalog.json` (PROD: 59 courses, 16 production + 4 flagged
+  pilot links) and `/en/course-catalog-dev.json` (DEV: 59 courses, 20 pilot links) to DA (200 / 201) and previewed
+  (200 / 200); DA and aem.page = local, cell for cell. aem.page /en/home/courses with the PROD sheet: Coaches 29 cards,
+  22 badges, 0 broken, Intro to Coaching 1 without badge (associate-icon pending), production CSOD links. Not live.
+- **2026-11-20 — uploaded (on request):** `/assets/media/course-catalog/badges/general-elective-badge.png` (296px,
+  rasterized from the production DAM SVG) to DA (201) and previewed (200); DA and aem.page byte-identical to local.
+  Used by ELE-M1001-GC / ELE-M1002-GC (signed-in electives) — not visible on the page today. Not live.
+- **2026-11-20 — the 5 pilot-only badges found on the customer's STAGING AEM** (`stage.ustacoaching.com`, public;
+  qa / dev are password-protected): associate-icon-1/2.png (1920px PNGs), blind-and-visually-impaired-icon,
+  youth-pathway-coaches/parents-icon (SVGs) → rendered to 296px transparent PNGs (24–30KB) in
+  content/assets/media/course-catalog/badges/ and uploaded to DA (5 × 201, byte-identical). NOT previewed (the preview
+  step needs an explicit request). ITC "Spanish." links: the pilot links point at the pilot CSOD learning objects of
+  the Spanish course versions (ITC-B1001 → lo 683c3526…, ITC-B1002 → lo 1ca01134…); CSOD learning-object IDs are
+  per environment (INC-B1001 Spanish: pilot e452ca39… vs prod 758e2044…; PA-NB1022: the same ID in both), so the
+  production IDs only exist once the ITC courses are created in production CSOD. LMS API: the source sets it per
+  environment in AEM (`coachingApiEndpoint`, prod `https://services.ustacoaching.com/v1`); the staging page is
+  password-protected, so the pilot value is unknown — needed from the customer. Sheets published live (user).
+
+### 2026-11-20 — news dashboards, step 1: article data + news index (helix-query.yaml)
+Inputs: the customer's "Coaching News Breakdown" document (article page properties, Featured Articles, Latest
+Articles, Search, Search Results) + the live source (news.html, news/search-results.html).
+- **Source data path (found live):** every news component (v-featured-article ×3, v-latest-articles-list ×2,
+  v-article-search-results) calls ONE public AEM servlet: `POST /coaching/news-search.json` (Granite CSRF token +
+  Origin/Referer), body `filter: featured | not-featured`, `path /content/coaching/en/home/news`, sort
+  `articleDate desc`. Rows: title (= Page Title / H1, not the Navigation Title — the doc calls this a bug), description,
+  pageUrl, image, imageAltText, articleDate (UTC), tags (all empty except Zina: "tennis coaching"), no videoLength.
+  60 dated articles (11 featured) + the search-results page (no date, skipped). **The featured order = newest article
+  date first** (Paul Walker 10-19 → Business Case 10-14 → Emma Dell Part 3 08-28 …) — matches news.html's 3 tiles
+  (Displayed Item Number 0 / 1 / 2) and the article footer tile (item 0; item 1 on that article itself).
+- **EDS model:** two new page-metadata fields the article never renders (AEM page properties): `Article Date`
+  (YYYY-MM-DD, the US-Eastern date the source displays) and `Featured` (`true`, featured articles only). With Title,
+  Description, Breadcrumb Title (= AEM Navigation Title), Tags and the page image they feed ONE index:
+  **`helix-query.yaml` → index `news` → `/en/home/news/query-index.json`** (include /en/home/news/**, exclude the
+  news + search-results pages): title (og:title), headline (first main h1 = the source's displayed title), navTitle,
+  description, image (og:image), imageAlt (og:image:alt), articleDate, featured, tags (array), template, robots,
+  lastModified. Rebuilt by Edge Delivery on every publish → no page republishing when an article is added or
+  (un)featured (the doc's "400 pages" requirement). The dashboard blocks (featured / latest / search / results) will
+  read this index (step 2).
+- **Exporter** `tools/importer/news/export-news-articles.mjs` → `tools/importer/news/news-articles.json` (re-run when
+  the source adds articles or changes featured flags); `news/news-data.js` bundles it into the importer.
+- **Importer** (`import-news-article-v1.js`): writes Article Date + Featured; the shared footer tile = the newest
+  featured article from the data (was a hard-coded title) and its CTA path comes from the data (title → page).
+  **Fix:** the 10-21 "no list-edge blank line before a separator" rule now applies only inside a row column
+  (partial-width aem-Grid, the learning-hub case it was written for); in the full-width article grid the blank stays
+  (wecoach −96px / how-one-coach −24px vs source otherwise; both = source again @375/768/1440, learning-hub
+  unchanged). New URL list `tools/importer/urls-news-article-en.txt` (60 EN + the fragment; ES out of scope).
+- **Re-import (all 60 EN + fragment, scratch first, then content/):** 52 / 56 existing bodies identical; changes =
+  usta-school link (source edit), serving-gratitude footer tile → shared fragment (source now shows Paul Walker
+  there), the two restored blank-line pages. Fragment `/fragments/news/featured-article` = Paul Walker tile (image
+  localized to media-da/fragments/news/featured-article/). **4 NEW articles** (published on the source after our
+  import): alison-ojeda-winning-women-coaches, army-veteran-tennis-coach-paul-walker,
+  building-culture-before-chasing-results, why-hiring-certified-tennis-coaches-is-good-business (31 images localized).
+  Parity: why-hiring + building-culture = source @375/1440; alison-ojeda = source @1440, −1424px @375 (the source
+  shows 3 phone-only photo copies, ours stack the row photo); **army-veteran-paul-walker NOT at parity** — 20
+  outlined timeline cards (photo 4/12 + grey-bordered year/story panel 8/12) come out as loose content + 179 spacers →
+  needs a new columns option + parser (open).
+- Backup: `tools/importer/backups/news-article/all-news-pages-2026-11-20/` (script, bundle, data, exporter, URLs,
+  manifest). Lint: only the known backups/quiz-results-2026-11-18/accordion.js error.
+- **Open:** DA upload (images need the editor Sync — DA media URLs are not public), preview + publish, index check on
+  aem.live; Paul Walker timeline cards; dashboards (step 2).
+- **2026-11-20 — PDF link fix (news importer):** the editor Sync rejected usta-coaching-launches-inaugural-women-coaching-cohort
+  ("image needs fixing": the site-relative `/content/dam/coaching/2026-pdfs/usta-coaching-women-sports-report.pdf` link
+  404s on aem.page; the DA copy had it mangled to `…report-pdf`). The news importer now rewrites `/content/dam/…` links to
+  the absolute source URL (same stop-gap as the landing importer — no /assets/docs pipeline yet). Page re-imported: only
+  that link changed. 0 relative DAM links left in the news pages. Still relative elsewhere:
+  `/content/dam/coaching/public-pages/pdfs/coaching-education-equivalency-graphic.pdf` on the en/home/results pages
+  college-coach, ft-pro-coach, pt-pro-coach, volunteer-emerging-coach (same Sync failure expected there). Backup refreshed.
+- **2026-11-20 — document finalize step (NEW `tools/assets/fetch-docs.mjs`, IMPORTING-GUIDE §5):** source DAM documents
+  linked from a page (`/content/dam/…` pdf / docx / xlsx / pptx / zip, relative or www.ustacoaching.com) → downloaded to
+  `content/assets/docs/<page path>/<normalized name>`; the link is rewritten to the ABSOLUTE
+  `https://main--coaching-usta--aemdemos.aem.live/assets/docs/…` URL (DA strips the extension off relative links). A doc
+  shared by several pages is downloaded once (under the first page given); manifest `tools/importer/asset-manifest.json`
+  (source URL → served path, `twinOf` for the sharers). Pipeline: importer (absolute source URL) → fetch-page-images →
+  fetch-docs. Run on 6 pages: Women in Coaching Report (7.0 MB, 20 pp) →
+  `assets/docs/en/home/news/usta-coaching-launches-inaugural-women-coaching-cohort/usta-coaching-women-sports-report.pdf`;
+  Coaching Education Equivalency graphic (17 KB) → `assets/docs/en/home/courses/coaching-education-equivalency-graphic.pdf`,
+  shared by courses + results college / ft-pro / pt-pro / volunteer-emerging. 0 source PDF links left in content/en.
+  **Each PDF needs DA upload → preview → publish on its own, BEFORE the pages are synced** (a page publish doesn't carry
+  the docs binaries; until then the links 404).
+  - Done (on request, 2026-11-20): both PDFs uploaded to DA (201), previewed (200) and published live (200); aem.page and
+    aem.live serve application/pdf byte-identical to local (md5 checked after gzip decoding — the CDN sends them gzipped,
+    so a plain curl shows a smaller size). Pages themselves NOT uploaded (the user Syncs them).
+
+### 2026-11-20 — news dashboards, step 2: news.html + news/search-results (4 index-driven blocks, 2 themes)
+Pages: /en/home/news.html → content/en/home/news.plain.html, /en/home/news/search-results.html →
+content/en/home/news/search-results.plain.html (local only — not in DA, not previewed). Data: the `news` index
+(step 1, /en/home/news/query-index.json — live, 59 / 60 rows until the women-cohort page is republished).
+- **Source → EDS** (the source widgets are Vue components on the `news-search.json` servlet; each EDS block reads the
+  index at runtime, so nothing is republished when an article is added / (un)featured / re-dated):
+  | Source | EDS block (authoring) | Renders as |
+  |---|---|---|
+  | v-featured-article (Displayed Item Number, View, Image position, Background, Button) | **Featured Article** (`display` = view Default, `media-right`) rows `Item` (1-based), `Button`, `Background` (validated colour) | `Columns (media, dark)` |
+  | v-latest-articles-list (offset, limit; not-featured) | **Article List** rows `Start` (1-based), `Count` | `Cards (news)` |
+  | v-search-bar (aria label, placeholder, button, redirect, All, topics) | **Article Search** rows `Label`, `Placeholder`, `Button`, `Results Page` (link), `All Topics`, optional `Topics Label` + repeatable `Topic` | own form |
+  | v-article-search-results (title, sorters, page size, pagination text, template button text, empty message) | **Article Results** rows `Title`, `Sort Label`, repeatable `Sort` (title, desc/asc — first = default), `Page Size`, `Show More`, `Button`, `Empty Message` | `Columns (list)` tiles |
+  | core breadcrumb (search results) | `Breadcrumb` (authored) + metadata `Breadcrumb Title` "News Search Results" | breadcrumb block |
+  Rules reproduced: featured = metadata `Featured: true`, newest article date first, the current page skipped (an
+  article never features itself); latest = not featured, not the current page; search = source hash format
+  `#text=…&topic-id=…&topic-title=…` (source links keep working), results page reacts to hash changes, the bar shows the
+  current query; **matching = every word as a whole word (letters/digits, case-insensitive) in title + page title +
+  navigation title + description** — reproduces the AEM full-text result exactly ("coach" = the same 30 articles,
+  "Person Before Product" = 1); no search → all articles, no heading; heading `<n> Results for "<words>, <topic>"`;
+  10 per page + Show More; sort Newest / Oldest; topic ≠ All → page Tags. Dates "October 13, 2026" (page language).
+  The source topic list is empty (`:topics="[]"`) → the picker only offers "All" until topics are authored.
+- **Shared code:** scripts.js `fetchNewsArticles()` (one index fetch per page, paged, rows without a date dropped,
+  sorted), `formatArticleDate()`, `currentPagePath()` (strips the local /content prefix), `createBlockElement()` (the
+  news blocks build an existing block from data and decorate + load it — no duplicated tile CSS).
+  Block CSS: featured-article = component inset 8 / 12, `display` title USTA Sans 36 / 33 @1024 / 44 @1280 (Graphik 32 on
+  phones), background panel (no outline, black text), image fills the text height from 1024 (the source image is a
+  background; the tile's 644/567 minimum made short panels 28px taller); article-search = stacked on phones (38 / 74 /
+  49, 10 apart), one 678px #1d1d1d bar from 768; article-results = top row (Graphik XXCond Bold 42 + sort picker 45px),
+  30 px to the tiles, tiles 30 / 50 apart, Show More 30 below. **columns (list) fix (all list tiles):** the thumbnail is
+  never shorter than square from 1024 (min-height 231 — a one-line source tile is 231 tall; ours was 207).
+- **Themes (CSS only, user rule: page-specific CSS = theme):** `news-listing` (news.html: h1 32/40/56/80 — the source
+  `80px-32px` title; each widget section +24 top/bottom vs the landing preset; search → first list +12/+12/+20/+36;
+  See More 24 under the tile, 48/50/56 tall) and `news-search` (results page: title 28/40/56/64; the source's 36px
+  container spacing measured gap by gap). Registered in scripts.js THEMES, landing importer PAGE_THEMES;
+  typography.json records `news-listing` / `news-search` (kind theme).
+- **Importer** `tools/importer/import-news-listing-v1.js` (runs the landing importer, news kinds in front of its KINDS;
+  onLoad re-reads the raw page HTML — same-origin XHR — to copy each widget's Vue props onto its live component, since
+  Vue replaces them on mount; a button sharing the last tile's section — "See More" — is kept; the breadcrumb's current
+  item → metadata). URLs `tools/importer/urls-news-listing.txt`. Backups `tools/importer/backups/news-listing/{news,
+  search-results}/`. All bundles that import the landing importer rebuilt (PAGE_THEMES change only).
+- **Parity (anchors vs the live source, 375 / 768 / 1024 / 1280 / 1440):** news.html — title, 3 tiles, bar, both lists,
+  See More: every top and height within 0–3px; search results ("coach") — title, bar, breadcrumb, results heading, sort,
+  tiles, Show More, Currently Trending, list, tile: within 0–2px. Behaviour checked: news → results navigation, hash
+  re-search, Show More 10 → 20, Oldest first, empty message, no-hash listing, breadcrumb, trending, featured item 1.
+- Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ both pages
+  (+ columns-list sample, Zina article) · typography ✓ both · a11y ✓ both (+ columns-list sample). Browser checks with
+  `PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers` (re-installed).
+- **Open / next:** code not pushed (aem.page runs the old code — the blocks don't exist there yet); pages not in DA
+  (Sync); the article footer tile is still the static `/fragments/news/featured-article` — can become `Featured Article`
+  (Item 1) on all 60 articles (source rule: item 1, item 2 on that article itself) so it follows the index; Paul Walker
+  timeline cards; topics list (empty on the source) to confirm with the customer; "Video Article" template (source has
+  a video-page template + "Play Video" button text) — no video articles exist today.
+
+### 2026-11-21 — news articles: the footer tile is dynamic (Featured Article in the shared fragment)
+User decision: keep the shared fragment (option 1 of 2 — the other was a template-level block like the source's
+article-page template, which would need all 60 articles re-imported + republished).
+- `/fragments/news/featured-article` now holds `Featured Article` (Item 1, Button "Read Article") instead of a fixed
+  `Columns (media, dark)` tile → every article shows the newest featured story from the news index, and the next one on
+  that story itself (the block skips the page it is shown on — the source rule). A featured-story change = tick / untick
+  `Featured` on an article and publish that page; no article or fragment edit.
+- Importer (`parsers/news-featured.js`): any non-empty source tile → the Fragment reference (the inline-tile case and
+  FRAGMENT_TILE_TITLE / title→link map removed); fragment mode (`…#featured-fragment`) → the Featured Article block.
+  Re-imported: the fragment, army-veteran-tennis-coach-paul-walker (inline Business Case tile → fragment), and
+  serving-gratitude-celebrating-tennis-coaches (the list-edge blank line of the 2026-11-20 rule fix comes back = its
+  original verified import). Zina re-import = identical. All 60 EN articles now reference the fragment.
+- featured-article.css: the component inset (8 / 12px) moved to the news-listing / news-search themes — at the end of an
+  article the source tile spans the content box.
+- Parity (Zina, Paul Walker, Serving Gratitude vs source @375/768/1024/1280/1440): same story (Paul Walker page → "The
+  Business Case…", others → Paul Walker), same title face/size, image + text box x / width / height identical (±1px
+  rounding at 1024/1280), border → image 48…112 and image → footer identical. news.html + search results re-measured:
+  unchanged (0–3px).
+- Gate: lint (known backup error only) · stylelint clean · breakpoints ✓ · overflow ✓ / typography ✓ / a11y ✓ on Zina,
+  Paul Walker, Serving Gratitude, news. Backup refreshed (backups/news-article/all-news-pages-2026-11-20).
+- Local only: Sync the fragment + the 2 articles (and push the code — the block must be on main first, or aem.page
+  shows an undecorated fragment).
+
+### 2026-11-22 — news helpers moved out of scripts.js into `scripts/news.js` (user review)
+User: the news helpers in scripts.js are news-only — should they live with the template? Not the news-article template:
+it loads only on the 60 article pages, while the helpers serve blocks on landing-page pages (news.html, search results)
+and the fragment tile. → `scripts/news.js` (fetchNewsArticles, currentPagePath, formatArticleDate, createBlockElement),
+imported by the four news blocks only, so it loads only where a news block is shown (verified: home page requests
+neither news.js nor the index; news, search results and an article do). scripts.js keeps only the THEMES entries
+(`news-listing`, `news-search`). Supersedes "Shared code: scripts.js …" in the 2026-11-20 step-2 entry. Behaviour
+unchanged (news: 3 tiles + 8 cards; results "coach" 30 / 10 tiles; Paul Walker footer → Business Case; 0 console
+errors). eslint clean on the moved code; `npm run lint` = the known backup error only.
+
+### 2026-11-22 — LIVE check of the news dashboards + quirks-mode gotcha (columns list title fix)
+User pushed + published code and both pages. Verified on aem.page / aem.live: pages, fragment, news.js, the 4 blocks
+and 2 themes 200 and byte-identical to the workspace (compare with `curl --compressed` — the CDN gzips); index 60 rows
+(all dated, 11 featured, women cohort back); head meta template / theme / breadcrumb-title correct.
+- **news.html live vs source:** every anchor 0–3px at 375 / 768 / 1024 / 1280 / 1440. **Article footer tile live** (Zina,
+  Paul Walker, Serving Gratitude): same story, x / width / height identical.
+- **search results live: tiles 18–54px taller than local + source.** Cause: **the local dev preview renders pages in
+  QUIRKS mode (no doctype on the served .plain.html — `document.compatMode` = BackCompat), aem.page / aem.live in
+  standards mode.** In standards mode a line box keeps the parent's strut: the list title link (Graphik Semibold 40/44)
+  sits in a Graphik Regular 16px `<p>` → each wrapped line 53px instead of 44. Fix (columns.css, all list tiles): the
+  title wrapper takes the link's font (Graphik Semibold 40px). Proven on live by injecting the rule: tiles 0–2px vs source
+  at all 5 widths. **Rule for future parity work: confirm final measurements on aem.page (standards mode) — local
+  quirks-mode rendering can hide line-height / inline-box differences.**
+- Live functional check: news → results navigation, "Person Before Product" = 1, "coach" = 30, Show More → 20, Oldest
+  first, tile CTA opens the article. a11y ✓ + overflow ✓ on both live pages; stylelint clean.
+- Pre-existing, not news-specific: every aem.live page logs 404s for `/content/nav.plain.html`, `/content/footer.plain.html`,
+  `/content/placeholders.json` (the header / footer / placeholders loaders try the local-preview path first, then the
+  delivered one) — harmless console noise; candidate cleanup: only try `/content/…` on localhost.
+- Pending: push the columns.css fix (local only).
+
+### 2026-11-23 — news dashboards: typography parity audit (live, standards mode) + 3 fixes
+Comparator `migration-work/news-landing/typo-compare.js` (source vs aem.live, 375 / 768 / 1024 / 1280 / 1440): every
+text element of both pages — page titles + lime accents, 3 featured tiles (title / description / CTA), search bar (topic
+picker, input placeholder, Go), 8 + 4 news cards (title / date / description), See More, breadcrumb link + current item,
+results heading, sort picker, 4 result tiles (title / description / CTA), Show More, Currently Trending + accent, the
+results-page tile — family, size, weight, line-height, letter-spacing, colour, alignment, transform, LINE COUNT, text.
+**3,910 checks: all typography values match** except:
+- control labels (button on the source, `<select>` here): text placement measured instead of `text-align` — topic picker
+  text 20px in, sort text 18px in, Go / Show More / Read Article / See More labels at the identical x / y / width →
+  match. The source's `line-height: normal` vs our 14px on the tile CTA: same label position (no visible difference).
+- **fixed** topic picker 87 → 89px wide (padding-right 48 = the source's 18 + 20px chevron box + 10px gap);
+- **fixed** both chevrons = the source SVGs: topic picker 19×8 filled triangle centred in its 20×12 box 18px from the right;
+  sort picker the 18×12 filled chevron turned down, 16px in; sort border `2px outset #000` (the source <button>'s);
+  screenshots of both controls @1440 / 375 now identical to the source;
+- **fixed** (layout, found in the screenshots) no search in the URL: the empty results heading stays in the layout (was
+  `hidden`) → sort picker stays right from 768 and sits 15px under the empty heading on phones, as on the source.
+- **accepted deviation (user, 2026-11-23) — same-day order:** the source gives same-day articles the same timestamp and orders them by an internal AEM
+  order (not in the page data); ours come out in index order → e.g. news.html list 2 cards 2/3 (both 2026-08-18) are
+  swapped. 8 tie groups / 19 articles. Ours: same-day articles sorted by page path (stable — news.js).
+Local only: article-search.css, article-results.css/js (push needed).
+
+### 2026-11-23 (later) — news implementation: live check after the push + open items
+Code on aem.live = workspace (news.js, article-search/results, columns.css). Same-day order: to be settled with the
+customer (accepted for now).
+- **BROKEN on live — PDF links (6 pages):** the editor Sync re-uploaded the two PDFs into DA `shared-media` folders
+  (`/en/home/news/shared-media/usta-coaching-women-sports-report-8ae8d898.pdf`,
+  `/en/home/shared-media/coaching-education-equivalency-graphic-75546e5e.pdf` (+ `-f3fdd487`),
+  `/en/home/results/shared-media/coaching-education-equivalency-graphic-75546e5e.pdf` (+ `-92026f71`)) and rewrote the
+  page links to them, but did not preview / publish them → 404 on aem.page + aem.live (women cohort, courses, results
+  college / ft-pro / pt-pro / volunteer-emerging). The `/assets/docs/…` copies (published 2026-11-20) are fine but now
+  unused. Fix = preview + publish the shared-media PDFs (on request). Lesson: Sync owns document links — absolute
+  aem.live doc links get re-hosted as `shared-media`.
+- Open (content): Paul Walker timeline cards (179 spacers, not at parity); Alison Ojeda phone-only photos (−1424px @375).
+- Open (customer): same-day order; search topics list (source empty); tile title = Page Title (source today) vs
+  Navigation Title (doc: "probably a bug"); Related Articles / Tags component / Video Article page type (doc: unused);
+  Featured Article "Hide …" options + "Narrow" view (unused on the source — not built); mandatory article properties
+  (EDS can't block saving a page without Article Date — consider a check/report).
+- Housekeeping: block samples / author notes for the 4 news blocks; remove the unused /assets/docs PDF copies once the
+  shared-media ones are live; site-wide console 404s for /content/nav|footer|placeholders on aem.live.
+
+### 2026-11-23 — Paul Walker timeline cards = the existing `Columns (feature)` block (one option: media-N)
+Source: /en/home/news/army-veteran-tennis-coach-paul-walker — 20 year-by-year cards. They are the SAME source
+component as the coaching-community "Women's Coaching Cohort" card (container--padding--medium + #202020 panel, an
+image component, a container--border--gray text container); only author settings differ (image span 3 / 4 / 6, image
+aspect preset, tablet hide, separators). Findings (measured, standards mode):
+- **Card height does not depend on the image** — the source floats image and text card as independent columns; the image
+  keeps its aspect preset at the top, the text card is as tall as its text; at 1280 the card is taller than the image on all
+  20 cards (e.g. 412 vs 554px). Our block reproduces that (image align-self: flex-start).
+- The source Cohort card has been restyled since we built it (one-line heading, larger gaps, image shown side by side on
+  tablets) — our Cohort keeps the original rhythm; the tablet layout now follows the source (was: image hidden).
+**User decisions (2026-11-23):** ONE block, no variant layers — no `timeline`, no per-image crop / focus / visibility
+options (an earlier pass mirrored the source presets landscape-2 / portrait-2 / natural / image-center /
+hide-media-tablet / split-tablet as options — rejected as too many variants); the card uses ONE standard rhythm (the
+block's Cohort rhythm: heading → copy 66, text inset 38/12/80 → 42/16/84 → 50/16/92) — the source's per-card
+separators are not reproduced.
+**Block (blocks/columns, feature — rewritten, not layered):**
+- only option `media-N` (3 / 4 / 6, default 6): the image span from 1024 (same convention as the article rows); JS sets
+  `--media-span`;
+- context decides the rest: landing pages crop the image to the source landscape frame (1.247 / 0.955 / 1.14 / 1.42) and
+  put it beside the card from 768; inside the bordered article frame the panel spans the article column (no landing
+  gutter — the gutter rule now `:not(.bordered)`, which also fixed a regression: the rule had shifted the whole article
+  body 16–64px right once a feature block was in the frame), the image keeps its own shape, image + card stack until 1024,
+  each card carries the source container margin 12 / 20 / 36 / 52 above and below (padding → 24 / 40 / 72 / 104 between
+  cards, copy → first card 50 / 58 / 74 / 90, last card → copy 22 / 30 / 46 / 62 = source);
+- paragraphs in the card a blank line apart (`p + p` 24px); a picture-only cell is the media cell even when the pictures
+  sit in a `<p>`; unframed unchanged (image hidden on tablets, centred from 1024).
+**Importer:** `parsers/news-columns-feature.js` (article: card → `Columns (feature[, media-N])`, cards tagged before
+containerMarginSpacers, parsed after the text normalisation; trailing / leading blank lines dropped) + shared
+`parsers/feature-options.js` (landing + article: only media-N, when ≠ 6). Landing output unchanged (Cohort = plain
+`Columns (feature)`). Paul Walker re-imported: 16 × `Columns (feature)`, 2 × `media-4`, 2 × `media-3`, 0 spacers.
+**Parity (standards mode @375/768/1024/1280/1440):** panel x / width, image width, card x / width, text insets, heading +
+copy typography and line counts identical on all 20 cards; gaps before / between / after identical. Accepted: image heights
+(natural shape vs the source crops; on phones / tablets the stacked card moves with it), card heights (standard rhythm).
+Cohort (coaching-community): panel / image / card boxes = source at 375 / 768 / 1440 (card height ±8–40 from the source
+restyle). Gate: lint (known backup error only) · breakpoints ✓ · overflow / typography / a11y ✓ on Paul Walker,
+coaching-community, columns-feature + columns-feature-unframed samples. Local only. Backup
+tools/importer/backups/news-article/army-veteran-tennis-coach-paul-walker/.
+**Method note:** local verification in STANDARDS mode via `migration-work/news-landing/std-mode.js` (re-writes the page with a
+doctype; the local preview itself is quirks mode).
+
+### 2026-11-23 (later) — GLOBAL image crop options (any block) + `image-crop` block sample
+User: the source "crops" are CSS on its images (AEM image component "aspect ratio" presets) — make them options that work
+on ANY block, not feature-only variants, with one sample page.
+- **styles/styles.css "Image crop options":** `landscape`, `landscape-2`, `landscape-3`, `portrait`, `portrait-2` on any
+  block → its images are cover-cropped, from the top, to the source ratios per breakpoint (custom property
+  `--image-crop`, exact source values: landscape 1.247 / 0.955 / 1.14 / 1.42, landscape-2 1.302 / 1.102, landscape-3
+  1.25 / 1.5 / 2, portrait 1.247 / 0.667 / 0.689 / 0.834, portrait-2 1.279 / 0.5 / 0.734 / 0.952); `image-center` /
+  `image-bottom` = the source image--position--center / --bottom. No option = the image keeps its own shape.
+- **Consolidated:** the `columns (article)` `portrait` crop CSS and the feature block's built-in landing crop removed (same
+  values now global). The feature block has no crop of its own; the Cohort card carries `landscape` (as the source
+  image component) — content/en/home/coaching-community + the columns-feature sample updated (the landing importer
+  writes the same). The testimonials article `columns (person, portrait)` photo unchanged (1.247 / 0.667 / 0.689 / 0.834
+  verified).
+- **Importer:** `parsers/feature-options.js` → `cropOptions()` (source preset + focus) + `featureOptions()` (media-N +
+  crop). Paul Walker re-imported: 12 × landscape-2, 1 × landscape, 1 × landscape + image-center, 1 × media-4 portrait,
+  1 × portrait-2, 1 × media-4, 2 × media-3, 1 plain. Only the block names changed.
+- **Parity (standards mode @375/768/1024/1280/1440):** all 20 photos = source (x / width / height), panel, card x / width,
+  insets, typography, line counts identical; differences left: card 3 at 768–1023 (source hides the photo — no
+  visibility option, user decision), card 4 on phones (source swaps in a phone-only photo; ours the default photo at the
+  same size), card heights (standard rhythm).
+- **Sample** `drafts/block-samples/image-crop` ("Image crop options (any block)"): generated by
+  `import-sample-news-blocks.js` (new `variants` setting: one real block repeated once per option set; URLs
+  `tools/importer/urls-sample-image-crop.txt`) — the Paul Walker card once with no option and once per preset / focus;
+  ratios verified at 375 / 768 / 1024 / 1440. Backup tools/importer/backups/block-sample/image-crop/.
+- Gate: lint (known backup error only) · breakpoints ✓ · overflow / typography / a11y ✓ on Paul Walker, coaching-community,
+  image-crop + columns-feature samples, testimonials, home. Local only.
+- Follow-up candidate: other blocks' source images with presets (e.g. article rows other than portrait, the
+  coaches-open landscape-3 full-width image) can now use the same options via their importers.
+
+### 2026-11-23 — article-search: the topic picker opens the source's custom menu (not the browser list)
+- **Source (search-results @375/768/1440):** `v-search-bar__topics-btn` (aria-expanded) + a `role="listbox"` menu: absolute,
+  21px below the button's top (overlapping it), width 100% of the picker but min 180, white, radius 12, padding 6,
+  shadow `0 10px 28px rgb(0 0 0 / 35%)`, z-index 10; options 40px (padding 10 12), radius 8, Graphik Regular 16 at
+  weight 600, black; grey #f2f2f2 on **hover only** (the selected option is not grey). Closes on pick / outside click;
+  Escape does nothing; no keyboard support. Topic list is empty on the source (`:topics="[]"`) → only "All", same as ours.
+- **Ours:** `blocks/article-search` builds `.article-search-picker` = `button.article-search-topics` (aria-haspopup=listbox,
+  aria-expanded, aria-controls; optional `Topics Label` read before the value) + `ul.article-search-menu[role=listbox]`
+  (aria-labelledby the button, aria-activedescendant). Same closing as the source, plus keyboard: Enter / Space / ↑↓
+  open, ↑↓ Home End move, Enter / Space pick, Escape closes (focus back to the button), Tab leaves. The keyboard-active
+  option gets the hover grey + a 2px black outline. Option font uses the `Graphik Regular Synth` face (weight 600
+  synthesised like the source). Authoring contract + hash format unchanged.
+- **Parity (standards mode):** button, menu and option boxes, text inset, radius, shadow identical at 375 / 768 / 1440;
+  screenshots of the open menu match.
+- Gate: lint (known backup error only) · breakpoints ✓ · overflow / typography / a11y ✓ on news + search-results; axe
+  with the menu open: 0 violations. Local only.
+
+### 2026-11-23 (later) — PDFs: shared-media copies removed, DA pages re-pointed to assets/docs (on request)
+- User decision: documents live ONLY under DA `assets/docs/…` — no `shared-media` folders.
+- The five Sync-made copies (all md5-identical to the assets/docs files) deleted from DA, with their three `shared-media`
+  folders (en/home/news, en/home, en/home/results). 71 DA pages under en/home, en/home/news, en/home/results checked first:
+  none else referenced shared-media.
+- The 6 DA pages (women-coaching-cohort article, courses, results college / ft-pro / pt-pro / volunteer-emerging coach):
+  only the PDF href changed, from `…aem.page/…/shared-media/…-<hash>.pdf` to the absolute
+  `https://main--coaching-usta--aemdemos.aem.live/assets/docs/…` URL — identical to the local content (which never changed).
+  Uploaded (200), read back identical. NOT previewed / published (the user does it).
+- Importer: unchanged. It already downloads docs to `content/assets/docs/<page path>/` and writes the absolute aem.live
+  link; the shared-media copies came from the editor Sync, which re-hosts linked docs. After any Sync of these pages, check
+  DA for `shared-media` again. `assets/docs/en/home/results/coaching-education-equivalency-graphic.pdf` is an older
+  unused copy (kept).
+- Confirmed the same day: a Sync at 11:50 / 12:10 UTC recreated the three shared-media PDFs and re-pointed all six pages
+  (DA version list). Fix re-applied on request (6 pages uploaded + read back identical; shared-media PDFs + folders
+  deleted again). Publish these pages from DA with Preview / Publish — NOT Sync. Making Sync keep docs in assets/docs is
+  an editor-tool change (support).
+
+### 2026-11-23 (later) — importer backups refreshed (IMPORTING-GUIDE §11)
+- Audit: all existing backups present and committed; only Paul Walker + the image-crop sample held the CURRENT
+  scripts. Current importers re-run to scratch workspaces first (known-good check):
+  - `import-news-listing-v1` → news + search-results byte-identical to content/;
+  - `import-news-article-v1` → 58 / 60 articles identical except image src (finalize step); 2 not re-run (run stopped);
+  - `import-landing-page-v1` → coaching-community identical except image src + the logged live-source edits.
+- Backups written (script + bundle + manifest with sha256, bundle command, verification; earlier manifest kept under
+  `history`): `backups/news-listing/news`, `backups/news-listing/search-results`,
+  `backups/news-article/all-news-pages-2026-11-23` (+ urls, news-columns-feature.js, feature-options.js),
+  `backups/landing-page/coaching-community`. Older per-page backups left as they were (earlier snapshots; git history).

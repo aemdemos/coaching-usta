@@ -86,8 +86,8 @@ function decorateNav(block, rows) {
     const tab = link.cloneNode(true);
     tab.className = 'tabs-tab';
     tab.id = `tab-${id}`;
-    // a plain page link: `aria-current="page"` marks (and styles) the active one —
-    // `aria-selected` is only valid on role=tab, so it isn't set here
+    // a page link marks the current page with aria-current (aria-selected is not
+    // allowed on a plain link — axe aria-allowed-attr); the CSS styles both states
     tab.setAttribute('aria-current', isActive ? 'page' : 'false');
     tablist.append(tab);
 
