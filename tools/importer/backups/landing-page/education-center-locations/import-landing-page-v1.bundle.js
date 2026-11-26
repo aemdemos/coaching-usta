@@ -183,7 +183,7 @@ var CustomImportScript = (() => {
   // tools/importer/import-landing-page-v1.js
   var TEMPLATE = "landing-page";
   var BASE = "https://www.ustacoaching.com";
-  var PAGE_THEMES = { "/home/courses": "course-catalog", "/home/news": "news-listing", "/home/news/search-results": "news-search", "/maintenance-page": "maintenance" };
+  var PAGE_THEMES = { "/home/courses": "course-catalog", "/home/news": "news-listing", "/home/news/search-results": "news-search", "/maintenance-page": "maintenance", "/home/about": "about" };
   var themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, "")] || "";
   var IMAGE_PAIR_THEMES = ["course-catalog"];
   var el = (document, tag, html) => {
@@ -620,7 +620,12 @@ var CustomImportScript = (() => {
     const leadText = comps(s).find((c) => isText(c) && norm(c.textContent));
     if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push("heading-64");
     styles.push(...inset);
-    if (deep(s).some((c) => c.hasAttribute("data-statement") && fontSize(c) === 32)) styles.push("statement-32");
+    const statement = deep(s).find((c) => c.hasAttribute("data-statement") && fontSize(c) === 32);
+    if (statement) {
+      styles.push("statement-32");
+      const span = [statement, statement.parentElement && statement.parentElement.closest(".aem-GridColumn")].filter(Boolean).map((e) => e.className).join(" ");
+      if (/aem-GridColumn--default--10\b/.test(span) && /aem-GridColumn--offset--default--1\b/.test(span) && !/aem-GridColumn--desktop-small--(?!12\b)\d+/.test(span)) styles.push("narrow");
+    }
     const m36 = (e) => !!e && (e.hasAttribute("data-margin-36") || /container--top-margin--36\b/.test(e.className || "") && !/container--border-radius--/.test(e.className) && !e.getAttribute("data-bg"));
     if (m36(s) || m36(padded) || [...s.children].some((c) => c.hasAttribute("data-margin-36"))) {
       styles.push("spacing-36");

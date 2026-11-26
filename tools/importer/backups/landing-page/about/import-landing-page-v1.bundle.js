@@ -948,13 +948,8 @@ var CustomImportScript = (() => {
               });
               body.push(ul);
             }
-            let seps = 0;
-            for (let x = c.previousElementSibling; x && kind(x) === "separator"; x = x.previousElementSibling) {
-              if (Number(x.getAttribute("data-h") || 0) > 0) seps += 1;
-            }
-            const rowOpts = [.../container--top-margin--32\b/.test(c.className) ? ["spacing-32"] : [], ...seps ? [`space-${seps * 16}`] : []];
             flush();
-            out.push(block(document, rowOpts.length ? `Columns (profile, ${rowOpts.join(", ")})` : "Columns (profile)", [[img || "", body]]));
+            out.push(block(document, "Columns (profile)", [[img || "", body]]));
             components(c).filter(isBoardRow).forEach(visit);
           } else if (isContainer(c) && c.getAttribute("data-bg-color") === "rgb(255, 255, 255)" && components(c).filter((t) => isText(t) && norm(t.textContent)).length === 1 && !deep(c).some((t) => isImage(t) || isButton(t))) {
             flush();

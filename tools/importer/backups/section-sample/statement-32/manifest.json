@@ -1,0 +1,27 @@
+{
+  "sample": "drafts/section-samples/section-statement-32",
+  "date": "2026-11-26",
+  "source": "https://www.ustacoaching.com/en/home/workshops/education-center-locations.html?sample=statement-32",
+  "importer": "import-sample-landing-sections.js — new `toggle` mode (as imported with the style + the same section without it); sections grouped with prepareSections for toggle samples only",
+  "sha256": {
+    "import-sample-landing-sections.js": "36cb9d3f605c6bc3c5c2d2779626f4067fc9fd9d865efe69543a5025ca2447cb",
+    "import-sample-landing-sections.bundle.js": "efe8298a587bf8aca04b1228b700ced095b928fd7dd3ad7e14e20bdd41f7c28b",
+    "output": "3f17ea6b4c09b4a4fdaa855fcebeaf1bcf5b59c11e50504f61a305f786d85ac2"
+  },
+  "verified": "with statement-32: 28px (375) / 32px on 10 of 12 columns (1280, 1440); without: the landing 18px body copy; section-inset-n regenerated identical; section-narrow-n same as the HEAD bundle (the stored copy predates inset-4). Overflow, typography, a11y pass.",
+  "history": [
+    {
+      "sample": "drafts/section-samples/section-statement-32",
+      "date": "2026-11-26",
+      "source": "https://www.ustacoaching.com/en/home/workshops/education-center-locations.html?sample=statement-32",
+      "importer": "import-sample-landing-sections.js — new `toggle` mode (as imported with the style + the same section without it); sections grouped with prepareSections for toggle samples only",
+      "sha256": {
+        "import-sample-landing-sections.js": "5ccacb891da3cc82364d85a364f58e3ee91ac61cb75bf7987dcd55f00d6a0c70",
+        "import-sample-landing-sections.bundle.js": "7f5032b21c13f0f2361c2edba86f2abcf21f5708470b87e9933dbbc3d2b0bcb6",
+        "output": "fb82ca271e8d0d51a502a10bf50ae75a58efc45460bb187006f0ddea0383d7d3"
+      },
+      "verified": "with statement-32: 28px (375) / 32px on 10 of 12 columns (1280, 1440); without: the landing 18px body copy; section-inset-n regenerated identical; section-narrow-n same as the HEAD bundle (the stored copy predates inset-4). Overflow, typography, a11y pass."
+    }
+  ],
+  "note": "statement-32 = size only; width via plain `narrow` (importer-set from the source span default--10 offset 1, 12 below); landing template restores narrow side margins (user decision 2026-11-26)"
+}

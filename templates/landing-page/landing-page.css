@@ -680,8 +680,9 @@ body.landing-page main > .section:has(> .tabs-wrapper > .tabs > nav.tabs-list) +
 body.landing-page main > .section:has(> .image-wrapper > .image.mobile-only) { padding: 0 0 24px; }
 
 /* `statement-32` (importer-set): an intro statement on the source's 32px-28px text preset
-   (education-center-locations) — 28 → 32px (1280), line-height 1, −0.03em, the paragraphs one
-   blank line apart, on 10 of 12 columns from 1280 (instead of the home statement's 32 → 72) */
+   (education-center-locations) — the SIZE only: 28 → 32px (1280), line-height 1, −0.03em, the
+   paragraphs one blank line apart (instead of the home statement's 32 → 72). The width is the
+   section's own style (education-center-locations: plain `narrow`, 10 of 12 columns from 1280). */
 body.landing-page main > .section.intro-statement.statement-32 p {
   font-size: 28px;
   line-height: 1;
@@ -693,7 +694,10 @@ body.landing-page main > .section.intro-statement.statement-32 p + p { margin-to
 @media (width >= 1280px) {
   body.landing-page main > .section.intro-statement.statement-32 p { font-size: 32px; }
 
-  body.landing-page main > .section.intro-statement.statement-32 > div > * { margin-inline: calc(100% / 12 + 12px); }
+  /* plain `narrow` (10 of 12 columns from 1280, styles.css) on a landing page: the template's
+     default-content margin shorthand above has the same specificity and comes later, so it
+     would cancel the side margins — restore them */
+  body.landing-page main > .section.narrow > .default-content-wrapper > * { margin-inline: calc(100% / 12 + 12px); }
 }
 
 /* a heading-less media card (the quiz card) shows on phones on landing pages — the home page

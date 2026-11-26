@@ -216,12 +216,6 @@ const SAMPLES = {
     intro: 'A group heading on a white bar (<code>text style (bar)</code> around the heading): white, radius 20, 8px padding, 8px (12px from 768) inside the grid column; Graphik Semibold 24/32 black, −0.03em, centred. Source: about "Executive Leadership" / "USTA Coaching Board Members".',
     examples: [{ anchor: 'Executive Leadership', pick: 'Text Style' }],
   },
-  'intro-statement-32': {
-    page: ECL,
-    title: 'Intro statement (statement-32)',
-    intro: 'The intro statement (a fully bold paragraph with lime <em> / underlined <u> accents — the home page\'s model, scripts.js adds <code>intro-statement</code>) with the section style <code>statement-32</code>: the source\'s 32px-28px text preset — 28 → 32px (1280), line-height 1, −0.03em, paragraphs one blank line apart, on 10 of 12 columns from 1280 (the home statement without it: 32 → 72px). Importer-set from the text preset.',
-    examples: [{ anchor: 'USTA Coaching’s 44 Education Centers, located across the United States and Puerto Rico, provide high-quality, in-person workshops and certification programming led by the industry’s most experienced professional coach developers.' }],
-  },
 };
 
 const hr = (document) => document.createElement('hr');

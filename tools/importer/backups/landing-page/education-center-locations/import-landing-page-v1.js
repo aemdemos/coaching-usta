@@ -31,7 +31,7 @@ const BASE = 'https://www.ustacoaching.com';
 
 /* page themes (CSS-only variations, themes/<name>/) by page path without the locale.
    course-catalog: the courses intro's own rhythm + type, and phone / wide image pairs */
-const PAGE_THEMES = { '/home/courses': 'course-catalog', '/home/news': 'news-listing', '/home/news/search-results': 'news-search', '/maintenance-page': 'maintenance' };
+const PAGE_THEMES = { '/home/courses': 'course-catalog', '/home/news': 'news-listing', '/home/news/search-results': 'news-search', '/maintenance-page': 'maintenance', '/home/about': 'about' };
 const themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, '')] || '';
 /* themes whose pages keep a phone-only image as the `Image` block's mobile row */
 const IMAGE_PAIR_THEMES = ['course-catalog'];
@@ -492,9 +492,15 @@ function emitSection(s, { document, pagePath }) {
   if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push('heading-64');
   styles.push(...inset);
   // an intro statement (bold copy with brand-coloured runs) on the source's 32px-28px text
-  // preset (education-center-locations) → `statement-32` (28 → 32px instead of the home
-  // statement's 32 → 72)
-  if (deep(s).some((c) => c.hasAttribute('data-statement') && fontSize(c) === 32)) styles.push('statement-32');
+  // preset (education-center-locations) → `statement-32` (the size only: 28 → 32px instead of
+  // the home statement's 32 → 72); its width comes from the section style for the source span —
+  // 10 of 12 columns (offset 1) only at the desktop default, all 12 below → plain `narrow`
+  const statement = deep(s).find((c) => c.hasAttribute('data-statement') && fontSize(c) === 32);
+  if (statement) {
+    styles.push('statement-32');
+    const span = [statement, statement.parentElement && statement.parentElement.closest('.aem-GridColumn')].filter(Boolean).map((e) => e.className).join(' ');
+    if (/aem-GridColumn--default--10\b/.test(span) && /aem-GridColumn--offset--default--1\b/.test(span) && !/aem-GridColumn--desktop-small--(?!12\b)\d+/.test(span)) styles.push('narrow');
+  }
   // a section container on the source's 36px margin preset (`container--top-margin--36` /
   // `--bottom-margin--36`, fellowship) → `spacing-36` (landing template: 12 / 12 / 20 / 36px
   // section padding instead of the 52px preset) — its split-off heading too
@@ -736,7 +742,9 @@ const KINDS = [
           texts.filter((t, i) => i > 0 && t !== role).forEach((t) => body.push(...textEls(t, document, { plain: true })));
           const tags = [...cardC.querySelectorAll('.aem-tags__tag')].map((x) => norm(x.textContent)).filter(Boolean);
           if (tags.length) { const ul = el(document, 'ul'); tags.forEach((t) => { const li = el(document, 'li'); li.textContent = t; ul.append(li); }); body.push(ul); }
-          // one Columns (profile) block per member (the block's contract is one row)
+          // one Columns (profile) block per member (the block's contract is one row); rows are
+          // a consistent 24px apart (block CSS) — the source author's extra separators / margin
+          // presets before some rows are not carried over (user decision 2026-11-26)
           flush();
           out.push(block(document, 'Columns (profile)', [[img || '', body]]));
           // (the source nests some member rows inside the previous member's row container)

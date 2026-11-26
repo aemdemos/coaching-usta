@@ -492,9 +492,15 @@ function emitSection(s, { document, pagePath }) {
   if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push('heading-64');
   styles.push(...inset);
   // an intro statement (bold copy with brand-coloured runs) on the source's 32px-28px text
-  // preset (education-center-locations) → `statement-32` (28 → 32px instead of the home
-  // statement's 32 → 72)
-  if (deep(s).some((c) => c.hasAttribute('data-statement') && fontSize(c) === 32)) styles.push('statement-32');
+  // preset (education-center-locations) → `statement-32` (the size only: 28 → 32px instead of
+  // the home statement's 32 → 72); its width comes from the section style for the source span —
+  // 10 of 12 columns (offset 1) only at the desktop default, all 12 below → plain `narrow`
+  const statement = deep(s).find((c) => c.hasAttribute('data-statement') && fontSize(c) === 32);
+  if (statement) {
+    styles.push('statement-32');
+    const span = [statement, statement.parentElement && statement.parentElement.closest('.aem-GridColumn')].filter(Boolean).map((e) => e.className).join(' ');
+    if (/aem-GridColumn--default--10\b/.test(span) && /aem-GridColumn--offset--default--1\b/.test(span) && !/aem-GridColumn--desktop-small--(?!12\b)\d+/.test(span)) styles.push('narrow');
+  }
   // a section container on the source's 36px margin preset (`container--top-margin--36` /
   // `--bottom-margin--36`, fellowship) → `spacing-36` (landing template: 12 / 12 / 20 / 36px
   // section padding instead of the 52px preset) — its split-off heading too

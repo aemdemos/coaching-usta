@@ -595,7 +595,12 @@ var CustomImportScript = (() => {
     const leadText = comps(s).find((c) => isText(c) && norm(c.textContent));
     if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push("heading-64");
     styles.push(...inset);
-    if (deep(s).some((c) => c.hasAttribute("data-statement") && fontSize(c) === 32)) styles.push("statement-32");
+    const statement = deep(s).find((c) => c.hasAttribute("data-statement") && fontSize(c) === 32);
+    if (statement) {
+      styles.push("statement-32");
+      const span = [statement, statement.parentElement && statement.parentElement.closest(".aem-GridColumn")].filter(Boolean).map((e) => e.className).join(" ");
+      if (/aem-GridColumn--default--10\b/.test(span) && /aem-GridColumn--offset--default--1\b/.test(span) && !/aem-GridColumn--desktop-small--(?!12\b)\d+/.test(span)) styles.push("narrow");
+    }
     const m36 = (e) => !!e && (e.hasAttribute("data-margin-36") || /container--top-margin--36\b/.test(e.className || "") && !/container--border-radius--/.test(e.className) && !e.getAttribute("data-bg"));
     if (m36(s) || m36(padded) || [...s.children].some((c) => c.hasAttribute("data-margin-36"))) {
       styles.push("spacing-36");
@@ -1958,6 +1963,15 @@ var CustomImportScript = (() => {
         { anchor: "USTA Coaching Network", part: "heading", values: [4, null], label: "A narrow heading on its own (narrow-10 + inset-N)" },
         { anchor: "WHAT OTHERS ARE SAYING", part: "all", values: [4, 24, null], label: "A cards section (quote cards: the section pads itself)" }
       ]
+    },
+    "statement-32": {
+      page: "education-center-locations",
+      title: "Section style: statement-32",
+      intro: `For an <strong>intro statement</strong> \u2014 a fully bold paragraph with lime <code>&lt;em&gt;</code> / underlined <code>&lt;u&gt;</code> accents, which scripts.js turns into the <code>intro-statement</code> section (the home page's "If tennis starts with love\u2026"). On the home page (no template) the statement uses the home scale: 32 \u2192 40 (768) \u2192 56 (1024) \u2192 72px (1280); on a landing-page page without a size style it falls back to the template's 18px body copy. <code>statement-32</code> sets the source's smaller <code>32px-28px</code> text preset instead: <strong>28px, 32px from 1280</strong>, line-height 1, \u22120.03em, several paragraphs one blank line apart \u2014 the SIZE only. The width is the section's own style: here plain <code>narrow</code> (10 of 12 columns from 1280, all 12 below \u2014 the source span), or any <code>narrow-N</code>. Authored as Section Metadata <code>Style: statement-32</code> (landing-page template); the landing importer sets it from the source text preset (and <code>narrow</code> from the source span). Below: the education-center-locations intro as imported, then the same section without <code>statement-32</code>.`,
+      toggle: "statement-32",
+      examples: [
+        { anchor: "USTA Coaching\u2019s 44 Education Centers, located across the United States and Puerto Rico, provide high-quality, in-person workshops and certification programming led by the industry\u2019s most experienced professional coach developers.", label: "The education-center-locations intro" }
+      ]
     }
   };
   var hr = (document) => document.createElement("hr");
@@ -1974,6 +1988,7 @@ var CustomImportScript = (() => {
       transform("beforeTransform", main, payload);
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
+      if (sample.toggle) prepareSections(root, document, skip);
       const sections = [...root.children].filter((s) => !skip(s) && norm(s.textContent));
       const find = (anchor) => {
         const s = sections.find((x) => [...x.querySelectorAll("h1, h2, h3, p")].some((h) => norm(h.textContent).toLowerCase() === anchor.toLowerCase()));
@@ -2011,7 +2026,27 @@ var CustomImportScript = (() => {
           });
         });
       }
-      (sample.prefix ? [] : sample.examples).forEach(({ anchor, part, spans, label }) => {
+      if (sample.toggle) {
+        sample.examples.forEach(({ anchor, label }) => {
+          const s = find(anchor);
+          [true, false].forEach((withStyle) => {
+            const parts = emitSection(s.cloneNode(true), { document, pagePath });
+            if (!parts.some((p) => p.styles.includes(sample.toggle))) throw new Error(`"${anchor}": the importer does not emit ${sample.toggle} here`);
+            const styled = parts.map((p) => ({ nodes: p.nodes, styles: withStyle ? p.styles : p.styles.filter((x) => x !== sample.toggle) }));
+            out.append(
+              hr(document),
+              el(document, "h3", `${label} \u2014 ${withStyle ? `with <code>${sample.toggle}</code> (as imported)` : `without <code>${sample.toggle}</code>`}`),
+              el(document, "p", `Section Metadata Style: ${styled.map((p) => `<code>${p.styles.join(", ") || "(none)"}</code>`).join(" + ")}`)
+            );
+            styled.forEach((p) => out.append(
+              hr(document),
+              ...p.nodes,
+              ...p.styles.length ? [block(document, "Section Metadata", { Style: p.styles.join(", ") })] : []
+            ));
+          });
+        });
+      }
+      (sample.prefix || sample.toggle ? [] : sample.examples).forEach(({ anchor, part, spans, label }) => {
         const s = find(anchor);
         spans.forEach((n) => {
           const parts = emitSection(s.cloneNode(true), { document, pagePath });

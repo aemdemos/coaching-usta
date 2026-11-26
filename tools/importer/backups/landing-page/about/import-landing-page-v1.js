@@ -736,17 +736,11 @@ const KINDS = [
           texts.filter((t, i) => i > 0 && t !== role).forEach((t) => body.push(...textEls(t, document, { plain: true })));
           const tags = [...cardC.querySelectorAll('.aem-tags__tag')].map((x) => norm(x.textContent)).filter(Boolean);
           if (tags.length) { const ul = el(document, 'ul'); tags.forEach((t) => { const li = el(document, 'li'); li.textContent = t; ul.append(li); }); body.push(ul); }
-          // the space above the row (source): the row container's top-margin-32 preset →
-          // `spacing-32`; the visible 16px separators right before it → `space-16/32/48`
-          // (Columns (profile) rows are 24px apart otherwise — the row containers' insets)
-          let seps = 0;
-          for (let x = c.previousElementSibling; x && kind(x) === 'separator'; x = x.previousElementSibling) {
-            if (Number(x.getAttribute('data-h') || 0) > 0) seps += 1;
-          }
-          const rowOpts = [...(/container--top-margin--32\b/.test(c.className) ? ['spacing-32'] : []), ...(seps ? [`space-${seps * 16}`] : [])];
-          // one Columns (profile) block per member (the block's contract is one row)
+          // one Columns (profile) block per member (the block's contract is one row); rows are
+          // a consistent 24px apart (block CSS) — the source author's extra separators / margin
+          // presets before some rows are not carried over (user decision 2026-11-26)
           flush();
-          out.push(block(document, rowOpts.length ? `Columns (profile, ${rowOpts.join(', ')})` : 'Columns (profile)', [[img || '', body]]));
+          out.push(block(document, 'Columns (profile)', [[img || '', body]]));
           // (the source nests some member rows inside the previous member's row container)
           components(c).filter(isBoardRow).forEach(visit);
         } else if (isContainer(c) && c.getAttribute('data-bg-color') === 'rgb(255, 255, 255)' && components(c).filter((t) => isText(t) && norm(t.textContent)).length === 1 && !deep(c).some((t) => isImage(t) || isButton(t))) {

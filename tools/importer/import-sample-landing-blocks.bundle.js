@@ -596,7 +596,12 @@ var CustomImportScript = (() => {
     const leadText = comps(s).find((c) => isText(c) && norm(c.textContent));
     if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push("heading-64");
     styles.push(...inset);
-    if (deep(s).some((c) => c.hasAttribute("data-statement") && fontSize(c) === 32)) styles.push("statement-32");
+    const statement = deep(s).find((c) => c.hasAttribute("data-statement") && fontSize(c) === 32);
+    if (statement) {
+      styles.push("statement-32");
+      const span = [statement, statement.parentElement && statement.parentElement.closest(".aem-GridColumn")].filter(Boolean).map((e) => e.className).join(" ");
+      if (/aem-GridColumn--default--10\b/.test(span) && /aem-GridColumn--offset--default--1\b/.test(span) && !/aem-GridColumn--desktop-small--(?!12\b)\d+/.test(span)) styles.push("narrow");
+    }
     const m36 = (e) => !!e && (e.hasAttribute("data-margin-36") || /container--top-margin--36\b/.test(e.className || "") && !/container--border-radius--/.test(e.className) && !e.getAttribute("data-bg"));
     if (m36(s) || m36(padded) || [...s.children].some((c) => c.hasAttribute("data-margin-36"))) {
       styles.push("spacing-36");
@@ -2140,12 +2145,6 @@ var CustomImportScript = (() => {
       title: "Text Style (Bar)",
       intro: 'A group heading on a white bar (<code>text style (bar)</code> around the heading): white, radius 20, 8px padding, 8px (12px from 768) inside the grid column; Graphik Semibold 24/32 black, \u22120.03em, centred. Source: about "Executive Leadership" / "USTA Coaching Board Members".',
       examples: [{ anchor: "Executive Leadership", pick: "Text Style" }]
-    },
-    "intro-statement-32": {
-      page: ECL,
-      title: "Intro statement (statement-32)",
-      intro: "The intro statement (a fully bold paragraph with lime <em> / underlined <u> accents \u2014 the home page's model, scripts.js adds <code>intro-statement</code>) with the section style <code>statement-32</code>: the source's 32px-28px text preset \u2014 28 \u2192 32px (1280), line-height 1, \u22120.03em, paragraphs one blank line apart, on 10 of 12 columns from 1280 (the home statement without it: 32 \u2192 72px). Importer-set from the text preset.",
-      examples: [{ anchor: "USTA Coaching\u2019s 44 Education Centers, located across the United States and Puerto Rico, provide high-quality, in-person workshops and certification programming led by the industry\u2019s most experienced professional coach developers." }]
     }
   };
   var hr = (document) => document.createElement("hr");
