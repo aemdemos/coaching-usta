@@ -592,6 +592,25 @@ main > .section.center > .default-content-wrapper {
   text-align: center;
 }
 
+/* ---- Legal section (section-metadata style: legal) ----
+   Legal copy (membership terms) keeps the source text component's own marks: an
+   underline is a REAL underline in the text colour (not the site's blue `<u>` accent
+   above), and in-copy links are underlined in the text colour (source
+   `.cmp-text a`; the underline drops on hover). Buttons keep their own styling. */
+main > .section.legal u {
+  color: inherit;
+  text-decoration: underline;
+}
+
+main > .section.legal a:any-link:not(.button) {
+  color: inherit;
+  text-decoration: underline;
+}
+
+main > .section.legal a:any-link:not(.button):hover {
+  text-decoration: none;
+}
+
 /* loose (default-content) images inside a section — e.g. the Success Stories
    headshot authored as a bare picture — are centered and size-capped so they
    don't blow up to full width. Block-owned images set their own sizing. */

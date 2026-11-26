@@ -204,9 +204,10 @@ body.landing-page main > .section:first-child:has(> .default-content-wrapper > h
 }
 
 /* a narrow `heading-64` heading section (results "What USTA Coaching Has To Offer", 10 of 12
-   columns) spans the full width below 1280 — the source sets these headings on tablet--12 /
-   desktop-small--12 and narrows them from 1280 only */
-body.landing-page main > .section.heading-64.narrow-cols > div:not(.full-width) {
+   columns) — and the `heading-80` page title (membership terms, 8 of 12) — spans the full
+   width below 1280: the source sets these headings on tablet--12 / desktop-small--12 and
+   narrows them from 1280 only */
+body.landing-page main > .section:is(.heading-64, .heading-80).narrow-cols > div:not(.full-width) {
   padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
 }
 
@@ -219,7 +220,7 @@ body.landing-page main > .section.heading-64.narrow-cols > div:not(.full-width) 
 }
 
 @media (width >= 1280px) {
-  body.landing-page main > .section.heading-64.narrow-cols > div:not(.full-width) {
+  body.landing-page main > .section:is(.heading-64, .heading-80).narrow-cols > div:not(.full-width) {
     padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px) + (min(100%, 1536px) - 2 * var(--section-gutter) - 2 * var(--section-pad, 0px) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
   }
 }
@@ -559,6 +560,15 @@ body.landing-page main .default-content-wrapper > h1 {
 
 @media (width >= 1280px) {
   body.landing-page main .default-content-wrapper > h1 { font-size: 56px; }
+}
+
+/* `heading-80`: the page title in the source's `text--font-size--80px-32px` preset
+   (membership terms) = the GLOBAL h1 scale (32 → 40 → 56 → 80px via
+   --heading-font-size-xxl), not the 56px-capped title above; the heading starts the text
+   component (no top margin) */
+body.landing-page main > .section.heading-80 .default-content-wrapper > h1 {
+  margin-top: 0;
+  font-size: var(--heading-font-size-xxl);
 }
 
 /* the title photo (a picture right after that h1, fellowship): an image component, 20px

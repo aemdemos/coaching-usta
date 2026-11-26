@@ -5630,3 +5630,37 @@ on ANY block, not feature-only variants, with one sample page.
   `history`): `backups/news-listing/news`, `backups/news-listing/search-results`,
   `backups/news-article/all-news-pages-2026-11-23` (+ urls, news-columns-feature.js, feature-options.js),
   `backups/landing-page/coaching-community`. Older per-page backups left as they were (earlier snapshots; git history).
+
+### 2026-11-26 — Membership Terms and Conditions: design parity (`heading-80`, `legal`)
+Page `en/home/membership-benefits/coaching-membership-terms-and-conditions` (landing-page template). Content was already
+complete; the styling differed from the source. Measured source vs preview at 375 / 768 / 1024 / 1280 / 1440:
+- **Title**: the source text component is `text--font-size--80px-32px` (32 → 40 → 56 → 80px = the GLOBAL h1 token
+  `--heading-font-size-xxl`), on tablet--12 / desktop-small--12 and 8 of 12 columns (offset 2) only from 1280. Ours was
+  capped at the landing template's 56px title and narrow-8 at every width, with a 12px top margin.
+  → new section style **`heading-80`** (importer: a split-off narrow lead heading with font-size 80, like `heading-64`
+  for 64). landing-page.css: h1 = `var(--heading-font-size-xxl)`, `margin-top: 0`; the existing `heading-64`
+  "full width below 1280" rules now take `:is(.heading-64, .heading-80)`. Result: h1 x / width / size / top / bottom
+  = source at all 5 widths (e.g. 1440: 287 / 867 / 80px / 152 / 552).
+- **Body copy centred** (source: left). The importer let a narrow centred heading's section pass its `center` on to the
+  following copy. Fix: no inherited centring when the section's first text is its OWN plain, non-USTA-Sans, un-centred
+  text component (`ownLeftCopy`).
+- **Underlines blue / links not underlined.** The site convention `main u` = blue accent (styles.css) is wrong for legal
+  copy, where the source `<u>` is a real white underline and `.cmp-text a` links are underlined in the text colour (no
+  underline on hover). → new generic section style **`legal`** (styles.css, block-agnostic): `u` and in-copy links
+  (not `.button`) inherit the text colour and are underlined; hover drops the underline. Importer: a default-content
+  section whose source has a `<u>` outside a link → `legal` (checked before emitting; only the Terms pages have one).
+- Not reproduced (authoring artefact): the source author's runs of `&nbsp;` after section numbers ("1.  ·×13  USTA…",
+  but only ×4 after "4.") collapse to one space in the content pipeline.
+- Body rhythm already matched (the importer's paragraph grouping: text block 8208px vs source 8220px at 1440).
+- **Regression:** all 26 landing-page URLs (EN + ES) imported with the old and new bundle into scratch output dirs:
+  24 byte-identical; only EN + ES Terms changed, and only their section metadata (`center, narrow-8` → `+ heading-80`;
+  `center` → `legal`). EN re-imported into content/ (`--force`; it was identical to the old importer's output, so no
+  local edits lost). **ES Terms in content/ NOT re-imported** — re-import it to pick up the same styles.
+- Backup: `tools/importer/backups/landing-page/membership-terms-2026-11-26/`.
+- **Rule deviation (justified) — typography gate:** `check:typography` reports 4 drifts on this page (h1 @1024 56 vs
+  40, @1280 80 vs 56). The landing-page template record holds the `56px-32px` title preset; this page's source title
+  uses the `80px-32px` preset and our h1 equals the live source (56 @1024, 80 @1280). False positives, like the
+  documented section-level opt-outs above.
+- Gotcha (again): Playwright wants chromium_headless_shell-1187, only 1254 is installed — overflow / typography were run
+  through a wrapper that sets `executablePath`, a11y through a temporary config extending tests/a11y/playwright.config.js
+  (removed afterwards).
