@@ -4485,7 +4485,8 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 |---|---|
 | ✅ Done + verified | home (`import-home`); news articles ×56 (`import-news-article-v1`) |
 | ✅ Re-imported + verified (`en/home` replaced 2026-11-17; old versions in `drafts/meet/backup/`) | coach-mentorship, coaching-community |
-| 🟡 First pass in `drafts/meet` — mapping still needed | coaching-community/{coaching-workshops, fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit}, courses, learning-pathway, membership terms (complete text), gallagher-disclaimer {pro, pro-plus, rally} (form sheet mapping), account/flag-profile (Formstack form) — gap list in the 2026-11-16 first-pass log entry |
+| 🟡 First pass in `drafts/meet` — mapping still needed | coaching-community/{coaching-workshops, fellowship-in-coaching-and-leadership, usta-coaches-inclusion-summit}, courses, learning-pathway, membership terms (complete text), account/flag-profile (Formstack form) — gap list in the 2026-11-16 first-pass log entry |
+| ✅ Verified vs live source (authored `Form` pages, not importer output) | gallagher-disclaimer {pro, pro-plus, rally} — see the 2026-11-18 Gallagher entries |
 | 🟠 In content but never imported / parity-checked (authored in DA) | results ×5 (college, ft-pro, pt-pro, school, volunteer-emerging), about/faqs, gallagher-disclaimer-baseline, settings/lead-interests, settings/unsubscribe |
 | ⬜ Not started | results/guardian-coach (+ the results set via an importer); listing-hub: news index, news search results, coachtennis, workshops, workshops/education-center-locations; about; learning-pathway/usta-coaching-equivalency-application; job-board; membership-benefits; maintenance-page |
 | ⛔ Not Phase 1 | account area (dashboard, my-*, edit-profile, coach-achievements, learning, myschools/* incl. renew/*) — client-rendered app screens; decision A/B in Phase 2. auth-error pages. |
@@ -4577,7 +4578,7 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 |---|---|---|---|
 | /en/home/coaching-community/coaching-workshops (events list, Tabs, Columns promo) — ✅ DONE 2026-11-17 (en/home, local) | H | /en/home/courses (Tabs, course filter, Cards comparison) | H |
 | /en/home/coaching-community/fellowship-in-coaching-and-leadership (feature cards, dates banner + rows, Video, Columns quote) — ✅ DONE 2026-11-18 (en/home, local) | M | /en/home/learning-pathway (Accordion pathway ×4, Cards comparison, Banner centered) | M |
-| /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) | L |
+| /en/home/coaching-community/usta-coaches-inclusion-summit (video row, lime banner, Cards quote, Banner centered) | M | /en/home/membership-benefits/gallagher-disclaimer-pro (Form → DA sheet, `split, intro-text`) — ✅ DONE 2026-11-18 (en/home, local; parity-checked) | L |
 | /en/home/membership-benefits/coaching-membership-terms-and-conditions (long text — imports complete; parity only) | L | /en/home/membership-benefits/gallagher-disclaimer-pro-plus | L |
 | /en/home/account/flag-profile (heading + intro + Form flag-form) | L | /en/home/membership-benefits/gallagher-disclaimer-rally | L |
 
