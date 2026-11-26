@@ -574,10 +574,9 @@ body.landing-page main .default-content-wrapper > h1 {
 
 /* `heading-80`: the page title in the source's `text--font-size--80px-32px` preset
    (membership terms) = the GLOBAL h1 scale (32 → 40 → 56 → 80px via
-   --heading-font-size-xxl), not the 56px-capped title above; the heading starts the text
-   component (no top margin) */
+   --heading-font-size-xxl), not the 56px-capped title above (its 12px top margin + the
+   standard 24px first-section spacing = the source's title position) */
 body.landing-page main > .section.heading-80 .default-content-wrapper > h1 {
-  margin-top: 0;
   font-size: var(--heading-font-size-xxl);
 }
 

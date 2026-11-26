@@ -611,6 +611,13 @@ main > .section.legal a:any-link:not(.button):hover {
   text-decoration: none;
 }
 
+/* the section numbers ("1.", "A.", scripts.js decorateLegalNumbers): the source's
+   tab-stop gap — titles start ~82px in (measured 78–86px at every width) */
+main > .section.legal .legal-num {
+  display: inline-block;
+  min-width: 82px;
+}
+
 /* loose (default-content) images inside a section — e.g. the Success Stories
    headshot authored as a bare picture — are centered and size-capped so they
    don't blow up to full width. Block-owned images set their own sizing. */

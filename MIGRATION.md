@@ -5777,3 +5777,51 @@ version the repo's Playwright expects).
   `hero-content-wide`, `banner-stats`, `cards-icons-compact` (with `landscape`), `cards-pricing-packages`; with the
   existing `cards-media-stacked-compact` and `image-crop` (the crop options). Local only — not in DA.
 - Gate: stylelint ✓ · breakpoints ✓ · overflow ✓ / a11y ✓ on fellowship + the 5 compact / new samples.
+
+### 2026-11-26 — Membership Terms and Conditions: design parity (`heading-80`, `legal`)
+Page `en/home/membership-benefits/coaching-membership-terms-and-conditions` (landing-page template). Content was already
+complete; the styling differed from the source. Measured source vs preview at 375 / 768 / 1024 / 1280 / 1440:
+- **Title**: the source text component is `text--font-size--80px-32px` (32 → 40 → 56 → 80px = the GLOBAL h1 token
+  `--heading-font-size-xxl`), on tablet--12 / desktop-small--12 and 8 of 12 columns (offset 2) only from 1280. Ours was
+  capped at the landing template's 56px title and narrow-8 at every width, with a 12px top margin.
+  → new section style **`heading-80`** (importer: a split-off narrow lead heading with font-size 80, like `heading-64`
+  for 64). landing-page.css: h1 = `var(--heading-font-size-xxl)` (it keeps the 12px top margin: with main's
+  2026-11-25 rule — plain titles get the standard 24px first-section spacing — that is the source position; an earlier
+  `margin-top: 0` + 36px padding was removed after merging main); the existing `heading-64`
+  "full width below 1280" rules now take `:is(.heading-64, .heading-80)`. Result: h1 x / width / size / top / bottom
+  = source at all 5 widths (e.g. 1440: 287 / 867 / 80px / 152 / 552).
+- **Body copy centred** (source: left). The importer let a narrow centred heading's section pass its `center` on to the
+  following copy. Fix: no inherited centring when the section's first text is its OWN plain, non-USTA-Sans, un-centred
+  text component (`ownLeftCopy`).
+- **Underlines blue / links not underlined.** The site convention `main u` = blue accent (styles.css) is wrong for legal
+  copy, where the source `<u>` is a real white underline and `.cmp-text a` links are underlined in the text colour (no
+  underline on hover). → new generic section style **`legal`** (styles.css, block-agnostic): `u` and in-copy links
+  (not `.button`) inherit the text colour and are underlined; hover drops the underline. Importer: a default-content
+  section whose source has a `<u>` outside a link → `legal` (checked before emitting; only the Terms pages have one).
+- **Section numbers** ("1." … "11.", "A." … "H."): the source sets each title ~82px in (78–86px; author-typed runs of
+  11–14 `&nbsp;`, only 5 after "4."). The nbsp can NOT be carried in content: helix-importer turns `&nbsp;` into spaces
+  (DOMUtils.reviewParagraphs / reviewInlineElement) and `MDUtils.cleanupMarkdown` replaces every U+00A0 — tried
+  marking the runs in onLoad and restoring them in transform: they still end up as collapsing plain spaces (reverted).
+  → scripts.js `decorateLegalNumbers` (in `legal` sections only): a bold run that starts a line with `N.` / `A.` and holds
+  an underlined title gets the number wrapped in `span.legal-num` (inline-block, min-width 82px, styles.css); also
+  handles the line break inside the bold run (source `<b><br>3. …`). Authors type "1. Title". All 19 titles now at 82px
+  ("4." too — the source's 41px there is the author's shorter run; accepted).
+- **PR scope (user decision):** only the styling / decoration (styles.css, landing-page.css, scripts.js) + this log go in
+  the branch PR; the importer changes (`heading-80` / `legal` / `ownLeftCopy` in import-landing-page-v1.js + bundle,
+  backup membership-terms-2026-11-26) stay LOCAL for now — re-importing the Terms pages with the committed importer would
+  drop the two section styles.
+- Note: the EDS preview (aem.page) still showed the OLD version (centred copy, blue `<u>` — read as "blue links") until
+  code + content are pushed / uploaded.
+- Body rhythm already matched (the importer's paragraph grouping: text block 8208px vs source 8220px at 1440).
+- **Regression:** all 26 landing-page URLs (EN + ES) imported with the old and new bundle into scratch output dirs:
+  24 byte-identical; only EN + ES Terms changed, and only their section metadata (`center, narrow-8` → `+ heading-80`;
+  `center` → `legal`). EN re-imported into content/ (`--force`; it was identical to the old importer's output, so no
+  local edits lost). **ES Terms in content/ NOT re-imported** — re-import it to pick up the same styles.
+- Backup: `tools/importer/backups/landing-page/membership-terms-2026-11-26/`.
+- **Rule deviation (justified) — typography gate:** `check:typography` reports 4 drifts on this page (h1 @1024 56 vs
+  40, @1280 80 vs 56). The landing-page template record holds the `56px-32px` title preset; this page's source title
+  uses the `80px-32px` preset and our h1 equals the live source (56 @1024, 80 @1280). False positives, like the
+  documented section-level opt-outs above.
+- Gotcha (again): Playwright wants chromium_headless_shell-1187, only 1254 is installed — overflow / typography were run
+  through a wrapper that sets `executablePath`, a11y through a temporary config extending tests/a11y/playwright.config.js
+  (removed afterwards).
