@@ -728,3 +728,81 @@ main > .section.banner-container > div {
     padding: 48px 24px;
   }
 }
+
+/* ---- stats option ----------------------------------------------------------
+   Source: coachtennis "16,700+ Community members · 100+ online education hours · 4 options
+   For every tennis coach · $0 To get started" (a `container--top-margin--36` strip under
+   the hero). A grey gradient panel (no outline, square corners) on the HERO's width
+   (page gutters 8 / 28 / 36 / 52, not the cards grid); one column per figure, 12px in
+   (8 on phones), 4-up from 1280, stacked below. Figure USTA Sans lime 28 → 32 (768) →
+   40px (1024), line-height 1; label USTA Sans 14/18 white; 24px between figure and label
+   and between stacked figures; 38px above the first / below the last. 12 / 12 / 20 / 36px
+   under the hero (the 36px margin preset).
+   Standardised (user-visible difference): below 1280 the source sets each figure in a
+   3-of-12 column at the LEFT while its label is centred full width (and "4 OPTIONS"
+   wraps there); here every figure is centred over its label. */
+main > .section.banner-container:has(.banner.stats) { padding-block: 12px 0; }
+
+main > .section.banner-container:has(.banner.stats) > div { padding-inline: 8px; }
+
+.banner.stats.block {
+  padding: 26px 0;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(360deg, #202020 0%, rgb(72 72 72 / 90%) 100%);
+}
+
+.banner.stats .banner-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.banner.stats .banner-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.banner.stats .banner-stat p { margin: 0; }
+
+.banner.stats .banner-stat-figure {
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--usta-lime);
+}
+
+.banner.stats .banner-stat-label {
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  color: #fff;
+}
+
+@media (width >= 768px) {
+  main > .section.banner-container:has(.banner.stats) > div { padding-inline: 28px; }
+
+  .banner.stats .banner-stat { padding-inline: 12px; }
+
+  .banner.stats .banner-stat-figure { font-size: 32px; }
+}
+
+@media (width >= 1024px) {
+  main > .section.banner-container:has(.banner.stats) { padding-top: 20px; }
+
+  main > .section.banner-container:has(.banner.stats) > div { padding-inline: 36px; }
+
+  .banner.stats .banner-stat-figure { font-size: 40px; }
+}
+
+@media (width >= 1280px) {
+  main > .section.banner-container:has(.banner.stats) { padding-top: 36px; }
+
+  main > .section.banner-container:has(.banner.stats) > div { padding-inline: 52px; }
+
+  .banner.stats .banner-stats { grid-template-columns: repeat(4, 1fr); }
+}

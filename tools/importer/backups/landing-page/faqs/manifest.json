@@ -1,0 +1,18 @@
+{
+  "page": "about/faqs",
+  "locales": ["en"],
+  "date": "2026-11-25",
+  "source": "https://www.ustacoaching.com/en/home/about/faqs.html",
+  "importer": "import-landing-page-v1.js (unchanged: the existing accordion kind; the source opens the first item, so it writes a plain Accordion)",
+  "sha256": {
+    "import-landing-page-v1.js": "13773d5636ae95f3bddc1ba6156380d86bf8db37a0199ea9420cfc4bd7f88e07",
+    "import-landing-page-v1.bundle.js": "6dbad55e2f72ad7bc082ac483d951e8f1c424a37022ec362f8952bba85e07a5d",
+    "output content/drafts/meet/about/faqs.plain.html": "863d5d08ec0d610f6ec1e70c33bdc45711ebda4c3c0a397841e6d6690aa1380b"
+  },
+  "urls": "tools/importer/urls-faqs.txt",
+  "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-faqs.txt --force, with WORKSPACE_PATH set to a scratch folder; then copy the output to content/drafts/meet/about/faqs.plain.html",
+  "finalize": "none (no images, no DAM documents)",
+  "blocks": "default content h1 (Style: center, narrow-10) + Accordion (default = first item open): 3 items, 23 questions",
+  "templateChanges": "landing-page.css: answer paragraphs one blank line apart (p + p 24px); page-title +12px only on spacing-36 title sections; bold in accordion answers = Graphik Regular Synth",
+  "verified": "= source at 375/768/1024/1280/1440/1728/1920 (h1 size / lines / box, accordion box, answer inset, open panel height, gaps). Accepted: +10px per closed item (shared landing rule kept, user 2026-11-25); 375 open panel 24px shorter (one line wraps differently)."
+}

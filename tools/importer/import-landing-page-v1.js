@@ -21,7 +21,7 @@
  * Measurements the transform needs (column positions, background colours, alignment,
  * button style) only exist on the live page, so onLoad stamps them as data-* attributes.
  */
-import { featureOptions } from './parsers/feature-options.js';
+import { featureOptions, cropOptions } from './parsers/feature-options.js';
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
 import parsePricing from './parsers/cards-pricing.js';
 import parseEventsBanner from './parsers/columns-cta.js';
@@ -266,6 +266,16 @@ function listFrom(comps, document) {
 }
 const isListRow = (c) => isText(c) && !!c.querySelector('.cmp-text__image-and-paragraph');
 /* a container holding only text components (separators aside), at least two */
+/* coachtennis package tier: a white-outlined container with a 56px price text and a CTA */
+const isPackageTier = (c) => isContainer(c) && /container--border--white/.test(c.className)
+  && components(c).some((t) => isText(t) && fontSize(t) === 56) && components(c).some(isButton);
+/* the tier CTA's author border colour → the packages row's accent keyword */
+const PACKAGE_ACCENTS = { '#0373F3': 'blue', '#CFFF05': 'lime', '#A4EE90': 'green' };
+/* a stats-strip figure: a container of a USTA Sans figure + its label, nothing else */
+const isStat = (c) => isContainer(c) && components(c).filter((t) => isText(t) && norm(t.textContent)).length === 2
+  && isUstaSans(components(c).find(isText)) && !components(c).some((t) => isImage(t) || isButton(t));
+/* the section right after a run of loose heading / intro components (prepareSections) */
+const isLooseRunBefore = (s) => { const p = s.previousElementSibling; return !!p && p.hasAttribute('data-loose-text') && !p.hasAttribute('data-heading-only'); };
 const isTopicCard = (c) => { const k = components(c).filter((x) => kind(x) !== 'separator'); return k.length >= 2 && k.every(isText); };
 
 /* a parser-built block table, renamed to the current block name (the home parsers
@@ -412,7 +422,12 @@ function emitSection(s, { document, pagePath }) {
   // (an empty separator above the heading — results pages — doesn't end the lead)
   for (const c of comps(s)) { if (!lead.length && kind(c) === 'separator') continue; if (isText(c) && centredLead(c)) lead.push(c); else break; }
   const rest = comps(s).filter((c) => !lead.includes(c) && kind(c) !== 'separator');
-  if (lead.length && rest.length) {
+  // a loose heading + intro run that is ALL centred lead (both on the same narrow span) right
+  // before a block section → one narrow heading section that introduces it (coachtennis
+  // "Packages for Every Tennis Coach"); the next section then doesn't join it
+  const headingOnly = lead.length && !rest.length && s.hasAttribute('data-loose-text') && !!s.nextElementSibling && isContainer(s.nextElementSibling);
+  if (headingOnly) s.setAttribute('data-heading-only', '');
+  if (lead.length && (rest.length || headingOnly)) {
     const n = centredSpan(lead[0]) || 12;
     const nodes = []; lead.forEach((c) => { nodes.push(...textEls(c, document)); c.remove(); });
     // the source's display heading size (`text--font-size--64px-28px`) → `heading-64`
@@ -547,6 +562,84 @@ const KINDS = [
       ...reparse(s.querySelector('.v-tiers'), parsePricing, 'Cards (pricing)', document)],
   },
   {
+    // the package cards built from plain containers (coachtennis: 3+ white-outlined tier
+    // containers, each with a 56px USTA Sans price and a CTA) → Cards (pricing, packages):
+    // one row per tier — cell 1: [label] · icon · tier name (h3) · price · tagline (h4) · CTA ·
+    // feature list; cell 2: the tier accent (from the CTA's author colour: blue / lime / green,
+    // white = none). The section joins the heading + intro run before it (one section).
+    name: 'cards-packages',
+    joinPrevious: (s) => isLooseRunBefore(s),
+    match: (s) => comps(s).filter(isPackageTier).length >= 3,
+    emit: (s, { document, pagePath }) => {
+      const rows = comps(s).filter(isPackageTier).map((t) => {
+        const cell = []; const items = [];
+        let accent = '';
+        components(t).forEach((c) => {
+          if (isButton(c)) {
+            const a = c.querySelector('a, button');
+            if (!a || !a.getAttribute('href')) { if (norm(c.textContent)) cell.push(para(document, norm(c.textContent))); return; }
+            const color = ((a.getAttribute('style') || '').match(/border-color:\s*(#[0-9a-f]{6})/i) || [])[1] || '';
+            accent = PACKAGE_ACCENTS[color.toUpperCase()] || '';
+            const b = buttonEl(c, document, pagePath);
+            if (b) { const p = el(document, 'p'); p.append(b.querySelector('a')); cell.push(p); }
+            return;
+          }
+          if (!isText(c) || !norm(c.textContent)) return;
+          const img = c.querySelector('.cmp-text__image');
+          if (fontSize(c) === 56) cell.push(para(document, norm(c.textContent)));
+          else if (/text--style--uppercase/.test(c.className)) { const h = el(document, 'h4'); h.textContent = norm(c.textContent); cell.push(h); } else if (/graphic-semibold/.test(c.className)) {
+            if (img) { const p = el(document, 'p'); const i = el(document, 'img'); i.src = img.getAttribute('src'); i.alt = ''; p.append(i); cell.push(p); }
+            const h = el(document, 'h3'); h.textContent = norm(c.textContent); cell.push(h);
+          } else { const li = el(document, 'li'); li.textContent = norm(c.textContent); items.push(li); }
+        });
+        if (items.length) { const ul = el(document, 'ul'); ul.append(...items); cell.push(ul); }
+        return [cell, accent];
+      });
+      return [block(document, 'Cards (pricing, packages)', rows)];
+    },
+  },
+  {
+    // a grey-gradient strip of figures (coachtennis "16,700+ Community members" …): 2+
+    // containers, each a USTA Sans figure over a label → Banner (stats): one row, one cell per
+    // figure (figure paragraph + label paragraph)
+    name: 'banner-stats',
+    match: (s) => s.getAttribute('data-bg') === 'gradient' && comps(s).filter(isStat).length >= 2,
+    emit: (s, { document }) => {
+      const cells = comps(s).filter(isStat).map((c) => components(c).filter((t) => isText(t) && norm(t.textContent)).map((t) => para(document, norm(t.textContent))));
+      return [block(document, 'Banner (stats)', [cells])];
+    },
+  },
+  {
+    // icon cards with photo tiles between them, all on one equal-height grid (coachtennis
+    // "Why Join USTA Coaching?": card · photo · card / photo · card · photo) → Cards (icons):
+    // one row per tile in source order — a card row (icon paragraph, title, copy) or a
+    // photo row (the image alone); the source's narrow-text card preset → `compact`. Joins
+    // the heading + intro run before it.
+    name: 'cards-icons-tiles',
+    joinPrevious: (s) => isLooseRunBefore(s),
+    match: (s) => { const d = comps(s); return d.some(isImage) && d.filter((c) => isContainer(c) && /container--padding--24px/.test(c.className) && components(c).some(isImage) && components(c).some(isText)).length >= 2; },
+    emit: (s, { document }) => {
+      const rows = [];
+      comps(s).forEach((c) => {
+        if (isImage(c)) { const i = imageEl(c, document); if (i) rows.push([[i]]); return; }
+        if (!isContainer(c)) return;
+        const cc = components(c);
+        const icon = imageEl(cc.find(isImage), document);
+        const iconP = el(document, 'p'); if (icon) iconP.append(icon);
+        const texts = cc.filter((t) => isText(t) && norm(t.textContent));
+        const body = [iconP];
+        texts.forEach((t, i) => {
+          if (i === 0) { const h = el(document, 'h3'); h.textContent = norm(t.textContent); body.push(h); } else body.push(...textEls(t, document));
+        });
+        rows.push([body]);
+      });
+      const compact = comps(s).some((c) => isContainer(c) && components(c).some((t) => isText(t) && /text--letter-spacing--narrow/.test(t.className)));
+      // the photo tiles' aspect preset → the global image crop option (styles.css)
+      const opts = [...(compact ? ['compact'] : []), ...cropOptions(comps(s).find(isImage))];
+      return [block(document, opts.length ? `Cards (icons, ${opts.join(', ')})` : 'Cards (icons)', rows)];
+    },
+  },
+  {
     // the "Explore workshops & events" experience fragment → Banner (blue) (one banner: the
     // `events` variant was removed — see MIGRATION.md 2026-11-18 STANDARDIZED)
     name: 'banner-events',
@@ -571,7 +664,13 @@ const KINDS = [
       });
       // no CTA → the title-only hero (its own spacing)
       const title = !deep(s).some(isButton);
-      return [block(document, title ? 'Hero (content, title)' : 'Hero (content)', [[img], [content]])];
+      // copy at the panel's own padding (not indented on grid columns) with a centred CTA
+      // (coachtennis) → `wide`
+      const panelX = Number(s.querySelector('.cmp-container[data-desktop-background-image]').getAttribute('data-x') || 0);
+      const firstCopy = deep(s).find((c) => isText(c) && norm(c.textContent));
+      const wide = !title && !!firstCopy && Number(firstCopy.getAttribute('data-x') || 0) - panelX < 48;
+      const opts = [...(title ? ['title'] : []), ...(wide ? ['wide'] : [])];
+      return [block(document, opts.length ? `Hero (content, ${opts.join(', ')})` : 'Hero (content)', [[img], [content]])];
     },
   },
   {
@@ -902,9 +1001,11 @@ const KINDS = [
     },
   },
   {
-    // heading + intro + two photos side by side + CTA ("USTA Coaching Network")
+    // heading + intro + two photos side by side + CTA ("USTA Coaching Network"); the heading
+    // + intro may already be split off as their own narrow section (coachtennis "Find your
+    // perfect fit": only the photos + the CTA are left)
     name: 'columns-photos',
-    match: (s) => { const d = comps(s); return d.filter(isImage).length === 2 && d.some(isText) && !d.some(isContainer); },
+    match: (s) => { const d = comps(s); return d.filter(isImage).length === 2 && d.some((c) => isText(c) || isButton(c)) && !d.some(isContainer); },
     emit: (s, { document, pagePath }) => {
       const before = []; const after = []; const imgs = [];
       comps(s).forEach((c) => {
@@ -1062,7 +1163,9 @@ export default {
     document.querySelectorAll('.container').forEach((c) => {
       const inner = c.querySelector(':scope > .cmp-container');
       const bg = inner ? getComputedStyle(inner).backgroundColor : '';
-      if (bg === 'rgb(3, 115, 243)') c.setAttribute('data-bg', 'blue');
+      // a gradient panel (coachtennis stats strip) is a panel of its own too
+      if (inner && /gradient\(/.test(getComputedStyle(inner).backgroundImage)) c.setAttribute('data-bg', 'gradient');
+      else if (bg === 'rgb(3, 115, 243)') c.setAttribute('data-bg', 'blue');
       else if (bg === 'rgb(207, 255, 5)') c.setAttribute('data-bg', 'lime');
       else if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'rgb(0, 0, 0)') c.setAttribute('data-bg', 'dark');
     });
@@ -1162,7 +1265,8 @@ function prepareSections(root, document, skip) {
   [...root.children].forEach((k) => {
     if (!isContainer(k) || skip(k) || /container--(padding|border)--/.test(k.className) || k.getAttribute('data-bg')) return;
     const kids = components(k).filter((c) => kind(c) !== 'separator');
-    if (kids.length >= 2 && kids.every(headed)) k.replaceWith(...kids);
+    // (package tiers — each with a 56px price — are one cards section, not sections)
+    if (kids.length >= 2 && kids.every(headed) && !kids.every(isPackageTier)) k.replaceWith(...kids);
   });
 
   const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags|core-tabs|aem-events-list)\b/.test(k.className || '');
@@ -1175,6 +1279,8 @@ function prepareSections(root, document, skip) {
     k.replaceWith(run);
     run.append(k);
   });
+  // (marked now: emitting a run moves its nodes, so the next section can't read them later)
+  root.querySelectorAll(':scope > [data-loose-run]').forEach((r) => { if (norm(r.textContent)) r.setAttribute('data-loose-text', ''); });
   return [...root.children];
 }
 

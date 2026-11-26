@@ -500,6 +500,89 @@ main > .section.hero-container:has(.hero.content) > div {
   .hero.content.title { padding-block: 97px 193px; }
 }
 
+/* wide: the content hero whose copy runs the full panel (coachtennis "JOIN THE USTA
+   COACHING COMMUNITY"). Source (container `padding--default-outer` 10 / 16 / 24px + the
+   text components' 8 / 12px inset): copy 47px in on phones — the title on 11 of 12
+   columns, the intro on 10 (offset 1) — then 29px (768) and 37px (1024) from both panel
+   edges; title → intro 108px (66 from 1024), intro → CTA 66px; top 75 / 87 / 129 / 141px,
+   CTA → bottom 67 / 79 / 87px; intro Graphik 16/19.2 → 18/21.6 (1024) → 24/28.8 (1280);
+   ONE centred lime CTA, Graphik Semibold 14 → 16 (768) → 18px (1280) at normal tracking
+   (the source's 1px sits on the button box, its label resets it), 48 / 50 (1024) / 56px
+   (1280) tall, 280px minimum on phones, 24px side padding in the 2px border. */
+.hero.content.wide {
+  padding: 74px 18px 66px;
+}
+
+/* a long title word runs past its column into the panel padding instead of breaking (the
+   source: "COMMMUNITY" 308px in a 293px title box at 375) */
+.hero.content.wide .hero-content h1 { overflow-wrap: normal; }
+
+/* phones: the copy starts one grid column in (the CTA stays centred on the panel) */
+.hero.content.wide .hero-content > :is(h1, p:not(.hero-cta-wrapper)) {
+  margin-left: calc((100% + 14px) / 12);
+}
+
+.hero.content.wide .hero-content > p:not(.hero-cta-wrapper) {
+  max-width: calc((100% + 14px) * 10 / 12 - 16px);
+  margin-top: 108px;
+  font-size: 16px;
+  line-height: 19.2px;
+}
+
+.hero.content.wide .hero-content .hero-cta-wrapper {
+  align-self: center;
+  justify-content: center;
+  margin-top: 66px;
+}
+
+.hero.content.wide a.hero-cta:any-link {
+  min-height: 48px;
+  padding: 0 24px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+@media (width >= 768px) {
+  .hero.content.wide { padding: 86px 28px 78px; }
+
+  .hero.content.wide .hero-content > :is(h1, p:not(.hero-cta-wrapper)) { margin-left: 0; }
+
+  .hero.content.wide .hero-content > p:not(.hero-cta-wrapper) { max-width: none; }
+
+  .hero.content.wide a.hero-cta:any-link {
+    min-width: 0;
+    font-size: 16px;
+    line-height: 20px;
+  }
+}
+
+@media (width >= 1024px) {
+  .hero.content.wide { padding: 128px 36px 86px; }
+
+  .hero.content.wide .hero-content > p:not(.hero-cta-wrapper) {
+    margin-top: 66px;
+    font-size: 18px;
+    line-height: 21.6px;
+  }
+
+  .hero.content.wide a.hero-cta:any-link { min-height: 50px; }
+}
+
+@media (width >= 1280px) {
+  .hero.content.wide { padding-block: 140px 86px; }
+
+  .hero.content.wide .hero-content > p:not(.hero-cta-wrapper) {
+    font-size: 24px;
+    line-height: 28.8px;
+  }
+
+  .hero.content.wide a.hero-cta:any-link {
+    min-height: 56px;
+    font-size: 18px;
+    line-height: 20px;
+  }
+}
+
 /* ------------------------------------------------------------------ video -- */
 
 /* USTA homepage hero. Source layout: a centered condensed H1 (SERVE YOUR

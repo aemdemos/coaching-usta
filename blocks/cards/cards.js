@@ -149,6 +149,79 @@ function decoratePricing(block) {
 }
 
 /*
+ * packages — the package cards option of pricing (coachtennis "Packages for Every Tennis
+ * Coach"). One row per tier:
+ *   cell 1: [label paragraph, e.g. "Most popular"] · icon paragraph · tier name (heading) ·
+ *           price paragraph ("$49/yr": the part from "/" is the period) · tagline (heading)
+ *           · CTA link · feature list
+ *   cell 2: the tier accent — blue, lime or green (empty / anything else = white)
+ * A tier with a label is the highlighted card (its CTA filled in the accent colour).
+ */
+const PACKAGE_ACCENTS = ['blue', 'lime', 'green'];
+
+function decoratePackages(block) {
+  const ul = document.createElement('ul');
+  [...block.children].forEach((row) => {
+    const [cell, accentCell] = row.children;
+    if (!cell) return;
+    const li = document.createElement('li');
+    li.className = 'cards-packages-card';
+    const accent = (accentCell?.textContent || '').trim().toLowerCase();
+    li.classList.add(`cards-packages-${PACKAGE_ACCENTS.includes(accent) ? accent : 'white'}`);
+    const parts = [...cell.children];
+    const name = parts.find((e) => /^H[1-6]$/.test(e.tagName));
+    const iconP = parts.find((e) => e.tagName === 'P' && e.querySelector('img') && !e.textContent.trim());
+    const ctaP = parts.find((e) => e.tagName === 'P' && e.querySelector('a'));
+    const list = parts.find((e) => /^(UL|OL)$/.test(e.tagName));
+    const textPs = parts.filter((e) => e.tagName === 'P' && e !== iconP && e !== ctaP && e.textContent.trim());
+    const at = (e) => parts.indexOf(e);
+    const first = iconP || name;
+    // the label comes before the icon / name, the price after the name
+    const label = first ? textPs.find((p) => at(p) < at(first)) : null;
+    const price = name ? textPs.find((p) => p !== label && at(p) > at(name)) : null;
+    const tagline = parts.find((e) => /^H[1-6]$/.test(e.tagName) && e !== name);
+
+    if (label) {
+      label.className = 'cards-packages-label';
+      li.classList.add('featured');
+      li.append(label);
+    }
+    const tier = document.createElement('div');
+    tier.className = 'cards-packages-tier';
+    if (iconP) { iconP.className = 'cards-packages-icon'; tier.append(iconP); }
+    if (name) { name.classList.add('cards-packages-name'); tier.append(name); }
+    li.append(tier);
+    if (price) {
+      price.className = 'cards-packages-price';
+      // "$49/yr" → "$49" + the period in its own span
+      const text = price.textContent.trim();
+      const cut = text.indexOf('/');
+      if (cut > 0) {
+        const per = document.createElement('span');
+        per.className = 'cards-packages-per';
+        per.textContent = text.slice(cut);
+        price.replaceChildren(text.slice(0, cut), per);
+      }
+      li.append(price);
+    }
+    if (tagline) { tagline.classList.add('cards-packages-tagline'); li.append(tagline); }
+    if (ctaP) {
+      ctaP.className = 'cards-packages-cta';
+      const a = ctaP.querySelector('a');
+      a.className = 'cards-packages-button';
+      ctaP.replaceChildren(a);
+      li.append(ctaP);
+    }
+    if (list) { list.className = 'cards-packages-features'; li.append(list); }
+    ul.append(li);
+  });
+  ul.querySelectorAll('.cards-packages-icon picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '80' }]));
+  });
+  block.replaceChildren(ul);
+}
+
+/*
  * course — a grid of course cards (workshops page). Each card: a top image, a
  * bold title, a description, and a blue "duration" pill (3.5 Hours / 2 Days).
  * Authoring (one row per card):
@@ -633,9 +706,21 @@ function decorateIcons(block) {
     li.className = 'cards-icons-card';
     const cell = row.firstElementChild || row;
     li.append(...cell.childNodes);
+    // a row holding only a picture is a PHOTO tile between the cards (coachtennis "Why
+    // Join": card · photo · card / photo · card · photo), not an icon card
+    const pictures = li.querySelectorAll('picture, img:not(picture img)');
+    if (pictures.length === 1 && !li.textContent.trim()) {
+      li.className = 'cards-icons-photo';
+      li.replaceChildren(pictures[0]);
+      ul.append(li);
+      return;
+    }
     const iconP = [...li.children].find((e) => e.tagName === 'P' && e.querySelector('img, picture') && !e.textContent.trim());
     if (iconP) iconP.className = 'cards-icons-image';
     ul.append(li);
+  });
+  ul.querySelectorAll('.cards-icons-photo picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]));
   });
   block.replaceChildren(ul);
 }
@@ -644,6 +729,7 @@ export default function decorate(block) {
   if (block.classList.contains('icons')) decorateIcons(block);
   else if (block.classList.contains('media')) decorateMedia(block);
   else if (block.classList.contains('logos')) decorateLogos(block);
+  else if (block.classList.contains('pricing') && block.classList.contains('packages')) decoratePackages(block);
   else if (block.classList.contains('pricing')) decoratePricing(block);
   else if (block.classList.contains('course')) decorateCourse(block);
   else if (block.classList.contains('text')) decorateText(block);
