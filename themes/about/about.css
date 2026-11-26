@@ -1,0 +1,199 @@
+/* stylelint-disable no-descending-specificity -- theme overrides are ordered by page flow, like the landing template */
+
+/* about theme (page metadata `Theme: about`, on the landing-page template) — the about page
+   is styled off the rest of the landing pages (user decision 2026-11-26), so its own look and
+   rhythm live here. Measured on the live source (standards mode) at 375 / 768 / 1024 / 1280 /
+   1440 / 1728 (migration-work/about/parity.mjs). Every rule is prefixed
+   `body.about.landing-page main` so it outranks the template and block rules; heading → block
+   gaps go through the template's `--text-block-gap` (its rules outrank a plain margin). */
+
+/* ---- hero: "ABOUT USTA COACHING" — Columns (media, portrait-2) ----
+   The row sits 24px inside the page gutter (16 on phones) — 8 / 12px more than the cards
+   grid; 60 / 60 / 68 / 84px under the header. The white card: padding 12px 16px on phones,
+   12px from 768, 36px 12px from 1280; the title is the source's 64px-32px USTA Sans text
+   component, centred on 7 of 12 columns on phones and 10 of 12 from 768 (a word wider than
+   the column runs on to the right, as on the source), 32 → 40 (1024) → 64px (1280),
+   line-height 1; the mission copy is the 24px-16px Graphik text component, 16 → 18 (1024) →
+   24px (1280), line-height 1.2, −0.03em; both components are inset 8px (12px from 768); on
+   phones a 54px separator closes the card, from 768 the copy sits at the card bottom. */
+body.about.landing-page main > .section:first-child { padding-top: 60px; }
+
+body.about.landing-page main > .section:first-child .columns.media { margin-inline: 8px; }
+
+body.about.landing-page main .columns.media.portrait-2 .columns-media-content {
+  justify-content: flex-start;
+  padding: 12px 16px 66px;
+}
+
+body.about.landing-page main .columns.media.portrait-2 .columns-media-content h1 {
+  box-sizing: border-box;
+  width: calc(100% * 7 / 12);
+  margin: 0;
+  padding: 12px 8px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-align: center;
+  color: #000;
+  overflow-wrap: normal;
+}
+
+body.about.landing-page main .columns.media.portrait-2 .columns-media-content p {
+  margin: 0;
+  padding: 12px 8px;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+/* ---- OUR PURPOSE: 105 / 105 / 119 / 150px under the hero card; the cards 48 / 48 / 64 / 96px
+   under the heading ---- */
+body.about.landing-page main > .section:has(> .cards-wrapper > .cards.text) {
+  --text-block-gap: 48px;
+
+  padding-top: 96px;
+}
+
+/* ---- OUR LEADERSHIP: 121 / 60 / 60 / 60px above; the two white group bars 24px (16 on phones)
+   inside the page gutter like the hero row; Executive Leadership 36 / 36 / 44 / 60px under the
+   heading, the person cards 48 / 56 / 56 / 56px under it; the board bar 48 / 48 / 64 / 96px
+   under the cards and the first board row 36 / 36 / 44 / 60px under the bar (the rows' own
+   gaps are Columns (profile) options, columns.css) ---- */
+body.about.landing-page main > .section:has(.cards.profile) {
+  --text-block-gap: 48px;
+
+  padding-top: 121px;
+}
+
+body.about.landing-page main > .section:has(.cards.profile) > .text-style-wrapper:has(> .text-style.bar) { margin-inline: 8px; }
+
+body.about.landing-page main > .section:has(.cards.profile) > .default-content-wrapper + .text-style-wrapper { margin-top: 36px; }
+
+body.about.landing-page main > .section:has(.cards.profile) > .cards-wrapper + .text-style-wrapper { margin-top: 48px; }
+
+body.about.landing-page main > .section:has(.cards.profile) > .text-style-wrapper + .columns-wrapper { margin-top: 36px; }
+
+/* ---- the board photo 35 / 37 / 36 / 36px under the last board row ---- */
+body.about.landing-page main > .section.image-container { padding-top: 35px; }
+
+/* ---- OUR PARTNERS heading 60 / 51 / 43 / 43px above; the logos 12 / 12 / 20 / 36px under it.
+   The heading's text box is the header page box (gutters 8 / 28 / 36 / 52, 1536 cap) — all 12
+   columns on phones, 8 of 12 centred from 768 (the template's heading-64 rule would widen it
+   below 1280) — minus the text component's 8px (12px from 768) inset ---- */
+body.about.landing-page main > .section:has(+ .section > .cards-wrapper > .cards.logos) { padding-top: 60px; }
+
+body.about.landing-page main > .section.heading-64.narrow-cols:has(+ .section > .cards-wrapper > .cards.logos) > .default-content-wrapper { padding-inline: 16px; }
+
+body.about.landing-page main > .section.heading-64.narrow-cols:has(+ .section > .cards-wrapper > .cards.logos) > .default-content-wrapper > h2 { margin-inline: 0; }
+
+body.about.landing-page main > .section:has(> .cards-wrapper > .cards.logos) { --text-block-gap: 12px; }
+
+/* ---- Get in Touch 24 / 24 / 52 / 68px under the logos ---- */
+body.about.landing-page main > .section.contact-container { padding-top: 24px; }
+
+@media (width >= 768px) {
+  body.about.landing-page main > .section:first-child .columns.media { margin-inline: 12px; }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content {
+    justify-content: flex-end;
+    padding: 12px;
+  }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content h1 {
+    width: calc(100% * 10 / 12);
+    padding: 12px;
+  }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content p { padding: 12px; }
+
+  body.about.landing-page main > .section:has(.cards.profile) {
+    --text-block-gap: 56px;
+
+    padding-top: 60px;
+  }
+
+  body.about.landing-page main > .section:has(.cards.profile) > .text-style-wrapper:has(> .text-style.bar) { margin-inline: 12px; }
+
+  body.about.landing-page main > .section.image-container { padding-top: 37px; }
+
+  body.about.landing-page main > .section:has(+ .section > .cards-wrapper > .cards.logos) { padding-top: 51px; }
+
+  body.about.landing-page main > .section.heading-64.narrow-cols:has(+ .section > .cards-wrapper > .cards.logos) > .default-content-wrapper {
+    padding-inline: calc(28px + (min(100%, 1536px) - 56px) / 6 + 12px);
+  }
+}
+
+@media (width >= 1024px) {
+  body.about.landing-page main > .section:first-child { padding-top: 68px; }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content h1 { font-size: 40px; }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content p {
+    font-size: 18px;
+    line-height: 21.6px;
+  }
+
+  body.about.landing-page main > .section:has(> .cards-wrapper > .cards.text) {
+    --text-block-gap: 64px;
+
+    padding-top: 112px;
+  }
+
+  body.about.landing-page main > .section:has(.cards.profile) > .default-content-wrapper + .text-style-wrapper { margin-top: 44px; }
+
+  body.about.landing-page main > .section:has(.cards.profile) > .cards-wrapper + .text-style-wrapper { margin-top: 64px; }
+
+  body.about.landing-page main > .section:has(.cards.profile) > .text-style-wrapper + .columns-wrapper { margin-top: 44px; }
+
+  /* (1024–1279: +20 — the source's last bio, Alexis Glick, ends in an authored &nbsp; that
+     wraps to one more line only at this width; the content pipeline drops it, so the photo
+     takes the line's height to stay where the source puts it) */
+  body.about.landing-page main > .section.image-container { padding-top: 56px; }
+
+  body.about.landing-page main > .section:has(+ .section > .cards-wrapper > .cards.logos) { padding-top: 43px; }
+
+  body.about.landing-page main > .section.heading-64.narrow-cols:has(+ .section > .cards-wrapper > .cards.logos) > .default-content-wrapper {
+    padding-inline: calc(36px + (min(100%, 1536px) - 72px) / 6 + 12px);
+  }
+
+  body.about.landing-page main > .section:has(> .cards-wrapper > .cards.logos) { --text-block-gap: 20px; }
+
+  body.about.landing-page main > .section.contact-container { padding-top: 52px; }
+}
+
+@media (width >= 1280px) {
+  body.about.landing-page main > .section:first-child { padding-top: 84px; }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content { padding: 36px 12px; }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content h1 { font-size: 64px; }
+
+  body.about.landing-page main .columns.media.portrait-2 .columns-media-content p {
+    font-size: 24px;
+    line-height: 28.8px;
+  }
+
+  body.about.landing-page main > .section:has(> .cards-wrapper > .cards.text) {
+    --text-block-gap: 96px;
+
+    padding-top: 144px;
+  }
+
+  body.about.landing-page main > .section:has(.cards.profile) > .default-content-wrapper + .text-style-wrapper { margin-top: 60px; }
+
+  body.about.landing-page main > .section:has(.cards.profile) > .cards-wrapper + .text-style-wrapper { margin-top: 96px; }
+
+  body.about.landing-page main > .section:has(.cards.profile) > .text-style-wrapper + .columns-wrapper { margin-top: 60px; }
+
+  body.about.landing-page main > .section.image-container { padding-top: 36px; }
+
+  body.about.landing-page main > .section.heading-64.narrow-cols:has(+ .section > .cards-wrapper > .cards.logos) > .default-content-wrapper {
+    padding-inline: calc(52px + (min(100%, 1536px) - 104px) / 6 + 12px);
+  }
+
+  body.about.landing-page main > .section:has(> .cards-wrapper > .cards.logos) { --text-block-gap: 36px; }
+
+  body.about.landing-page main > .section.contact-container { padding-top: 68px; }
+}

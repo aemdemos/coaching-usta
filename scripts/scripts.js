@@ -142,7 +142,7 @@ const TEMPLATES = ['news-article', 'landing-page'];
  * the page metadata `Theme` and layered on top of the page's template (aem.js adds the
  * theme as a body class). A variation that needs JS is a template instead.
  */
-const THEMES = ['course-catalog', 'news-listing', 'news-search'];
+const THEMES = ['course-catalog', 'news-listing', 'news-search', 'maintenance', 'about'];
 
 /**
  * Applies a Metadata block still sitting in main as <meta> tags. Delivered

@@ -19,6 +19,9 @@ const CW = 'coaching-workshops';
 const FEL = 'fellowship-in-coaching-and-leadership';
 const CO = 'courses';
 const CT = 'coachtennis';
+const ECL = 'education-center-locations';
+const MB = 'membership-benefits';
+const AB = 'about';
 
 const SAMPLES = {
   image: {
@@ -188,6 +191,36 @@ const SAMPLES = {
     title: 'Cards (Pricing, Packages)',
     intro: 'The package cards option of pricing (<code>cards (pricing, packages)</code>; one row per tier — cell 1: an optional label paragraph ("Most popular"), the tier icon, the tier name heading, the price ("$49/yr": the part from "/" is the period), the tagline heading, the CTA link and the feature list; cell 2: the accent — <code>blue</code>, <code>lime</code> or <code>green</code>, empty = white). The accent colours the name, the CTA outline and the feature checks; a tier with a label is the highlighted navy card with a filled CTA. 1-up below 1024, 4-up from 1024; no tab UI.',
     examples: [{ anchor: 'BASELINE' }],
+  },
+  'hero-logo': {
+    page: ECL,
+    title: 'Hero (Logo)',
+    intro: 'The default (centred) hero with the <code>logo</code> option (same authoring as <code>hero</code>: row 1 the background photo, row 2 the title (+ an optional CTA link) | the logo image): the Education Center logo shows at EVERY width — 143px directly above the title on phones, under the title from 768 at 1/6 of the panel width (2 of 12 columns). Without a CTA the panel runs on 78px under the title on phones (8 / 84 / 96px under the logo from 768). The plain <code>hero</code> shows its logo on phones only.',
+    examples: [{ anchor: 'Elevate your' }],
+  },
+  'accordion-locations': {
+    page: ECL,
+    title: 'Accordion (Closed, Locations)',
+    intro: 'The accordion with the <code>locations</code> option (with <code>closed</code>: every item starts closed): each item\'s body is a grid of location cards — per location, in the body cell: a paragraph with the photo, the copy (region + name, then the address lines, one blank line apart; inline pin icons are decorative) and an optional CTA link ("Website"). A new card starts at every photo. 1-up on phones, 2-up from 768; cards #262626 with a 1px #a0a0a0 outline, radius 20, photo ≈2.2:1 on top, the lime CTA half the copy width.',
+    examples: [{ anchor: 'select a section to view locations' }],
+  },
+  'columns-media-outlined-lead': {
+    page: MB,
+    title: 'Columns (Media, Outlined, Lead)',
+    intro: 'The outlined media card with the <code>lead</code> option — the source\'s intro-card preset (the copy on the 24px-16px lead text preset): copy Graphik 16 → 18 (1024) → 24px (1280), and at 1024–1279 the photo keeps its portrait crop with the card stretching to it (plain <code>outlined</code>: copy 16 → 18 @1280, photo as tall as the card at 1024). Same authoring as <code>columns (media, outlined)</code>; the importer sets <code>lead</code> from the copy\'s text preset.',
+    examples: [{ anchor: 'Membership & Benefits' }],
+  },
+  'text-style-bar': {
+    page: AB,
+    title: 'Text Style (Bar)',
+    intro: 'A group heading on a white bar (<code>text style (bar)</code> around the heading): white, radius 20, 8px padding, 8px (12px from 768) inside the grid column; Graphik Semibold 24/32 black, −0.03em, centred. Source: about "Executive Leadership" / "USTA Coaching Board Members".',
+    examples: [{ anchor: 'Executive Leadership', pick: 'Text Style' }],
+  },
+  'intro-statement-32': {
+    page: ECL,
+    title: 'Intro statement (statement-32)',
+    intro: 'The intro statement (a fully bold paragraph with lime <em> / underlined <u> accents — the home page\'s model, scripts.js adds <code>intro-statement</code>) with the section style <code>statement-32</code>: the source\'s 32px-28px text preset — 28 → 32px (1280), line-height 1, −0.03em, paragraphs one blank line apart, on 10 of 12 columns from 1280 (the home statement without it: 32 → 72px). Importer-set from the text preset.',
+    examples: [{ anchor: 'USTA Coaching’s 44 Education Centers, located across the United States and Puerto Rico, provide high-quality, in-person workshops and certification programming led by the industry’s most experienced professional coach developers.' }],
   },
 };
 

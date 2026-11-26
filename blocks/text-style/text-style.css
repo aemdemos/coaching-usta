@@ -99,3 +99,28 @@
 @media (width >= 1280px) {
   .text-style.subhead .text-style-content { font-size: 18px; }
 }
+
+/* bar: a group heading on a white bar (about "Executive Leadership" / "USTA Coaching Board
+   Members"): white, radius 20, 8px padding, 8px (12 from 768) inside the grid column; Graphik
+   Semibold 24/32 black, −0.03em, centred. Authored as `text style (bar)` around the heading. */
+.text-style.bar .text-style-content {
+  margin-inline: 8px;
+  padding: 8px;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+}
+
+.text-style.bar .text-style-content :is(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.03em;
+  color: #000;
+}
+
+@media (width >= 768px) {
+  .text-style.bar .text-style-content { margin-inline: 12px; }
+}

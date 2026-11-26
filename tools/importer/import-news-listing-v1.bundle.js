@@ -158,7 +158,7 @@ var CustomImportScript = (() => {
   // tools/importer/import-landing-page-v1.js
   var TEMPLATE = "landing-page";
   var BASE = "https://www.ustacoaching.com";
-  var PAGE_THEMES = { "/home/courses": "course-catalog", "/home/news": "news-listing", "/home/news/search-results": "news-search" };
+  var PAGE_THEMES = { "/home/courses": "course-catalog", "/home/news": "news-listing", "/home/news/search-results": "news-search", "/maintenance-page": "maintenance", "/home/about": "about" };
   var themeOf = (pagePath) => PAGE_THEMES[pagePath.replace(/^\/(en|es)(?=\/)/, "")] || "";
   var IMAGE_PAIR_THEMES = ["course-catalog"];
   var el = (document2, tag, html) => {
@@ -252,11 +252,18 @@ var CustomImportScript = (() => {
       });
       return out;
     }
+    const isLimeRun = (sp) => /207,\s*255,\s*[58]\b|#cfff0[58]/i.test(sp.getAttribute("style"));
+    const statement = !headingLevel && !isUstaSans(c) && [...cmp.querySelectorAll("span[style]")].some(isLimeRun) && [...cmp.querySelectorAll(":scope > p")].every((q) => !norm(q.textContent) || norm(q.textContent) === norm([...q.querySelectorAll(":scope > b, :scope > strong")].map((x) => x.textContent).join("")));
+    if (statement) c.setAttribute("data-statement", "");
     cmp.querySelectorAll("span[style]").forEach((sp) => {
-      if (/207,\s*255,\s*[58]\b|#cfff0[58]/i.test(sp.getAttribute("style"))) {
+      if (isLimeRun(sp)) {
         const em = el(document2, "em");
         em.append(...sp.childNodes);
         sp.replaceWith(em);
+      } else if (statement && /3,\s*115,\s*243\b|#0373f3/i.test(sp.getAttribute("style"))) {
+        const u = el(document2, "u");
+        u.append(...sp.childNodes);
+        sp.replaceWith(u);
       }
     });
     let prevP = null;
@@ -301,7 +308,7 @@ var CustomImportScript = (() => {
         k = h2;
       }
       prevH = /^H[1-6]$/.test(k.tagName) ? k : null;
-      if (k.tagName === "P" && (headingLevel || size >= 32 || isUstaSans(c) && !size)) {
+      if (k.tagName === "P" && !statement && (headingLevel || size >= 32 || isUstaSans(c) && !size)) {
         const lvl = headingLevel || (size >= 40 || isUstaSans(c) ? 2 : 3);
         if (prevPH && prevPH.tagName === `H${lvl}`) {
           prevPH.append(el(document2, "br"), ...k.childNodes);
@@ -395,6 +402,29 @@ var CustomImportScript = (() => {
     return ul;
   }
   var isListRow = (c) => isText(c) && !!c.querySelector(".cmp-text__image-and-paragraph");
+  var isBgPanel = (s) => {
+    const c = s.querySelector(".cmp-container");
+    return !!c && c.hasAttribute("data-desktop-background-image");
+  };
+  var hasCentredTitle = (s) => deep(s).some((c) => isText(c) && isUstaSans(c) && cls(c, "cmp-text--alignment-center") && norm(c.textContent));
+  var isDefaultHero = (s) => isBgPanel(s) && hasCentredTitle(s) && deep(s).some((c) => isButton(c) || isImage(c));
+  var isCourseCard = (c) => isContainer(c) && /container--border--white/.test(c.className) && !!c.querySelector(".cmp-container[data-desktop-background-image]") && deep(c).some((t) => isText(t) && norm(t.textContent));
+  var isPersonCard = (c) => kind(c) === "aem-person-card" && !!c.querySelector(".v-person-card");
+  var isPhotoTile = (k) => isImage(k) || isContainer(k) && !!k.querySelector(".cmp-container[data-desktop-background-image]") && !deep(k).some((t) => isText(t) && norm(t.textContent));
+  var isBoardRow = (c) => isContainer(c) && components(c).some(isPhotoTile) && components(c).some((k) => isContainer(k) && /container--border--white/.test(k.className) && deep(k).some((t) => isText(t) && norm(t.textContent)));
+  var isLinkedLogo = (c) => isImage(c) && !!c.querySelector("a.cmp-image__link img");
+  var isContactCard = (c) => isContainer(c) && c.getAttribute("data-bg-color") === "rgb(255, 255, 255)" && deep(c).some((t) => isText(t) && !!t.querySelector("h1, h2, h3, h4")) && deep(c).some(isButton);
+  var allContainers = (s) => {
+    const out = [];
+    const walk = (e) => components(e).forEach((c) => {
+      if (isContainer(c)) {
+        out.push(c);
+        walk(c);
+      }
+    });
+    walk(s);
+    return out;
+  };
   var isPackageTier = (c) => isContainer(c) && /container--border--white/.test(c.className) && components(c).some((t) => isText(t) && fontSize(t) === 56) && components(c).some(isButton);
   var PACKAGE_ACCENTS = { "#0373F3": "blue", "#CFFF05": "lime", "#A4EE90": "green" };
   var isStat = (c) => isContainer(c) && components(c).filter((t) => isText(t) && norm(t.textContent)).length === 2 && isUstaSans(components(c).find(isText)) && !components(c).some((t) => isImage(t) || isButton(t));
@@ -527,10 +557,12 @@ var CustomImportScript = (() => {
       const next = texts[texts.indexOf(c) + 1];
       return cls(c, "cmp-text--alignment-center") && isUstaSans(c) && !!next && !cls(next, "cmp-text--alignment-center");
     };
-    for (const c of comps(s)) {
-      if (!lead.length && kind(c) === "separator") continue;
-      if (isText(c) && centredLead(c)) lead.push(c);
-      else break;
+    if (!(isBgPanel(s) && deep(s).some(isButton)) && !isDefaultHero(s)) {
+      for (const c of comps(s)) {
+        if (!lead.length && kind(c) === "separator") continue;
+        if (isText(c) && centredLead(c)) lead.push(c);
+        else break;
+      }
     }
     const rest = comps(s).filter((c) => !lead.includes(c) && kind(c) !== "separator");
     const headingOnly = lead.length && !rest.length && s.hasAttribute("data-loose-text") && !!s.nextElementSibling && isContainer(s.nextElementSibling);
@@ -559,9 +591,11 @@ var CustomImportScript = (() => {
     const nodes = k ? k.emit(s, { document: document2, pagePath }) : defaultContent(s, document2, pagePath);
     const styles = [];
     if (centred && !(k && /^(hero|banner|video)/.test(k.name))) styles.push("center");
+    if (k && typeof k.styles === "function") styles.push(...k.styles(s));
     const leadText = comps(s).find((c) => isText(c) && norm(c.textContent));
     if (!out.length && leadText && isUstaSans(leadText) && fontSize(leadText) === 64 && !(k && /^(hero|banner)/.test(k.name))) styles.push("heading-64");
     styles.push(...inset);
+    if (deep(s).some((c) => c.hasAttribute("data-statement") && fontSize(c) === 32)) styles.push("statement-32");
     const m36 = (e) => !!e && (e.hasAttribute("data-margin-36") || /container--top-margin--36\b/.test(e.className || "") && !/container--border-radius--/.test(e.className) && !e.getAttribute("data-bg"));
     if (m36(s) || m36(padded) || [...s.children].some((c) => c.hasAttribute("data-margin-36"))) {
       styles.push("spacing-36");
@@ -571,7 +605,7 @@ var CustomImportScript = (() => {
       styles.push("inset-12");
       if (out.length && out[0].name === "heading") out[0].styles.push("inset-12");
     }
-    const join = !!k && (typeof k.joinPrevious === "function" ? k.joinPrevious(s) : !!k.joinPrevious);
+    const join = !!k && !out.length && (typeof k.joinPrevious === "function" ? k.joinPrevious(s) : !!k.joinPrevious);
     out.push({ name: k ? k.name : "default", nodes, styles, join });
     return out;
   }
@@ -799,11 +833,284 @@ var CustomImportScript = (() => {
       }
     },
     {
+      // about "OUR LEADERSHIP": the section heading, then per group its heading + the executive
+      // person cards (→ Cards (profile): photo | name, title, short bio, "Bio", full bio — the
+      // source shows ONE description, clamped at rest and full when open, so it is written in
+      // both places) or the board-member rows (→ Columns (profile): photo | name, the role
+      // lines in italic (the lime subtitle), bio, tags list)
+      name: "about-profiles",
+      match: (s) => !!s.querySelector(".aem-person-card .v-person-card") || allContainers(s).filter(isBoardRow).length >= 2,
+      emit: (s, { document: document2 }) => {
+        const out = [];
+        let group = null;
+        const flush = () => {
+          if (group && group.rows.length) out.push(block(document2, group.name, group.rows));
+          group = null;
+        };
+        const add = (name, row) => {
+          if (!group || group.name !== name) {
+            flush();
+            group = { name, rows: [] };
+          }
+          group.rows.push(row);
+        };
+        const p = (text2) => para(document2, text2);
+        let walk = null;
+        const visit = (c) => {
+          if (isPersonCard(c)) {
+            const card = c.querySelector(".v-person-card");
+            const name = norm(card.querySelector(".v-person-card__name")?.textContent);
+            const url = ((card.querySelector(".v-person-card__image")?.getAttribute("style") || "").match(/url\(["']?([^"')]+)["']?\)/) || [])[1];
+            const img = el(document2, "img");
+            if (url) img.src = url;
+            img.alt = name;
+            const h = el(document2, "h3");
+            h.textContent = name;
+            const body = [h];
+            const title = norm(card.querySelector(".v-person-card__title")?.textContent);
+            if (title) body.push(p(title));
+            let props2 = {};
+            try {
+              props2 = JSON.parse(c.getAttribute("data-person-props") || "{}");
+            } catch (e) {
+              props2 = {};
+            }
+            const texts = (h2) => [...el(document2, "div", h2 || "").querySelectorAll("p")].map((q) => norm(q.textContent)).filter(Boolean);
+            const rendered = [...card.querySelectorAll(".v-person-card__description p")].map((q) => norm(q.textContent)).filter(Boolean);
+            const short = texts(props2.short).length ? texts(props2.short) : rendered;
+            const long = texts(props2.long).length ? texts(props2.long) : short;
+            short.forEach((t) => body.push(p(t)));
+            const label = el(document2, "h4");
+            label.textContent = norm(card.querySelector(".v-person-card__subtitle")?.textContent) || "Bio";
+            body.push(label);
+            long.forEach((t) => body.push(p(t)));
+            add("Cards (profile)", [url ? img : "", body]);
+          } else if (isBoardRow(c)) {
+            const tile = components(c).find(isPhotoTile);
+            const cardC = components(c).find((k) => isContainer(k) && /container--border--white/.test(k.className));
+            const texts = deep(cardC).filter((t) => isText(t) && norm(t.textContent));
+            const name = norm(texts[0]?.textContent);
+            let img = null;
+            if (isImage(tile)) img = imageEl(tile, document2);
+            else {
+              img = el(document2, "img");
+              img.src = tile.querySelector(".cmp-container[data-desktop-background-image]").getAttribute("data-desktop-background-image");
+              img.alt = "";
+            }
+            if (img && !img.getAttribute("alt")) img.setAttribute("alt", `${name} headshot`);
+            const h = el(document2, "h3");
+            h.textContent = name;
+            const body = [h];
+            const role = texts.find((t, i) => i > 0 && /graphic-semibold/.test(t.className));
+            if (role) {
+              const q = el(document2, "p");
+              const em = el(document2, "em");
+              [...role.querySelectorAll("p")].map((x) => norm(x.textContent)).filter(Boolean).forEach((t, i) => {
+                if (i) em.append(el(document2, "br"));
+                em.append(t);
+              });
+              q.append(em);
+              body.push(q);
+            }
+            texts.filter((t, i) => i > 0 && t !== role).forEach((t) => body.push(...textEls(t, document2, { plain: true })));
+            const tags = [...cardC.querySelectorAll(".aem-tags__tag")].map((x) => norm(x.textContent)).filter(Boolean);
+            if (tags.length) {
+              const ul = el(document2, "ul");
+              tags.forEach((t) => {
+                const li = el(document2, "li");
+                li.textContent = t;
+                ul.append(li);
+              });
+              body.push(ul);
+            }
+            flush();
+            out.push(block(document2, "Columns (profile)", [[img || "", body]]));
+            components(c).filter(isBoardRow).forEach(visit);
+          } else if (isContainer(c) && c.getAttribute("data-bg-color") === "rgb(255, 255, 255)" && components(c).filter((t) => isText(t) && norm(t.textContent)).length === 1 && !deep(c).some((t) => isImage(t) || isButton(t))) {
+            flush();
+            const t = components(c).find((x) => isText(x) && norm(x.textContent));
+            out.push(block(document2, "Text Style (bar)", [[textEls(t, document2, { headingLevel: 3 })]]));
+          } else if (isContainer(c)) walk(c);
+          else if (isText(c) && norm(c.textContent)) {
+            flush();
+            out.push(...textEls(c, document2));
+          }
+        };
+        walk = (e) => components(e).forEach(visit);
+        walk(s);
+        flush();
+        return out;
+      }
+    },
+    {
+      // about "OUR PURPOSE": a section heading over 3+ text-only cards (title + copy) → the
+      // heading, then Cards (text): one row per card, title (h3) + copy
+      name: "cards-text-grid",
+      // (only the purpose structure: a 64px USTA Sans section heading over cards whose first
+      // text is a short Graphik Semibold title — quote cards and date rows stay theirs)
+      match: (s) => {
+        if (deep(s).some((c) => isImage(c) || isButton(c))) return false;
+        if (!deep(s).some((t) => isText(t) && isUstaSans(t) && fontSize(t) === 64)) return false;
+        const cards = allContainers(s).filter(isTopicCard);
+        return cards.length >= 3 && cards.every((c) => {
+          const t = components(c).find((k) => isText(k) && norm(k.textContent));
+          return !!t && /graphic-semibold/.test(t.className) && norm(t.textContent).length < 80;
+        });
+      },
+      emit: (s, { document: document2 }) => {
+        const cards = allContainers(s).filter(isTopicCard);
+        const out = [];
+        deep(s).filter((t) => isText(t) && norm(t.textContent) && !cards.some((c) => c.contains(t))).forEach((t) => out.push(...textEls(t, document2)));
+        const rows = cards.map((c) => {
+          const texts = components(c).filter((t) => isText(t) && norm(t.textContent));
+          const body = [];
+          texts.forEach((t, i) => body.push(...textEls(t, document2, i === 0 ? { headingLevel: 3 } : { plain: true })));
+          return [body];
+        });
+        return [...out, block(document2, "Cards (text)", rows)];
+      }
+    },
+    {
+      // a grid of linked partner logos (about "OUR PARTNERS & AFFILIATIONS") → Cards (logos):
+      // one row per logo, the image inside its link
+      name: "cards-logos",
+      match: (s) => deep(s).filter(isLinkedLogo).length >= 4 && !deep(s).some(isButton),
+      emit: (s, { document: document2 }) => {
+        const out = [];
+        deep(s).filter((t) => isText(t) && norm(t.textContent)).forEach((t) => out.push(...textEls(t, document2)));
+        const rows = deep(s).filter(isLinkedLogo).map((c) => {
+          const a = c.querySelector("a.cmp-image__link");
+          const link2 = el(document2, "a");
+          link2.href = a.getAttribute("href");
+          const img = imageEl(c, document2);
+          if (img) link2.append(img);
+          return [link2];
+        });
+        return [...out, block(document2, "Cards (logos)", rows)];
+      }
+    },
+    {
+      // the "Get in Touch" panel: an intro (title + subtitle) beside white cards, each a heading,
+      // copy and an icon-only link button → Contact: row 1 the intro paragraphs, then one row per
+      // card — heading | copy | the link (labelled "Email <heading>" for a mailto)
+      name: "contact",
+      match: (s) => allContainers(s).filter(isContactCard).length >= 2,
+      emit: (s, { document: document2, pagePath }) => {
+        const cards = allContainers(s).filter(isContactCard);
+        const intro = [];
+        deep(s).filter((t) => isText(t) && norm(t.textContent) && !cards.some((c) => c.contains(t))).forEach((t) => intro.push(...textEls(t, document2, { plain: true })));
+        const rows = [[intro]];
+        cards.forEach((c) => {
+          const texts = deep(c).filter((t) => isText(t) && norm(t.textContent));
+          const head = texts.find((t) => t.querySelector("h1, h2, h3, h4"));
+          const h = el(document2, "h3");
+          h.textContent = norm(head?.textContent);
+          const copy = [];
+          texts.filter((t) => t !== head).forEach((t) => copy.push(...textEls(t, document2, { plain: true })));
+          const a = deep(c).find(isButton)?.querySelector("a");
+          const link2 = el(document2, "a");
+          if (a) {
+            const href = a.getAttribute("href") || "";
+            link2.href = href;
+            link2.textContent = norm(a.textContent) || (/^mailto:/.test(href) ? `Email ${h.textContent.toLowerCase()}` : h.textContent);
+          }
+          const lp = el(document2, "p");
+          if (a) lp.append(link2);
+          rows.push([[h], copy, a ? [lp] : ""]);
+        });
+        return [block(document2, "Contact", rows)];
+      }
+    },
+    {
       // the "Explore workshops & events" experience fragment → Banner (blue) (one banner: the
       // `events` variant was removed — see MIGRATION.md 2026-11-18 STANDARDIZED)
       name: "banner-events",
       match: (s) => !!s.querySelector(".experiencefragment .container--display--flex.container--align-items--center"),
       emit: (s, { document: document2 }) => reparse(s.querySelector(".container--display--flex.container--align-items--center"), parse2, "Banner (blue)", document2)
+    },
+    {
+      // the centred hero (workshops "Our Core Workshops"): background photo panel, a centred
+      // USTA Sans title (lime second line) and one CTA → Hero (default): row 1 the photo, row 2
+      // the title + CTA link | the phone-only logo (the source's mobile-only image, kept by
+      // markPhoneOnlyImages)
+      // (no CTA = a title-only hero; a logo that also shows on desktop — education-center-
+      // locations — → the `logo` option: the logo at every width)
+      name: "hero-default",
+      match: (s) => isDefaultHero(s),
+      emit: (s, { document: document2, pagePath }) => {
+        const bg = s.querySelector(".cmp-container[data-desktop-background-image]").getAttribute("data-desktop-background-image");
+        const img = el(document2, "img");
+        img.src = bg;
+        img.alt = "";
+        const content = [];
+        let logo = "";
+        let desktopLogo = false;
+        deep(s).forEach((c) => {
+          if (isText(c) && norm(c.textContent)) content.push(...textEls(c, document2));
+          else if (isButton(c)) {
+            const b = buttonEl(c, document2, pagePath);
+            if (b) {
+              const p = el(document2, "p");
+              p.append(b.querySelector("a"));
+              content.push(p);
+            }
+          } else if (isImage(c) && !c.hasAttribute("data-phone-only")) {
+            desktopLogo = true;
+            logo = imageEl(c, document2) || logo;
+          } else if (isImage(c) && !logo) logo = imageEl(c, document2) || "";
+        });
+        return [block(document2, desktopLogo ? "Hero (logo)" : "Hero", [[img], [content, logo]])];
+      }
+    },
+    {
+      // a section that is ONE image with the source's aspect-ratio preset on a centred span
+      // (about: the Executive Board photo, 6 of 12 columns, landscape crop) → Image with the
+      // global crop option, in a `narrow-N` section (N = the image's column span)
+      name: "image-cropped",
+      match: (s) => {
+        const d = comps(s).filter((c) => kind(c) !== "separator");
+        return d.length === 1 && isImage(d[0]) && !d[0].hasAttribute("data-phone-only") && cropOptions(d[0]).length > 0 && centredSpan(d[0]) > 0;
+      },
+      styles: (s) => [`narrow-${centredSpan(comps(s).find(isImage))}`],
+      emit: (s, { document: document2 }) => {
+        const c = comps(s).find(isImage);
+        const i = imageEl(c, document2);
+        return i ? [block(document2, `Image (${cropOptions(c).join(", ")})`, [[i]])] : [];
+      }
+    },
+    {
+      // a section that is ONE phone-only image (workshops: the pathway infographic shown below
+      // 768 only, no desktop copy) → Image with just a `mobile` row (the block shows it on
+      // phones only)
+      name: "image-phone-only",
+      match: (s) => {
+        const d = comps(s);
+        return d.length === 1 && isImage(d[0]) && d[0].hasAttribute("data-phone-only");
+      },
+      emit: (s, { document: document2 }) => {
+        const i = imageEl(comps(s)[0], document2);
+        return i ? [block(document2, "Image", [["mobile", i]])] : [];
+      }
+    },
+    {
+      // course cards (workshops): white-outlined cards, each a background photo + title, copy
+      // (its authored blank lines kept) and a duration line → Cards (course): one row per card,
+      // photo | title (h3), copy, duration (the last short line — the block's pill)
+      name: "cards-course",
+      match: (s) => comps(s).filter(isCourseCard).length >= 2,
+      emit: (s, { document: document2 }) => {
+        const rows = comps(s).filter(isCourseCard).map((c) => {
+          const img = el(document2, "img");
+          img.src = c.querySelector(".cmp-container[data-desktop-background-image]").getAttribute("data-desktop-background-image");
+          img.alt = "";
+          const body = [];
+          deep(c).filter((t) => isText(t) && norm(t.textContent)).forEach((t, i) => body.push(...textEls(t, document2, i === 0 ? { headingLevel: 3 } : {})));
+          const last = body[body.length - 1];
+          if (last && last.tagName === "P" && last.children.length === 1 && /^(STRONG|B)$/.test(last.firstElementChild.tagName) && norm(last.textContent) === norm(last.firstElementChild.textContent)) last.replaceChildren(...last.firstElementChild.childNodes);
+          return [img, body];
+        });
+        return [block(document2, "Cards (course)", rows)];
+      }
     },
     {
       // full-bleed rounded hero: background photo container + H1 (+ subhead, copy, CTA)
@@ -850,7 +1157,8 @@ var CustomImportScript = (() => {
           deep(c).filter(isText).forEach((t) => texts.push(...textEls(t, document2, { plain: true })));
           return texts;
         });
-        return [block(document2, "Columns (media, outlined)", [cells])];
+        const lead = comps(s).some((c) => isContainer(c) && deep(c).some((t) => isText(t) && /text--font-size--24px-16px/.test(t.className)));
+        return [block(document2, lead ? "Columns (media, outlined, lead)" : "Columns (media, outlined)", [cells])];
       }
     },
     {
@@ -873,6 +1181,47 @@ var CustomImportScript = (() => {
           if (isText(c)) (isBefore ? before : after).push(...textEls(c, document2));
         });
         return [...before, eventsBlock(list, viewMore, document2, pagePath), ...after];
+      }
+    },
+    {
+      // a filled WHITE text card WITH a CTA beside an image (membership-benefits "Not sure which
+      // package is right for you?" + Start the Quiz) → Columns (media) — the home page's QUIZ
+      // card model: title + copy as paragraphs (the photo sets the row height), CTA link |
+      // photo, in source order
+      name: "columns-media-card-cta",
+      match: (s) => {
+        const d = comps(s).filter((c) => kind(c) !== "separator");
+        return d.length === 2 && d.some(isImage) && d.some((c) => isContainer(c) && c.getAttribute("data-bg-color") === "rgb(255, 255, 255)" && deep(c).some(isText) && deep(c).filter(isButton).length === 1 && !deep(c).some(isImage));
+      },
+      emit: (s, { document: document2, pagePath }) => {
+        const cells = comps(s).filter((c) => kind(c) !== "separator").map((c) => {
+          if (isImage(c)) {
+            const i = imageEl(c, document2);
+            return i ? [i] : "";
+          }
+          const cell = [];
+          deep(c).forEach((t) => {
+            if (isText(t) && norm(t.textContent)) {
+              textEls(t, document2, { plain: true }).forEach((n) => {
+                if (/^H[1-6]$/.test(n.tagName)) {
+                  const q = el(document2, "p");
+                  q.append(...n.childNodes);
+                  cell.push(q);
+                } else cell.push(n);
+              });
+            } else if (isButton(t)) {
+              const b = buttonEl(t, document2, pagePath);
+              if (b) {
+                const q = el(document2, "p");
+                q.append(b.querySelector("a"));
+                cell.push(q);
+              }
+            }
+          });
+          return cell;
+        });
+        const crop = cropOptions(comps(s).find(isImage));
+        return [block(document2, crop.length ? `Columns (media, ${crop.join(", ")})` : "Columns (media)", [cells])];
       }
     },
     {
@@ -1017,7 +1366,14 @@ var CustomImportScript = (() => {
           return [title, body.length ? body : ""];
         });
         const anyOpen = !!acc.querySelector(".cmp-accordion__item[data-cmp-expanded], .cmp-accordion__button--expanded");
-        return [...lead, block(document2, anyOpen ? "Accordion" : "Accordion (closed)", rows)];
+        const locations = [...acc.querySelectorAll(".cmp-accordion__panel .container--border--gray")].filter((c) => c.querySelector(".image img")).length >= 2;
+        if (locations) rows.forEach(([, body]) => {
+          if (Array.isArray(body)) body.forEach((n) => n.querySelectorAll && n.querySelectorAll('img[src*="location-pin"]').forEach((i) => {
+            i.alt = "";
+          }));
+        });
+        const opts = [...anyOpen ? [] : ["closed"], ...locations ? ["locations"] : []];
+        return [...lead, block(document2, opts.length ? `Accordion (${opts.join(", ")})` : "Accordion", rows)];
       }
     },
     {
@@ -1075,7 +1431,8 @@ var CustomImportScript = (() => {
     {
       // a rounded colour panel holding only heading / copy / one CTA → centred banner
       name: "banner-centered",
-      match: (s) => /border-radius--top-left-outer/.test(s.className) && !!s.getAttribute("data-bg") && !comps(s).some(isImage) && comps(s).filter(isButton).length === 1,
+      match: (s) => (/border-radius--top-left-outer/.test(s.className) || s.hasAttribute("data-faq-band")) && !!s.getAttribute("data-bg") && !comps(s).some(isImage) && comps(s).filter(isButton).length === 1,
+      // (or the colour band split off after an FAQ accordion — prepareSections)
       emit: (s, { document: document2, pagePath }) => {
         const list = comps(s);
         const text2 = [];
@@ -1310,6 +1667,28 @@ var CustomImportScript = (() => {
       }
     },
     {
+      // a filled WHITE text card beside an image component, no CTA (maintenance page "We'll be
+      // back to serve you soon!") → Columns (media): cells in source order (card copy | image)
+      name: "columns-media-card",
+      match: (s) => {
+        const d = comps(s).filter((c) => kind(c) !== "separator");
+        return d.length === 2 && d.some(isImage) && d.some((c) => isContainer(c) && c.getAttribute("data-bg-color") === "rgb(255, 255, 255)" && deep(c).some(isText) && !deep(c).some(isButton));
+      },
+      emit: (s, { document: document2 }) => {
+        const cells = comps(s).filter((c) => kind(c) !== "separator").map((c) => {
+          if (isImage(c)) {
+            const i = imageEl(c, document2);
+            return i ? [i] : "";
+          }
+          const cell = [];
+          deep(c).filter((t) => isText(t) && norm(t.textContent)).forEach((t) => cell.push(...textEls(t, document2, { plain: true })));
+          return cell;
+        });
+        const crop = cropOptions(comps(s).find(isImage));
+        return [block(document2, crop.length ? `Columns (media, ${crop.join(", ")})` : "Columns (media)", [cells])];
+      }
+    },
+    {
       // a photo tile (container background image, no text) beside a white card with a
       // heading + CTA ("Discover our learning pathway") → Columns (media), in source order
       name: "columns-media-bg",
@@ -1383,8 +1762,34 @@ var CustomImportScript = (() => {
       next.setAttribute("data-phone-alt", img.getAttribute("alt") || "");
     });
   }
+  function markPhoneOnlyImages(main) {
+    main.querySelectorAll('.image[class*="aem-GridColumn--default--hide"]').forEach((c) => {
+      const siblings = [...c.parentElement.children].filter((k) => k !== c && k.querySelector && (isImage(k) || k.querySelector("img")));
+      if (siblings.some((k) => !/aem-GridColumn--default--hide/.test(k.className))) return;
+      const panel = c.closest(".cmp-container[data-desktop-background-image]");
+      const own = c.parentElement.closest(".container");
+      const alone = own && components(own).length === 1;
+      if (!panel && !alone) return;
+      c.setAttribute("data-phone-only", "");
+      c.className = c.className.replace(/aem-GridColumn--default--hide/g, "aem-GridColumn--default--phone-only");
+    });
+  }
   var import_landing_page_v1_default = {
     onLoad: ({ document: document2 }) => {
+      if (document2.querySelector(".aem-person-card")) {
+        try {
+          const xhr = new (document2.defaultView || window).XMLHttpRequest();
+          xhr.open("GET", document2.location.href.split("#")[0], false);
+          xhr.send();
+          const raw = new DOMParser().parseFromString(xhr.responseText, "text/html");
+          const live = [...document2.querySelectorAll(".aem-person-card")];
+          [...raw.querySelectorAll("v-person-card")].forEach((v, i) => {
+            if (!live[i]) return;
+            live[i].setAttribute("data-person-props", JSON.stringify({ short: v.getAttribute("description") || "", long: v.getAttribute("long-description") || "" }));
+          });
+        } catch (e) {
+        }
+      }
       document2.querySelectorAll(".cmp-text p").forEach((q) => {
         if (q.textContent.replace(/\s/g, "") || q.querySelector("img")) return;
         const host = q.closest(".text");
@@ -1399,6 +1804,7 @@ var CustomImportScript = (() => {
       document2.querySelectorAll(".container").forEach((c) => {
         const inner = c.querySelector(":scope > .cmp-container");
         const bg = inner ? getComputedStyle(inner).backgroundColor : "";
+        if (bg) c.setAttribute("data-bg-color", bg);
         if (inner && /gradient\(/.test(getComputedStyle(inner).backgroundImage)) c.setAttribute("data-bg", "gradient");
         else if (bg === "rgb(3, 115, 243)") c.setAttribute("data-bg", "blue");
         else if (bg === "rgb(207, 255, 5)") c.setAttribute("data-bg", "lime");
@@ -1419,6 +1825,7 @@ var CustomImportScript = (() => {
       transform("beforeTransform", main, payload);
       const theme = themeOf(pagePath);
       if (IMAGE_PAIR_THEMES.includes(theme)) markPhoneImages(main);
+      markPhoneOnlyImages(main);
       main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
       const { root, skip } = contentRoot(main);
       if (!root) throw new Error("landing-page content grid not found");
@@ -1473,6 +1880,18 @@ var CustomImportScript = (() => {
       if (!isContainer(k) || skip(k) || /container--(padding|border)--/.test(k.className) || k.getAttribute("data-bg")) return;
       const kids = components(k).filter((c) => kind(c) !== "separator");
       if (kids.length >= 2 && kids.every(headed) && !kids.every(isPackageTier)) k.replaceWith(...kids);
+    });
+    const bannerKind = KINDS.find((kd) => kd.name === "banner-centered");
+    [...root.children].forEach((k) => {
+      if (!isContainer(k) || skip(k)) return;
+      const list = comps(k);
+      const ai = list.findIndex((c) => kind(c) === "accordion");
+      if (ai < 0) return;
+      list.slice(ai + 1).filter((c) => isContainer(c) && /container--border-radius--top-left/.test(c.className)).reverse().forEach((c) => {
+        c.setAttribute("data-faq-band", "");
+        if (bannerKind.match(c)) k.after(c);
+        else c.removeAttribute("data-faq-band");
+      });
     });
     const loose = (k) => !isContainer(k) && !skip(k) && /^(text|image|button|separator|embed|iframetext|accordion|tags|core-tabs|aem-events-list)\b/.test(k.className || "");
     [...root.children].forEach((k) => {

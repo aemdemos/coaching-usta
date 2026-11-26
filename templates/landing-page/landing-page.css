@@ -669,3 +669,41 @@ body.landing-page main > .section:is(:has(.banner.stats), :has(.cards.icons.comp
 @media (width >= 1280px) {
   body.landing-page main > .section:is(:has(.banner.stats), :has(.cards.icons.compact)) + .section { padding-top: 96px; }
 }
+
+/* the sub-nav strip (Tabs in navigation mode) is followed by the source's 42px separator
+   before a hero (workshops "Our Core Workshops") */
+body.landing-page main > .section:has(> .tabs-wrapper > .tabs > nav.tabs-list) + .section.hero-container { padding-top: 42px; }
+
+/* a phone-only image section (Image with only a `mobile` row — workshops pathway infographic)
+   sits right under the section before it (source: no gap under the hero) and keeps the
+   source's container margin below (24px + the next section's rhythm) */
+body.landing-page main > .section:has(> .image-wrapper > .image.mobile-only) { padding: 0 0 24px; }
+
+/* `statement-32` (importer-set): an intro statement on the source's 32px-28px text preset
+   (education-center-locations) — 28 → 32px (1280), line-height 1, −0.03em, the paragraphs one
+   blank line apart, on 10 of 12 columns from 1280 (instead of the home statement's 32 → 72) */
+body.landing-page main > .section.intro-statement.statement-32 p {
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+body.landing-page main > .section.intro-statement.statement-32 p + p { margin-top: 1em; }
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.intro-statement.statement-32 p { font-size: 32px; }
+
+  body.landing-page main > .section.intro-statement.statement-32 > div > * { margin-inline: calc(100% / 12 + 12px); }
+}
+
+/* a heading-less media card (the quiz card) shows on phones on landing pages — the home page
+   (no template) hides its quiz section there (source) */
+body.landing-page main > .section:has(> .columns-wrapper > .columns.media.columns-media-lead) { display: block; }
+
+/* an image-only narrow section (about Executive Board photo, narrow-6) spans 10 of 12 columns
+   on phones (source mobile span); its own span from 768 */
+body.landing-page main > .section.narrow-cols.image-container:is(.narrow-6, .narrow-7, .narrow-8, .narrow-9):not(:has(> :not(.image-wrapper, .section-metadata))) > div { --section-span: 10; }
+
+@media (width >= 768px) {
+  body.landing-page main > .section.narrow-cols.image-container:is(.narrow-6, .narrow-7, .narrow-8, .narrow-9):not(:has(> :not(.image-wrapper, .section-metadata))) > div { --section-span: inherit; }
+}

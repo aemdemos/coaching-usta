@@ -1519,6 +1519,21 @@ main > .section.columns-container:has(.columns.profile) > div {
   padding: 0 16px;
 }
 
+/* a section that also holds Cards (profile) (about "OUR LEADERSHIP": executive cards +
+   board rows in ONE source section) is already padded to the gutter by the cards rule —
+   don't add it again on the wrappers */
+main > .section.columns-container.cards-container:has(.columns.profile):has(.cards.profile) > div:not(.cards-wrapper) {
+  padding-inline: 0;
+}
+
+main > .section.columns-container.cards-container:has(.columns.profile):has(.cards.profile) > .cards-wrapper {
+  padding-inline: 8px; /* the cards' own inset (cards.css) — not the columns wrapper gutter */
+}
+
+@media (width >= 768px) {
+  main > .section.columns-container.cards-container:has(.columns.profile):has(.cards.profile) > .cards-wrapper { padding-inline: 12px; }
+}
+
 /* mobile-first: stack photo then card. The source puts photo and card in grid
    columns padded 8px (12px from 768) — that inset lives on the row. */
 .columns.profile > div {
@@ -1644,9 +1659,18 @@ main > .section.columns-container:has(.columns.profile) > div {
   /* photo = its grid span (5/12 tablet, 4/12 small desktop, 3/12 desktop of
      the row incl. the 12px insets) minus the 24px column gutter */
   .columns.profile .columns-profile-photo {
+    position: relative;
     flex: 0 0 calc((100% + 24px) * 5 / 12 - 24px);
     align-self: stretch;
     aspect-ratio: auto; /* stretch to the card's height instead of forcing 1:1 */
+  }
+
+  /* the photo fills its cell and never sets the row height (a tall portrait would stretch
+     the card — the source crops it to the card) */
+  .columns.profile .columns-profile-photo img {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
   }
 
   .columns.profile .columns-profile-card {
@@ -3296,3 +3320,61 @@ main > .section.columns-container:has(.columns.promo) > div {
 @media (width >= 1280px) {
   .columns.media.outlined.block { margin-bottom: 140px; }
 }
+
+/* ---- media, outlined, `lead` option (membership-benefits "Membership & Benefits" card) — the
+   source's intro-card preset (copy on the 24px-16px lead text preset): copy Graphik 16/19.2 →
+   18/21.6 (1024) → 24/28.8 (1280) instead of 16 → 18 (1280); at 1024–1279 the photo keeps its
+   portrait crop (0.689) and the card stretches to it, instead of the photo filling the card.
+   Importer-set from the copy's text preset. */
+@media (width >= 1024px) {
+  .columns.media.outlined.lead:not(.dark):has(.columns-media-content) .columns-media-content p { font-size: 18px; }
+
+  .columns.media.outlined.lead:not(.dark):has(.columns-media-content) .columns-media-media {
+    position: static;
+    align-self: flex-start;
+  }
+
+  .columns.media.outlined.lead:not(.dark):has(.columns-media-content) .columns-media-media picture { position: static; }
+
+  .columns.media.outlined.lead:not(.dark):has(.columns-media-content) .columns-media-media img {
+    height: auto;
+    aspect-ratio: 689 / 1000;
+  }
+}
+
+@media (width >= 1280px) {
+  .columns.media.outlined.lead:not(.dark):has(.columns-media-content) .columns-media-content p { font-size: 24px; }
+
+  .columns.media.outlined.lead:not(.dark):has(.columns-media-content) .columns-media-media img { aspect-ratio: 5 / 6; }
+}
+
+/* ---- media (light card) with an image crop option (`landscape` … `portrait-2`, styles.css):
+   the photo keeps the crop at every width and sets the row — side by side from 768 the card
+   stretches to the photo's height with its copy at the bottom (about "Coaching the Coaches",
+   portrait-2). Without a crop option the card keeps its own model above. */
+.columns.media:not(.dark):is(.landscape, .landscape-2, .landscape-3, .portrait, .portrait-2):has(.columns-media-content) .columns-media-media img {
+  height: auto;
+  aspect-ratio: var(--image-crop);
+  object-fit: cover;
+  object-position: center top;
+}
+
+@media (width >= 768px) {
+  .columns.media:not(.dark):is(.landscape, .landscape-2, .landscape-3, .portrait, .portrait-2):has(.columns-media-content) .columns-media-media {
+    position: relative;
+    aspect-ratio: var(--image-crop);
+  }
+
+  .columns.media:not(.dark):is(.landscape, .landscape-2, .landscape-3, .portrait, .portrait-2):has(.columns-media-content) .columns-media-media img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .columns.media:not(.dark):is(.landscape, .landscape-2, .landscape-3, .portrait, .portrait-2):has(.columns-media-content) .columns-media-content { justify-content: flex-end; }
+}
+
+/* ---- profile rows: the space between consecutive Columns (profile) blocks (about board) ----
+   Source: each member row is a container with a 12px inset above and below → rows 24px
+   apart. One consistent gap — the source author's extra separators before some rows are not
+   reproduced (user decision 2026-11-26: no spacing variants for irregular spacing). */
+.columns-wrapper:has(> .columns.profile) + .columns-wrapper:has(> .columns.profile) { margin-top: 24px; }

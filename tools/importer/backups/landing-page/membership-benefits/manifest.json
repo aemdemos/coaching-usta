@@ -1,0 +1,41 @@
+{
+  "page": "membership-benefits",
+  "date": "2026-11-26",
+  "source": "https://www.ustacoaching.com/en/home/membership-benefits.html",
+  "output": "content/en/home/membership-benefits.plain.html (+ review copy under content/drafts/meet/)",
+  "change": "per-page theme folded in (user decision 2026-11-26): no Theme metadata; reusable looks moved to block options / template rules, page-only spacing dropped — see MIGRATION.md 2026-11-26",
+  "sha256": {
+    "import-landing-page-v1.js": "34695222c746ea14380ee419490a3ba6125a166f7893f0233d1ad54590df6f21",
+    "import-landing-page-v1.bundle.js": "e7b7258ce0915ebf79776ae7308015a7caf974b9dbdd44d25563136d1dfde367",
+    "import-sample-landing-blocks.bundle.js": "687eb48c7ed3a965b2661881419ac25d607f7fa55b22b4e6d8b20563cbab120b",
+    "output content/en/home/membership-benefits.plain.html": "fe1570aaa4924c75aa97b705534921c50d1b7dc327de854c7e0e37fb352c6ba4"
+  },
+  "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-membership-benefits.txt --force with WORKSPACE_PATH set to a scratch folder; copy to content/<path>.plain.html",
+  "finalize": "node tools/assets/fetch-page-images.mjs en/home/membership-benefits (2 images; no DAM documents)",
+  "regression": "26 other pages byte-identical to /tmp/reg/new13-* (outputs /tmp/reg/new14-l|r|n)",
+  "history": [
+    {
+      "page": "membership-benefits",
+      "locales": [
+        "en"
+      ],
+      "date": "2026-11-25",
+      "source": "https://www.ustacoaching.com/en/home/membership-benefits.html",
+      "output": "content/en/home/membership-benefits.plain.html (real path) + review copy content/drafts/meet/membership-benefits.plain.html",
+      "importer": "import-landing-page-v1.js — new kind columns-media-card-cta (white card + CTA beside a photo → Columns (media), quiz model: title as a paragraph); prepareSections splits a colour band that follows an accordion in the same container into its own section (data-faq-band; banner-centered accepts it); a kind never joins the narrow heading section split off its own section; PAGE_THEMES '/home/membership-benefits' → membership-benefits",
+      "sha256": {
+        "import-landing-page-v1.js": "15da5b57d514ed718171a20115ccfdb439e25ef5272b5568e9282ae34862198d",
+        "import-landing-page-v1.bundle.js": "d8ad99f7013672d29de65020ea451b066f06021e5d853e859f4f8bc54c57d9cf",
+        "output content/drafts/meet/membership-benefits.plain.html": "00e7687673bf45e2f0d5dfff4df3cc5f92471a027b60c7ccab3fe1ff09205d06",
+        "output content/en/home/membership-benefits.plain.html": "537f07df3311dcc44f954f9e3a02a84f1b387121fae59c8bc4ca4e150eab2d8d"
+      },
+      "bundle": "npx esbuild tools/importer/import-landing-page-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-landing-page-v1.bundle.js (rebuild import-quiz-results-v1, import-news-listing-v1, import-sample-landing-blocks, import-sample-landing-sections, import-sample-results-blocks too)",
+      "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-membership-benefits.txt --force with WORKSPACE_PATH set to a scratch folder; copy to content/<path>.plain.html",
+      "finalize": "node tools/assets/fetch-page-images.mjs en/home/membership-benefits (2 images; no DAM documents)",
+      "theme": "themes/membership-benefits/membership-benefits.css (CSS only; registered in scripts/scripts.js THEMES)",
+      "blocks": "Columns (media, outlined) · h2 (center, narrow-8, heading-64, spacing-36) · Cards (pricing) (center, spacing-36) · Columns (media) quiz model (spacing-36) · h2 (center, narrow-10, heading-64, spacing-36) · Accordion (first open; center, spacing-36) · Banner (centered, blue)",
+      "regression": "25 pages (17 landing incl. coachtennis / workshops / maintenance / about, 6 results, news ×2) vs the previous verified outputs: identical except learning-pathway, which now keeps its source \"More questions? Visit Coach Care.\" band (dropped before — the same FAQ + band container; learning-pathway is a first-pass page, its content/ copy untouched)",
+      "verified": "migration-work/membership-benefits/compare.mjs (standards mode) @375/768/1024/1280/1440: every measured part = source from 768 (intro card + photo + title + copy, packages heading, tiers, quiz card, FAQ heading, first FAQ item, band); accepted: closed FAQ items +10px (shared landing rule, user 2026-11-25) → band ~122–135px lower; phones use the desktop copy of the intro / quiz text (the source has phone-only copies with other wording) → intro card 67px shorter; band CTA 37px off-centre at 768 (known source quirk)"
+    }
+  ]
+}

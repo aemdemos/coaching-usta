@@ -29,6 +29,51 @@ function splitLabel(raw) {
   return [text.slice(0, idx).trim(), text.slice(idx + 1).trim()];
 }
 
+/*
+ * locations — each item's body is a list of location cards (education-center-locations:
+ * one region per item). Authoring, per location, in the item's body cell: a paragraph with
+ * the photo, then the copy (region + name, address lines), then an optional CTA link
+ * ("Website"). A new card starts at every photo paragraph; the cards form a grid.
+ */
+function decorateLocations(details) {
+  const body = details.querySelector('.accordion-item-body');
+  if (!body) return;
+  const isPhoto = (el) => el.tagName === 'P' && !!el.querySelector('picture, img')
+    && !el.textContent.trim();
+  const grid = document.createElement('div');
+  grid.className = 'accordion-locations';
+  let card = null;
+  let text = null;
+  [...body.children].forEach((el) => {
+    if (isPhoto(el) || !card) {
+      card = document.createElement('div');
+      card.className = 'accordion-locations-card';
+      text = document.createElement('div');
+      text.className = 'accordion-locations-text';
+      if (isPhoto(el)) {
+        el.className = 'accordion-locations-image';
+        card.append(el, text);
+        grid.append(card);
+        return;
+      }
+      card.append(text);
+      grid.append(card);
+    }
+    // a paragraph holding only a link is the card's CTA
+    const links = el.querySelectorAll('a');
+    if (el.tagName === 'P' && links.length === 1 && el.textContent.trim() === links[0].textContent.trim()) {
+      el.classList.add('accordion-locations-cta');
+    }
+    text.append(el);
+  });
+  // the copy after the region / name paragraph is the address (smaller type)
+  grid.querySelectorAll('.accordion-locations-text').forEach((t) => {
+    const copy = [...t.children].filter((p) => !p.classList.contains('accordion-locations-cta'));
+    copy.slice(1).forEach((p) => p.classList.add('accordion-locations-address'));
+  });
+  body.replaceChildren(grid);
+}
+
 function decorateDefault(block) {
   // tag the base variant with a positive class so its CSS is opt-in
   // (`.accordion.accordion-default …`) rather than an ever-growing
@@ -56,6 +101,8 @@ function decorateDefault(block) {
     row.replaceWith(details);
     items.push(details);
   });
+
+  if (block.classList.contains('locations')) items.forEach(decorateLocations);
 
   // single-open: opening one item closes the others (source behaviour)
   items.forEach((details) => {

@@ -388,6 +388,45 @@
           }
         }
       }
+    },
+    "about": {
+      "kind": "theme",
+      "source": "https://www.ustacoaching.com/en/home/about.html",
+      "note": "Theme about (on the landing-page template): the hero title \"ABOUT USTA COACHING\" is the source 64px-32px USTA Sans text component (an h1), 32 @390 / 32 @768 / 40 @1024 / 64 @1280, line-height 1. Measured on the live source 2026-11-26.",
+      "scale": {
+        "390": {
+          "h1": {
+            "fontSizePx": 32,
+            "lineHeightPx": 32,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "768": {
+          "h1": {
+            "fontSizePx": 32,
+            "lineHeightPx": 32,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "1024": {
+          "h1": {
+            "fontSizePx": 40,
+            "lineHeightPx": 40,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        },
+        "1280": {
+          "h1": {
+            "fontSizePx": 64,
+            "lineHeightPx": 64,
+            "fontWeight": 700,
+            "fontFamily": "usta sans"
+          }
+        }
+      }
     }
   }
 }

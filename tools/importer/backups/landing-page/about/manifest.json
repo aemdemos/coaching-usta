@@ -1,0 +1,54 @@
+{
+  "page": "en/home/about",
+  "locales": [
+    "en"
+  ],
+  "date": "2026-11-26",
+  "source": "https://www.ustacoaching.com/en/home/about.html",
+  "note": "about theme restored for full parity (user decision 2026-11-26): Theme metadata `about`; board rows carry the source spacing as Columns (profile) options (spacing-32 = the row container top-margin-32 preset, space-16/32/48 = the visible 16px separators before the row).",
+  "sha256": {
+    "import-landing-page-v1.js": "77851837386bea8ffe16664959f8f688bd92e97372de5c9e230afcd89f3f8e5d",
+    "import-landing-page-v1.bundle.js": "ab95ccda956d6dc37113767a9cfcfd6d0e63a014f7f7a7864bb2798d88e7696f",
+    "output content/en/home/about.plain.html": "66b1c77766ff16981ae31da54fc62408c56b2e830203b2696981b771daea88a7"
+  },
+  "urls": "tools/importer/urls-about.txt",
+  "run": "run-bulk-import.js (excat-content-import) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-about.txt --force (scratch WORKSPACE_PATH, then copy to content/en/home/about + content/drafts/meet/about)",
+  "finalize": "node tools/assets/fetch-page-images.mjs en/home/about drafts/meet/about",
+  "verified": "migration-work/about/parity.mjs @375/768/1024/1280/1440/1728 (standards mode): 45 anchors within 0-2px except the documented source content quirks (Andrea Perez card, Alexis Glick card @1024, logos hidden <1024 on the source)",
+  "history": [
+    {
+      "importer": "import-landing-page-v1.js",
+      "sha256": {
+        "import-landing-page-v1.js": "7607e9965e97eead2791b2be2d3e62e446ffac0d65228bf383a16e373f5cb779",
+        "import-landing-page-v1.bundle.js": "7276c4e939bb4055ca87ee98a722b805867569f619e0dcf1490ab48547992128",
+        "output content/en/home/about.plain.html": "0ccaf468097d121e95a04f882ad5b2379a701abc4392c57d37fb1490745e5112"
+      },
+      "bundle": "npx esbuild tools/importer/import-landing-page-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-landing-page-v1.bundle.js (and rebuild import-quiz-results-v1, import-news-listing-v1, import-sample-landing-blocks, import-sample-landing-sections, import-sample-results-blocks)",
+      "regression": "23 earlier pages (15 landing incl. coachtennis + workshops, 6 results, news + search results) re-imported with the final bundles — byte-identical to their previous verified outputs (/tmp/reg/new3-*, /tmp/ws2); this page re-imported twice — identical",
+      "page": "about",
+      "date": "2026-11-25",
+      "source": "https://www.ustacoaching.com/en/home/about.html",
+      "output": "content/en/home/about.plain.html (review copy content/drafts/meet/about.plain.html)",
+      "urls": "tools/importer/urls-about.txt",
+      "finalize": "node tools/assets/fetch-page-images.mjs en/home/about (19 images)",
+      "theme": "about (themes/about/about.css — hero card type, group heading bars, board photo span on phones, section rhythm)",
+      "blocks": "Columns (media, portrait-2) hero · Cards (text) · h3 bar + Cards (profile) · h3 bar + Columns (profile) ×7 · Image (landscape) (narrow-6) · Cards (logos) · Contact",
+      "verified": "migration-work/about/compare.mjs + rows.mjs (standards mode) @375/768/1024/1280/1440: every section x / width = source; vertical positions within 4px down to the board rows; from the last board row down a constant −30…−35px (Andrea Perez card 32px shorter — the source stretches that nested row; −54px at 1024 incl. Alexis 20px); logos + contact identical"
+    },
+    {
+      "page": "about",
+      "date": "2026-11-26",
+      "source": "https://www.ustacoaching.com/en/home/about.html",
+      "output": "content/en/home/about.plain.html (+ review copy under content/drafts/meet/)",
+      "change": "per-page theme folded in (user decision 2026-11-26): no Theme metadata; reusable looks moved to block options / template rules, page-only spacing dropped — see MIGRATION.md 2026-11-26",
+      "sha256": {
+        "import-landing-page-v1.js": "34695222c746ea14380ee419490a3ba6125a166f7893f0233d1ad54590df6f21",
+        "import-landing-page-v1.bundle.js": "e7b7258ce0915ebf79776ae7308015a7caf974b9dbdd44d25563136d1dfde367",
+        "import-sample-landing-blocks.bundle.js": "687eb48c7ed3a965b2661881419ac25d607f7fa55b22b4e6d8b20563cbab120b",
+        "output content/en/home/about.plain.html": "dd91abf5700ee8b0afb3133254d48fb29898bbebb918213bd0619762fcf9555f"
+      },
+      "finalize": "node tools/assets/fetch-page-images.mjs en/home/about (19 images)",
+      "regression": "26 other pages byte-identical to /tmp/reg/new13-* (outputs /tmp/reg/new14-l|r|n)"
+    }
+  ]
+}

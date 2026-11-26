@@ -1148,3 +1148,141 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
     font-size: 24px;
   }
 }
+
+/* ---- locations option (`accordion (closed, locations)`) ----
+   Each item's body is a grid of location cards (education-center-locations: one region per
+   item). Source (measured 375 / 768 / 1024 / 1280 / 1440): the cards start 18px under the
+   label row and end 32px above the item's bottom edge, flush with the body on phones and
+   12px in from 768; 1-up on phones, 2-up from 768 (24px column gap, 60px row gap). Card:
+   1px #a0a0a0, radius 20, #262626; photo on top (≈2.2:1, cover); copy 21px under it — region
+   + name Graphik 18/24 (name a bold underlined link), the address lines 15/24 one blank line
+   below, 15 × 19 pin icons; then the lime CTA, half the copy width, 40px tall, radius 12,
+   Graphik Semibold 18/20, 20px under the address; 21 / 29 (1024) / 45px (1280) under it.
+   (copy 19px under the photo box = 21 to the source's glyph box)
+   Standardised: on phones the source's cards are 16px apart within a source row of two and
+   60px between rows — here 16px throughout. */
+.accordion.accordion-default.locations .accordion-item .accordion-item-body {
+  padding: 18px 0 8px;
+}
+
+.accordion.accordion-default.locations .accordion-locations {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.accordion.accordion-default.locations .accordion-locations-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-bottom: 21px;
+  border: 1px solid #a0a0a0;
+  border-radius: 20px;
+  background: #262626;
+}
+
+.accordion.accordion-default.locations .accordion-item .accordion-locations-image {
+  margin: 0;
+  line-height: 0;
+}
+
+.accordion.accordion-default.locations .accordion-locations-image :is(picture, img) {
+  display: block;
+  width: 100%;
+}
+
+.accordion.accordion-default.locations .accordion-locations-image img {
+  aspect-ratio: 2.2;
+  object-fit: cover;
+}
+
+.accordion.accordion-default.locations .accordion-locations-text {
+  padding: 19px 0 0;
+}
+
+.accordion.accordion-default.locations .accordion-item .accordion-locations-card p {
+  margin: 0;
+  color: #fff;
+  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+.accordion.accordion-default.locations .accordion-item .accordion-locations-card p.accordion-locations-address {
+  margin-top: 24px;
+  font-size: 15px;
+}
+
+/* the name: the source's <b> on a weight-normal face = a synthesized bold */
+.accordion.accordion-default.locations .accordion-locations-text strong {
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-weight: 700;
+}
+
+.accordion.accordion-default.locations .accordion-locations-text img {
+  width: 15px;
+  height: 19px;
+  vertical-align: middle;
+}
+
+.accordion.accordion-default.locations .accordion-item .accordion-locations-card p.accordion-locations-cta {
+  margin-top: 20px;
+}
+
+.accordion.accordion-default.locations .accordion-item .accordion-locations-cta a:any-link {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  min-width: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border: 2px solid var(--usta-lime);
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: normal;
+  text-decoration: none;
+  text-transform: none;
+}
+
+.accordion.accordion-default.locations .accordion-item .accordion-locations-cta a:hover {
+  border-color: #fff;
+  background: #fff;
+}
+
+.accordion.accordion-default.locations .accordion-item .accordion-locations-cta a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (width >= 768px) {
+  .accordion.accordion-default.locations .accordion-item .accordion-item-body {
+    padding-inline: 12px;
+  }
+
+  .accordion.accordion-default.locations .accordion-locations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start; /* each card its own height (source) */
+    gap: 60px 24px;
+  }
+
+  .accordion.accordion-default.locations .accordion-locations-text {
+    padding-inline: 12px;
+  }
+}
+
+@media (width >= 1024px) {
+  .accordion.accordion-default.locations .accordion-locations-card { padding-bottom: 29px; }
+}
+
+@media (width >= 1280px) {
+  .accordion.accordion-default.locations .accordion-locations-card { padding-bottom: 45px; }
+}

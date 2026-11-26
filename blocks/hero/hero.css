@@ -16,12 +16,13 @@
    as its content: the source stacks separators above, between and below the
    heading and CTA — 8px (phones add 18px above heading and CTA; tablet 142px
    panel) → 84px @1024 → 96px @1280.
-   The section container matches the header/hero gutters (16/40/48/64). */
+   The section container matches the header's page gutters (8 / 28 / 36 / 52 — re-measured on
+   the live workshops page 2026-11-25; it was the 16/40/48/64 cards grid before). */
 main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
-  padding: 0 16px;
+  padding: 0 8px;
 }
 
 .hero:not(.video, .content) {
@@ -31,7 +32,7 @@ main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 26px 24px 8px; /* source mobile: 18 + 8px above heading, 8px below CTA */
+  padding: 26px 18px 8px; /* source mobile: 18 + 8px above heading, 8px below CTA; the title box 19px in (321 @375 — education-center-locations) */
   border: 1px solid #fff; /* source: 1px solid white frame border */
   border-radius: 20px;
   overflow: hidden;
@@ -119,8 +120,8 @@ main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div
 .hero:not(.video, .content) .hero-logo {
   position: relative;
   z-index: 2;
-  width: 36.5vw; /* source: logo = 36.5% of viewport (142px @390) */
-  max-width: 260px;
+  width: 143px; /* source: a fixed ~143px logo (142 @390, 143 @375 — re-measured 2026-11-25) */
+  max-width: 100%;
   height: auto;
   margin-top: -26px; /* offset the content gap above it — it hugs the heading */
 }
@@ -160,7 +161,7 @@ main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div
 
 /* tablet (>=768): wider gutter; edu logo hidden (source: shown only <768) */
 @media (width >= 768px) {
-  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 40px; }
+  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 28px; }
 
   .hero:not(.video, .content) .hero-logo { display: none; }
 
@@ -171,7 +172,7 @@ main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div
 
 /* small desktop (>=1024): heading 40px, taller panel, 48px gutter */
 @media (width >= 1024px) {
-  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 48px; }
+  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 36px; }
 
   .hero:not(.video, .content) { padding: 84px 48px; }
 
@@ -185,7 +186,7 @@ main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div
 
 /* wide desktop (>=1280): heading 64px, full panel, 64px gutter */
 @media (width >= 1280px) {
-  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 64px; }
+  main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div { padding: 0 52px; }
 
   .hero:not(.video, .content) { padding-block: 96px; }
 
@@ -581,6 +582,51 @@ main > .section.hero-container:has(.hero.content) > div {
     font-size: 18px;
     line-height: 20px;
   }
+}
+
+/* logo: the Education Center logo at EVERY width (education-center-locations; the default
+   hero shows it on phones only). Source: phones — 143px, directly above the title; from 768
+   — under the title (16px @768, 15 @1024, 13px from 1280), 1/6 of the panel wide (2 of 12
+   columns: 118 @768 → 222 @1440). A title-only hero (no CTA): the panel ends 8 / 84 / 96px
+   under the logo (the default hero's padding). */
+.hero.logo:not(.video, .content) {
+  container-type: inline-size;
+}
+
+.hero.logo:not(.video, .content) .hero-logo {
+  order: -1;
+  margin: 0 0 -26px;
+}
+
+/* (phones, title-only: the panel runs on 78px under the title — source) */
+.hero.logo:not(.video, .content, :has(.hero-cta)) {
+  padding-bottom: 79px;
+}
+
+@media (width >= 768px) {
+  .hero.logo:not(.video, .content, :has(.hero-cta)) { padding-bottom: 8px; }
+
+  .hero.logo:not(.video, .content) .hero-logo {
+    display: block;
+    order: 0;
+    width: calc((100cqw + 50px) / 6); /* the panel (content + 2 × 24px padding + border) / 6 */
+    margin: 8px 0 0; /* 8px gap + 8 = 16 under the title */
+  }
+}
+
+@media (width >= 1024px) {
+  .hero.logo:not(.video, .content, :has(.hero-cta)) { padding-bottom: 84px; }
+
+  .hero.logo:not(.video, .content) .hero-logo {
+    width: calc((100cqw + 98px) / 6);
+    margin-top: -66px; /* the 84px gap − 66 = 18 under the title box (15 to the glyphs) */
+  }
+}
+
+@media (width >= 1280px) {
+  .hero.logo:not(.video, .content, :has(.hero-cta)) { padding-bottom: 96px; }
+
+  .hero.logo:not(.video, .content) .hero-logo { margin-top: -78px; } /* 96 − 78 = 18 under the title box (13 to the glyphs) */
 }
 
 /* ------------------------------------------------------------------ video -- */

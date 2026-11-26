@@ -1,0 +1,19 @@
+{
+  "importer": "import-landing-page-v1.js",
+  "sha256": {
+    "import-landing-page-v1.js": "7607e9965e97eead2791b2be2d3e62e446ffac0d65228bf383a16e373f5cb779",
+    "import-landing-page-v1.bundle.js": "7276c4e939bb4055ca87ee98a722b805867569f619e0dcf1490ab48547992128",
+    "output content/en/maintenance-page.plain.html": "2d24367cf2af1ad7d64a074b4355f51b2a9c429a17a983b335297631c1a00451"
+  },
+  "bundle": "npx esbuild tools/importer/import-landing-page-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-landing-page-v1.bundle.js (and rebuild import-quiz-results-v1, import-news-listing-v1, import-sample-landing-blocks, import-sample-landing-sections, import-sample-results-blocks)",
+  "regression": "23 earlier pages (15 landing incl. coachtennis + workshops, 6 results, news + search results) re-imported with the final bundles \u2014 byte-identical to their previous verified outputs (/tmp/reg/new3-*, /tmp/ws2); this page re-imported twice \u2014 identical",
+  "page": "maintenance-page",
+  "date": "2026-11-25",
+  "source": "https://www.ustacoaching.com/en/maintenance-page.html",
+  "output": "content/en/maintenance-page.plain.html (review copy content/drafts/meet/maintenance-page.plain.html)",
+  "urls": "tools/importer/urls-maintenance-page.txt",
+  "finalize": "node tools/assets/fetch-page-images.mjs en/maintenance-page (3 images)",
+  "theme": "maintenance (themes/maintenance/maintenance.css \u2014 no site header / footer, page spacing, card + photo)",
+  "blocks": "default-content logo \u00b7 Columns (media) (white card | photo, new importer kind columns-media-card) \u00b7 default-content wordmark",
+  "verified": "migration-work/maintenance (measure.mjs + compare.mjs, standards mode) @375/768/1024/1280/1440: logo, card, photo, heading text, copy, wordmark, page height = source within 1\u20132px (1440 logo within 4px); accepted: heading wraps one line less at 1024 (the source's trailing &nbsp;&nbsp; after SOON! is dropped by the import)"
+}
