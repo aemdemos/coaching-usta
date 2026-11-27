@@ -6319,3 +6319,49 @@ cards (comparison) contrast. Local only — nothing uploaded, previewed or publi
   - Lime banner label: no change — the source's 1px tracking is reset on the label span (same as the 2026-10-19 finding).
 - Gate: lint ✓ (0 errors) · breakpoints ✓ · svg ✓ · overflow ✓ + typography ✓ on the 4 pages, membership-benefits,
   guardian-coach, en/home · a11y ✓ except the known cards (comparison) contrast on courses + learning-pathway.
+
+### 2026-11-27 — 5 pages uploaded to DA + previewed (on request; NOT published)
+- Pages: en/home/coaching-community/usta-coaches-inclusion-summit, en/home/account/flag-profile, en/home/courses,
+  en/home/learning-pathway, en/home/results/guardian-coach. User decision: upload + preview now, publish live only after
+  branch aem-20261126-1046 is merged to main (main's code lacks the new options — video split, banner lime / flush,
+  hero centered, text-style narrow/phone/tracking, heading-80 h2s — so live would render them unstyled).
+- Upload docs built from content/<path>.plain.html; only `/media-da/<dir>/<page>/<file>` → DA's
+  `content.da.live/aemdemos/coaching-usta/<dir>/.<page>/<file>` rewritten (the local mirror convention); all 44 image
+  URLs already existed in the DA docs (exact match) — no media uploads. Previous DA versions backed up to
+  migration-work/da-backup-2026-11-27/. Uploads 200, read back byte-identical; preview 200 ×5.
+- Verified on https://aem-20261126-1046--coaching-usta--aemdemos.aem.page/…: all blocks load, no page errors; key boxes
+  (video split frame, lime banner, centred hero title, flag-profile h1 / intro / form, LP h1 / heading-80 h2 / blue banner)
+  identical to local @1440. main--…aem.page shows the new content with main's code until the merge.
+
+### 2026-11-27 — Gallagher submit + sign-in links: interim "sign in first" (user decision)
+**Reported:** Gallagher disclaimer pages (baseline / rally / pro / pro-plus, on main) error on Submit, and an error modal
+after going back; inclusion-summit / flag-profile / courses / learning-pathway "redirect to the login page".
+**Findings:**
+- Source Gallagher form = `v-form-container submit-endpoint="/profile/insurance/agreement" data-source-type="api"
+  is-redirect-to-stripe tier-code=…` → POST `services.ustacoaching.com/v1/profile/insurance/agreement` for the SIGNED-IN
+  user, then Stripe. Logged out (verified with every non-GET request aborted — nothing reached the customer's
+  systems) it shows the `generic-error-modal` "Oops! Something went wrong — Your changes were not saved." The
+  "error modal" = the source's; EDS has no modal component.
+- EDS (main): Submit → `forms.adobe.com/adobe/forms/af/submit/…` → **400** (the form sheets have no submission set up)
+  → inline "Something went wrong while submitting the form." Going back: no modal.
+- Login redirects: course / badge links → `ustacoaching.csod.com` (LMS) → USTA sign-in, SAME as the source (expected).
+  Not wired: pricing "Select" (source `data-button-action="wizard"` = Join wizard; ours `/` on courses, `#` on LP) and
+  header Join / Sign In (placeholder `/content/coaching/{en,es}/home/…`).
+- Source sign-in: `account.usta.com/authorize?…client_id=JpSsD7mUsRqlEkXw6aQ2MTmamjvd0msr&redirect_uri=
+  https://ustacoaching.com/{locale}/login.html&state=<generated>` — the `state` is generated + checked on
+  www.ustacoaching.com, so a static /authorize link from another origin can't complete. A secured source page
+  (`/{locale}/home/account/dashboard.html`, `isSecuredPage = true`) opened signed out goes straight to
+  `account.usta.com/u/login` (Sign In, with Sign up) and returns to the dashboard — verified. No URL opens the
+  Join wizard.
+**Interim (until Phase 2 USTA sign-in):**
+- `scripts/usta-account.js` (new): `signInUrl()` = source dashboard for the page locale, `isSignedIn()` = the source's
+  check (access + refresh token for the client id in localStorage; false on the EDS hosts).
+- form.js `requireSignInOnGallagherSubmit`: a form with a `gallagher-submit` row, submitted signed out → USTA
+  sign-in, no submission (capture-phase listener before handleSubmit). Signed in → the existing submit (still the
+  Adobe Forms 400 until Phase 2 wires the agreement API + Stripe).
+- Content (local): courses + learning-pathway Select ×4 each, nav + es/nav Join / Sign In → the dashboard sign-in URL.
+  NOT changed (user scoped the pages; still the `/` placeholder): Select on membership-benefits and results ×6.
+  Also `Get Started for Free` on one results page links a captured `account.usta.com/u/signup?state=…` (expired).
+- header.js `decorateExternalLinks` skips `.nav-button` (Join / Sign In keep their look, same tab, no external icon).
+Gate: lint ✓ (0 errors) · breakpoints ✓ · a11y ✓ gallagher pro / baseline; courses + LP only the known comparison
+contrast. Verified locally: all 4 Gallagher tiers → dashboard sign-in, 0 form POSTs; header + Select hrefs EN / ES.

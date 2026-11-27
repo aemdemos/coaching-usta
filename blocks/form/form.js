@@ -6,6 +6,7 @@ import {
 import GoogleReCaptcha from './integrations/recaptcha.js';
 import componentDecorator from './mappings.js';
 import { handleSubmit } from './submit.js';
+import { isSignedIn, signInUrl } from '../../scripts/usta-account.js';
 import DocBasedFormToAF from './transform.js';
 import {
   checkValidation,
@@ -691,6 +692,24 @@ function gateSubmitOnOptIn(form) {
   update();
 }
 
+/**
+ * Gallagher disclaimer forms (sheet Style `gallagher-submit` on the submit row). On the source,
+ * Submit saves the agreement to the SIGNED-IN visitor's USTA account and continues to checkout;
+ * signed out it only shows an error. Interim until USTA sign-in is integrated (Phase 2): a
+ * signed-out visitor who submits is sent to the USTA sign-in instead of a submission that
+ * cannot succeed. Registered in the capture phase so it runs before the regular submit handler.
+ * @param {HTMLFormElement} form
+ */
+function requireSignInOnGallagherSubmit(form) {
+  if (!form.querySelector('.gallagher-submit')) return;
+  form.addEventListener('submit', (e) => {
+    if (isSignedIn() || !form.checkValidity()) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    window.location.assign(signInUrl());
+  }, true);
+}
+
 export default async function decorate(block) {
   const variantStyles = loadVariantStyles(block);
   let container = block.querySelector('a[href]');
@@ -727,6 +746,7 @@ export default async function decorate(block) {
       if (first) checkValidation(first);
     }
     gateSubmitOnOptIn(form);
+    requireSignInOnGallagherSubmit(form);
     await variantStyles;
     container.replaceWith(form);
   }

@@ -152,11 +152,12 @@ function decorateLanguageSwitcher(scope) {
 
 /**
  * Marks external links (absolute http/https URLs) so CSS can add an icon
- * and they open in a new tab.
+ * and they open in a new tab. The Join / Sign In action buttons are skipped:
+ * they lead to the USTA sign-in, which the source opens in the same tab, unmarked.
  * @param {Element} scope the container to search within
  */
 function decorateExternalLinks(scope) {
-  scope.querySelectorAll('a[href^="http"]').forEach((a) => {
+  scope.querySelectorAll('a[href^="http"]:not(.nav-button)').forEach((a) => {
     a.classList.add('nav-external');
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener');
