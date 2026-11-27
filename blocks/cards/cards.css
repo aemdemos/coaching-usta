@@ -1580,6 +1580,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   font-weight: 400;
   font-size: 40px;
   line-height: normal; /* source: a 37px line box */
+  letter-spacing: -1px; /* source v-tiers title: a fixed −1px at every width */
   color: #fff;
 }
 

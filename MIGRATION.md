@@ -6294,3 +6294,28 @@ lines at 768 (would change every timeline page).
 Gate: lint ✓ (0 errors) · breakpoints ✓ · svg ✓ · overflow ✓ + typography ✓ on the 4 pages + guardian · a11y ✓
 inclusion-summit, flag-profile, guardian, coach-mentorship, coaching-community; courses + learning-pathway only the known
 cards (comparison) contrast. Local only — nothing uploaded, previewed or published; not committed.
+
+### 2026-11-27 — main merged into aem-20261126-1046 + post-merge fixes
+- `git pull` on main: already up to date (origin/main = 95d8be0); its 2 commits (f0ea6b1, 95d8be0) merged into the
+  branch (merge 2dbfe05). Conflicts: hero.css, landing-page.css, MIGRATION.md — both sides only APPENDED (our hero
+  `centered` + main's `logo`; our landing rules + main's tabs/statement-32/quiz/narrow-image rules; main's log entries
+  placed before ours by date) → kept both.
+- Main's updated landing importer still does not reproduce inclusion-summit (lime / quote / spotlight / video text),
+  flag-profile (form) or learning-pathway (timeline / pathway accordions) — candidate run to /tmp only; content/ keeps
+  the edited pages.
+- Re-verified after the merge (critique `after-merge/` folders): inclusion-summit 98.6, flag-profile 99.5, courses 100,
+  learning-pathway 99.7 — the merge moved nothing on them. Main's pages rendered with main's code vs the merged code
+  (`/tmp/lp-cand/regress.mjs`, CSS/JS served from `git show main:`): about, workshops, education-center-locations,
+  maintenance-page identical; membership-benefits FAQ heading changed → checked against the source (below).
+- **Post-merge fixes (user request):**
+  - landing-page.css: membership-benefits photo row → FAQ heading gap was 12px short (73/73/89/145 now = source);
+    the FAQ heading box (x46 w283 @375 …) and heading → first question (48/48/90/90) = source (an earlier "24px short"
+    reading measured the item box on ours vs the header text on the source). A `heading-64.narrow-10` heading followed
+    by the pricing tiers has no side inset (learning-pathway / guardian "PACKAGES…" x16 @375 = source).
+  - banner.css: standard `Banner (blue)` — copy above the CTA below 1280, 3-column row from 1280 (source: copy 422px /
+    2 lines at 1024; ours was a 124px / 7-line column). Affects every `banner blue` (courses, learning-pathway, en/home).
+  - accordion.css: certification badges span the header width below 768 (309×161 @375 = source; results pages too).
+  - cards.css: pricing tier names letter-spacing −1px (fixed source value) instead of −0.03em.
+  - Lime banner label: no change — the source's 1px tracking is reset on the label span (same as the 2026-10-19 finding).
+- Gate: lint ✓ (0 errors) · breakpoints ✓ · svg ✓ · overflow ✓ + typography ✓ on the 4 pages, membership-benefits,
+  guardian-coach, en/home · a11y ✓ except the known cards (comparison) contrast on courses + learning-pathway.

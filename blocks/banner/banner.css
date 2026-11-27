@@ -211,7 +211,13 @@ main > .section.banner-container > div {
   .banner-heading {
     font-size: 40px;
   }
+}
 
+/* wide desktop: the right column goes side by side (body | CTA) — the 3-across
+   row. Below 1280 the body stays ABOVE the CTA, as on the source ("Explore
+   workshops & events": copy 422px wide, 2 lines, at 1024), so the copy is never
+   squeezed into the space a 280px CTA leaves beside it. */
+@media (width >= 1280px) {
   .banner-content {
     flex-direction: row;
     align-items: center;

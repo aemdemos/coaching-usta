@@ -290,18 +290,20 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
   flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
-  gap: 21px; /* source phones: the badge's inline box (156 + 5) + 16px margin */
+  gap: 16px; /* source phones: the badge's 16px bottom margin */
   min-width: 0;
 }
 
+/* phones: the badge fills the header's content width (source 309px at 375); from 768
+   it is a centred 300px image */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-badge {
   flex: 0 0 auto;
+  align-self: stretch;
 }
 
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-badge img {
   display: block;
-  width: 300px;
-  max-width: 100%;
+  width: 100%;
   height: auto;
 }
 
@@ -948,6 +950,14 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
   /* tablet: the text column starts right under the badge (source) */
   :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-head {
     gap: 0;
+  }
+
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-badge {
+    align-self: auto;
+  }
+
+  :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-badge img {
+    width: 300px;
   }
 
   /* from 768 the chevron is vertically centred on the meta block and flush beside it

@@ -264,6 +264,13 @@ body.landing-page main > .section.heading-64.narrow-cols + .section:has(> .accor
   }
 }
 
+/* … a heading introducing the package tiers (learning-pathway "PACKAGES FOR EVERY KIND OF
+   COACH", results "Find a Package That's Right For You") is on 12 columns on phones too:
+   no text inset at any width (x16 w343 @375, as the source) */
+body.landing-page main > .section.heading-64.narrow-10:has(+ .section > .cards-wrapper > .cards.pricing) > .default-content-wrapper > h2 {
+  margin-inline: 0;
+}
+
 @media (width >= 1280px) {
   body.landing-page main > .section:is(.heading-64, .heading-80).narrow-cols > div:not(.full-width) {
     padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px) + (min(100%, 1536px) - 2 * var(--section-gutter) - 2 * var(--section-pad, 0px) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
@@ -845,6 +852,13 @@ body.landing-page main > .section:not(.heading-64) > .text-style-wrapper + .acco
    without margins: only its own 12px inset below it, then the FAQ container's 36px preset */
 body.landing-page main > .section:has(> .banner-wrapper > .banner.blue):has(+ .section.heading-64.spacing-36) {
   padding-bottom: 12px;
+}
+
+/* … while a media row (Columns (media)) before an FAQ heading on the 36px preset
+   (membership-benefits quiz row → "FREQUENTLY ASKED QUESTIONS") keeps its image
+   component's 12px inset below it: photo → heading 48 / 64 / 96px (768 / 1024 / 1280) */
+body.landing-page main > .section:has(> .columns-wrapper > .columns.media) + .section.heading-64.spacing-36:has(+ .section > .accordion-wrapper:first-child > .accordion.accordion-default) > :first-child {
+  margin-top: 12px;
 }
 
 /* Inclusion Summit: the media rows (Columns (media-first), Video (split)) and the quote
