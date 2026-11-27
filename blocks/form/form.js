@@ -6,7 +6,7 @@ import {
 import GoogleReCaptcha from './integrations/recaptcha.js';
 import componentDecorator from './mappings.js';
 import { handleSubmit } from './submit.js';
-import isSignedIn from '../../scripts/usta-account.js';
+import isSignedIn, { signInUrl } from '../../scripts/usta-account.js';
 import openErrorModal from './error-modal.js';
 import DocBasedFormToAF from './transform.js';
 import {
@@ -693,23 +693,39 @@ function gateSubmitOnOptIn(form) {
   update();
 }
 
+const SIGN_IN_PENDING_KEY = 'form-sign-in-pending';
+
 /**
- * Gallagher disclaimer forms (sheet Style `gallagher-submit` on the submit row). On the source,
- * Submit saves the agreement to the SIGNED-IN visitor's USTA account and continues to checkout;
- * signed out the save fails and the generic "Oops! Something went wrong" modal opens. Same here:
- * a signed-out Submit opens that modal (no request — it could not be saved). Signed in, the
- * regular submit runs (the agreement API + checkout come with Phase 2). Registered in the
- * capture phase so it runs before the regular submit handler.
+ * Gallagher disclaimer forms (sheet Style `gallagher-submit` on the submit row), as on the
+ * source: Submit needs a signed-in USTA visitor (the agreement is saved to their account, then
+ * checkout). Signed out, Submit sends the visitor to the USTA sign-in; coming BACK to the page
+ * without signing in opens the generic "Oops! Something went wrong" modal. The pending sign-in
+ * is remembered per page in sessionStorage; the check runs on load and on a back-forward-cache
+ * restore. Signed in, the regular submit runs (the agreement API + checkout come with Phase 2).
+ * The submit listener runs in the capture phase, before the regular submit handler.
  * @param {HTMLFormElement} form
+ * @returns {Function} the on-load check — call it once the form is on the page
  */
-function errorModalOnSignedOutGallagherSubmit(form) {
-  if (!form.querySelector('.gallagher-submit')) return;
+function signInFirstOnGallagherSubmit(form) {
+  if (!form.querySelector('.gallagher-submit')) return () => {};
+  const page = window.location.pathname;
+  const pending = () => {
+    try { return sessionStorage.getItem(SIGN_IN_PENDING_KEY) === page; } catch { return false; }
+  };
+  const showIfReturned = () => {
+    if (!pending()) return;
+    try { sessionStorage.removeItem(SIGN_IN_PENDING_KEY); } catch { /* ignore */ }
+    if (!isSignedIn()) openErrorModal(form);
+  };
   form.addEventListener('submit', (e) => {
     if (isSignedIn() || !form.checkValidity()) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    openErrorModal(form);
+    try { sessionStorage.setItem(SIGN_IN_PENDING_KEY, page); } catch { /* ignore */ }
+    window.location.assign(signInUrl());
   }, true);
+  window.addEventListener('pageshow', (e) => { if (e.persisted) showIfReturned(); });
+  return showIfReturned;
 }
 
 export default async function decorate(block) {
@@ -748,9 +764,10 @@ export default async function decorate(block) {
       if (first) checkValidation(first);
     }
     gateSubmitOnOptIn(form);
-    errorModalOnSignedOutGallagherSubmit(form);
+    const showIfReturnedFromSignIn = signInFirstOnGallagherSubmit(form);
     await variantStyles;
     container.replaceWith(form);
+    showIfReturnedFromSignIn();
   }
   return { form, afbForm };
 }

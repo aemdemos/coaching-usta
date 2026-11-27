@@ -6382,3 +6382,16 @@ on Submit from the entry above (the Select / Join / Sign In links to the USTA si
   OK 128,539 120×50); backdrop rgb(66 66 66 / 90%). Screenshots migration-work/{source,ours}-oops-modal-{1440,375}.png.
 - Gate: lint ✓ · breakpoints ✓ · stylelint ✓ · axe on the OPEN modal: 0 violations · a11y ✓ gallagher pro / rally,
   flag-profile, lead-interests (other forms load, no page errors). All 4 tiers: modal opens, 0 POSTs, no navigation.
+
+### 2026-11-27 (later) — Gallagher: Submit → USTA sign-in; Back without signing in → the "Oops!" modal (user correction)
+User: on the source, Submit REDIRECTS to the login page, and coming back (browser Back, not signed in) shows the modal —
+not the modal straight away. (My earlier source test aborted the agreement POST, which skipped the redirect and showed
+the modal immediately — a test artefact.) Now the same flow:
+- form.js `signInFirstOnGallagherSubmit` (replaces `errorModalOnSignedOutGallagherSubmit`): signed-out Submit stores
+  the page in sessionStorage (`form-sign-in-pending`) and goes to `signInUrl()` (source dashboard → account.usta.com
+  "Sign In"); on load / back-forward-cache restore of that page, still signed out → the modal, flag cleared (a reload
+  does not show it again). `scripts/usta-account.js` exports `signInUrl()` again.
+- Verified (all 4 tiers, locally; every non-GET to other hosts aborted): Submit → `account.usta.com/u/login`; ONE
+  Back → our page with the modal open (the dashboard hop is not in the back stack); reload → no modal.
+- submit.js: a failed Gallagher submit (signed in) still shows the modal. Gate: lint ✓ · breakpoints ✓ · a11y ✓
+  gallagher-pro, flag-profile.
