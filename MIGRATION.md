@@ -6478,3 +6478,21 @@ section 0.047, culprit "Unsized image element" (`columns-img-col img`, width 102
   arrow + new tab; Inclusion Summit's new options (video split, banner lime / spotlight flush, hero centered,
   text-style narrow / phone, columns media-first / no-separator), the heading-80 h2s, the Gallagher sign-in + modal,
   the CLS fixes and the favicon are NOT on live yet. Merge PR #54 → live picks the code up (no re-publish needed).
+
+### 2026-11-27 (later) — Flag Profile: the source's default "Required field" error, frame box, Lato fallback (user report)
+User: flag-profile "still not migrated perfectly — the error by default on the original, some CLS, form width differs".
+- Source (loaded as a normal visitor, never submitted): the Formstack form autofocuses + blurs its first field on load
+  → "Required field" banner (StyledErrorBanner) above Profile URL and the input red-bordered with a "!" icon. (An
+  earlier "ERR_NETWORK" modal was a test artefact: aborting the source's requests.)
+- form.js: forms with the authored error-summary row (only /forms/flag-form.json) validate their first required field
+  on load (same as the `application` variant); the message is the sheet's "Required Error Message". flag-profile.css:
+  banner #fae9e9 / 1px #ff3c3c / 7px 12px / 14px source icon / Lato 12px #15232b, invalid input red border + icon —
+  source values; every frame box (label 20, banner 49/31, input 87, button 505) = source.
+- Frame (the bordered box) = source at 375 / 768 / 1024 / 1280 / 1440: 16/343/675 · 40/688/650 · 206.7/610.7/675 ·
+  358/564/675 · 398/644/675; top below h1 211.6 / 168.4 / 189.2 / 307.6 / 227.6 (source 212 / 168 / 189 / 308 / 228).
+- CLS: "Lato Fallback" faces (Arial / Arimo, size-adjust 97.13% regular, 91.4% bold, metrics matched) in the form's
+  Lato stacks: 0.0142 / 0.0063 / 0.0059 / 0.0032 → 0.0052 / 0.0014 / 0.0013 / 0.0026 (375 / 768 / 1024 / 1440).
+- reCAPTCHA badge red text = "This reCAPTCHA is for testing purposes only…": the sheet's captcha row holds Google's
+  public TEST key. Needs the real site key (registered for aem.page / aem.live) in /forms/flag-form.json — open.
+- Other forms (lead-interests, gallagher-disclaimer-*) unchanged. Gate: eslint ✓ · stylelint ✓ · breakpoints ✓ ·
+  a11y ✓ flag-profile, lead-interests, gallagher-pro.
