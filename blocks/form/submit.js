@@ -2,6 +2,7 @@ import {
   DEFAULT_ERROR_MESSAGE, DEFAULT_ERROR_SUMMARY, DEFAULT_THANK_YOU_MESSAGE, getSubmitBaseUrl,
 } from './constant.js';
 import { sanitizeHTML } from './util.js';
+import openErrorModal from './error-modal.js';
 
 /**
  * Builds a form-level banner ("form-message"). Success banners are a polite
@@ -62,6 +63,12 @@ export function submitSuccess(e, form) {
 
 export function submitFailure(e, form) {
   clearFormMessages(form);
+  // Gallagher disclaimer forms report a failed save in the source's error modal
+  if (form.querySelector('.gallagher-submit')) {
+    endSubmitting(form);
+    openErrorModal(form);
+    return;
+  }
   const errorMessage = createFormMessage('error', form.dataset.errorMsg || DEFAULT_ERROR_MESSAGE);
   insertAtTop(form, errorMessage);
   errorMessage.focus({ preventScroll: true });

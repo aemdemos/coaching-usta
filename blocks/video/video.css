@@ -48,13 +48,16 @@ main > .section > div.video-wrapper {
   border-radius: 20px;
 }
 
-/* consent placeholder (source .usta-consent-placeholder) */
+/* consent placeholder (source .usta-consent-placeholder): a fixed 200px panel at every width
+   and in every layout — it is NOT the player's size (source @375 / 768 / 1024 / 1440: 343 /
+   569 / 769 / 1312 × 200 on fellowship, 343 / 452 / 644 × 200 in the Inclusion Summit split
+   row); the player replaces it at its own height once social-media cookies are accepted */
 .video .video-consent {
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(var(--video-height) + 5px);
+  height: 200px;
   padding: 32px 24px;
   border: 1px solid #c1c6c8;
   border-radius: 4px;
@@ -64,6 +67,7 @@ main > .section > div.video-wrapper {
 
 /* authored paragraphs flow as ONE paragraph, as in the source */
 .video .video-consent-message {
+  width: 100%; /* source: the message box fills its 400px maximum (not shrink-to-fit) */
   max-width: 400px;
   font-family: var(--body-font-family);
   font-size: 14px;
@@ -142,5 +146,97 @@ main > .section > div.video-wrapper {
 
   .video .video-frame {
     margin-inline: 0;
+  }
+}
+
+/* ---- split — `video (split)`: the embed beside a text column (Inclusion Summit
+   "Elevate Your Coaching"). Source-measured @375/1024/1280/1440: one 12-column row,
+   embed 6/12 left + text 6/12 right from 1024, vertically centred; stacked (embed
+   first) below. Embed component padding as the default (12px 8px → 12px @768);
+   player 200px on phones (data-height-mobile), 390px from 768. Text container
+   padding 0 4px → 4px @768 → 12px 4px @1280 around 12px 8px (12px @768) text
+   components: h2 USTA Sans 700 28/28 → 32/32 → 40/40, left; copy Graphik 18/24;
+   24px between heading and copy, and between paragraphs (the source's authored
+   blank line). The source hides this row at 768–1023: we keep the stacked layout. */
+
+/* the embed component's inset is a margin here, so the frame box is the player
+   (source iframe box 343x205 @375 → 644x395 @1440) */
+.video.split .video-frame {
+  margin: 12px 8px;
+  padding: 0;
+}
+
+.video.split .video-text {
+  padding: 12px;
+  color: #fff;
+}
+
+.video.split .video-text > * {
+  margin: 0;
+  color: #fff;
+}
+
+.video.split .video-text > * + * {
+  margin-top: 24px;
+}
+
+.video.split .video-text > :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--heading-font-family);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal;
+  text-align: start;
+}
+
+.video.split .video-text > :is(p, ul, ol) {
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: normal;
+}
+
+@media (width >= 768px) {
+  .video.split {
+    --video-height: 390px;
+  }
+
+  .video.split .video-frame {
+    margin: 12px;
+  }
+
+  .video.split .video-text {
+    padding: 16px;
+  }
+
+  .video.split .video-text > :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 32px;
+  }
+}
+
+@media (width >= 1024px) {
+  .video.split {
+    display: flex;
+    align-items: center;
+  }
+
+  .video.split > * {
+    flex: 0 0 50%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .video.split > .video-frame {
+    flex-basis: calc(50% - 24px);
+  }
+
+  .video.split .video-text > :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 40px;
+  }
+}
+
+@media (width >= 1280px) {
+  .video.split .video-text {
+    padding: 24px 16px;
   }
 }

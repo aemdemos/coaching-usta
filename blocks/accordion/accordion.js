@@ -152,6 +152,35 @@ function buildToggle({
    measure time rather than a fixed px constant. */
 const PATHWAY_CLAMP_LINES = 6;
 
+/* From 1024 the source script gives every card in a course list the height of the
+   list's tallest (collapsed) card as an inline min-height, so the cards read as one
+   uniform set (e.g. 220px timeline cards, 315 / 347px pathway groups at 1440). Below
+   1024 cards take their own height. An opened card (module timeline) grows past it. */
+const EQUALIZE_MQ = window.matchMedia('(width >= 1024px)');
+
+function equalizeCards(groups) {
+  groups.forEach((cards) => {
+    cards.forEach((card) => { card.style.minHeight = ''; });
+    if (!EQUALIZE_MQ.matches) return;
+    // collapsed height = the always-visible label row + the card's own padding
+    const heights = cards.map((card) => {
+      const label = card.querySelector(':scope > .accordion-timeline-course-label');
+      if (!label) return 0;
+      const cs = getComputedStyle(card);
+      return label.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    });
+    const max = Math.round(Math.max(0, ...heights));
+    if (!heights.length || Math.min(...heights) <= 0) return; // still hidden: retry later
+    cards.forEach((card) => { card.style.minHeight = `${max}px`; });
+  });
+}
+
+/* Re-run the equalizer when line counts can shift: font swap-in and resize. */
+function watchEqualize(run) {
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+  window.addEventListener('resize', run);
+}
+
 /*
  * Mark each pathway course card as clamped-with-ellipsis ONLY when its description is
  * TALLER THAN the clamp's max-height; otherwise the copy is short, shows in full, and
@@ -181,7 +210,9 @@ function measureClampOverflow(root) {
     const capPx = lineHeight * PATHWAY_CLAMP_LINES;
     // overflow when the natural copy is taller than the cap (few px of slack so a
     // description that fits within a line's rounding isn't needlessly clamped)
-    wrapper.dataset.clampOverflow = String(clamp.scrollHeight > capPx + 4);
+    // scrollHeight includes the clamp's 20px top padding — compare the copy alone
+    const padTop = parseFloat(getComputedStyle(clamp).paddingTop) || 0;
+    wrapper.dataset.clampOverflow = String(clamp.scrollHeight - padTop > capPx + 4);
   });
 }
 
@@ -475,6 +506,15 @@ function decorateTimeline(block) {
   const footerRow = courseRows.length && isFooterRow(courseRows[courseRows.length - 1])
     ? courseRows.pop() : null;
 
+  // a certification with NO course rows and no footer ("Coming in 2026" Specialist /
+  // Master) has nothing to reveal: the source renders its header with no expand button,
+  // so keep it a static, non-interactive header (no chevron, no aria-expanded, no list)
+  if (!courseRows.length && !footerRow) {
+    block.classList.add('accordion-timeline-static');
+    block.replaceChildren(panel);
+    return;
+  }
+
   // course cards live in the collapsible region controlled by the panel toggle
   const list = document.createElement('div');
   list.className = 'accordion-timeline-courses';
@@ -496,14 +536,18 @@ function decorateTimeline(block) {
 
   // chevron sits beside the meta grid (source `__info` row) so it centres on the
   // meta block; falls back to the header row if there was no meta grid
+  const cardGroups = [[...list.querySelectorAll(':scope > .accordion-timeline-course')]];
+  const equalize = () => equalizeCards(cardGroups);
   (panelInfo || header).append(buildToggle({
     label: 'Toggle course list',
     region: list,
     host: panel,
     open: false,
+    onToggle: (isOpen) => { if (isOpen) equalize(); },
   }));
 
   block.replaceChildren(panel);
+  watchEqualize(equalize);
 }
 
 /*
@@ -637,6 +681,14 @@ function decoratePathway(block) {
 
   panel.append(list);
 
+  // each grid (required / electives) is equalized on its own, like the source lists
+  const cardGroups = [...list.querySelectorAll('.accordion-timeline-grid')]
+    .map((grid) => [...grid.querySelectorAll(':scope > .accordion-timeline-course')]);
+  const remeasure = () => {
+    measureClampOverflow(list);
+    equalizeCards(cardGroups);
+  };
+
   // chevron beside the meta grid; toggles the whole body region. On first open,
   // measure which card descriptions overflow the clamp so only those get a "…".
   (info.children.length ? info : header).append(buildToggle({
@@ -644,17 +696,16 @@ function decoratePathway(block) {
     region: list,
     host: panel,
     open: false,
-    onToggle: (isOpen) => { if (isOpen) measureClampOverflow(list); },
+    onToggle: (isOpen) => { if (isOpen) remeasure(); },
   }));
 
   block.replaceChildren(panel);
 
   // Re-measure whenever line counts could shift: after the web font swaps in (the
   // timing bug that left cards cut with no "…") and on viewport resize (column width
-  // + the 132/150px limit change). measureClampOverflow no-ops on still-hidden cards.
-  const remeasure = () => measureClampOverflow(list);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
-  window.addEventListener('resize', remeasure);
+  // + the 132/150px limit change). Both helpers no-op on still-hidden cards. The clamp
+  // runs first: it sets the description height the card equalizer measures.
+  watchEqualize(remeasure);
 }
 
 /**

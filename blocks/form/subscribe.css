@@ -144,7 +144,7 @@ main .section.form-container:not(.split) div.form-wrapper {
 :is(main, .footer-form) .form.block .field-zipcode > label.field-label {
   display: block;
   margin: 0 0 8px;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
@@ -234,7 +234,7 @@ main .section.form-container:not(.split) div.form-wrapper {
 :is(main, .footer-form) .form.block .checkbox-group-wrapper > legend.field-label {
   flex-basis: 100%;
   margin: 0 0 16px;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 12px;
   font-weight: 400;
   line-height: 12px;
@@ -324,7 +324,7 @@ main .section.form-container:not(.split) div.form-wrapper {
   color: #4c4c4c;
   border: 2px solid #000;
   border-radius: 12px;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 16px;
   font-weight: 400;
   letter-spacing: -0.03em;

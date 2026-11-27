@@ -43,7 +43,7 @@ body.news-article main > .section.bordered > .default-content-wrapper:first-chil
 
 body.news-article main > .section.bordered > .default-content-wrapper > h1 {
   margin: 0.67em 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
@@ -66,7 +66,7 @@ body.news-article main > .section.bordered :is(.default-content-wrapper, .column
 }
 
 body.news-article main > .section.bordered > .default-content-wrapper h2 {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
@@ -75,7 +75,7 @@ body.news-article main > .section.bordered > .default-content-wrapper h2 {
 }
 
 body.news-article main > .section.bordered > .default-content-wrapper h3 {
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
@@ -103,7 +103,7 @@ body.news-article main > .section.bordered :is(.default-content-wrapper, .column
      24.95px above (it follows an authored blank line), 0.95px + the element spacing
      below */
 body.news-article main > .section.bordered :is(.default-content-wrapper, .columns-article-content) :is(h4, h5, h6) {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 700;
   line-height: 1;
   letter-spacing: normal;
@@ -165,7 +165,7 @@ body.news-article main > .section.bordered > .columns-wrapper:has(> .columns.art
 body.news-article main > .section.bordered > .default-content-wrapper > :is(ul, ol) {
   padding: 6px 8px 6px 48px;
   list-style-position: outside;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   line-height: 24px;
   letter-spacing: normal;

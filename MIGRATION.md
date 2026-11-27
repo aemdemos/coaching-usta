@@ -6167,3 +6167,345 @@ User: statement-32 should only change the font size — the section width belong
 - Regression: 26 other pages byte-identical (/tmp/reg/new17-*); education-center-locations gained only `narrow`. Both
   copies re-written. Section sample regenerated (`center, statement-32, narrow` vs `center, narrow`), its intro updated.
 - Gate: lint 0 errors · breakpoints ✓ · overflow ✓ / typography ✓ / a11y ✓ on both page copies, the section sample, en/home.
+
+### 2026-11-26 — Membership Terms and Conditions: design parity (`heading-80`, `legal`)
+Page `en/home/membership-benefits/coaching-membership-terms-and-conditions` (landing-page template). Content was already
+complete; the styling differed from the source. Measured source vs preview at 375 / 768 / 1024 / 1280 / 1440:
+- **Title**: the source text component is `text--font-size--80px-32px` (32 → 40 → 56 → 80px = the GLOBAL h1 token
+  `--heading-font-size-xxl`), on tablet--12 / desktop-small--12 and 8 of 12 columns (offset 2) only from 1280. Ours was
+  capped at the landing template's 56px title and narrow-8 at every width, with a 12px top margin.
+  → new section style **`heading-80`** (importer: a split-off narrow lead heading with font-size 80, like `heading-64`
+  for 64). landing-page.css: h1 = `var(--heading-font-size-xxl)` (it keeps the 12px top margin: with main's
+  2026-11-25 rule — plain titles get the standard 24px first-section spacing — that is the source position; an earlier
+  `margin-top: 0` + 36px padding was removed after merging main); the existing `heading-64`
+  "full width below 1280" rules now take `:is(.heading-64, .heading-80)`. Result: h1 x / width / size / top / bottom
+  = source at all 5 widths (e.g. 1440: 287 / 867 / 80px / 152 / 552).
+- **Body copy centred** (source: left). The importer let a narrow centred heading's section pass its `center` on to the
+  following copy. Fix: no inherited centring when the section's first text is its OWN plain, non-USTA-Sans, un-centred
+  text component (`ownLeftCopy`).
+- **Underlines blue / links not underlined.** The site convention `main u` = blue accent (styles.css) is wrong for legal
+  copy, where the source `<u>` is a real white underline and `.cmp-text a` links are underlined in the text colour (no
+  underline on hover). → new generic section style **`legal`** (styles.css, block-agnostic): `u` and in-copy links
+  (not `.button`) inherit the text colour and are underlined; hover drops the underline. Importer: a default-content
+  section whose source has a `<u>` outside a link → `legal` (checked before emitting; only the Terms pages have one).
+- **Section numbers** ("1." … "11.", "A." … "H."): the source sets each title ~82px in (78–86px; author-typed runs of
+  11–14 `&nbsp;`, only 5 after "4."). The nbsp can NOT be carried in content: helix-importer turns `&nbsp;` into spaces
+  (DOMUtils.reviewParagraphs / reviewInlineElement) and `MDUtils.cleanupMarkdown` replaces every U+00A0 — tried
+  marking the runs in onLoad and restoring them in transform: they still end up as collapsing plain spaces (reverted).
+  → scripts.js `decorateLegalNumbers` (in `legal` sections only): a bold run that starts a line with `N.` / `A.` and holds
+  an underlined title gets the number wrapped in `span.legal-num` (inline-block, min-width 82px, styles.css); also
+  handles the line break inside the bold run (source `<b><br>3. …`). Authors type "1. Title". All 19 titles now at 82px
+  ("4." too — the source's 41px there is the author's shorter run; accepted).
+- **PR scope (user decision):** only the styling / decoration (styles.css, landing-page.css, scripts.js) + this log go in
+  the branch PR; the importer changes (`heading-80` / `legal` / `ownLeftCopy` in import-landing-page-v1.js + bundle,
+  backup membership-terms-2026-11-26) stay LOCAL for now — re-importing the Terms pages with the committed importer would
+  drop the two section styles.
+- Note: the EDS preview (aem.page) still showed the OLD version (centred copy, blue `<u>` — read as "blue links") until
+  code + content are pushed / uploaded.
+- Body rhythm already matched (the importer's paragraph grouping: text block 8208px vs source 8220px at 1440).
+- **Regression:** all 26 landing-page URLs (EN + ES) imported with the old and new bundle into scratch output dirs:
+  24 byte-identical; only EN + ES Terms changed, and only their section metadata (`center, narrow-8` → `+ heading-80`;
+  `center` → `legal`). EN re-imported into content/ (`--force`; it was identical to the old importer's output, so no
+  local edits lost). **ES Terms in content/ NOT re-imported** — re-import it to pick up the same styles.
+- Backup: `tools/importer/backups/landing-page/membership-terms-2026-11-26/`.
+- **Rule deviation (justified) — typography gate:** `check:typography` reports 4 drifts on this page (h1 @1024 56 vs
+  40, @1280 80 vs 56). The landing-page template record holds the `56px-32px` title preset; this page's source title
+  uses the `80px-32px` preset and our h1 equals the live source (56 @1024, 80 @1280). False positives, like the
+  documented section-level opt-outs above.
+- Gotcha (again): Playwright wants chromium_headless_shell-1187, only 1254 is installed — overflow / typography were run
+  through a wrapper that sets `executablePath`, a11y through a temporary config extending tests/a11y/playwright.config.js
+  (removed afterwards).
+
+### 2026-11-26 — migration request for 4 landing pages: already migrated, kept as they are (user decision)
+Requested: en/home/coaching-community/usta-coaches-inclusion-summit, en/home/account/flag-profile, en/home/courses,
+en/home/learning-pathway (all template `landing-page`). All four already exist in content/ and are in DA
+(content-sync.json). Candidate re-import with the committed `import-landing-page-v1.bundle.js` into a scratch output dir
+(nothing in content/ touched), compared block by block against the existing pages:
+- **courses:** same blocks as the existing page (only DA serialisation differs: `<p>` in cells, `<picture><source>`, heading ids).
+- **inclusion-summit:** importer output LACKS `Banner (stacked, lime)`, `Cards (quote)`, `Banner (spotlight)` — those
+  sections come out as default content, although the live source still has the markers (`container--inner-full-height`
+  quote cards, `container--border--white`). The `cards-quote` / spotlight kinds exist in the importer but don't fire on
+  this page today — not diagnosed.
+- **flag-profile:** importer has NO form handling — the `Form` (`/forms/flag-form.json`; source = Formstack
+  `flag_coach_profile`) is in the content only (added outside the importer).
+- **learning-pathway:** importer has no `accordion (timeline)` / `accordion (pathway)` kinds — the 4 certification
+  accordions + the closing `Banner (centered, blue)` are in the content only.
+→ **User decision: keep the existing pages; no re-import.** Re-importing inclusion-summit / flag-profile / learning-pathway
+with the current importer would drop these blocks. Making the importer reproduce them is open follow-up work.
+- Rebuilding the bundle with today's aem-import-helper (1.6.4) only changes esbuild helper code (`__spreadValues`…) —
+  reverted to the committed bundle.
+- Gate (existing pages): lint ✓ (0 errors, 8 console warnings) · breakpoints ✓ · overflow ✓ (360/768/1024/1280/1920) ·
+  typography ✓ (390/768/1024/1280) on all 4 · a11y ✓ inclusion-summit + flag-profile; courses + learning-pathway only the
+  known `cards (comparison)` contrast finding (white on the source blue #0373F3 ≈ 4.3:1: PER YEAR, TOTAL WORKSHOP COSTS,
+  totals, COMING 2026 / 2027). All 30 blocks decorate (`data-block-status=loaded`), no page errors.
+- Browser gotcha: checks run with `node --import <preload>` that patches `chromium.launch({ executablePath })` to the
+  installed chromium_headless_shell-1254 (also works for the a11y runner via NODE_OPTIONS).
+
+### 2026-11-26 (later) — visual critique + fixes: inclusion-summit, flag-profile, courses, learning-pathway
+Page-mode critique (source vs local preview, 375/768/1024/1440; artifacts
+`migration-work/critique/site_1795701922/landing-page/<page>/` + `after/`). Similarity before → after:
+inclusion-summit 76.2 → ~96 (+ follow-up fixes) · flag-profile 79.4 → 99.5 · courses 97.4 → 99.9 · learning-pathway
+96.6 → 99.4. User decision: fix styling + content (content by direct local edits — no re-import, see the entry above).
+**Content edits (local only, NOT in DA; the importer doesn't produce them):**
+- inclusion-summit: `Hero (content, title, centered)`; `Columns (media-first, no-separator, landscape-3)`; `Video (split)`
+  with the source's text column (h2 "Elevate Your Coaching" + 2 paragraphs) in row 1; icon cards = `<p><picture></p>`
+  + `<p><strong>Title</strong></p>` + copy (source `<p><b>…</b></p>`); the two section intros → `Text Style (center,
+  narrow-6, phone-12)` / `Text Style (center, narrow-8)`; `Banner (spotlight, flush)`.
+- flag-profile: title section `center, heading-80`; intro → `Text Style (lead, center, narrow-8, phone-12)`, bold.
+- learning-pathway: title section and the certifications section → `+ heading-80`.
+- courses: PACKAGES section → `center, heading-80`.
+- results/guardian-coach: intro `+ tracking-narrow` (keeps parity after the semibold fix below).
+- drafts/block-samples/cards-comparison: labels upper case (the block now keeps authored case).
+**New options / code:**
+- banner: `lime` (lime panel, black Semibold copy, black button) — had no CSS; `spotlight.flush` (radius 20, full
+  content width, 66px heading → CTA). hero: `content.centered` (centred 32/40/40/56 title, 138/130/242/298 panel).
+- video: `split` (row 1 = text column; embed 6/12 with a 12px (8px phones) inset, stacks embed-first below 1024).
+- columns: `media-first`, `no-separator`; default columns show the image uncropped below 768 (crop option from 768);
+  heading→CTA without copy has no 24px margin; columns h2/h3 weight 700.
+- cards: `.cards-icons-title` (JS: a heading-less card whose title is one bold paragraph) — Synth bold title, icon
+  half its grid column, text aligned with the icon; comparison: 5 rounded skeleton bars, flame centred, labels Synth
+  bold in authored case, 24px checks, notes inset 8/12px.
+- accordion: timeline items without courses = static header (`.accordion-timeline-static`: no button / chevron /
+  aria-expanded); 24px between stacked accordion wrappers; equal-height course cards from 1024; source chevron glyph;
+  panel links not underlined.
+- course-filter: flush with the content box (the old "block inset 8/12px" audit note is SUPERSEDED — re-measured
+  2026-11-26: x 16/40/48/64 = the tabs pills); tabs → filter 100px from 1024; See More 50/53; chevron down when closed.
+- form (flag-profile.css): sheet `heading` / `intro` rows hidden (the page has its own h1 + intro — the sheet lives in
+  DA, unchanged); frame margins 16/40/48/64, narrow layout at 1024/1440; **Lato 400/700 woff2 added to fonts/**
+  (SIL OFL, Google Fonts v25 latin; were 404 since 2026-09-30).
+- text-style: options `narrow-6/8/10`, `phone-12`, `tracking-narrow`.
+- landing-page.css: **semibold bug** — the Synth `strong` rule (0,4,3 via `:is`) beat `.text-style strong.semibold`
+  (0,3,3), so bold lead intros rendered Regular Synth (learning-pathway, results intros) → fixed; `heading-80` also
+  sizes section h2s (32/40/56/80) and h2s grow to their longest word below 768 (source keeps "CERTIFICATIONS" whole);
+  costs-table heading 32/36/40/44 lh 1.2; See all benefits CTA label-width from 768; section gaps per source
+  (title → timeline, events banner → FAQ heading, pricing → events banner 36/44/60/76, quotes → spotlight, …).
+- course-catalog theme: intro links lime + underlined; columns-media photo hidden below 768; section gaps.
+- tools/quality/typography-check.mjs: `heading-80` sections and the costs-table section (`:has(> .cards-wrapper >
+  .cards.comparison)`) are skipped like `heading-64` (source display presets, verified per section). The terms page's
+  documented 4 drifts are gone with it.
+**Regressions:** each agent snapshotted the other pages using its block/template before/after (19 landing pages,
+results pages, samples). Intended side effects: membership-benefits FAQ heading narrow + no 48px separator; fellowship
+intro normal tracking; guardian + drafts/results intros Semibold; home Safe Play / maintenance columns h2 weight 700
+(no box change).
+**Left / accepted:** inclusion-summit phone-only "In 2026…" paragraph (one-copy policy) and the rows the source hides at
+768–1023 (shown); banner (blue) at 1024 copy column (one-banner standardisation, 2026-11-18); course badges from
+courses.json; cards (comparison) contrast; Profile URL `type=url` (form sheet); timeline descriptions not clamped to 6
+lines at 768 (would change every timeline page).
+Gate: lint ✓ (0 errors) · breakpoints ✓ · svg ✓ · overflow ✓ + typography ✓ on the 4 pages + guardian · a11y ✓
+inclusion-summit, flag-profile, guardian, coach-mentorship, coaching-community; courses + learning-pathway only the known
+cards (comparison) contrast. Local only — nothing uploaded, previewed or published; not committed.
+
+### 2026-11-27 — main merged into aem-20261126-1046 + post-merge fixes
+- `git pull` on main: already up to date (origin/main = 95d8be0); its 2 commits (f0ea6b1, 95d8be0) merged into the
+  branch (merge 2dbfe05). Conflicts: hero.css, landing-page.css, MIGRATION.md — both sides only APPENDED (our hero
+  `centered` + main's `logo`; our landing rules + main's tabs/statement-32/quiz/narrow-image rules; main's log entries
+  placed before ours by date) → kept both.
+- Main's updated landing importer still does not reproduce inclusion-summit (lime / quote / spotlight / video text),
+  flag-profile (form) or learning-pathway (timeline / pathway accordions) — candidate run to /tmp only; content/ keeps
+  the edited pages.
+- Re-verified after the merge (critique `after-merge/` folders): inclusion-summit 98.6, flag-profile 99.5, courses 100,
+  learning-pathway 99.7 — the merge moved nothing on them. Main's pages rendered with main's code vs the merged code
+  (`/tmp/lp-cand/regress.mjs`, CSS/JS served from `git show main:`): about, workshops, education-center-locations,
+  maintenance-page identical; membership-benefits FAQ heading changed → checked against the source (below).
+- **Post-merge fixes (user request):**
+  - landing-page.css: membership-benefits photo row → FAQ heading gap was 12px short (73/73/89/145 now = source);
+    the FAQ heading box (x46 w283 @375 …) and heading → first question (48/48/90/90) = source (an earlier "24px short"
+    reading measured the item box on ours vs the header text on the source). A `heading-64.narrow-10` heading followed
+    by the pricing tiers has no side inset (learning-pathway / guardian "PACKAGES…" x16 @375 = source).
+  - banner.css: standard `Banner (blue)` — copy above the CTA below 1280, 3-column row from 1280 (source: copy 422px /
+    2 lines at 1024; ours was a 124px / 7-line column). Affects every `banner blue` (courses, learning-pathway, en/home).
+  - accordion.css: certification badges span the header width below 768 (309×161 @375 = source; results pages too).
+  - cards.css: pricing tier names letter-spacing −1px (fixed source value) instead of −0.03em.
+  - Lime banner label: no change — the source's 1px tracking is reset on the label span (same as the 2026-10-19 finding).
+- Gate: lint ✓ (0 errors) · breakpoints ✓ · svg ✓ · overflow ✓ + typography ✓ on the 4 pages, membership-benefits,
+  guardian-coach, en/home · a11y ✓ except the known cards (comparison) contrast on courses + learning-pathway.
+
+### 2026-11-27 — 5 pages uploaded to DA + previewed (on request; NOT published)
+- Pages: en/home/coaching-community/usta-coaches-inclusion-summit, en/home/account/flag-profile, en/home/courses,
+  en/home/learning-pathway, en/home/results/guardian-coach. User decision: upload + preview now, publish live only after
+  branch aem-20261126-1046 is merged to main (main's code lacks the new options — video split, banner lime / flush,
+  hero centered, text-style narrow/phone/tracking, heading-80 h2s — so live would render them unstyled).
+- Upload docs built from content/<path>.plain.html; only `/media-da/<dir>/<page>/<file>` → DA's
+  `content.da.live/aemdemos/coaching-usta/<dir>/.<page>/<file>` rewritten (the local mirror convention); all 44 image
+  URLs already existed in the DA docs (exact match) — no media uploads. Previous DA versions backed up to
+  migration-work/da-backup-2026-11-27/. Uploads 200, read back byte-identical; preview 200 ×5.
+- Verified on https://aem-20261126-1046--coaching-usta--aemdemos.aem.page/…: all blocks load, no page errors; key boxes
+  (video split frame, lime banner, centred hero title, flag-profile h1 / intro / form, LP h1 / heading-80 h2 / blue banner)
+  identical to local @1440. main--…aem.page shows the new content with main's code until the merge.
+
+### 2026-11-27 — Gallagher submit + sign-in links: interim "sign in first" (user decision)
+**Reported:** Gallagher disclaimer pages (baseline / rally / pro / pro-plus, on main) error on Submit, and an error modal
+after going back; inclusion-summit / flag-profile / courses / learning-pathway "redirect to the login page".
+**Findings:**
+- Source Gallagher form = `v-form-container submit-endpoint="/profile/insurance/agreement" data-source-type="api"
+  is-redirect-to-stripe tier-code=…` → POST `services.ustacoaching.com/v1/profile/insurance/agreement` for the SIGNED-IN
+  user, then Stripe. Logged out (verified with every non-GET request aborted — nothing reached the customer's
+  systems) it shows the `generic-error-modal` "Oops! Something went wrong — Your changes were not saved." The
+  "error modal" = the source's; EDS has no modal component.
+- EDS (main): Submit → `forms.adobe.com/adobe/forms/af/submit/…` → **400** (the form sheets have no submission set up)
+  → inline "Something went wrong while submitting the form." Going back: no modal.
+- Login redirects: course / badge links → `ustacoaching.csod.com` (LMS) → USTA sign-in, SAME as the source (expected).
+  Not wired: pricing "Select" (source `data-button-action="wizard"` = Join wizard; ours `/` on courses, `#` on LP) and
+  header Join / Sign In (placeholder `/content/coaching/{en,es}/home/…`).
+- Source sign-in: `account.usta.com/authorize?…client_id=JpSsD7mUsRqlEkXw6aQ2MTmamjvd0msr&redirect_uri=
+  https://ustacoaching.com/{locale}/login.html&state=<generated>` — the `state` is generated + checked on
+  www.ustacoaching.com, so a static /authorize link from another origin can't complete. A secured source page
+  (`/{locale}/home/account/dashboard.html`, `isSecuredPage = true`) opened signed out goes straight to
+  `account.usta.com/u/login` (Sign In, with Sign up) and returns to the dashboard — verified. No URL opens the
+  Join wizard.
+**Interim (until Phase 2 USTA sign-in):**
+- `scripts/usta-account.js` (new): `signInUrl()` = source dashboard for the page locale, `isSignedIn()` = the source's
+  check (access + refresh token for the client id in localStorage; false on the EDS hosts).
+- (superseded the same day — see the next entry) form.js `requireSignInOnGallagherSubmit`: signed-out Gallagher
+  Submit → USTA sign-in, no submission (capture-phase listener before handleSubmit). Signed in → the existing submit (still the
+  Adobe Forms 400 until Phase 2 wires the agreement API + Stripe).
+- Content (local): courses + learning-pathway Select ×4 each, nav + es/nav Join / Sign In → the dashboard sign-in URL.
+  NOT changed (user scoped the pages; still the `/` placeholder): Select on membership-benefits and results ×6.
+  Also `Get Started for Free` on one results page links a captured `account.usta.com/u/signup?state=…` (expired).
+- header.js `decorateExternalLinks` skips `.nav-button` (Join / Sign In keep their look, same tab, no external icon).
+Gate: lint ✓ (0 errors) · breakpoints ✓ · a11y ✓ gallagher pro / baseline; courses + LP only the known comparison
+contrast. Verified locally: all 4 Gallagher tiers → dashboard sign-in, 0 form POSTs; header + Select hrefs EN / ES.
+
+### 2026-11-27 (later) — Gallagher: the source's "Oops! Something went wrong" modal (user decision: same as original)
+User: "I still don't see the error modal" → decision: behave like the source — a signed-out Submit shows the source's
+generic error modal; OK / X / Esc close it; the visitor stays on the page. **Replaces** the interim sign-in redirect
+on Submit from the entry above (the Select / Join / Sign In links to the USTA sign-in stay).
+- `blocks/form/error-modal.js` + `error-modal.css` (imported by form.css): native `<dialog>` (showModal — focus to OK,
+  Esc closes, focus back to Submit; aria-labelledby / describedby). Header bar = a clone of the page header's logo
+  (alt ""), 24px close X (inline SVG glyph). Copy from the placeholders sheet keys `Error Modal Title` / `Error Modal
+  Subtitle` / `Error Modal Button` / `Error Modal Close`, falling back to the source copy (keys NOT yet in the DA sheet).
+- form.js `errorModalOnSignedOutGallagherSubmit` (capture phase): signed out → modal, no request. submit.js
+  `submitFailure`: a Gallagher form's failed submit → the modal instead of the inline banner (other forms unchanged).
+- `scripts/usta-account.js` now only exports `isSignedIn()` (default); `signInUrl()` removed (unused).
+- Parity (source measured with every non-GET request aborted): panel / header / logo / close / title / subtitle / OK
+  boxes identical @1440 / 768 / 375 (e.g. 1440: panel 476,312 489×277, OK 660,514 120×53; 375: panel 1,290 373×319,
+  OK 128,539 120×50); backdrop rgb(66 66 66 / 90%). Screenshots migration-work/{source,ours}-oops-modal-{1440,375}.png.
+- Gate: lint ✓ · breakpoints ✓ · stylelint ✓ · axe on the OPEN modal: 0 violations · a11y ✓ gallagher pro / rally,
+  flag-profile, lead-interests (other forms load, no page errors). All 4 tiers: modal opens, 0 POSTs, no navigation.
+
+### 2026-11-27 (later) — Gallagher: Submit → USTA sign-in; Back without signing in → the "Oops!" modal (user correction)
+User: on the source, Submit REDIRECTS to the login page, and coming back (browser Back, not signed in) shows the modal —
+not the modal straight away. (My earlier source test aborted the agreement POST, which skipped the redirect and showed
+the modal immediately — a test artefact.) Now the same flow:
+- form.js `signInFirstOnGallagherSubmit` (replaces `errorModalOnSignedOutGallagherSubmit`): signed-out Submit stores
+  the page in sessionStorage (`form-sign-in-pending`) and goes to `signInUrl()` (source dashboard → account.usta.com
+  "Sign In"); on load / back-forward-cache restore of that page, still signed out → the modal, flag cleared (a reload
+  does not show it again). `scripts/usta-account.js` exports `signInUrl()` again.
+- Verified (all 4 tiers, locally; every non-GET to other hosts aborted): Submit → `account.usta.com/u/login`; ONE
+  Back → our page with the modal open (the dashboard hop is not in the back stack); reload → no modal.
+- submit.js: a failed Gallagher submit (signed in) still shows the modal. Gate: lint ✓ · breakpoints ✓ · a11y ✓
+  gallagher-pro, flag-profile.
+
+### 2026-11-27 (later) — CLS: header offset at first paint + size-matched fallback fonts (Terms page report)
+Reported: CLS on /en/home/membership-benefits/coaching-membership-terms-and-conditions (branch preview).
+**Causes (measured with a layout-shift observer, Playwright):**
+1. Font swap on the 80px `heading-80` title: the fallback (no metric-matched face) wrapped it 4 lines, USTA Sans 5 →
+   the whole legal section dropped 80px (CLS 0.59 @1440, 0.18 @375).
+2. Header offset: `--usta-header-height` + `body { padding-top }` lived in the LAZY header.css → main started at y 0 and
+   dropped 90 / 116px when it arrived (0.08–0.11, timing-dependent).
+3. Body copy re-wrapping when Graphik swaps in.
+**Fixes:**
+- styles/styles.css: `--usta-header-height` (90px; 116px from 768) in :root and `body { padding-top }` (moved out of
+  header.css) → in place at first paint.
+- styles/styles.css "fallback fonts": `USTA Sans Fallback` (Arial Bold 134.47%), `Graphik Regular Fallback` (Arial
+  106.14% + a 600–900 Arial Bold face 97.5% for bold / Synth runs), `Graphik Semibold Fallback` (Arial Bold 99.81%),
+  ascent / descent overrides; local() lists Arial, ArialMT, Arimo Regular / Bold (ChromeOS / Linux), Liberation Sans.
+  Ratios = content-weighted widths of the real text runs of 7 pages vs Arimo (Arial metrics), canvas measureText.
+  Every font stack naming USTA Sans / Graphik Regular / Synth / Semibold (27 CSS files + header `--usta-nav-font`)
+  got the matching fallback name inserted after the web font (fonts.css untouched).
+**Results** (Arimo installed as the system Arial stand-in, font files delayed 800ms), Terms before → after:
+1440 0.18 → 0.13 · 1024 0.35 → 0.08 · 768 0.41 → 0.25 · 375 0.14 → 0.001 (fast connection: 0.13 / 0.06 / 0.25 / 0.001).
+Remaining = the first legal paragraph's regular + bold runs re-distributing one line when Graphik swaps in; per-paragraph
+line matching depends on the platform's text rasteriser (this Linux headless Chrome hints small text; Windows / macOS
+use subpixel positioning) — not tuned further. User decision: keep (no `font-display: optional`).
+- Courses: separate, timing-dependent shift @1440 — the phone-only intro (`default-content-wrapper` "Courses and
+  Workshops…") shows briefly then hides (0.156 in one run) — open follow-up.
+- PageSpeed Insights API: daily quota exhausted (not run). Gate: lint ✓ · stylelint ✓ · breakpoints ✓ · typography ✓
+  (terms, courses, home). Committed locally, NOT pushed (user).
+
+### 2026-11-27 (later) — CLS: unsized columns image (Inclusion Summit; user's Lighthouse report)
+User's Lighthouse (branch preview, mobile): Inclusion Summit CLS 0.257 — the "Build the game" text div 0.208 + the video
+section 0.047, culprit "Unsized image element" (`columns-img-col img`, width 1024 height 682). Terms 0.624 = web fonts
+(usta-sans-bold.otf, Graphik) 0.537 + `<main>` 0.087 → the two fixes in the entry above (local commit).
+- Cause: columns.css (2026-11-26, "crop preset from 768 only") set `aspect-ratio: auto` on default-columns images
+  below 768 — that drops the width/height attribute ratio, so the lazy image's box was 0px until it loaded and the text
+  + next sections dropped 228px.
+- Fix: columns.js `decorateDefault` sets `--img-ratio: <width> / <height>` on the image from its attributes; columns.css
+  `aspect-ratio: auto var(--img-ratio)` (own shape, box reserved before load). Loaded sizes unchanged (Inclusion Summit
+  343×228 / 688×459 / 650×325, coaching-community 164×131 / 332×221 / 644×322 at 375 / 768 / 1440 — identical to before).
+- Verified with the delivered attributes injected (the local `.plain.html` images have no width / height; aem.page adds
+  them): @375 the 0.19 image shift → 0. Remaining on this page: the mixed-case hero title "Coach Inclusion Summit"
+  re-wrapping when USTA Sans swaps in (2 → 3 lines, 0.09 @375 / 0.06 @768) — open (an `uppercase` idea for USTA Sans
+  headings is parked in /tmp; a site-wide h1/h2 rule would recase 21 Graphik headings on 9 pages).
+- Gate: eslint ✓ · stylelint ✓. Committed locally, NOT pushed.
+
+### 2026-11-27 (later) — CLS: content-hero title wraps the same in the fallback (Inclusion Summit)
+- Cause: the hero title is authored in mixed case ("Coach Inclusion Summit"); USTA Sans draws lower case with its
+  capital glyphs (verified: identical advance widths and 0 differing pixels lower vs upper case), the Arial-based
+  `USTA Sans Fallback` does not → 2 lines in the fallback, 3 in USTA Sans; the hero grew 106 → 138px @375 (CLS 0.09
+  @375, 0.06 @768).
+- Fix (hero.css only — user asked for the hero title): `.hero.content .hero-content h1` / `h2` `text-transform:
+  uppercase` (was `none`). No-op on screen: hero element screenshots pixel-IDENTICAL before / after on
+  inclusion-summit, coach-mentorship, coaching-community, coachtennis and the hero-content / -title / -wide samples
+  @375 / 1440. A site-wide h1 / h2 rule was NOT used (it would recase 21 Graphik headings on 9 pages).
+- Inclusion Summit CLS (Arimo as Arial, delivered image attributes): @375 0.0000 · 768 0.0008 · 1024 0.0003 ·
+  1440 0.0003–0.011; with fonts delayed 800ms 0.0000 / 0.0056 / 0.0003 / 0.0003.
+- Gate: lint ✓ · stylelint ✓ · breakpoints ✓ · typography ✓ + a11y ✓ (inclusion-summit, coach-mentorship).
+
+### 2026-11-27 (later) — favicon: the source's tennis-ball icon (was the boilerplate Adobe "A")
+- `/favicon.ico` was still the aem-boilerplate Adobe icon (66 KB, malformed 128×125 entry). Source:
+  `https://www.ustacoaching.com/etc.clientlibs/coaching/clientlibs/clientlib-vue/resources/icons/favicon.ico` = a 64×64
+  RGBA PNG served under the .ico name (lime ball on a black rounded square).
+- New `favicon.ico` = a real ICO built from that artwork (ImageMagick `icon:auto-resize=64,48,32,16`), 32 KB; rendered
+  identical to the source at 64px. head.html is untouchable and needs no change (browsers request /favicon.ico).
+
+### 2026-11-27 (later) — content uploaded to DA + previewed (on request; NOT published)
+- Uploaded (built from content/*.plain.html, `/media-da/…` → DA `.page/` media URLs; all 39 image URLs already in the
+  DA docs) and previewed: en/home/courses + en/home/learning-pathway (Select ×4 → USTA sign-in), nav + es/nav (Join /
+  Sign In → USTA sign-in), drafts/block-samples/cards-comparison (labels upper case). Uploads 200, read back
+  byte-identical, preview 200 ×5. Previous DA versions: migration-work/da-backup-2026-11-27b/.
+- Fixed before upload: my earlier label upper-casing on the comparison sample also hit "Total Workshop Costs" (→ "Total
+  WORKSHOP COSTS") — restored locally.
+- Already identical in DA (not re-uploaded): inclusion-summit, flag-profile, results/guardian-coach.
+- Verified on the branch preview: header Join / Sign In (EN, ES) and the Select buttons point to the USTA sign-in.
+
+### 2026-11-27 (later) — 8 pages PUBLISHED live (on request, before PR #54 is merged — user decision)
+- Published (admin.hlx.page/live, 200 ×8): en/home/courses, en/home/learning-pathway, nav, es/nav,
+  drafts/block-samples/cards-comparison, en/home/coaching-community/usta-coaches-inclusion-summit,
+  en/home/account/flag-profile, en/home/results/guardian-coach. Live .plain.html verified (Select / header sign-in
+  links, video split, flag-profile intro options, guardian tracking-narrow, sample labels).
+- Known until PR #54 is merged (main = 95d8be0): live runs main's code — header Join / Sign In get main's external-link
+  arrow + new tab; Inclusion Summit's new options (video split, banner lime / spotlight flush, hero centered,
+  text-style narrow / phone, columns media-first / no-separator), the heading-80 h2s, the Gallagher sign-in + modal,
+  the CLS fixes and the favicon are NOT on live yet. Merge PR #54 → live picks the code up (no re-publish needed).
+
+### 2026-11-27 (later) — Flag Profile: the source's default "Required field" error, frame box, Lato fallback (user report)
+User: flag-profile "still not migrated perfectly — the error by default on the original, some CLS, form width differs".
+- Source (loaded as a normal visitor, never submitted): the Formstack form autofocuses + blurs its first field on load
+  → "Required field" banner (StyledErrorBanner) above Profile URL and the input red-bordered with a "!" icon. (An
+  earlier "ERR_NETWORK" modal was a test artefact: aborting the source's requests.)
+- form.js: forms with the authored error-summary row (only /forms/flag-form.json) validate their first required field
+  on load (same as the `application` variant); the message is the sheet's "Required Error Message". flag-profile.css:
+  banner #fae9e9 / 1px #ff3c3c / 7px 12px / 14px source icon / Lato 12px #15232b, invalid input red border + icon —
+  source values; every frame box (label 20, banner 49/31, input 87, button 505) = source.
+- Frame (the bordered box) = source at 375 / 768 / 1024 / 1280 / 1440: 16/343/675 · 40/688/650 · 206.7/610.7/675 ·
+  358/564/675 · 398/644/675; top below h1 211.6 / 168.4 / 189.2 / 307.6 / 227.6 (source 212 / 168 / 189 / 308 / 228).
+- CLS: "Lato Fallback" faces (Arial / Arimo, size-adjust 97.13% regular, 91.4% bold, metrics matched) in the form's
+  Lato stacks: 0.0142 / 0.0063 / 0.0059 / 0.0032 → 0.0052 / 0.0014 / 0.0013 / 0.0026 (375 / 768 / 1024 / 1440).
+- reCAPTCHA badge red text = "This reCAPTCHA is for testing purposes only…": the sheet's captcha row holds Google's
+  public TEST key. Needs the real site key (registered for aem.page / aem.live) in /forms/flag-form.json — open.
+- Other forms (lead-interests, gallagher-disclaimer-*) unchanged. Gate: eslint ✓ · stylelint ✓ · breakpoints ✓ ·
+  a11y ✓ flag-profile, lead-interests, gallagher-pro.
+
+### 2026-11-27 (later) — video cookie notice: the source's fixed 200px panel (Inclusion Summit report)
+User: "the cookie banner is not the same size as the original" (Inclusion Summit). Our site has no CMP banner (scripts/
+consent-check.js is a stand-in; the source's OneTrust banner — 700×278 bottom-left @1440, 375×535 @375 — is not
+migrated: CMP choice is open). The mismatch was the video's cookie notice (`.video-consent`, source
+`.usta-consent-placeholder`), measured with OneTrust "Reject All":
+- source: a fixed 200px panel at every width / layout (Inclusion Summit split 343 / 452 / 644 × 200; fellowship 343 /
+  569 / 769 / 1312 × 200); ours took the player height + 5 (205 / 395 / 655px).
+- video.css: `.video .video-consent { height: 200px }`; `.video-consent-message { width: 100% }` (fills its 400px max like
+  the source <p>). Now box + message = source (1440: 644×200, message 400×42 at +122,+79; 375: 343×200, 293×63 at
+  +25,+69); screenshots identical apart from the AA-darkened link (#3370ad vs source #418fde, documented).
+- Consented player unchanged (split 644×390 / fellowship 1312×650 @1440, 343×200 @375). Gate: stylelint ✓ · breakpoints
+  ✓ · overflow ✓ (inclusion-summit, fellowship).

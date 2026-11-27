@@ -73,10 +73,13 @@ function measure(tags) {
       // goes for the homepage `.intro-statement` display paragraph (32→72px by
       // design, verified against its own source component) and the news-article
       // template's article frame (its own source-measured type: h1 28→50px etc.),
-      // and the `heading-64` section style (the source's display-size
-      // text--font-size--64px-28px headings: 28→40→56→64px by design).
+      // and the `heading-64` / `heading-80` section styles (the source's display-size
+      // text--font-size--64px-28px / 80px-32px headings: 28→40→56→64px and
+      // 32→40→56→80px by design), and the costs-table section (the heading of a
+      // Cards (comparison) section is the table's own source title: USTA Sans
+      // 32→36→40→44px, line-height 1.2 — verified per section, landing-page.css).
       return r.width > 0 && r.height > 0 && e.textContent.trim()
-        && !e.closest('.block, .intro-statement, body.news-article main > .section.bordered, main > .section.heading-64');
+        && !e.closest('.block, .intro-statement, body.news-article main > .section.bordered, main > .section:is(.heading-64, .heading-80), main > .section:has(> .cards-wrapper > .cards.comparison)');
     });
     if (!el) continue;
     const cs = getComputedStyle(el);

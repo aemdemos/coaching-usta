@@ -12,12 +12,13 @@
 
 /* stylelint-disable no-descending-specificity */
 
-/* the source list sits in its grid column's inset: 8px (12px from 768) */
+/* The source list spans the content box, flush with the sub-nav pills above
+   (re-measured 2026-11-26: x 16/40/48/64, w 343/688/928/1312 at 375/768/1024/1440).
+   The section gutter already equals the source column + its 8/12px inset. */
 .course-filter {
   --cf-dark-panel: var(--usta-dark-panel);
 
   display: block;
-  margin-inline: 8px;
 }
 
 /* Section container: align to the site content grid (1536 cap, gutters). */
@@ -32,7 +33,7 @@ main > .section.course-filter-container > div {
 .course-filter-tabs {
   background: transparent; /* mobile: transparent; becomes dark panel at tablet+ */
   border-radius: 20px;
-  margin-bottom: 36px; /* source: 36px mobile / 44px tablet / 100px desktop */
+  margin-bottom: 36px; /* source: 36px mobile / 44px tablet / 100px from 1024 */
 }
 
 .course-filter-tabs-row {
@@ -71,14 +72,14 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-tab-title {
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-weight: 700;
   font-size: 14px;
   line-height: normal;
 }
 
 .course-filter-tab-description {
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-weight: 400;
   font-size: 12px;
   line-height: normal;
@@ -135,25 +136,24 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: #fff;
   color: #000;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 16px;
   cursor: pointer;
 }
 
+/* Both toggles (source): the chevron art points up, rotated 180° (down) while
+   closed and upright (up) while its panel is open. */
 .course-filter-toggle svg {
   width: 14px;
   height: 10px;
   margin-left: 12px;
+  transform: rotate(180deg);
   transition: transform 0.2s ease;
 }
 
 .course-filter-sort-value { margin-left: 0.25em; }
 
-/* Filter By chevron points up (open affordance); Sort points down. */
-.course-filter-toggle-filter svg { transform: rotate(0deg); }
-.course-filter-toggle-sort svg { transform: rotate(180deg); }
-.course-filter-toggle[aria-expanded="true"].course-filter-toggle-filter svg { transform: rotate(180deg); }
-.course-filter-toggle[aria-expanded="true"].course-filter-toggle-sort svg { transform: rotate(0deg); }
+.course-filter-toggle[aria-expanded="true"] svg { transform: rotate(0deg); }
 
 .course-filter-toggle:focus-visible,
 .course-filter-tab:focus-visible,
@@ -178,7 +178,7 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: #000;
   color: #fff;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 16px;
   line-height: 1;
 }
@@ -222,7 +222,7 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-panel-title {
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 18px;
   color: #000;
 }
@@ -265,7 +265,7 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-group legend {
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-weight: 700;
   font-size: 14px;
   text-transform: uppercase;
@@ -280,7 +280,7 @@ main > .section.course-filter-container > div {
   justify-content: space-between;
   gap: 12px;
   padding: 6px 0;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 16px;
   color: #000;
   cursor: pointer;
@@ -310,7 +310,7 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: #000;
   color: #fff;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 16px;
   cursor: pointer;
 }
@@ -326,14 +326,14 @@ main > .section.course-filter-container > div {
   padding: 12px 24px;
   border: 0;
   background: transparent;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 16px;
   color: #000;
   cursor: pointer;
 }
 
 .course-filter-sort-option.is-selected {
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
 }
 
 /* ---- Courses grid ---- */
@@ -388,7 +388,7 @@ main > .section.course-filter-container > div {
 .course-filter-card-eyebrow {
   display: block;
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 12px;
   line-height: 1;
   letter-spacing: -0.36px;
@@ -403,7 +403,7 @@ main > .section.course-filter-container > div {
   overflow: hidden;
   margin: 0;
   padding: 8px 0 2px;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-weight: 400;
   font-size: 18px;
   line-height: 1;
@@ -417,7 +417,7 @@ main > .section.course-filter-container > div {
    Base (mobile-first): inline hidden, mobile copy present but collapsed. */
 .course-filter-card-description {
   padding: 20px 32px 0 0;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 14px; /* source: 14px mobile → 16px tablet+ */
   line-height: 1.2;
   letter-spacing: normal;
@@ -452,7 +452,7 @@ main > .section.course-filter-container > div {
   position: absolute;
   right: 0;
   bottom: -2px;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 30px;
   font-weight: 700;
   line-height: 1;
@@ -572,7 +572,7 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-card-module-text {
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 14px; /* source: 14px/600 mobile → 16px/400 tablet+ */
   font-weight: 600;
   line-height: 1.2;
@@ -584,7 +584,7 @@ main > .section.course-filter-container > div {
 .course-filter-see-more-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 48px;
+  margin-top: 24px; /* source: load-more wrapper 24px below the grid */
 }
 
 .course-filter-see-more {
@@ -593,8 +593,9 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
-  font-size: 18px;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
+  font-size: 16px; /* source: 16px on phones, 18px from 768 */
+  line-height: normal;
   letter-spacing: -0.54px;
   cursor: pointer;
 }
@@ -610,8 +611,6 @@ main > .section.course-filter-container > div {
   }
 
   .course-filter-tabs-row { gap: 16px; }
-
-  .course-filter { margin-inline: 12px; }
 
   .course-filter-tab {
     height: 100px;
@@ -649,6 +648,8 @@ main > .section.course-filter-container > div {
   .course-filter-chip { height: 36px; }
 
   .course-filter-card-content { gap: 24px; }
+
+  .course-filter-see-more { font-size: 18px; }
 
   .course-filter-card-eyebrow {
     font-size: 16px;
@@ -712,14 +713,14 @@ main > .section.course-filter-container > div {
 
   .course-filter-tab-title { font-size: 16px; }
 
+  /* tabs → Filter By bar: 100px from 1024 (source) */
+  .course-filter-tabs { margin-bottom: 100px; }
+
   .course-filter-card { min-height: 333px; }
 }
 
 @media (width >= 1280px) {
   main > .section.course-filter-container > div { padding-inline: 64px; }
-
-  /* Full-size dark panel spacing at wide desktop (source: 100px). */
-  .course-filter-tabs { margin-bottom: 100px; }
 
   .course-filter-card { min-height: 347px; }
 

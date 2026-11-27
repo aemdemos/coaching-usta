@@ -353,6 +353,39 @@ function decorateIntroStatement(main) {
   });
 }
 
+/**
+ * Legal copy (section style `legal`, membership terms): a section number that opens a
+ * bold line ("1. <u>Title</u>", "A. <u>Title</u>") gets its own fixed slot, so the titles
+ * line up like the source's tab stop (the source author's runs of non-breaking spaces
+ * do not survive the content pipeline). Authors just type "1. Title".
+ * @param {Element} main The main element
+ */
+function decorateLegalNumbers(main) {
+  const isBlank = (n) => n.nodeType === Node.TEXT_NODE && !n.textContent.trim();
+  main.querySelectorAll('.section.legal strong').forEach((strong) => {
+    if (!strong.querySelector('u')) return;
+    // the number may follow a line break inside the bold run ("<strong><br>3. …")
+    let first = strong.firstChild;
+    let brInside = false;
+    while (first && (first.nodeName === 'BR' || isBlank(first))) {
+      if (first.nodeName === 'BR') brInside = true;
+      first = first.nextSibling;
+    }
+    if (!first || first.nodeType !== Node.TEXT_NODE) return;
+    const m = first.textContent.match(/^\s*(\d{1,2}|[A-Z])\.\s+/);
+    if (!m) return;
+    // only at the start of a line: first in its paragraph, or right after a line break
+    let prev = strong.previousSibling;
+    while (prev && isBlank(prev)) prev = prev.previousSibling;
+    if (!brInside && prev && prev.nodeName !== 'BR') return;
+    const num = document.createElement('span');
+    num.className = 'legal-num';
+    num.textContent = `${m[1]}.`;
+    first.textContent = first.textContent.slice(m[0].length);
+    first.before(num);
+  });
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
@@ -362,6 +395,7 @@ export function decorateMain(main) {
   decorateBlocks(main);
   decorateButtons(main);
   decorateIntroStatement(main);
+  decorateLegalNumbers(main);
 }
 
 /**

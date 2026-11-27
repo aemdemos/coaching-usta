@@ -6,6 +6,8 @@ import {
 import GoogleReCaptcha from './integrations/recaptcha.js';
 import componentDecorator from './mappings.js';
 import { handleSubmit } from './submit.js';
+import isSignedIn, { signInUrl } from '../../scripts/usta-account.js';
+import openErrorModal from './error-modal.js';
 import DocBasedFormToAF from './transform.js';
 import {
   checkValidation,
@@ -691,6 +693,41 @@ function gateSubmitOnOptIn(form) {
   update();
 }
 
+const SIGN_IN_PENDING_KEY = 'form-sign-in-pending';
+
+/**
+ * Gallagher disclaimer forms (sheet Style `gallagher-submit` on the submit row), as on the
+ * source: Submit needs a signed-in USTA visitor (the agreement is saved to their account, then
+ * checkout). Signed out, Submit sends the visitor to the USTA sign-in; coming BACK to the page
+ * without signing in opens the generic "Oops! Something went wrong" modal. The pending sign-in
+ * is remembered per page in sessionStorage; the check runs on load and on a back-forward-cache
+ * restore. Signed in, the regular submit runs (the agreement API + checkout come with Phase 2).
+ * The submit listener runs in the capture phase, before the regular submit handler.
+ * @param {HTMLFormElement} form
+ * @returns {Function} the on-load check — call it once the form is on the page
+ */
+function signInFirstOnGallagherSubmit(form) {
+  if (!form.querySelector('.gallagher-submit')) return () => {};
+  const page = window.location.pathname;
+  const pending = () => {
+    try { return sessionStorage.getItem(SIGN_IN_PENDING_KEY) === page; } catch { return false; }
+  };
+  const showIfReturned = () => {
+    if (!pending()) return;
+    try { sessionStorage.removeItem(SIGN_IN_PENDING_KEY); } catch { /* ignore */ }
+    if (!isSignedIn()) openErrorModal(form);
+  };
+  form.addEventListener('submit', (e) => {
+    if (isSignedIn() || !form.checkValidity()) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    try { sessionStorage.setItem(SIGN_IN_PENDING_KEY, page); } catch { /* ignore */ }
+    window.location.assign(signInUrl());
+  }, true);
+  window.addEventListener('pageshow', (e) => { if (e.persisted) showIfReturned(); });
+  return showIfReturned;
+}
+
 export default async function decorate(block) {
   const variantStyles = loadVariantStyles(block);
   let container = block.querySelector('a[href]');
@@ -716,19 +753,22 @@ export default async function decorate(block) {
       block,
       editMode: block.classList.contains('edit-mode'),
     }));
-    if (block.classList.contains('application')) {
-      // Formstack-style forms validate each field on blur (see enableValidation)
-      form.dataset.validateOn = 'blur';
-      // Source look (agreed with the client): the Formstack embeds autofocus their
-      // first field, which then blurs, so the page loads with that field already
-      // flagged ("Required field" on Name, red First Name). Reproduced by
-      // validating the first required field once — without moving focus.
+    // Formstack-style forms validate each field on blur (see enableValidation)
+    if (block.classList.contains('application')) form.dataset.validateOn = 'blur';
+    if (block.classList.contains('application') || form.querySelector('.form-error-summary')) {
+      // Source look (agreed with the client): the Formstack embeds (applications,
+      // flag profile) autofocus their first field, which then blurs, so the page
+      // loads with that field already flagged ("Required field" on Name / Profile
+      // URL). Reproduced by validating the first required field once — without
+      // moving focus.
       const first = form.querySelector('[required]:not([type="file"], [type="checkbox"], [type="radio"])');
       if (first) checkValidation(first);
     }
     gateSubmitOnOptIn(form);
+    const showIfReturnedFromSignIn = signInFirstOnGallagherSubmit(form);
     await variantStyles;
     container.replaceWith(form);
+    showIfReturnedFromSignIn();
   }
   return { form, afbForm };
 }

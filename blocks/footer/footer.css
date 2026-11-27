@@ -6,7 +6,7 @@
 footer {
   background-color: #000;
   color: #fff;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
 }
 
 /* Source footer XF geometry (measured 375/768/1024/1280/1440/1728): the same
@@ -116,7 +116,7 @@ footer .footer-links a,
 footer .footer-links a:any-link {
   color: #fff;
   text-decoration: none;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   font-weight: 400; /* the "Graphik Semibold" face is already bold; source uses 400 */
   line-height: 1;

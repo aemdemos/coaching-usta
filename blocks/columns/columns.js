@@ -834,6 +834,12 @@ function decorateDefault(block) {
         if (picWrapper && picWrapper.children.length === 1) {
           // picture is only content in column
           picWrapper.classList.add('columns-img-col');
+          // the image's own ratio (width / height attributes) for CSS that shows it uncropped:
+          // reserves its box before the lazy image loads (CLS)
+          const img = pic.querySelector('img');
+          const w = Number(img?.getAttribute('width'));
+          const h = Number(img?.getAttribute('height'));
+          if (w > 0 && h > 0) img.style.setProperty('--img-ratio', `${w} / ${h}`);
         }
       }
     });

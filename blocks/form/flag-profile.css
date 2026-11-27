@@ -1,12 +1,14 @@
 /* flag-profile — the "FLAG COACH PROFILE" report form
    (ustacoaching.com/en/home/account/flag-profile.html), rendering the
-   /forms/flag-profile.json sheet. Scoped via :has(.flag-profile-heading) (the
+   /forms/flag-form.json sheet. Scoped via :has(.flag-profile-heading) (the
    sheet's heading row carries Style: flag-profile-heading) so it only restyles
    THIS form; subscribe.css applies to every `main .form.block`, so the rules
    below also undo its field look (black 58px inputs, red "* " prefix, grey pill).
-   Source layout: a centred USTA Sans title + Graphik Semibold intro (8 of 12
-   cols), a grey rule, then an embedded Formstack form in a fixed 675px-tall
-   frame (2px inset iframe border) spanning 12 → 8 (>=1024) → 6 (>=1280) cols.
+   Source layout: the page's own h1 + text-style intro (authored as page content),
+   a grey rule, then an embedded Formstack form in a fixed 675px-tall frame (2px
+   inset iframe border) spanning 12 → 8 (>=1024) → 6 (>=1280) cols. The sheet's
+   own heading + intro rows would repeat the page title/intro, so they are hidden
+   (they stay in the DOM only as this file's scoping/sibling hooks).
    The frame is drawn across the field rows: the first field carries its top,
    every field its sides, the submit row its bottom. Each frame row is a size
    container so the Formstack layout switch (at a 641px-wide form: 40px insets,
@@ -30,15 +32,39 @@
   src: url('../../fonts/lato-bold.woff2') format('woff2');
 }
 
-/* Section — source content gutters 16 → 40 → 48 → 64 on the 1536 container
-   (content caps at 1408), not the subscribe 1200/1216 content box. */
-main .section.form-container:has(.flag-profile-heading) {
-  padding: 0 16px;
+/* Fallback faces (CLS) — same approach as styles.css: until Lato arrives the form
+   renders in Arial scaled to Lato's width, with Lato's line box, so nothing moves
+   on swap. Measured 2026-11-27 against Arimo over the form's labels, button,
+   messages and sample input: Lato Regular vs Arial 97.13%, Lato Bold vs Arial Bold
+   91.40%; Lato ascent / descent 0.99 / 0.21 ÷ size-adjust. */
+@font-face {
+  font-family: "Lato Fallback";
+  src: local("Arial"), local("ArialMT"), local("Arimo Regular"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 97.13%;
+  ascent-override: 101.93%;
+  descent-override: 21.62%;
+  line-gap-override: 0%;
 }
 
+@font-face {
+  font-family: "Lato Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Liberation Sans Bold");
+  font-weight: 600 900;
+  size-adjust: 91.4%;
+  ascent-override: 108.31%;
+  descent-override: 22.98%;
+  line-gap-override: 0%;
+}
+
+/* Wrapper — the shared page container (1536 cap, gutters 16 → 40 → 48 → 64; the
+   landing template zeroes the section padding and gutters every `.section > div`),
+   not the subscribe 1200/1216 content box. The source rule sits 20px under the
+   intro column (the template's 42px block separator is for headings/blocks). */
 main .section.form-container div.form-wrapper:has(.flag-profile-heading) {
-  max-width: none;
-  padding: 0;
+  --text-block-gap: 20px;
+
+  max-width: 1536px;
+  padding: 0 16px;
 }
 
 /* The form replaces the authored link inside its <p>; drop that paragraph's margins */
@@ -59,40 +85,18 @@ main .form.block:has(.flag-profile-heading) form .field-wrapper {
   margin: 0;
 }
 
-/* Title — USTA Sans 700, centred, line-height 1: 32 → 40 → 56 → 80 */
-main .form.block:has(.flag-profile-heading) .flag-profile-heading,
-main .form.block:has(.flag-profile-heading) .flag-profile-intro {
-  order: -1;
+/* The sheet's title + intro rows duplicate the page's h1 + intro: hidden from
+   sight and assistive tech (display: none), kept as the scoping hook. */
+main .form.block:has(.flag-profile-heading) form > :is(.flag-profile-heading, .flag-profile-intro) {
+  display: none;
 }
 
-main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
-  margin: 0 0 24px;
-  font-family: var(--heading-font-family);
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
-  color: var(--text-color);
-}
-
-/* Intro — Graphik Semibold, line-height 1.2, centred: 16 → 18 → 24 */
-main .form.block:has(.flag-profile-heading) .flag-profile-intro p {
-  margin: 0;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.2;
-  text-align: center;
-  color: var(--text-color);
-}
-
-/* Grey rule between the intro and the form (source <hr>, 1px inset grey).
-   The form's ::before is its first grid item; the title + intro are pulled
-   ahead of it with order: -1. */
+/* Grey rule between the intro and the form (source <hr>, 1px inset grey, 32px
+   above the frame). The form's ::before is its first grid item. */
 main .form.block:has(.flag-profile-heading) form::before {
   content: "";
   grid-column: 1 / -1;
-  margin: 32px 0;
+  margin: 0 0 32px;
   border: 1px inset #808080;
 }
 
@@ -125,7 +129,7 @@ main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .field-wrapper
 main .form.block:has(.flag-profile-heading) .field-wrapper > label.field-label {
   margin-bottom: 10px;
   padding: 0;
-  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-family: Lato, "Lato Fallback", "Helvetica Neue", helvetica, arial, sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: normal;
@@ -160,7 +164,7 @@ main .form.block:has(.flag-profile-heading) .field-wrapper textarea {
   color: #000;
   border: 1px solid #fff;
   border-radius: 0;
-  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-family: Lato, "Lato Fallback", "Helvetica Neue", helvetica, arial, sans-serif;
   font-size: 14px;
   line-height: 14px;
   letter-spacing: normal;
@@ -173,14 +177,17 @@ main .form.block:has(.flag-profile-heading) .field-wrapper textarea {
 }
 
 /* Validation — Formstack's inline banner ABOVE the input (pink fill, red
-   hairline, red "!" icon, 12px dark text) + red input border with the icon. */
+   hairline, 7px 12px padding, 14px red "!" icon + 7px gap, 12px dark text) + red
+   input border with the 14px icon flush right inside the 7px padding. form.js
+   validates the first field on load (the source autofocuses and blurs it), so the
+   page opens with "Required field" on Profile URL, as on the source. */
 main .form.block:has(.flag-profile-heading) .field-invalid .field-description {
   order: 1;
   margin-block: 0 7px;
   padding: 7px 12px 7px 33px;
-  background: #fae9e9 url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3ccircle%20cx='8'%20cy='8'%20r='8'%20fill='%23ff3c3c'/%3e%3cpath%20d='M8%203.5v5.5'%20stroke='%23fff'%20stroke-width='2'%20stroke-linecap='round'/%3e%3ccircle%20cx='8'%20cy='12'%20r='1.2'%20fill='%23fff'/%3e%3c/svg%3e") no-repeat 12px center / 14px 14px;
+  background: #fae9e9 url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201000%201000'%3e%3cpath%20fill='%23ff3c3c'%20d='M499.7%200C223.6%200%200%20223.6%200%20499.7S223.6%201000%20499.7%201000%201000%20776.4%201000%20499.7%20776.4%200%20499.7%200zM500.3%20775c-41.6%200-75-33.4-75-75s33.4-75%2075-75%2075%2033.4%2075%2075-33.4%2075-75%2075zM574%20488c0%2041.4-33.6%2075-75%2075s-75-33.6-75-75V263c0-41.4%2033.6-75%2075-75s75%2033.6%2075%2075z'/%3e%3c/svg%3e") no-repeat 12px center / 14px 14px;
   border: 1px solid #ff3c3c;
-  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-family: Lato, "Lato Fallback", "Helvetica Neue", helvetica, arial, sans-serif;
   font-size: 12px;
   font-weight: 400;
   line-height: normal;
@@ -189,13 +196,12 @@ main .form.block:has(.flag-profile-heading) .field-invalid .field-description {
 
 main .form.block:has(.flag-profile-heading) .field-invalid input,
 main .form.block:has(.flag-profile-heading) .field-invalid textarea {
-  padding-right: 34px;
   border-color: #ff3c3c;
-  background: #fff url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3ccircle%20cx='8'%20cy='8'%20r='8'%20fill='%23ff3c3c'/%3e%3cpath%20d='M8%203.5v5.5'%20stroke='%23fff'%20stroke-width='2'%20stroke-linecap='round'/%3e%3ccircle%20cx='8'%20cy='12'%20r='1.2'%20fill='%23fff'/%3e%3c/svg%3e") no-repeat right 10px center / 16px 16px;
+  background: #fff url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201000%201000'%3e%3cpath%20fill='%23ff3c3c'%20d='M499.7%200C223.6%200%200%20223.6%200%20499.7S223.6%201000%20499.7%201000%201000%20776.4%201000%20499.7%20776.4%200%20499.7%200zM500.3%20775c-41.6%200-75-33.4-75-75s33.4-75%2075-75%2075%2033.4%2075%2075-33.4%2075-75%2075zM574%20488c0%2041.4-33.6%2075-75%2075s-75-33.6-75-75V263c0-41.4%2033.6-75%2075-75s75%2033.6%2075%2075z'/%3e%3c/svg%3e") no-repeat right center / 14px auto content-box border-box;
 }
 
 main .form.block:has(.flag-profile-heading) .field-invalid textarea {
-  background-position: right 10px top 10px;
+  background-position: right top;
 }
 
 /* Focus — Formstack's thin blue ring (1px #0197ec, flush); 6.9:1 on the black frame */
@@ -234,7 +240,7 @@ main .form.block:has(.flag-profile-heading) .form-error-summary-box {
   background-color: #fae9e9;
   border: 1px solid #ff3c3c;
   color: #15232b;
-  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-family: Lato, "Lato Fallback", "Helvetica Neue", helvetica, arial, sans-serif;
 }
 
 main .form.block:has(.flag-profile-heading) .form-error-summary-box:focus-visible {
@@ -245,7 +251,7 @@ main .form.block:has(.flag-profile-heading) .form-error-summary-box:focus-visibl
 main .form.block:has(.flag-profile-heading) .form-error-summary-box > p {
   margin: 0 0 10px;
   padding-left: 21px;
-  background: url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3ccircle%20cx='8'%20cy='8'%20r='8'%20fill='%23ff3c3c'/%3e%3cpath%20d='M8%203.5v5.5'%20stroke='%23fff'%20stroke-width='2'%20stroke-linecap='round'/%3e%3ccircle%20cx='8'%20cy='12'%20r='1.2'%20fill='%23fff'/%3e%3c/svg%3e") no-repeat left 2px / 14px 14px;
+  background: url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201000%201000'%3e%3cpath%20fill='%23ff3c3c'%20d='M499.7%200C223.6%200%200%20223.6%200%20499.7S223.6%201000%20499.7%201000%201000%20776.4%201000%20499.7%20776.4%200%20499.7%200zM500.3%20775c-41.6%200-75-33.4-75-75s33.4-75%2075-75%2075%2033.4%2075%2075-33.4%2075-75%2075zM574%20488c0%2041.4-33.6%2075-75%2075s-75-33.6-75-75V263c0-41.4%2033.6-75%2075-75s75%2033.6%2075%2075z'/%3e%3c/svg%3e") no-repeat left 2px / 14px 14px;
   font-size: 14px;
   font-weight: 700;
   line-height: normal;
@@ -294,7 +300,7 @@ main .form.block:has(.flag-profile-heading) .button-wrapper button.button:hover 
   color: var(--text-color);
   border: 1px solid var(--text-color);
   border-radius: 0;
-  font-family: Lato, "Helvetica Neue", helvetica, arial, sans-serif;
+  font-family: Lato, "Lato Fallback", "Helvetica Neue", helvetica, arial, sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 14px;
@@ -325,17 +331,20 @@ main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .captcha-wrapp
   height: 74px;
   padding: 0;
   border-bottom: 2px inset #000;
+  pointer-events: none;
 }
 
 /* !important is required here (only): Google sets position: fixed as an INLINE
    style on the badge, which no selector can otherwise override. */
 main .form.block:has(.flag-profile-heading) .captcha-wrapper .grecaptcha-badge {
   position: absolute !important;
+  pointer-events: auto;
 }
 
 /* Formstack wide layout — the embedded form is >=641px wide: 40px insets, content
-   capped at 660px and centred, 60px top inset, compact centred button (frame
-   height stays 675: 675 − 449 above − 60 − 36 − 2 = 128). */
+   capped at 660px and centred, 60px top inset, compact centred button. Only the
+   768–1023 frame (12 cols) is this wide, and there the source iframe is 650px
+   tall: 650 − 449 above − 60 − 36 − 2 = 103 (with the captcha row: 103 − 74 = 29). */
 @container (width >= 641px) {
   main .form.block:has(.flag-profile-heading) .flag-profile-intro ~ .field-wrapper > * {
     width: min(100% - 80px, 660px);
@@ -357,61 +366,37 @@ main .form.block:has(.flag-profile-heading) .captcha-wrapper .grecaptcha-badge {
   main .form.block:has(.flag-profile-heading) .submit-wrapper button.button,
   main .form.block:has(.flag-profile-heading) .button-wrapper button.button:hover {
     width: auto;
-    margin-bottom: 128px;
+    margin-bottom: 103px;
   }
 
   main .form.block:has(.flag-profile-heading) .submit-wrapper:has(+ .captcha-wrapper) button.button {
-    margin-bottom: 54px;
+    margin-bottom: 29px;
   }
 }
 
 @media (width >= 768px) {
-  main .section.form-container:has(.flag-profile-heading) {
+  main .section.form-container div.form-wrapper:has(.flag-profile-heading) {
     padding: 0 40px;
-  }
-
-  main .form.block:has(.flag-profile-heading) form .flag-profile-intro {
-    grid-column: 3 / span 8;
-  }
-
-  main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
-    font-size: 40px;
   }
 }
 
 @media (width >= 1024px) {
-  main .section.form-container:has(.flag-profile-heading) {
+  main .section.form-container div.form-wrapper:has(.flag-profile-heading) {
     padding: 0 48px;
   }
 
   main .form.block:has(.flag-profile-heading) form .flag-profile-intro ~ .field-wrapper {
     grid-column: 3 / span 8;
   }
-
-  main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
-    font-size: 56px;
-  }
-
-  main .form.block:has(.flag-profile-heading) .flag-profile-intro p {
-    font-size: 18px;
-  }
 }
 
 @media (width >= 1280px) {
-  main .section.form-container:has(.flag-profile-heading) {
+  main .section.form-container div.form-wrapper:has(.flag-profile-heading) {
     padding: 0 64px;
   }
 
   main .form.block:has(.flag-profile-heading) form .flag-profile-intro ~ .field-wrapper {
     grid-column: 4 / span 6;
-  }
-
-  main .form.block:has(.flag-profile-heading) .flag-profile-heading p {
-    font-size: 80px;
-  }
-
-  main .form.block:has(.flag-profile-heading) .flag-profile-intro p {
-    font-size: 24px;
   }
 }
 
@@ -424,9 +409,13 @@ main .form.block:has(.flag-profile-heading) .submit-wrapper button.button:focus-
 
 /* The source frame is a FIXED 675px iframe with the badge pinned to its bottom,
    so each "Required field" banner (31px + 7px margin = 38px) pushes the button
-   38px closer to the badge: gap 94 → 56 → 18 (narrow) / 54 → 16 (wide). Mirror
-   that so the frame keeps 675px; stop at the last positive gap (the source then
-   overlaps the button) and let the frame grow from there. */
+   38px closer to the badge: gap 94 → 56 → 18 (narrow) / 29 → −9 → −47 (wide).
+   Mirror that so the frame keeps its height (the default state — first field
+   flagged on load — is the 56 / −9 case: 675 / 650 as on the source). Narrow: stop
+   at the last positive gap (the full-width button would run under the badge) and
+   let the frame grow from there. Wide: the compact centred button clears the
+   badge tile, so the row may overlap the button's box, as the source's badge does
+   (the row ignores pointer events, see above). */
 main .form.block:has(.flag-profile-heading) form:has(.field-invalid) .submit-wrapper:has(+ .captcha-wrapper) button.button {
   margin-bottom: 56px;
 }
@@ -436,8 +425,11 @@ main .form.block:has(.flag-profile-heading) form:is(:has(.field-invalid ~ .field
 }
 
 @container (width >= 641px) {
-  main .form.block:has(.flag-profile-heading) form:has(.field-invalid) .submit-wrapper:has(+ .captcha-wrapper) button.button,
+  main .form.block:has(.flag-profile-heading) form:has(.field-invalid) .submit-wrapper:has(+ .captcha-wrapper) button.button {
+    margin-bottom: -9px;
+  }
+
   main .form.block:has(.flag-profile-heading) form:is(:has(.field-invalid ~ .field-invalid), :has(.form-error-summary.show)) .submit-wrapper:has(+ .captcha-wrapper) button.button {
-    margin-bottom: 16px;
+    margin-bottom: -47px;
   }
 }

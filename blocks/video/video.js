@@ -11,6 +11,19 @@
  *   | This video requires Social Media cookies… Please update   (consent |
  *   | your [cookie preferences](video URL) to watch.            message) |
  *
+ * `split` option — `video (split)`: the embed beside a text column (source: the
+ * "Elevate Your Coaching" row on /en/home/coaching-community/
+ * usta-coaches-inclusion-summit.html). The first row is the text column instead of
+ * the centred title — any heading + paragraphs, kept as authored:
+ *
+ *   | video (split)                                                      |
+ *   | ## Elevate Your Coaching                                            |
+ *   | Get ready for a coaching conference…  (one or more paragraphs)      |
+ *   | This video requires Social Media cookies… Please update   (consent |
+ *   | your [cookie preferences](video URL) to watch.            message) |
+ *
+ * The embed comes first (left from 1024px, on top when stacked).
+ *
  * The video URL is the first YouTube/Vimeo link in the block — either its own
  * row (removed from the output) or the "cookie preferences" link inside the
  * consent message. Like the source, the consent message is shown in a grey
@@ -78,7 +91,9 @@ export default function decorate(block) {
     return video;
   });
 
-  const title = titleCell ? wrapCell(titleCell, 'video-title') : null;
+  const split = block.classList.contains('split');
+  const title = titleCell ? wrapCell(titleCell, split ? 'video-text' : 'video-title') : null;
+  const label = (title?.querySelector('h1, h2, h3, h4, h5, h6') || title)?.textContent.trim() || '';
 
   // A row holding only the video link is the URL row — drop it; any other
   // row is the consent message shown in the placeholder.
@@ -120,7 +135,7 @@ export default function decorate(block) {
     if (consented && !iframe) {
       const player = document.createElement('iframe');
       player.src = video.embed;
-      player.title = title?.textContent.trim() || '';
+      player.title = label;
       player.loading = 'lazy';
       player.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
       player.referrerPolicy = 'strict-origin-when-cross-origin';
@@ -133,5 +148,5 @@ export default function decorate(block) {
   };
   window.addEventListener('consent.update', (e) => setConsent(!!e.detail?.consented));
 
-  block.replaceChildren(...[title, frame].filter(Boolean));
+  block.replaceChildren(...(split ? [frame, title] : [title, frame]).filter(Boolean));
 }
