@@ -6,7 +6,8 @@ import {
 import GoogleReCaptcha from './integrations/recaptcha.js';
 import componentDecorator from './mappings.js';
 import { handleSubmit } from './submit.js';
-import { isSignedIn, signInUrl } from '../../scripts/usta-account.js';
+import isSignedIn from '../../scripts/usta-account.js';
+import openErrorModal from './error-modal.js';
 import DocBasedFormToAF from './transform.js';
 import {
   checkValidation,
@@ -695,18 +696,19 @@ function gateSubmitOnOptIn(form) {
 /**
  * Gallagher disclaimer forms (sheet Style `gallagher-submit` on the submit row). On the source,
  * Submit saves the agreement to the SIGNED-IN visitor's USTA account and continues to checkout;
- * signed out it only shows an error. Interim until USTA sign-in is integrated (Phase 2): a
- * signed-out visitor who submits is sent to the USTA sign-in instead of a submission that
- * cannot succeed. Registered in the capture phase so it runs before the regular submit handler.
+ * signed out the save fails and the generic "Oops! Something went wrong" modal opens. Same here:
+ * a signed-out Submit opens that modal (no request — it could not be saved). Signed in, the
+ * regular submit runs (the agreement API + checkout come with Phase 2). Registered in the
+ * capture phase so it runs before the regular submit handler.
  * @param {HTMLFormElement} form
  */
-function requireSignInOnGallagherSubmit(form) {
+function errorModalOnSignedOutGallagherSubmit(form) {
   if (!form.querySelector('.gallagher-submit')) return;
   form.addEventListener('submit', (e) => {
     if (isSignedIn() || !form.checkValidity()) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    window.location.assign(signInUrl());
+    openErrorModal(form);
   }, true);
 }
 
@@ -746,7 +748,7 @@ export default async function decorate(block) {
       if (first) checkValidation(first);
     }
     gateSubmitOnOptIn(form);
-    requireSignInOnGallagherSubmit(form);
+    errorModalOnSignedOutGallagherSubmit(form);
     await variantStyles;
     container.replaceWith(form);
   }

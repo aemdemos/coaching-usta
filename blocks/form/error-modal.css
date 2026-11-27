@@ -1,0 +1,117 @@
+/* Generic error modal (error-modal.js) — the source's dark `v-modal` "Oops! Something went wrong"
+   (generic-error-modal, Coaching Modals XF). Source-measured @375 / 768 / 1440:
+   panel 489px wide (373px on phones: 1px from each edge), centred; black, 1px #878787 border,
+   radius 20, shadow 0 4px 4px rgb(0 0 0 / 25%); backdrop rgb(66 66 66 / 90%).
+   Header bar 40px #1d1d1d with the 186×16 logo centred and a 24px close X 8px from the top /
+   12px from the right. Content 20px padding: title USTA Sans 20/24 and subtitle Graphik Semibold
+   18/21.6, white, centred, 20px margins (not collapsing); CTA row 16px above, the lime OK button
+   (min 120 wide, 16px 24px padding, 2px black border, radius 12, Graphik Semibold 16 → 18px @768,
+   −0.03em) centred. */
+.form .form-error-modal {
+  box-sizing: border-box;
+  width: calc(100% - 2px);
+  max-width: 489px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #878787;
+  border-radius: 20px;
+  background: #000;
+  color: #fff;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+}
+
+.form .form-error-modal::backdrop {
+  background: rgb(66 66 66 / 89.8%);
+}
+
+.form .form-error-modal-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  background: #1d1d1d;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+}
+
+.form .form-error-modal-logo img {
+  display: block;
+  width: 186px;
+  height: 16px;
+}
+
+.form .form-error-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  display: flex;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.form .form-error-modal-content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.form .form-error-modal-title {
+  margin: 20px 0;
+  font-family: var(--heading-font-family);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: normal;
+  text-align: center;
+  color: #fff;
+}
+
+.form .form-error-modal-subtitle {
+  margin: 20px 0;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21.6px;
+  text-align: center;
+  color: #fff;
+}
+
+.form .form-error-modal-cta {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 16px;
+}
+
+.form .form-error-modal-ok {
+  width: auto; /* the form's `main .form button` is full width */
+  min-width: 120px;
+  margin: 0;
+  padding: 16px 24px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: var(--usta-lime);
+  color: #000;
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.03em;
+  cursor: pointer;
+}
+
+.form .form-error-modal-close:focus-visible,
+.form .form-error-modal-ok:focus-visible {
+  outline: 2px solid var(--usta-lime);
+  outline-offset: 2px;
+}
+
+@media (width >= 768px) {
+  .form .form-error-modal-ok { font-size: 18px; }
+}

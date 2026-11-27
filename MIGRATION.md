@@ -6356,8 +6356,8 @@ after going back; inclusion-summit / flag-profile / courses / learning-pathway "
 **Interim (until Phase 2 USTA sign-in):**
 - `scripts/usta-account.js` (new): `signInUrl()` = source dashboard for the page locale, `isSignedIn()` = the source's
   check (access + refresh token for the client id in localStorage; false on the EDS hosts).
-- form.js `requireSignInOnGallagherSubmit`: a form with a `gallagher-submit` row, submitted signed out → USTA
-  sign-in, no submission (capture-phase listener before handleSubmit). Signed in → the existing submit (still the
+- (superseded the same day — see the next entry) form.js `requireSignInOnGallagherSubmit`: signed-out Gallagher
+  Submit → USTA sign-in, no submission (capture-phase listener before handleSubmit). Signed in → the existing submit (still the
   Adobe Forms 400 until Phase 2 wires the agreement API + Stripe).
 - Content (local): courses + learning-pathway Select ×4 each, nav + es/nav Join / Sign In → the dashboard sign-in URL.
   NOT changed (user scoped the pages; still the `/` placeholder): Select on membership-benefits and results ×6.
@@ -6365,3 +6365,20 @@ after going back; inclusion-summit / flag-profile / courses / learning-pathway "
 - header.js `decorateExternalLinks` skips `.nav-button` (Join / Sign In keep their look, same tab, no external icon).
 Gate: lint ✓ (0 errors) · breakpoints ✓ · a11y ✓ gallagher pro / baseline; courses + LP only the known comparison
 contrast. Verified locally: all 4 Gallagher tiers → dashboard sign-in, 0 form POSTs; header + Select hrefs EN / ES.
+
+### 2026-11-27 (later) — Gallagher: the source's "Oops! Something went wrong" modal (user decision: same as original)
+User: "I still don't see the error modal" → decision: behave like the source — a signed-out Submit shows the source's
+generic error modal; OK / X / Esc close it; the visitor stays on the page. **Replaces** the interim sign-in redirect
+on Submit from the entry above (the Select / Join / Sign In links to the USTA sign-in stay).
+- `blocks/form/error-modal.js` + `error-modal.css` (imported by form.css): native `<dialog>` (showModal — focus to OK,
+  Esc closes, focus back to Submit; aria-labelledby / describedby). Header bar = a clone of the page header's logo
+  (alt ""), 24px close X (inline SVG glyph). Copy from the placeholders sheet keys `Error Modal Title` / `Error Modal
+  Subtitle` / `Error Modal Button` / `Error Modal Close`, falling back to the source copy (keys NOT yet in the DA sheet).
+- form.js `errorModalOnSignedOutGallagherSubmit` (capture phase): signed out → modal, no request. submit.js
+  `submitFailure`: a Gallagher form's failed submit → the modal instead of the inline banner (other forms unchanged).
+- `scripts/usta-account.js` now only exports `isSignedIn()` (default); `signInUrl()` removed (unused).
+- Parity (source measured with every non-GET request aborted): panel / header / logo / close / title / subtitle / OK
+  boxes identical @1440 / 768 / 375 (e.g. 1440: panel 476,312 489×277, OK 660,514 120×53; 375: panel 1,290 373×319,
+  OK 128,539 120×50); backdrop rgb(66 66 66 / 90%). Screenshots migration-work/{source,ours}-oops-modal-{1440,375}.png.
+- Gate: lint ✓ · breakpoints ✓ · stylelint ✓ · axe on the OPEN modal: 0 violations · a11y ✓ gallagher pro / rally,
+  flag-profile, lead-interests (other forms load, no page errors). All 4 tiers: modal opens, 0 POSTs, no navigation.

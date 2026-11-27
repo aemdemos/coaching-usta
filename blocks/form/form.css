@@ -4,6 +4,7 @@
 @import url('./lead-interests.css');
 @import url('./gallagher-disclaimer.css');
 @import url('./flag-profile.css');
+@import url('./error-modal.css');
 
 :root {
     --background-color-primary: #fff;
