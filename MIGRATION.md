@@ -6422,3 +6422,19 @@ use subpixel positioning) — not tuned further. User decision: keep (no `font-d
   Workshops…") shows briefly then hides (0.156 in one run) — open follow-up.
 - PageSpeed Insights API: daily quota exhausted (not run). Gate: lint ✓ · stylelint ✓ · breakpoints ✓ · typography ✓
   (terms, courses, home). Committed locally, NOT pushed (user).
+
+### 2026-11-27 (later) — CLS: unsized columns image (Inclusion Summit; user's Lighthouse report)
+User's Lighthouse (branch preview, mobile): Inclusion Summit CLS 0.257 — the "Build the game" text div 0.208 + the video
+section 0.047, culprit "Unsized image element" (`columns-img-col img`, width 1024 height 682). Terms 0.624 = web fonts
+(usta-sans-bold.otf, Graphik) 0.537 + `<main>` 0.087 → the two fixes in the entry above (local commit).
+- Cause: columns.css (2026-11-26, "crop preset from 768 only") set `aspect-ratio: auto` on default-columns images
+  below 768 — that drops the width/height attribute ratio, so the lazy image's box was 0px until it loaded and the text
+  + next sections dropped 228px.
+- Fix: columns.js `decorateDefault` sets `--img-ratio: <width> / <height>` on the image from its attributes; columns.css
+  `aspect-ratio: auto var(--img-ratio)` (own shape, box reserved before load). Loaded sizes unchanged (Inclusion Summit
+  343×228 / 688×459 / 650×325, coaching-community 164×131 / 332×221 / 644×322 at 375 / 768 / 1440 — identical to before).
+- Verified with the delivered attributes injected (the local `.plain.html` images have no width / height; aem.page adds
+  them): @375 the 0.19 image shift → 0. Remaining on this page: the mixed-case hero title "Coach Inclusion Summit"
+  re-wrapping when USTA Sans swaps in (2 → 3 lines, 0.09 @375 / 0.06 @768) — open (an `uppercase` idea for USTA Sans
+  headings is parked in /tmp; a site-wide h1/h2 rule would recase 21 Graphik headings on 9 pages).
+- Gate: eslint ✓ · stylelint ✓. Committed locally, NOT pushed.

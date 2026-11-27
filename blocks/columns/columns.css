@@ -63,9 +63,12 @@
 
 /* a crop preset (`landscape-3` …) applies from 768 only: the source's phone copy of
    this row has no aspect preset, so phones show the image at its own shape
-   (Inclusion Summit 343x228 @375) */
+   (Inclusion Summit 343x228 @375). `auto <ratio>`: the image's own width / height ratio
+   (columns.js sets --img-ratio from its attributes) holds the box until the lazy image
+   loads — a bare `auto` dropped the attribute ratio, the box was 0px tall, and the text
+   and the next sections jumped 229px when the photo arrived (CLS 0.21 + 0.05 @375). */
 .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col img {
-  aspect-ratio: auto;
+  aspect-ratio: auto var(--img-ratio);
 }
 
 /* `no-separator` option: the heading's text component is followed directly by the
