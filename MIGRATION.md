@@ -6458,3 +6458,13 @@ section 0.047, culprit "Unsized image element" (`columns-img-col img`, width 102
   RGBA PNG served under the .ico name (lime ball on a black rounded square).
 - New `favicon.ico` = a real ICO built from that artwork (ImageMagick `icon:auto-resize=64,48,32,16`), 32 KB; rendered
   identical to the source at 64px. head.html is untouchable and needs no change (browsers request /favicon.ico).
+
+### 2026-11-27 (later) — content uploaded to DA + previewed (on request; NOT published)
+- Uploaded (built from content/*.plain.html, `/media-da/…` → DA `.page/` media URLs; all 39 image URLs already in the
+  DA docs) and previewed: en/home/courses + en/home/learning-pathway (Select ×4 → USTA sign-in), nav + es/nav (Join /
+  Sign In → USTA sign-in), drafts/block-samples/cards-comparison (labels upper case). Uploads 200, read back
+  byte-identical, preview 200 ×5. Previous DA versions: migration-work/da-backup-2026-11-27b/.
+- Fixed before upload: my earlier label upper-casing on the comparison sample also hit "Total Workshop Costs" (→ "Total
+  WORKSHOP COSTS") — restored locally.
+- Already identical in DA (not re-uploaded): inclusion-summit, flag-profile, results/guardian-coach.
+- Verified on the branch preview: header Join / Sign In (EN, ES) and the Select buttons point to the USTA sign-in.
