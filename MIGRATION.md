@@ -6451,3 +6451,10 @@ section 0.047, culprit "Unsized image element" (`columns-img-col img`, width 102
 - Inclusion Summit CLS (Arimo as Arial, delivered image attributes): @375 0.0000 · 768 0.0008 · 1024 0.0003 ·
   1440 0.0003–0.011; with fonts delayed 800ms 0.0000 / 0.0056 / 0.0003 / 0.0003.
 - Gate: lint ✓ · stylelint ✓ · breakpoints ✓ · typography ✓ + a11y ✓ (inclusion-summit, coach-mentorship).
+
+### 2026-11-27 (later) — favicon: the source's tennis-ball icon (was the boilerplate Adobe "A")
+- `/favicon.ico` was still the aem-boilerplate Adobe icon (66 KB, malformed 128×125 entry). Source:
+  `https://www.ustacoaching.com/etc.clientlibs/coaching/clientlibs/clientlib-vue/resources/icons/favicon.ico` = a 64×64
+  RGBA PNG served under the .ico name (lime ball on a black rounded square).
+- New `favicon.ico` = a real ICO built from that artwork (ImageMagick `icon:auto-resize=64,48,32,16`), 32 KB; rendered
+  identical to the source at 64px. head.html is untouchable and needs no change (browsers request /favicon.ico).
