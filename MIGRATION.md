@@ -6468,3 +6468,13 @@ section 0.047, culprit "Unsized image element" (`columns-img-col img`, width 102
   WORKSHOP COSTS") — restored locally.
 - Already identical in DA (not re-uploaded): inclusion-summit, flag-profile, results/guardian-coach.
 - Verified on the branch preview: header Join / Sign In (EN, ES) and the Select buttons point to the USTA sign-in.
+
+### 2026-11-27 (later) — 8 pages PUBLISHED live (on request, before PR #54 is merged — user decision)
+- Published (admin.hlx.page/live, 200 ×8): en/home/courses, en/home/learning-pathway, nav, es/nav,
+  drafts/block-samples/cards-comparison, en/home/coaching-community/usta-coaches-inclusion-summit,
+  en/home/account/flag-profile, en/home/results/guardian-coach. Live .plain.html verified (Select / header sign-in
+  links, video split, flag-profile intro options, guardian tracking-narrow, sample labels).
+- Known until PR #54 is merged (main = 95d8be0): live runs main's code — header Join / Sign In get main's external-link
+  arrow + new tab; Inclusion Summit's new options (video split, banner lime / spotlight flush, hero centered,
+  text-style narrow / phone, columns media-first / no-separator), the heading-80 h2s, the Gallagher sign-in + modal,
+  the CLS fixes and the favicon are NOT on live yet. Merge PR #54 → live picks the code up (no re-publish needed).
