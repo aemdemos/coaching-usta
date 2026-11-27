@@ -6496,3 +6496,16 @@ User: flag-profile "still not migrated perfectly — the error by default on the
   public TEST key. Needs the real site key (registered for aem.page / aem.live) in /forms/flag-form.json — open.
 - Other forms (lead-interests, gallagher-disclaimer-*) unchanged. Gate: eslint ✓ · stylelint ✓ · breakpoints ✓ ·
   a11y ✓ flag-profile, lead-interests, gallagher-pro.
+
+### 2026-11-27 (later) — video cookie notice: the source's fixed 200px panel (Inclusion Summit report)
+User: "the cookie banner is not the same size as the original" (Inclusion Summit). Our site has no CMP banner (scripts/
+consent-check.js is a stand-in; the source's OneTrust banner — 700×278 bottom-left @1440, 375×535 @375 — is not
+migrated: CMP choice is open). The mismatch was the video's cookie notice (`.video-consent`, source
+`.usta-consent-placeholder`), measured with OneTrust "Reject All":
+- source: a fixed 200px panel at every width / layout (Inclusion Summit split 343 / 452 / 644 × 200; fellowship 343 /
+  569 / 769 / 1312 × 200); ours took the player height + 5 (205 / 395 / 655px).
+- video.css: `.video .video-consent { height: 200px }`; `.video-consent-message { width: 100% }` (fills its 400px max like
+  the source <p>). Now box + message = source (1440: 644×200, message 400×42 at +122,+79; 375: 343×200, 293×63 at
+  +25,+69); screenshots identical apart from the AA-darkened link (#3370ad vs source #418fde, documented).
+- Consented player unchanged (split 644×390 / fellowship 1312×650 @1440, 343×200 @375). Gate: stylelint ✓ · breakpoints
+  ✓ · overflow ✓ (inclusion-summit, fellowship).

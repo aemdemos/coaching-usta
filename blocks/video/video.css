@@ -48,13 +48,16 @@ main > .section > div.video-wrapper {
   border-radius: 20px;
 }
 
-/* consent placeholder (source .usta-consent-placeholder) */
+/* consent placeholder (source .usta-consent-placeholder): a fixed 200px panel at every width
+   and in every layout — it is NOT the player's size (source @375 / 768 / 1024 / 1440: 343 /
+   569 / 769 / 1312 × 200 on fellowship, 343 / 452 / 644 × 200 in the Inclusion Summit split
+   row); the player replaces it at its own height once social-media cookies are accepted */
 .video .video-consent {
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(var(--video-height) + 5px);
+  height: 200px;
   padding: 32px 24px;
   border: 1px solid #c1c6c8;
   border-radius: 4px;
@@ -64,6 +67,7 @@ main > .section > div.video-wrapper {
 
 /* authored paragraphs flow as ONE paragraph, as in the source */
 .video .video-consent-message {
+  width: 100%; /* source: the message box fills its 400px maximum (not shrink-to-fit) */
   max-width: 400px;
   font-family: var(--body-font-family);
   font-size: 14px;
