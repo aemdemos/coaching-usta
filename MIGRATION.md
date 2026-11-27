@@ -6438,3 +6438,16 @@ section 0.047, culprit "Unsized image element" (`columns-img-col img`, width 102
   re-wrapping when USTA Sans swaps in (2 → 3 lines, 0.09 @375 / 0.06 @768) — open (an `uppercase` idea for USTA Sans
   headings is parked in /tmp; a site-wide h1/h2 rule would recase 21 Graphik headings on 9 pages).
 - Gate: eslint ✓ · stylelint ✓. Committed locally, NOT pushed.
+
+### 2026-11-27 (later) — CLS: content-hero title wraps the same in the fallback (Inclusion Summit)
+- Cause: the hero title is authored in mixed case ("Coach Inclusion Summit"); USTA Sans draws lower case with its
+  capital glyphs (verified: identical advance widths and 0 differing pixels lower vs upper case), the Arial-based
+  `USTA Sans Fallback` does not → 2 lines in the fallback, 3 in USTA Sans; the hero grew 106 → 138px @375 (CLS 0.09
+  @375, 0.06 @768).
+- Fix (hero.css only — user asked for the hero title): `.hero.content .hero-content h1` / `h2` `text-transform:
+  uppercase` (was `none`). No-op on screen: hero element screenshots pixel-IDENTICAL before / after on
+  inclusion-summit, coach-mentorship, coaching-community, coachtennis and the hero-content / -title / -wide samples
+  @375 / 1440. A site-wide h1 / h2 rule was NOT used (it would recase 21 Graphik headings on 9 pages).
+- Inclusion Summit CLS (Arimo as Arial, delivered image attributes): @375 0.0000 · 768 0.0008 · 1024 0.0003 ·
+  1440 0.0003–0.011; with fonts delayed 800ms 0.0000 / 0.0056 / 0.0003 / 0.0003.
+- Gate: lint ✓ · stylelint ✓ · breakpoints ✓ · typography ✓ + a11y ✓ (inclusion-summit, coach-mentorship).
