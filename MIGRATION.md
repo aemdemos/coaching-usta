@@ -5825,3 +5825,82 @@ complete; the styling differed from the source. Measured source vs preview at 37
 - Gotcha (again): Playwright wants chromium_headless_shell-1187, only 1254 is installed — overflow / typography were run
   through a wrapper that sets `executablePath`, a11y through a temporary config extending tests/a11y/playwright.config.js
   (removed afterwards).
+
+### 2026-11-26 — migration request for 4 landing pages: already migrated, kept as they are (user decision)
+Requested: en/home/coaching-community/usta-coaches-inclusion-summit, en/home/account/flag-profile, en/home/courses,
+en/home/learning-pathway (all template `landing-page`). All four already exist in content/ and are in DA
+(content-sync.json). Candidate re-import with the committed `import-landing-page-v1.bundle.js` into a scratch output dir
+(nothing in content/ touched), compared block by block against the existing pages:
+- **courses:** same blocks as the existing page (only DA serialisation differs: `<p>` in cells, `<picture><source>`, heading ids).
+- **inclusion-summit:** importer output LACKS `Banner (stacked, lime)`, `Cards (quote)`, `Banner (spotlight)` — those
+  sections come out as default content, although the live source still has the markers (`container--inner-full-height`
+  quote cards, `container--border--white`). The `cards-quote` / spotlight kinds exist in the importer but don't fire on
+  this page today — not diagnosed.
+- **flag-profile:** importer has NO form handling — the `Form` (`/forms/flag-form.json`; source = Formstack
+  `flag_coach_profile`) is in the content only (added outside the importer).
+- **learning-pathway:** importer has no `accordion (timeline)` / `accordion (pathway)` kinds — the 4 certification
+  accordions + the closing `Banner (centered, blue)` are in the content only.
+→ **User decision: keep the existing pages; no re-import.** Re-importing inclusion-summit / flag-profile / learning-pathway
+with the current importer would drop these blocks. Making the importer reproduce them is open follow-up work.
+- Rebuilding the bundle with today's aem-import-helper (1.6.4) only changes esbuild helper code (`__spreadValues`…) —
+  reverted to the committed bundle.
+- Gate (existing pages): lint ✓ (0 errors, 8 console warnings) · breakpoints ✓ · overflow ✓ (360/768/1024/1280/1920) ·
+  typography ✓ (390/768/1024/1280) on all 4 · a11y ✓ inclusion-summit + flag-profile; courses + learning-pathway only the
+  known `cards (comparison)` contrast finding (white on the source blue #0373F3 ≈ 4.3:1: PER YEAR, TOTAL WORKSHOP COSTS,
+  totals, COMING 2026 / 2027). All 30 blocks decorate (`data-block-status=loaded`), no page errors.
+- Browser gotcha: checks run with `node --import <preload>` that patches `chromium.launch({ executablePath })` to the
+  installed chromium_headless_shell-1254 (also works for the a11y runner via NODE_OPTIONS).
+
+### 2026-11-26 (later) — visual critique + fixes: inclusion-summit, flag-profile, courses, learning-pathway
+Page-mode critique (source vs local preview, 375/768/1024/1440; artifacts
+`migration-work/critique/site_1795701922/landing-page/<page>/` + `after/`). Similarity before → after:
+inclusion-summit 76.2 → ~96 (+ follow-up fixes) · flag-profile 79.4 → 99.5 · courses 97.4 → 99.9 · learning-pathway
+96.6 → 99.4. User decision: fix styling + content (content by direct local edits — no re-import, see the entry above).
+**Content edits (local only, NOT in DA; the importer doesn't produce them):**
+- inclusion-summit: `Hero (content, title, centered)`; `Columns (media-first, no-separator, landscape-3)`; `Video (split)`
+  with the source's text column (h2 "Elevate Your Coaching" + 2 paragraphs) in row 1; icon cards = `<p><picture></p>`
+  + `<p><strong>Title</strong></p>` + copy (source `<p><b>…</b></p>`); the two section intros → `Text Style (center,
+  narrow-6, phone-12)` / `Text Style (center, narrow-8)`; `Banner (spotlight, flush)`.
+- flag-profile: title section `center, heading-80`; intro → `Text Style (lead, center, narrow-8, phone-12)`, bold.
+- learning-pathway: title section and the certifications section → `+ heading-80`.
+- courses: PACKAGES section → `center, heading-80`.
+- results/guardian-coach: intro `+ tracking-narrow` (keeps parity after the semibold fix below).
+- drafts/block-samples/cards-comparison: labels upper case (the block now keeps authored case).
+**New options / code:**
+- banner: `lime` (lime panel, black Semibold copy, black button) — had no CSS; `spotlight.flush` (radius 20, full
+  content width, 66px heading → CTA). hero: `content.centered` (centred 32/40/40/56 title, 138/130/242/298 panel).
+- video: `split` (row 1 = text column; embed 6/12 with a 12px (8px phones) inset, stacks embed-first below 1024).
+- columns: `media-first`, `no-separator`; default columns show the image uncropped below 768 (crop option from 768);
+  heading→CTA without copy has no 24px margin; columns h2/h3 weight 700.
+- cards: `.cards-icons-title` (JS: a heading-less card whose title is one bold paragraph) — Synth bold title, icon
+  half its grid column, text aligned with the icon; comparison: 5 rounded skeleton bars, flame centred, labels Synth
+  bold in authored case, 24px checks, notes inset 8/12px.
+- accordion: timeline items without courses = static header (`.accordion-timeline-static`: no button / chevron /
+  aria-expanded); 24px between stacked accordion wrappers; equal-height course cards from 1024; source chevron glyph;
+  panel links not underlined.
+- course-filter: flush with the content box (the old "block inset 8/12px" audit note is SUPERSEDED — re-measured
+  2026-11-26: x 16/40/48/64 = the tabs pills); tabs → filter 100px from 1024; See More 50/53; chevron down when closed.
+- form (flag-profile.css): sheet `heading` / `intro` rows hidden (the page has its own h1 + intro — the sheet lives in
+  DA, unchanged); frame margins 16/40/48/64, narrow layout at 1024/1440; **Lato 400/700 woff2 added to fonts/**
+  (SIL OFL, Google Fonts v25 latin; were 404 since 2026-09-30).
+- text-style: options `narrow-6/8/10`, `phone-12`, `tracking-narrow`.
+- landing-page.css: **semibold bug** — the Synth `strong` rule (0,4,3 via `:is`) beat `.text-style strong.semibold`
+  (0,3,3), so bold lead intros rendered Regular Synth (learning-pathway, results intros) → fixed; `heading-80` also
+  sizes section h2s (32/40/56/80) and h2s grow to their longest word below 768 (source keeps "CERTIFICATIONS" whole);
+  costs-table heading 32/36/40/44 lh 1.2; See all benefits CTA label-width from 768; section gaps per source
+  (title → timeline, events banner → FAQ heading, pricing → events banner 36/44/60/76, quotes → spotlight, …).
+- course-catalog theme: intro links lime + underlined; columns-media photo hidden below 768; section gaps.
+- tools/quality/typography-check.mjs: `heading-80` sections and the costs-table section (`:has(> .cards-wrapper >
+  .cards.comparison)`) are skipped like `heading-64` (source display presets, verified per section). The terms page's
+  documented 4 drifts are gone with it.
+**Regressions:** each agent snapshotted the other pages using its block/template before/after (19 landing pages,
+results pages, samples). Intended side effects: membership-benefits FAQ heading narrow + no 48px separator; fellowship
+intro normal tracking; guardian + drafts/results intros Semibold; home Safe Play / maintenance columns h2 weight 700
+(no box change).
+**Left / accepted:** inclusion-summit phone-only "In 2026…" paragraph (one-copy policy) and the rows the source hides at
+768–1023 (shown); banner (blue) at 1024 copy column (one-banner standardisation, 2026-11-18); course badges from
+courses.json; cards (comparison) contrast; Profile URL `type=url` (form sheet); timeline descriptions not clamped to 6
+lines at 768 (would change every timeline page).
+Gate: lint ✓ (0 errors) · breakpoints ✓ · svg ✓ · overflow ✓ + typography ✓ on the 4 pages + guardian · a11y ✓
+inclusion-summit, flag-profile, guardian, coach-mentorship, coaching-community; courses + learning-pathway only the known
+cards (comparison) contrast. Local only — nothing uploaded, previewed or published; not committed.

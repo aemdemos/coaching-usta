@@ -833,19 +833,19 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   color: #fff;
 }
 
-/* section labels (INCLUDED ONLINE MODULES / WORKSHOP COSTS) — source:
-   14px Graphik Regular, weight 700, line-height 16.8px (1.2), letter-spacing
-   -0.42px, uppercase. NO margin/padding — the .cards-comparison-desc 6px flex
-   gap provides the uniform section rhythm. */
+/* section labels (INCLUDED ONLINE MODULES / WORKSHOP COSTS (Choose one)) — source:
+   14px Graphik Regular, weight 700 SYNTHESIZED (the source face is weight-normal only,
+   so use the Synth face), line-height 16.8px (1.2), letter-spacing -0.42px, the
+   authored case (no text-transform: "(Choose one)" stays mixed case). NO margin/padding
+   — the .cards-comparison-desc 6px flex gap provides the uniform section rhythm. */
 .cards.comparison .cards-comparison-body p strong {
   display: inline-block;
   margin: 8px 0; /* source: label <b> has 8px top+bottom → 32.8px label box */
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
   font-weight: 700;
   font-size: 14px;
   line-height: 1.2;
   letter-spacing: -0.42px;
-  text-transform: uppercase;
 }
 
 /* included-modules list — source: display block, NO row gap (each li's own 24px
@@ -856,12 +856,12 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   padding: 0;
 }
 
-/* included-modules items — source: flex, align-items center, column-gap 16px,
-   24px tall, a 16×16 blue check ::before, so the text ink lands at x=32. */
+/* included-modules items — source: flex, align-items center, column-gap 8px,
+   24px tall, a 24×24 blue check ::before, so the text ink lands at x=32. */
 .cards.comparison .cards-comparison-modules li {
   display: flex;
   align-items: center;
-  column-gap: 16px;
+  column-gap: 8px;
   min-height: 24px; /* source: a 24px row; a wrapped item grows it (24px lines) */
   padding: 0;
   font-size: 14px;
@@ -872,10 +872,10 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 
 .cards.comparison .cards-comparison-modules li::before {
   content: "";
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
-  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none'%3e%3cpath d='M20.3637 7.74311L20.697 7.38985L20.3536 7.04645L18.9536 5.64645L18.59 5.28288L18.2367 5.65646L9.87802 14.4955L5.74116 10.6345L5.38802 10.3049L5.04645 10.6464L3.64645 12.0464L3.29289 12.4L3.64645 12.7535L9.52145 18.6285L9.88785 18.9949L10.2413 18.6165L20.3637 7.74311Z' fill='%230373F3' stroke='%230373F3'/%3e%3c/svg%3e") no-repeat center / contain;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3e%3cpath d='M20.3637 7.74311L20.697 7.38985L20.3536 7.04645L18.9536 5.64645L18.59 5.28288L18.2367 5.65646L9.87802 14.4955L5.74116 10.6345L5.38802 10.3049L5.04645 10.6464L3.64645 12.0464L3.28049 12.4124L3.65884 12.7655L9.65884 18.3655L10.0224 18.7049L10.3637 18.3431L20.3637 7.74311Z' fill='%230373F3' stroke='%230373F3'/%3e%3c/svg%3e") no-repeat center / contain;
 }
 
 /* highlighted blue TOTAL footer bar — source: 319.5×70 (min-height 70), NO
@@ -947,42 +947,36 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   letter-spacing: -0.42px;
 }
 
-/* skeleton loader bars — the source draws 5 grey pill bars (30%/full/full/full/30%)
-   BELOW the "COMING" heading and ABOVE the flame. Attach them as the flame
-   element's ::before so the flex order is heading → skeleton → flame (matching
-   source), rather than a body::before which would sit above the heading. */
+/* skeleton loader bars — the source draws 5 separate #484848 pill bars (16px tall,
+   radius 30 → fully rounded, 10px apart: bar 1 30% wide on the left, bars 2-4 full
+   width, bar 5 30% wide on the right) BELOW the "COMING" heading and ABOVE the flame.
+   Attach them as the flame element's ::before so the flex order is heading → skeleton
+   → flame (matching source). Drawn as one SVG of 5 rounded rects (percent x/width, so
+   the bars follow the card width). */
 .cards.comparison .cards-comparison-card.is-coming-soon .cards-comparison-flame::before {
   content: "";
   display: block;
   height: 120px; /* source: 5 bars × 16 + 4 × 10 gaps (26px pitch) */
-  background-image:
-    linear-gradient(#484848 16px, transparent 0),
-    linear-gradient(#484848 16px, transparent 0),
-    linear-gradient(#484848 16px, transparent 0),
-    linear-gradient(#484848 16px, transparent 0),
-    linear-gradient(#484848 16px, transparent 0);
-  background-repeat: no-repeat;
-
-  /* source: bars 1 & 5 are 30% wide (bar 1 left, bar 5 RIGHT-aligned), bars 2-4 full width */
-  background-size: 30% 16px, 100% 16px, 100% 16px, 100% 16px, 30% 16px;
-  background-position: left 0, left 26px, left 52px, left 78px, right 104px;
-  border-radius: 30px;
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='120' fill='%23484848'%3e%3crect width='30%25' height='16' rx='8'/%3e%3crect y='26' width='100%25' height='16' rx='8'/%3e%3crect y='52' width='100%25' height='16' rx='8'/%3e%3crect y='78' width='100%25' height='16' rx='8'/%3e%3crect x='70%25' y='104' width='30%25' height='16' rx='8'/%3e%3c/svg%3e") no-repeat 0 0 / 100% 120px;
 }
 
-/* the flame graphic — source: bars 52px under the title (price row 22 + 30),
-   the flame straight under the bars and the band straight under the flame when
-   the card is stacked; in a row of taller cards the flame centres (both axes)
-   in the space between the bars and the band. Source dims the whole coming-soon
-   flame to ~0.2 opacity, so the lime reads as a muted olive. */
+/* the flame graphic — source: bars 52px under the title (price row 22 + 30), then
+   the overlay's 30px gap, the flame, and 30px above the band; in a row of taller
+   cards the flame centres (both axes, `margin: auto`) in the space between the bars
+   and the band. The flame is the p's direct child (an <img> built by cards.js, or an
+   authored <picture>). Source dims the whole coming-soon flame to ~0.2 opacity, so
+   the lime reads as a muted olive. */
 .cards.comparison .cards-comparison-body p.cards-comparison-flame {
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
+  gap: 30px;
   margin: 52px 0 0;
+  padding-bottom: 30px;
   line-height: 0;
 }
 
-.cards.comparison .cards-comparison-flame picture {
+.cards.comparison .cards-comparison-flame > :is(picture, img) {
   margin: auto;
 }
 
@@ -1049,15 +1043,17 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   text-decoration: underline;
 }
 
-/* the "Notes: 1. …" paragraph sits OUTSIDE and below the grey panel. */
+/* the "Notes: 1. …" paragraph sits OUTSIDE and below the grey panel, in the source
+   text column's 12px 8px inset (12px from 768); Graphik 18/24, normal tracking. */
 .cards-container:has(.cards.comparison) .cards-comparison-notes {
-  padding: 16px 0 0;
+  padding: 12px 8px 0;
 }
 
 .cards-container:has(.cards.comparison) .cards-comparison-notes p {
   margin: 0;
   font-size: 18px;
-  line-height: 1.3;
+  line-height: 24px;
+  letter-spacing: normal;
   color: #fff;
 }
 
@@ -1069,6 +1065,8 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   .cards.comparison { padding: 12px; }
 
   .cards.comparison .cards-comparison-equivalency { margin-inline: -12px; }
+
+  .cards-container:has(.cards.comparison) .cards-comparison-notes { padding-inline: 12px; }
 
   .cards.comparison > ul { grid-template-columns: repeat(2, 1fr); }
 }
@@ -2195,6 +2193,59 @@ main > .section.cards-container > .default-content-wrapper {
   }
 
   .cards.icons .cards-icons-image img { width: 28px; }
+}
+
+/* bold-paragraph titles (Inclusion Summit "Summit Benefits & Highlights" — the title is
+   `<p><b>…</b></p>`, marked .cards-icons-title by cards.js). Source: the title sits in
+   the copy cell's 12px top inset (12px under the icon cell, not a 24px blank line), in
+   Graphik Regular synthesized bold (the face is weight-normal only), mixed case. The
+   icon is the source image at `width: 50%` of its grid column inside the card's 4-col
+   grid: 5/12 of the card on phones (column inset 8px), 3/4 at 768, 2/4 at 1024, 1/4
+   from 1280 (insets 12px) → 57 · 50 · 49 · 28 (1280) · 35 (1440). */
+.cards.icons .cards-icons-card:has(.cards-icons-title) { container-type: inline-size; }
+
+/* the copy cell's insets are margins here, so the title/copy boxes sit on the text
+   (aligned with the icon, title box = its 24px line) like the source <p>s */
+.cards.icons .cards-icons-card:has(.cards-icons-title) p:not(.cards-icons-image) {
+  margin: 24px 8px 0;
+  padding: 0;
+}
+
+.cards.icons .cards-icons-card:has(.cards-icons-title) p.cards-icons-title {
+  margin-top: 12px;
+}
+
+@media (width >= 768px) {
+  .cards.icons .cards-icons-card:has(.cards-icons-title) p:not(.cards-icons-image) {
+    margin-inline: 12px;
+  }
+}
+
+.cards.icons .cards-icons-title :is(strong, b) {
+  font-family: "Graphik Regular Synth", var(--body-font-family);
+  font-weight: 700;
+}
+
+.cards.icons .cards-icons-card:has(.cards-icons-title) .cards-icons-image img {
+  width: calc((100cqw * 5 / 12 - 16px) / 2);
+}
+
+@media (width >= 768px) {
+  .cards.icons .cards-icons-card:has(.cards-icons-title) .cards-icons-image img {
+    width: calc((100cqw * 3 / 4 - 24px) / 2);
+  }
+}
+
+@media (width >= 1024px) {
+  .cards.icons .cards-icons-card:has(.cards-icons-title) .cards-icons-image img {
+    width: calc((100cqw / 2 - 24px) / 2);
+  }
+}
+
+@media (width >= 1280px) {
+  .cards.icons .cards-icons-card:has(.cards-icons-title) .cards-icons-image img {
+    width: calc((100cqw / 4 - 24px) / 2);
+  }
 }
 
 /* text-only icon cards (no icon row — School "Why Provide Tennis in Your School?"). Source:

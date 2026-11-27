@@ -1,8 +1,10 @@
 /* stylelint-disable no-descending-specificity */
 
-/* Text Style — the source's text component styles for article copy (news).
-   One source text component = one block: the component's 12px inset (12px 8px
-   on phones), paragraphs touching (blank lines are authored), white Graphik. */
+/* Text Style — the source's text component styles for article copy (news) and
+   landing-page intros. One source text component = one block: the component's 12px
+   inset (12px 8px on phones), paragraphs touching (blank lines are authored), white
+   Graphik. Options: label, center, intro, large, lead, subhead (type), narrow-6 / 8 / 10
+   + phone-12 (column span), tracking-narrow (letter-spacing). */
 .text-style.block .text-style-content {
   box-sizing: border-box;
   padding: 12px 8px;
@@ -15,6 +17,32 @@
 
 .text-style.block p {
   margin: 0;
+}
+
+/* column span: the block reaches --text-style-outset past its wrapper on each side (a
+   template sets it to the column inset: landing pages 8px / 12px from 768, so the
+   component spans the grid like the source text component); `narrow-N` (N = 6, 8, 10)
+   puts it on N of those 12 columns, centred (source `aem-GridColumn--default--N` +
+   offset), at every width; `phone-12` keeps it on all 12 columns below 768 (the
+   source's `mobile--12` override) */
+.text-style.block {
+  margin-inline: calc(var(--text-style-outset, 0px) * -1 + (100% + 2 * var(--text-style-outset, 0px)) * (12 - var(--text-style-span, 12)) / 24);
+}
+
+.text-style.narrow-6 { --text-style-span: 6; }
+.text-style.narrow-8 { --text-style-span: 8; }
+.text-style.narrow-10 { --text-style-span: 10; }
+.text-style.phone-12 { --text-style-span: 12; }
+
+@media (width >= 768px) {
+  .text-style.narrow-6.phone-12 { --text-style-span: 6; }
+  .text-style.narrow-8.phone-12 { --text-style-span: 8; }
+  .text-style.narrow-10.phone-12 { --text-style-span: 10; }
+}
+
+/* tracking-narrow: the source's `text--letter-spacing--narrow` (-0.03em) */
+.text-style.tracking-narrow .text-style-content {
+  letter-spacing: -0.03em;
 }
 
 /* label: Graphik Semibold 24/32, regular weight, uppercase */

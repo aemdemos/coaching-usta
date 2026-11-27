@@ -12,12 +12,13 @@
 
 /* stylelint-disable no-descending-specificity */
 
-/* the source list sits in its grid column's inset: 8px (12px from 768) */
+/* The source list spans the content box, flush with the sub-nav pills above
+   (re-measured 2026-11-26: x 16/40/48/64, w 343/688/928/1312 at 375/768/1024/1440).
+   The section gutter already equals the source column + its 8/12px inset. */
 .course-filter {
   --cf-dark-panel: var(--usta-dark-panel);
 
   display: block;
-  margin-inline: 8px;
 }
 
 /* Section container: align to the site content grid (1536 cap, gutters). */
@@ -32,7 +33,7 @@ main > .section.course-filter-container > div {
 .course-filter-tabs {
   background: transparent; /* mobile: transparent; becomes dark panel at tablet+ */
   border-radius: 20px;
-  margin-bottom: 36px; /* source: 36px mobile / 44px tablet / 100px desktop */
+  margin-bottom: 36px; /* source: 36px mobile / 44px tablet / 100px from 1024 */
 }
 
 .course-filter-tabs-row {
@@ -140,20 +141,19 @@ main > .section.course-filter-container > div {
   cursor: pointer;
 }
 
+/* Both toggles (source): the chevron art points up, rotated 180° (down) while
+   closed and upright (up) while its panel is open. */
 .course-filter-toggle svg {
   width: 14px;
   height: 10px;
   margin-left: 12px;
+  transform: rotate(180deg);
   transition: transform 0.2s ease;
 }
 
 .course-filter-sort-value { margin-left: 0.25em; }
 
-/* Filter By chevron points up (open affordance); Sort points down. */
-.course-filter-toggle-filter svg { transform: rotate(0deg); }
-.course-filter-toggle-sort svg { transform: rotate(180deg); }
-.course-filter-toggle[aria-expanded="true"].course-filter-toggle-filter svg { transform: rotate(180deg); }
-.course-filter-toggle[aria-expanded="true"].course-filter-toggle-sort svg { transform: rotate(0deg); }
+.course-filter-toggle[aria-expanded="true"] svg { transform: rotate(0deg); }
 
 .course-filter-toggle:focus-visible,
 .course-filter-tab:focus-visible,
@@ -584,7 +584,7 @@ main > .section.course-filter-container > div {
 .course-filter-see-more-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 48px;
+  margin-top: 24px; /* source: load-more wrapper 24px below the grid */
 }
 
 .course-filter-see-more {
@@ -594,7 +594,8 @@ main > .section.course-filter-container > div {
   background: var(--usta-lime);
   color: #000;
   font-family: "Graphik Semibold", tahoma, sans-serif;
-  font-size: 18px;
+  font-size: 16px; /* source: 16px on phones, 18px from 768 */
+  line-height: normal;
   letter-spacing: -0.54px;
   cursor: pointer;
 }
@@ -610,8 +611,6 @@ main > .section.course-filter-container > div {
   }
 
   .course-filter-tabs-row { gap: 16px; }
-
-  .course-filter { margin-inline: 12px; }
 
   .course-filter-tab {
     height: 100px;
@@ -649,6 +648,8 @@ main > .section.course-filter-container > div {
   .course-filter-chip { height: 36px; }
 
   .course-filter-card-content { gap: 24px; }
+
+  .course-filter-see-more { font-size: 18px; }
 
   .course-filter-card-eyebrow {
     font-size: 16px;
@@ -712,14 +713,14 @@ main > .section.course-filter-container > div {
 
   .course-filter-tab-title { font-size: 16px; }
 
+  /* tabs → Filter By bar: 100px from 1024 (source) */
+  .course-filter-tabs { margin-bottom: 100px; }
+
   .course-filter-card { min-height: 333px; }
 }
 
 @media (width >= 1280px) {
   main > .section.course-filter-container > div { padding-inline: 64px; }
-
-  /* Full-size dark panel spacing at wide desktop (source: 100px). */
-  .course-filter-tabs { margin-bottom: 100px; }
 
   .course-filter-card { min-height: 347px; }
 

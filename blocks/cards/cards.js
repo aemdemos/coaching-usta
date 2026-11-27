@@ -717,6 +717,16 @@ function decorateIcons(block) {
     }
     const iconP = [...li.children].find((e) => e.tagName === 'P' && e.querySelector('img, picture') && !e.textContent.trim());
     if (iconP) iconP.className = 'cards-icons-image';
+    // a card titled by a bold-only paragraph instead of a heading (Inclusion Summit
+    // "Summit Benefits & Highlights" — the source's `<p><b>Title</b></p>` text preset)
+    if (!li.querySelector('h1, h2, h3, h4, h5, h6')) {
+      const titleP = [...li.children].find((e) => e.tagName === 'P' && e !== iconP);
+      const bold = titleP?.firstElementChild;
+      if (bold && titleP.children.length === 1 && bold.matches('strong, b')
+        && bold.textContent.trim() === titleP.textContent.trim()) {
+        titleP.className = 'cards-icons-title';
+      }
+    }
     ul.append(li);
   });
   ul.querySelectorAll('.cards-icons-photo picture > img').forEach((img) => {

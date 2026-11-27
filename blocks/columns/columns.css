@@ -54,12 +54,34 @@
   margin: 0;
 }
 
+/* `media-first` option — `columns (media-first)`: the image column stacks ABOVE the
+   text below 1024 (Inclusion Summit "Build the game for everyone": the source phone
+   copy puts the photo first); side by side from 1024 in authored order. */
+.columns.block.media-first:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col {
+  order: -1;
+}
+
+/* a crop preset (`landscape-3` …) applies from 768 only: the source's phone copy of
+   this row has no aspect preset, so phones show the image at its own shape
+   (Inclusion Summit 343x228 @375) */
+.columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col img {
+  aspect-ratio: auto;
+}
+
+/* `no-separator` option: the heading's text component is followed directly by the
+   copy (24px = 12 + 12 insets) — no 42px separator (Inclusion Summit) */
+.columns.block.no-separator:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div > :is(h2, h3) {
+  margin-bottom: 24px;
+}
+
 @media (width >= 768px) {
   .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) { margin-inline: -12px; }
 
   .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div { padding: 16px; }
 
   .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col { padding: 12px; }
+
+  .columns.block:is(.landscape, .landscape-2, .landscape-3, .portrait, .portrait-2):not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col img { aspect-ratio: var(--image-crop); }
 }
 
 @media (width >= 1024px) {
@@ -71,6 +93,8 @@
   .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > div { flex: 0 0 calc(50% - 6px); }
 
   .columns.block:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col { flex: 0 0 calc(50% + 6px); }
+
+  .columns.block.media-first:not(.media, .feature, .quote, .events, .profile, .article, .list, .embed, .text, .promo, .grid, .checklist, .cta, .photos) > div > .columns-img-col { order: 0; }
 }
 
 @media (width >= 1280px) {
@@ -338,6 +362,19 @@ main > .section:has(> .columns-wrapper > .columns.media.columns-media-lead) {
 
 .columns.media:not(.dark, :has(.columns-media-content :is(h1, h2, h3))) .columns-media-content > p:not(:first-child, :last-child) {
   max-width: none;
+}
+
+/* a heading followed directly by the CTA (no copy — courses "Discover our learning
+   pathway"): the source has no copy component there, so heading → CTA is the CTA gap
+   alone (110 / 102 @768 / 110 @1024 / 120 @1280), not 24px + that gap. The source
+   heading is Graphik Semibold at weight 700 (home Safe Play too); our face spans
+   400–700, so this only aligns the computed weight — the rendering is unchanged. */
+.columns.media:not(.dark) .columns-media-content :is(h2, h3) {
+  font-weight: 700;
+}
+
+.columns.media:not(.dark) .columns-media-content :is(h1, h2, h3):has(+ p:last-child > a:only-child) {
+  margin-bottom: 0;
 }
 
 /* the CTA paragraph: Safe Play — a fixed gap under the copy; quiz — pinned bottom */

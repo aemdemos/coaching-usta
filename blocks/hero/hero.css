@@ -583,6 +583,45 @@ main > .section.hero-container:has(.hero.content) > div {
   }
 }
 
+/* centered: the content hero as a short title band, the H1 CENTRED on one line
+   (inclusion-summit "Coach Inclusion Summit"; `hero (content, title, centered)` or
+   `hero (content, centered)`). Source: the overlay is padded 0 4px (4px from 768,
+   12px 4px from 1280), two transparent separators (8px → 84px @1024 → 96px @1280)
+   frame the title's text component (12px 8px → 12px @768). So the H1 sits 20 / 24 /
+   100 / 120px below the panel's inner top (and as far above its bottom) and 12px
+   (16px from 768) in from the sides; USTA Sans 32 → 40 (768) → 56 (1280), lh 1.
+   Panel 138 / 130 / 242 / 298px tall at 375 / 768 / 1024 / 1440. Declared after
+   `title` so it wins over that option's padding. */
+.hero.content.centered {
+  padding: 20px 12px;
+}
+
+.hero.content.centered .hero-content {
+  align-items: stretch;
+  text-align: center;
+}
+
+.hero.content.centered .hero-content h1 {
+  overflow-wrap: normal;
+  text-align: center;
+}
+
+@media (width >= 768px) {
+  .hero.content.centered { padding: 24px 16px; }
+}
+
+@media (width >= 1024px) {
+  .hero.content.centered { padding: 100px 16px; }
+
+  .hero.content.centered .hero-content h1 { font-size: 40px; }
+}
+
+@media (width >= 1280px) {
+  .hero.content.centered { padding: 120px 16px; }
+
+  .hero.content.centered .hero-content h1 { font-size: 56px; }
+}
+
 /* ------------------------------------------------------------------ video -- */
 
 /* USTA homepage hero. Source layout: a centered condensed H1 (SERVE YOUR

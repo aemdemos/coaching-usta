@@ -194,3 +194,68 @@ body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .defaul
     font-size: 64px;
   }
 }
+
+/* "Discover our learning pathway" — `columns (media)`: the source photo tile is a
+   background-image container hidden below 768 and, unlike home Safe Play, has no
+   phone image component — phones show the white card alone (measured 2026-11-26) */
+body.course-catalog.landing-page main .columns.media .columns-media-media {
+  display: none;
+}
+
+@media (width >= 768px) {
+  body.course-catalog.landing-page main .columns.media .columns-media-media {
+    display: block;
+  }
+}
+
+/* intro copy links ("Learn more", "here", "Apply", "equivalency chart"): the source's
+   coloured text links — lime, underlined */
+body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper a:any-link:not(.button) {
+  color: var(--usta-lime);
+  text-decoration: underline;
+}
+
+/* course filter → "Bring a USTA Coaching Workshop" band: the band's container is on the
+   52px preset (the template's stacked-band spacing is coaching-community's 32px preset):
+   only the band's own 12px inset above it (the filter's section padding is the preset) */
+body.course-catalog.landing-page main > .section.banner-container:has(.banner.stacked.blue) {
+  padding: 12px 0;
+}
+
+/* … then the band container's 52px preset below it, and the "Discover our learning
+   pathway" row (Columns (media)) sits in a container without margins: only the cards' own
+   12px inset above and below it */
+body.course-catalog.landing-page main > .section:has(> .columns-wrapper > .columns.media) {
+  padding-block: 12px;
+}
+
+@media (width >= 768px) {
+  body.course-catalog.landing-page main > .section.banner-container:has(.banner.stacked.blue) { padding-bottom: 20px; }
+}
+
+@media (width >= 1024px) {
+  body.course-catalog.landing-page main > .section.banner-container:has(.banner.stacked.blue) { padding-bottom: 36px; }
+}
+
+@media (width >= 1280px) {
+  body.course-catalog.landing-page main > .section.banner-container:has(.banner.stacked.blue) { padding-bottom: 52px; }
+}
+
+/* "PACKAGES FOR EVERY KIND OF COACH": the heading + CTA container (52px preset below) and
+   the tiers fragment (52px preset above, + the tiers' 12px) — CTA → tiers 36 / 52 / 84 /
+   116px instead of the template's 42px separator */
+body.course-catalog.landing-page main > .section:has(> .cards-wrapper > .cards.pricing) {
+  --text-block-gap: 36px;
+}
+
+@media (width >= 768px) {
+  body.course-catalog.landing-page main > .section:has(> .cards-wrapper > .cards.pricing) { --text-block-gap: 52px; }
+}
+
+@media (width >= 1024px) {
+  body.course-catalog.landing-page main > .section:has(> .cards-wrapper > .cards.pricing) { --text-block-gap: 84px; }
+}
+
+@media (width >= 1280px) {
+  body.course-catalog.landing-page main > .section:has(> .cards-wrapper > .cards.pricing) { --text-block-gap: 116px; }
+}

@@ -138,6 +138,24 @@ main > .section.banner-container > div {
   color: #fff;
 }
 
+/* lime: lime panel, black text, black button + white label (source inclusion-
+   summit "EDUCATION GRANTS AVAILABLE"); copy Graphik Semibold (`.block` so it
+   also beats the layout options' body font, e.g. `.banner.stacked .banner-body p`) */
+.banner.lime {
+  background-color: var(--usta-lime);
+  color: #000;
+  border: 0;
+}
+
+.banner.lime.block .banner-body p {
+  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+}
+
+.banner.lime .banner-cta {
+  background-color: #000;
+  color: #fff;
+}
+
 /* ---- tablet+: two-column centered row --------------------------------------
    the source switches to the horizontal layout at tablet already: HEADING on the
    left, a CONTENT column on the right (body copy with the CTA stacked below it),
@@ -557,6 +575,37 @@ main > .section.banner-container > div {
   .banner.spotlight .banner-cta { font-size: 24px; }
 }
 
+/* spotlight + flush (inclusion-summit "Advance Your Coaching Career"): the panel
+   runs flush to the content edges (8px past the cards grid on phones, 12px from
+   768), 20px radius, no panel padding: a transparent separator (8px → 84px @1024 →
+   96px @1280) above the heading's 12px 8px (12px) component, a 42px spacer, then the
+   CTA's component — so the heading sits 20 / 96 / 108px from the top, 66px above
+   the CTA, which ends 12px above the bottom. Panel 238 / 218 / 310 / 282px tall at
+   375 / 768 / 1024 / 1440. */
+.banner.spotlight.flush {
+  border-radius: 20px;
+  padding: 20px 8px 12px;
+}
+
+.banner.spotlight.flush .banner-inner {
+  gap: 66px;
+}
+
+@media (width >= 768px) {
+  .banner.spotlight.flush {
+    margin-inline: -12px;
+    padding: 20px 12px 12px;
+  }
+}
+
+@media (width >= 1024px) {
+  .banner.spotlight.flush { padding-top: 96px; }
+}
+
+@media (width >= 1280px) {
+  .banner.spotlight.flush { padding-top: 108px; }
+}
+
 /* ---- stacked variant --------------------------------------------------------
    Source: coaching-community "Career Center is Live" (`container--border--white`
    panel): the heading and copy STACKED in one column, the CTA alone in a right
@@ -657,6 +706,54 @@ main > .section.banner-container > div {
 
 @media (width >= 1280px) {
   .banner.stacked .banner-cta { font-size: 24px; }
+}
+
+/* stacked + lime (inclusion-summit "EDUCATION GRANTS AVAILABLE"): the panel sits on
+   the content edges like `stacked` but is padded 12px 16px (12px from 768, 36px 12px
+   from 1280) around 12px 8px (12px) components — content 24px in (48px top/bottom
+   from 1280). Text column 9 of 12 at every width from 768 (the copy on 8 of them),
+   the CTA filling the other 3; on phones the CTA spans 10 of 12 columns, centred.
+   Heading 28 → 32 (768) → 40 (1024); CTA label 18px everywhere. */
+.banner.stacked.lime {
+  padding: 24px;
+}
+
+.banner.stacked.lime .banner-heading strong {
+  font-weight: inherit;
+}
+
+.banner.stacked.lime .banner-action {
+  justify-self: center;
+  width: calc((100% + 16px) * 10 / 12 - 16px);
+}
+
+.banner.stacked.lime .banner-cta {
+  font-size: 18px;
+}
+
+@media (width >= 768px) {
+  .banner.stacked.lime {
+    padding: 24px;
+  }
+
+  .banner.stacked.lime .banner-inner {
+    grid-template-columns: calc((100% + 24px) * 9 / 12 - 24px) minmax(0, 1fr);
+  }
+
+  .banner.stacked.lime .banner-body {
+    width: calc((100% + 24px) * 8 / 9 - 24px);
+  }
+
+  .banner.stacked.lime .banner-action {
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+@media (width >= 1280px) {
+  .banner.stacked.lime {
+    padding: 48px 24px;
+  }
 }
 
 /* ---- header option (`banner (header)` / `banner (header, blue)`) -----------

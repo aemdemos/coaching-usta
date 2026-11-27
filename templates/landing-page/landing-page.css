@@ -156,8 +156,14 @@ body.landing-page main > .section:first-child:has(.columns.media.lime) {
 /* results pages: each section opens with the source's 48px (transparent) separator above its
    display heading — the 10-column `heading-64` headings and the course-list sections — and a
    closing course accordion keeps its component's 12px below */
-body.landing-page main > .section.heading-64:is(.narrow-10, :has(> .accordion-wrapper)) > :first-child {
+body.landing-page main > .section.heading-64:is(.narrow-10, :has(> .accordion-wrapper)):not(.spacing-36) > :first-child {
   margin-top: 48px;
+}
+
+/* (learning-pathway's "PACKAGES FOR EVERY KIND OF COACH", right after the costs table, and
+   the FAQ headings on the 36px preset — `spacing-36` — have no such separator) */
+body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) + .section.heading-64 > :first-child {
+  margin-top: 0;
 }
 
 body.landing-page main > .section.heading-64 > .accordion-wrapper:last-child {
@@ -205,12 +211,49 @@ body.landing-page main > .section.spacing-36:first-child:has(> .default-content-
   padding-top: 36px;
 }
 
+/* a `heading-80` page-title section with nothing but the title, followed by a section that
+   opens with a block (learning-pathway → the Development accordion), shares the source's page
+   container with it: title component → the 42px separator → the block's component, 66px
+   from the title at every width (12 + 42 + 12), no section gap (a title followed by copy —
+   membership terms — keeps the standard spacing) */
+body.landing-page main > .section.heading-80:first-child:not(:has(> :not(.default-content-wrapper))) + .section:has(> :first-child:not(.default-content-wrapper, .text-style-wrapper)) {
+  padding-top: 0;
+}
+
+body.landing-page main > .section.heading-80:first-child:not(:has(> :not(.default-content-wrapper))) + .section > :first-child:not(.default-content-wrapper, .text-style-wrapper) {
+  margin-top: 54px;
+}
+
 /* a narrow `heading-64` heading section (results "What USTA Coaching Has To Offer", 10 of 12
    columns) — and the `heading-80` page title (membership terms, 8 of 12) — spans the full
    width below 1280: the source sets these headings on tablet--12 / desktop-small--12 and
    narrows them from 1280 only */
 body.landing-page main > .section:is(.heading-64, .heading-80).narrow-cols > div:not(.full-width) {
   padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px));
+}
+
+/* … but an FAQ heading (a narrow heading section introducing the FAQ accordion:
+   learning-pathway / membership-benefits "STILL HAVE QUESTIONS?" / "FREQUENTLY ASKED
+   QUESTIONS") keeps its span at every width (source `default--10` + offset, no tablet /
+   desktop-small override), the text on the column edges; it sits 24px above the first
+   question below 1024 and 66px from 1024 (the 42px separator between the heading and the
+   accordion components is hidden below 1024) */
+body.landing-page main > .section.heading-64.narrow-cols:has(+ .section > .accordion-wrapper:first-child > .accordion.accordion-default) > div:not(.full-width) {
+  padding-inline: calc(var(--section-gutter) + var(--section-pad, 0px) + (min(100%, 1536px) - 2 * var(--section-gutter) - 2 * var(--section-pad, 0px) + 2 * var(--section-inset)) * (12 - var(--section-span, 12)) / 24);
+}
+
+body.landing-page main > .section.heading-64.narrow-cols:has(+ .section > .accordion-wrapper:first-child > .accordion.accordion-default) > .default-content-wrapper > h2 {
+  margin-inline: 0;
+}
+
+body.landing-page main > .section.heading-64.narrow-cols + .section:has(> .accordion-wrapper:first-child > .accordion.accordion-default) {
+  --text-block-gap: 0px;
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.heading-64.narrow-cols + .section:has(> .accordion-wrapper:first-child > .accordion.accordion-default) {
+    --text-block-gap: 42px;
+  }
 }
 
 /* … and from 768 the results headings (`narrow-10`) span their whole column: no 12px text
@@ -238,24 +281,26 @@ body.landing-page main > .section:first-child {
   padding: 24px 0 0;
 }
 
-/* text-style intros are text components: they span the column insets like the blocks */
+/* text-style intros are text components: they span the column insets like the blocks
+   (text-style.css turns the outset into the block's margins, with its narrow-N spans) */
 body.landing-page main .text-style.block {
-  margin-inline: -8px;
+  --text-style-outset: 8px;
 }
 
-/* … except under a page title (fellowship): that intro sits in the source's title
-   container (8 / 12px gutter padding), one inset further in */
-body.landing-page main > .section:has(> .default-content-wrapper > h1) > .text-style-wrapper > .text-style.block {
-  margin-inline: 0;
+@media (width >= 768px) {
+  body.landing-page main .text-style.block { --text-style-outset: 12px; }
+}
+
+/* … except under a page title on the 36px preset (fellowship): that intro sits in the
+   source's title container (8 / 12px gutter padding), one inset further in (flag-profile's
+   intro under its `heading-80` title sits on the plain grid, as above) */
+body.landing-page main > .section.spacing-36:has(> .default-content-wrapper > h1) > .text-style-wrapper > .text-style.block {
+  --text-style-outset: 0px;
 }
 
 body.landing-page main > .section.cards-container > .text-style-wrapper {
   max-width: none;
   padding-inline: 0;
-}
-
-@media (width >= 768px) {
-  body.landing-page main .text-style.block { margin-inline: -12px; }
 }
 
 /* the source puts a 42px separator between a section's heading/intro and the block
@@ -354,10 +399,25 @@ body.landing-page main > .section.heading-64.narrow-10 + .section {
   body.landing-page main > .section.heading-64.narrow-10 + .section { --text-block-gap: 64px; }
 }
 
+/* … learning-pathway's "See all benefits" (after the costs table) has a second 32px
+   separator (hidden on phones) between the CTA and the tiers fragment: 24 / 64 / 80 / 96px */
+@media (width >= 768px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) + .section.heading-64.narrow-10 + .section { --text-block-gap: 64px; }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) + .section.heading-64.narrow-10 + .section { --text-block-gap: 80px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) + .section.heading-64.narrow-10 + .section { --text-block-gap: 96px; }
+}
+
 /* … and its CTA ("See all benefits", source `button--width--padding-24
-   button--height--56-50-48-48`): 280px on phones, its label's width (24px sides) from 768;
-   48 → 50 (1024) → 56px (1280) tall; the site's 16 → 18 → 24px label */
-body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button {
+   button--height--56-50-48-48` — also the courses pricing section's): 280px on phones, its
+   label's width (24px sides) from 768; 48 → 50 (1024) → 56px (1280) tall; the site's
+   16 → 18 → 24px label */
+body.landing-page main > :is(.section.heading-64.narrow-10 + .section, .section:has(> .cards-wrapper > .cards.pricing)) .default-content-wrapper > p.button-wrapper a.button {
   width: auto;
   min-width: 280px;
   height: 48px;
@@ -365,15 +425,15 @@ body.landing-page main > .section.heading-64.narrow-10 + .section .default-conte
 }
 
 @media (width >= 768px) {
-  body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button { min-width: 0; }
+  body.landing-page main > :is(.section.heading-64.narrow-10 + .section, .section:has(> .cards-wrapper > .cards.pricing)) .default-content-wrapper > p.button-wrapper a.button { min-width: 0; }
 }
 
 @media (width >= 1024px) {
-  body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button { height: 50px; }
+  body.landing-page main > :is(.section.heading-64.narrow-10 + .section, .section:has(> .cards-wrapper > .cards.pricing)) .default-content-wrapper > p.button-wrapper a.button { height: 50px; }
 }
 
 @media (width >= 1280px) {
-  body.landing-page main > .section.heading-64.narrow-10 + .section .default-content-wrapper > p.button-wrapper a.button { height: 56px; }
+  body.landing-page main > :is(.section.heading-64.narrow-10 + .section, .section:has(> .cards-wrapper > .cards.pricing)) .default-content-wrapper > p.button-wrapper a.button { height: 56px; }
 }
 
 /* results media cards (Cards (media), the home page's): the cards sit in a container padded
@@ -430,15 +490,16 @@ body.landing-page main .cards.media:not(.stacked) .cards-media-body {
    right under the hero on coaching-community): measured vs source — 25px (33 from 768)
    under the hero, and the next section's heading 45 / 65 / 81 / 105px (768 / 1024 /
    1280) below the band, i.e. a bottom padding of 24 / 36 / 36 / 44 before the next
-   section's own top padding */
-body.landing-page main > .section.banner-container:has(.banner.stacked) { padding: 25px 0 24px; }
+   section's own top padding (the Inclusion Summit's `lime` band sits on the standard 52px
+   preset) */
+body.landing-page main > .section.banner-container:has(.banner.stacked:not(.lime)) { padding: 25px 0 24px; }
 
 @media (width >= 768px) {
-  body.landing-page main > .section.banner-container:has(.banner.stacked) { padding: 33px 0 36px; }
+  body.landing-page main > .section.banner-container:has(.banner.stacked:not(.lime)) { padding: 33px 0 36px; }
 }
 
 @media (width >= 1280px) {
-  body.landing-page main > .section.banner-container:has(.banner.stacked) { padding-bottom: 44px; }
+  body.landing-page main > .section.banner-container:has(.banner.stacked:not(.lime)) { padding-bottom: 44px; }
 }
 
 /* copy / display headings that sit INSIDE the source's outer-gutter wrapper (coaching-workshops:
@@ -572,12 +633,38 @@ body.landing-page main .default-content-wrapper > h1 {
   body.landing-page main .default-content-wrapper > h1 { font-size: 56px; }
 }
 
-/* `heading-80`: the page title in the source's `text--font-size--80px-32px` preset
-   (membership terms) = the GLOBAL h1 scale (32 → 40 → 56 → 80px via
-   --heading-font-size-xxl), not the 56px-capped title above (its 12px top margin + the
-   standard 24px first-section spacing = the source's title position) */
-body.landing-page main > .section.heading-80 .default-content-wrapper > h1 {
+/* `heading-80`: headings in the source's `text--font-size--80px-32px` preset = the GLOBAL
+   h1 scale (32 → 40 → 56 → 80px via --heading-font-size-xxl): the page title (membership
+   terms, learning-pathway; not the 56px-capped title above — its 12px top margin + the
+   standard 24px first-section spacing = the source's title position) and section h2s
+   (learning-pathway "USTA COACHING CERTIFICATIONS", courses "PACKAGES FOR EVERY KIND OF
+   COACH"), which stay h2s (one h1 per page) */
+body.landing-page main > .section.heading-80 .default-content-wrapper > :is(h1, h2) {
   font-size: var(--heading-font-size-xxl);
+}
+
+/* … on phones a word wider than the 343px text column ("CERTIFICATIONS" at 32px, 354px)
+   stays whole, as on the source (which lets it run past its box): the heading grows to that
+   word (fit-content, at least the column), centred on the column, and wraps the other words
+   as in the column; it never grows past the page (the source's word spills past a 360px
+   page; here it stays inside it, and a word wider than the page still wraps) */
+body.landing-page main > .section.heading-80 .default-content-wrapper > h2 {
+  position: relative;
+  left: 50%;
+  width: fit-content;
+  min-width: 100%;
+  max-width: 100vw;
+  translate: -50%;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section.heading-80 .default-content-wrapper > h2 {
+    position: static;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    translate: none;
+  }
 }
 
 /* the title photo (a picture right after that h1, fellowship): an image component, 20px
@@ -615,16 +702,23 @@ body.landing-page main .default-content-wrapper > h1 + p:has(> picture) img {
 /* bold runs in landing copy = the source's synthesized bold of Graphik Regular (a <b> on a
    weight-normal face; the "Synth" face in fonts.css reproduces it — fellowship intro, the
    FAQs page's questions in the accordion answers) */
-body.landing-page main :is(.default-content-wrapper, .text-style, .accordion.accordion-default .accordion-item-body) strong {
+body.landing-page main :is(.default-content-wrapper, .text-style, .accordion.accordion-default .accordion-item-body) strong:not(.semibold) {
   font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
 }
 
 /* … but a Text Style paragraph set entirely in bold (landing-page.js marks it) is the
-   source's Graphik Semibold text component (results pathway intros) */
+   source's Graphik Semibold text component (`text--font-family--graphic-semibold`:
+   learning-pathway lead, results pathway intros); normal tracking — the source's
+   `text--letter-spacing--narrow` is the block's `tracking-narrow` option */
 body.landing-page main .text-style strong.semibold {
   font-family: "Graphik Semibold", tahoma, arial, sans-serif;
   font-weight: 400;
-  letter-spacing: -0.03em; /* source `text--letter-spacing--narrow` */
+}
+
+/* (the intro in a page-title container on the 36px preset — fellowship — is a <b> run on
+   the Regular face: synthesized bold, even when it is the whole paragraph) */
+body.landing-page main > .section.spacing-36:has(> .default-content-wrapper > h1) > .text-style-wrapper strong.semibold {
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
 }
 
 /* links in a text-style intro are text-component links: the text colour, underlined */
@@ -677,4 +771,136 @@ body.landing-page main > .section:is(:has(.banner.stats), :has(.cards.icons.comp
 
 @media (width >= 1280px) {
   body.landing-page main > .section:is(:has(.banner.stats), :has(.cards.icons.compact)) + .section { padding-top: 96px; }
+}
+
+/* the costs table section (Cards (comparison): learning-pathway, courses) = the source's
+   `container--outer-gutter-paddings` container on the 52px preset: its own 12px padding
+   above the heading and, with the table component's 12px, 24px more below the table; the
+   heading is the USTA Sans text component without a size preset (32 → 36 → 40 → 44px,
+   line-height 1.2) with the text inset, and the table sits in an inner container on the
+   52px preset: heading → table 24 / 32 / 48 / 64px (the heading's 12px + 12 / 20 / 36 / 52) */
+body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) {
+  --text-block-gap: 12px;
+
+  padding-top: 24px;
+  padding-bottom: 36px;
+}
+
+body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) > .default-content-wrapper > h2:not([class]) {
+  margin-inline: 8px;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+@media (width >= 768px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) {
+    --text-block-gap: 20px;
+
+    padding-top: 32px;
+    padding-bottom: 44px;
+  }
+
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) > .default-content-wrapper > h2:not([class]) {
+    margin-inline: 12px;
+    font-size: 36px;
+  }
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) {
+    --text-block-gap: 36px;
+
+    padding-top: 48px;
+    padding-bottom: 60px;
+  }
+
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) > .default-content-wrapper > h2:not([class]) { font-size: 40px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) {
+    --text-block-gap: 52px;
+
+    padding-top: 64px;
+    padding-bottom: 76px;
+  }
+
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.comparison) > .default-content-wrapper > h2:not([class]) { font-size: 44px; }
+}
+
+/* a course accordion (timeline / pathway) closing its section keeps its component's 12px
+   below (learning-pathway certifications; the results sections, above) */
+body.landing-page main > .section > .accordion-wrapper:last-child:has(> .accordion:is(.timeline, .pathway)) {
+  padding-bottom: 12px;
+}
+
+/* a Text Style intro → the course accordion it introduces (learning-pathway "When you're
+   ready…" → Coaching Professional): the accordion fragment follows the text component
+   directly, no 42px separator (the results sections set their own gap, above) */
+body.landing-page main > .section:not(.heading-64) > .text-style-wrapper + .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) {
+  margin-top: 12px;
+}
+
+/* the events banner fragment before an FAQ heading (learning-pathway) sits in a container
+   without margins: only its own 12px inset below it, then the FAQ container's 36px preset */
+body.landing-page main > .section:has(> .banner-wrapper > .banner.blue):has(+ .section.heading-64.spacing-36) {
+  padding-bottom: 12px;
+}
+
+/* Inclusion Summit: the media rows (Columns (media-first), Video (split)) and the quote
+   cards sit in containers with only the 52px preset ABOVE them — no section gap below; the
+   quotes are followed by the source's 96px separator preset (8 → 84 @1024 → 96 @1280)
+   before the flush spotlight banner — less the 4 / 4 / 12 / 28px by which the source's
+   full-height cards run past their container into it: card → panel 16 / 24 / 108 / 120px */
+body.landing-page main > .section:is(:has(> .columns-wrapper > .columns.media-first), :has(> .video-wrapper > .video.split)) {
+  padding-bottom: 0;
+}
+
+body.landing-page main > .section:has(> .cards-wrapper > .cards.quote):has(+ .section .banner.spotlight.flush) {
+  padding-bottom: 4px;
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.quote):has(+ .section .banner.spotlight.flush) { padding-bottom: 72px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section:has(> .cards-wrapper > .cards.quote):has(+ .section .banner.spotlight.flush) { padding-bottom: 68px; }
+}
+
+/* the package tiers fragment → the events banner fragment (learning-pathway, courses): the
+   tiers' container ends with the tiers' 12px inset (no margin preset below them), and the
+   banner panel sits 12px inside its own fragment container: tiers → panel 36 / 44 / 60 / 76 */
+body.landing-page main > .section:has(> .cards-wrapper > .cards.pricing):has(+ .section > .banner-wrapper > .banner.blue) {
+  padding-bottom: 24px;
+}
+
+/* a `heading-80` section heading right after a course accordion (learning-pathway "USTA
+   COACHING CERTIFICATIONS" under the Development accordion): the source's 96px separator
+   preset (8 → 84 @1024 → 96 @1280) between the accordion's 12px inset and the heading's */
+body.landing-page main > .section.heading-80 > .accordion-wrapper + .default-content-wrapper {
+  margin-top: 20px;
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section.heading-80 > .accordion-wrapper + .default-content-wrapper { margin-top: 96px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section.heading-80 > .accordion-wrapper + .default-content-wrapper { margin-top: 108px; }
+}
+
+/* heading / intro → quote cards (Inclusion Summit "WHAT PAST ATTENDEES SAY"): each card is a
+   container on the source's 36px preset (12 / 12 / 20 / 36px) with its 8px top padding —
+   20 / 20 / 28 / 44px instead of the 42px separator */
+body.landing-page main > .section > :is(.default-content-wrapper, .text-style-wrapper) + .cards-wrapper:has(> .cards.quote.block) {
+  margin-top: 20px;
+}
+
+@media (width >= 1024px) {
+  body.landing-page main > .section > :is(.default-content-wrapper, .text-style-wrapper) + .cards-wrapper:has(> .cards.quote.block) { margin-top: 28px; }
+}
+
+@media (width >= 1280px) {
+  body.landing-page main > .section > :is(.default-content-wrapper, .text-style-wrapper) + .cards-wrapper:has(> .cards.quote.block) { margin-top: 44px; }
 }
