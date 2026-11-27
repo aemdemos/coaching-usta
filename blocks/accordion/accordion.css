@@ -67,7 +67,7 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
   padding: 0 48px 0 0; /* source: the title box stops 48px short of the row end */
   cursor: pointer;
   list-style: none;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 24px;
   line-height: 1;
@@ -117,7 +117,7 @@ main > .section.accordion-container > .default-content-wrapper + .accordion-wrap
 .accordion.accordion-default .accordion-item-body p {
   margin: 0;
   color: #fff;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: -0.03em; /* source: -0.48px @16 / -0.54px @18 */
@@ -317,7 +317,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
    18/1.2 at >=768; no letter-spacing on this body copy. */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-panel-intro {
   margin: 0 0 24px;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: normal;
@@ -357,7 +357,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
    18/18 (-0.54) only at >=1280. */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-meta-heading {
   margin: 0 0 14px; /* source: one blank 14px line between heading and first value */
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 14px;
@@ -376,7 +376,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
    Expect) — do NOT add inter-line margin here. */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-meta-value {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 14px;
@@ -414,7 +414,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
 .accordion.pathway .accordion-timeline-section-intro {
   margin: 0;
   padding: 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.2;
@@ -525,7 +525,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
   border: 0;
   background-color: #fff;
   color: #000;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 30px;
   font-weight: 700;
   line-height: 1;
@@ -608,7 +608,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
 /* module-count eyebrow: Graphik Semibold, 12/12 mobile -> 16/16 desktop */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-eyebrow {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 12px;
   line-height: 12px;
@@ -624,7 +624,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
   -webkit-line-clamp: 3;
   overflow: hidden;
   margin: 8px 0 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 18px;
   line-height: 18px;
@@ -637,7 +637,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
    card opens; desktop (>=768): always visible. */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-desc {
   margin: 12px 0 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 14px;
   line-height: 1.2;
   letter-spacing: normal;
@@ -877,7 +877,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
    VISUALLY as regular — NOT bold. We use Graphik Regular at 400 so it matches
    the source's regular appearance (our Semibold face would render actually bold). */
 :is(.accordion.timeline, .accordion.pathway) .accordion-timeline-step-text {
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: normal;
@@ -903,7 +903,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
   border-radius: 20px;
   background-color: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 14px; /* source: 14 mobile -> 16 @768 -> 18 @1024 */
   line-height: 1;
@@ -1288,7 +1288,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
 .accordion.accordion-default.locations .accordion-item .accordion-locations-card p {
   margin: 0;
   color: #fff;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   line-height: 24px;
   letter-spacing: normal;
@@ -1301,7 +1301,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
 
 /* the name: the source's <b> on a weight-normal face = a synthesized bold */
 .accordion.accordion-default.locations .accordion-locations-text strong {
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-weight: 700;
 }
 
@@ -1329,7 +1329,7 @@ main .accordion-wrapper:has(> .accordion:is(.timeline, .pathway)) + .accordion-w
   border-radius: 12px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   line-height: 20px;
   letter-spacing: normal;

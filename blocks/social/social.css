@@ -25,7 +25,7 @@
 
 .social .social-title {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: normal;

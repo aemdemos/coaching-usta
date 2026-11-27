@@ -45,7 +45,7 @@ body.course-catalog main .banner.stacked .banner-heading { padding: 12px 8px 0; 
 body.course-catalog main .banner.stacked .banner-body { padding: 24px 8px 12px; }
 
 body.course-catalog main .banner.stacked .banner-body p {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 24px;
 }
@@ -151,7 +151,7 @@ body.course-catalog.landing-page main > .section > .image-wrapper + .default-con
 
 /* copy: Graphik Semibold, 20/24 under the page title, 18/24 under the section heading */
 body.course-catalog.landing-page main > .section:has(> .image-wrapper) > .default-content-wrapper > h1 ~ p:not([class]) {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 20px;
   line-height: 24px;
 }

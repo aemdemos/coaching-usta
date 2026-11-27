@@ -11,6 +11,12 @@
  */
 
 :root {
+  /* height of the fixed header bar (blocks/header, out of flow) — the page content is offset
+     by it (body padding-top below). Here, not in the lazily-loaded header.css, so the offset is
+     in place at first paint (CLS: main started at y 0 and dropped 90 / 116px). Source .v-header:
+     90px on phones, 116px from 768. */
+  --usta-header-height: 90px;
+
   /* colors — USTA Coaching brand: the site is dark by default (black bg,
      white text), with a lime-green accent and a blue events banner. */
   --background-color: #000;
@@ -31,8 +37,8 @@
   --link-hover-color: var(--usta-lime);
 
   /* fonts — USTA Sans (bold condensed display) for headings, Graphik for body */
-  --body-font-family: "Graphik Regular", tahoma, arial, sans-serif;
-  --heading-font-family: "USTA Sans", tahoma, sans-serif;
+  --body-font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
+  --heading-font-family: "USTA Sans", "USTA Sans Fallback", tahoma, sans-serif;
 
   /* Body sizes — measured from the source: body/lists are a flat 16px at every
      viewport (line-height 1.2, letter-spacing -0.03em). */
@@ -69,9 +75,60 @@
   src: local('Arial');
 }
 
+/* Fallback faces (CLS): until the web fonts in fonts.css arrive (lazily on phones), text renders
+   in Arial scaled to the web font's width, so lines wrap the same and nothing jumps when the font
+   swaps in (the Terms title wrapped 4 → 5 lines at 80px, CLS 0.59 @1440). Width ratios measured
+   2026-11-27 against Arimo (Arial's metrics) over the real text runs of 7 pages (terms, courses,
+   learning-pathway, coach-mentorship, home, a news article, FAQs — 85k characters): Graphik
+   Regular vs Arial 106.14%; Graphik Semibold vs Arial Bold 99.81%; USTA Sans Bold vs Arial Bold
+   134.47% (the upper-case display headings; mixed-case runs measure wider). Vertical metrics =
+   the web font's ascent / descent ÷ size-adjust (Graphik Semibold shares Regular's). Arimo is
+   listed for ChromeOS / Linux, where it stands in for Arial. */
+@font-face {
+  font-family: "USTA Sans Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Liberation Sans Bold");
+  font-weight: 100 900;
+  size-adjust: 134.47%;
+  ascent-override: 69.9%;
+  descent-override: 17.1%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Graphik Regular Fallback";
+  src: local("Arial"), local("ArialMT"), local("Arimo Regular"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 106.14%;
+  ascent-override: 84.79%;
+  descent-override: 18.84%;
+  line-gap-override: 0%;
+}
+
+/* bold runs on Graphik Regular / Graphik Regular Synth (a synthesized bold on the source) vs
+   Arial Bold: 97.17–97.75% over the site's copy */
+@font-face {
+  font-family: "Graphik Regular Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Liberation Sans Bold");
+  font-weight: 600 900;
+  size-adjust: 97.5%;
+  ascent-override: 92.31%;
+  descent-override: 20.51%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Graphik Semibold Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Liberation Sans Bold");
+  font-weight: 100 900;
+  size-adjust: 99.81%;
+  ascent-override: 90.17%;
+  descent-override: 20.04%;
+  line-gap-override: 0%;
+}
+
 /* tablet band (768–1023): h1/h2 -> 40 */
 @media (width >= 768px) {
   :root {
+    --usta-header-height: 116px;
     --heading-font-size-xxl: 40px;
     --heading-font-size-xl: 40px;
     --heading-font-size-l: 28px;
@@ -99,6 +156,7 @@
 body {
   display: none;
   margin: 0;
+  padding-top: var(--usta-header-height); /* the fixed header bar is out of flow */
   background-color: var(--background-color);
   color: var(--text-color);
   font-family: var(--body-font-family);
@@ -151,7 +209,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   letter-spacing: -0.03em;
 }
 
@@ -241,7 +299,7 @@ button.button {
   border: 2px solid #000;
   border-radius: 12px;
   padding: 14px 22px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   font-weight: 400;
   line-height: 20px;
@@ -491,7 +549,7 @@ main > .section.intro-statement p {
      weight-normal only, so Chrome SYNTHESIZES the bold. The "Synth" face
      (fonts.css) is declared the same way, so our bold runs get the identical
      faux-bold stroke (the 400–700 "Graphik Regular" face would render thin). */
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 1;
@@ -771,7 +829,7 @@ main > .section.intro-text > .default-content-wrapper p {
 
 /* source bold = synthesized bold of Graphik Regular (see fonts.css) */
 main > .section.intro-text > .default-content-wrapper strong {
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
 }
 
 /* one blank line between and after paragraphs (source empty <p>) */

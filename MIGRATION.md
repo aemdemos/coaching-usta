@@ -6395,3 +6395,30 @@ the modal immediately — a test artefact.) Now the same flow:
   Back → our page with the modal open (the dashboard hop is not in the back stack); reload → no modal.
 - submit.js: a failed Gallagher submit (signed in) still shows the modal. Gate: lint ✓ · breakpoints ✓ · a11y ✓
   gallagher-pro, flag-profile.
+
+### 2026-11-27 (later) — CLS: header offset at first paint + size-matched fallback fonts (Terms page report)
+Reported: CLS on /en/home/membership-benefits/coaching-membership-terms-and-conditions (branch preview).
+**Causes (measured with a layout-shift observer, Playwright):**
+1. Font swap on the 80px `heading-80` title: the fallback (no metric-matched face) wrapped it 4 lines, USTA Sans 5 →
+   the whole legal section dropped 80px (CLS 0.59 @1440, 0.18 @375).
+2. Header offset: `--usta-header-height` + `body { padding-top }` lived in the LAZY header.css → main started at y 0 and
+   dropped 90 / 116px when it arrived (0.08–0.11, timing-dependent).
+3. Body copy re-wrapping when Graphik swaps in.
+**Fixes:**
+- styles/styles.css: `--usta-header-height` (90px; 116px from 768) in :root and `body { padding-top }` (moved out of
+  header.css) → in place at first paint.
+- styles/styles.css "fallback fonts": `USTA Sans Fallback` (Arial Bold 134.47%), `Graphik Regular Fallback` (Arial
+  106.14% + a 600–900 Arial Bold face 97.5% for bold / Synth runs), `Graphik Semibold Fallback` (Arial Bold 99.81%),
+  ascent / descent overrides; local() lists Arial, ArialMT, Arimo Regular / Bold (ChromeOS / Linux), Liberation Sans.
+  Ratios = content-weighted widths of the real text runs of 7 pages vs Arimo (Arial metrics), canvas measureText.
+  Every font stack naming USTA Sans / Graphik Regular / Synth / Semibold (27 CSS files + header `--usta-nav-font`)
+  got the matching fallback name inserted after the web font (fonts.css untouched).
+**Results** (Arimo installed as the system Arial stand-in, font files delayed 800ms), Terms before → after:
+1440 0.18 → 0.13 · 1024 0.35 → 0.08 · 768 0.41 → 0.25 · 375 0.14 → 0.001 (fast connection: 0.13 / 0.06 / 0.25 / 0.001).
+Remaining = the first legal paragraph's regular + bold runs re-distributing one line when Graphik swaps in; per-paragraph
+line matching depends on the platform's text rasteriser (this Linux headless Chrome hints small text; Windows / macOS
+use subpixel positioning) — not tuned further. User decision: keep (no `font-display: optional`).
+- Courses: separate, timing-dependent shift @1440 — the phone-only intro (`default-content-wrapper` "Courses and
+  Workshops…") shows briefly then hides (0.156 in one run) — open follow-up.
+- PageSpeed Insights API: daily quota exhausted (not run). Gate: lint ✓ · stylelint ✓ · breakpoints ✓ · typography ✓
+  (terms, courses, home). Committed locally, NOT pushed (user).

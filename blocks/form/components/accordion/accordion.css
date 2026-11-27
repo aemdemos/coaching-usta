@@ -59,7 +59,7 @@ main .form fieldset.accordion .accordion-toggle:focus-visible {
 }
 
 main .form fieldset.accordion .accordion-title {
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 1;

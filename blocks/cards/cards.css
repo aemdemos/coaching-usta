@@ -109,7 +109,7 @@
 .cards.course .cards-course-body h5,
 .cards.course .cards-course-body h6 {
   margin: 6px 0 0; /* source: image→title 30px (24px card pad + 6px) */
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 28px; /* source: 28px through 1024, 32px at >=1280 */
   line-height: 1;
@@ -136,7 +136,7 @@
   border-radius: 20px;
   background-color: var(--usta-blue-aa); /* AA-safe blue for white text (see styles.css) */
   color: #fff; /* source: white pill text */
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-weight: 700; /* source pill text is <b> on a weight-normal face = a synthesized bold */
   font-size: 16px;
   line-height: 19.2px; /* source: 16/19.2 */
@@ -251,7 +251,7 @@
 .cards.text .cards-text-card h6 {
   margin: 0 0 24px;
   min-height: 64px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 700;
   font-size: 32px;
   line-height: 1;
@@ -503,7 +503,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   margin: 0 0 24px;
   min-height: 53px;
   padding-right: 24px; /* source: keeps the name clear of the + */
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 1;
@@ -522,7 +522,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   align-items: flex-end;
   min-height: 50px;
   margin: 0 0 8px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.3;
@@ -538,7 +538,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.profile .cards-profile-bio-label {
   display: none;
   margin: 24px 0 16px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 1;
@@ -550,7 +550,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.profile .cards-profile-desc-short,
 .cards.profile .cards-profile-desc-full {
   margin: 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: normal;
   letter-spacing: normal; /* source: normal, not the global -0.03em body tracking */
@@ -763,7 +763,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.comparison .cards-comparison-body h5,
 .cards.comparison .cards-comparison-body h6 {
   margin: 16px 0 8px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1;
@@ -798,7 +798,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    line-height 14px (1.0), letter-spacing -0.64px, margin-bottom 21 */
 .cards.comparison .cards-comparison-body p.cards-comparison-subtitle {
   margin: 0 0 21px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 1;
@@ -817,7 +817,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   border-radius: 20px;
   background-color: var(--usta-blue); /* source #0373F3 */
   color: #fff;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 12px;
   line-height: 1;
   letter-spacing: -0.36px;
@@ -828,7 +828,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    no margins */
 .cards.comparison .cards-comparison-body p.cards-comparison-price {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 1;
   letter-spacing: -1.12px;
@@ -843,7 +843,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.comparison .cards-comparison-body p strong {
   display: inline-block;
   margin: 8px 0; /* source: label <b> has 8px top+bottom → 32.8px label box */
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-weight: 700;
   font-size: 14px;
   line-height: 1.2;
@@ -919,7 +919,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    letter-spacing -0.8px */
 .cards.comparison .cards-comparison-total p:last-child {
   margin: 0; /* gap handled by the flex gap:5px on the bar */
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   line-height: 1;
   letter-spacing: -0.8px;
@@ -1162,7 +1162,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    Graphik Semibold weight 400, line-height 1.0, letter-spacing -0.03em */
 .cards.news .cards-news-title {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 24px;
   line-height: 1;
@@ -1179,7 +1179,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    Source pulls the date up 8px so it sits 16px below the title (24 gap - 8) */
 .cards.news .cards-news-date {
   margin: -8px 0 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: normal;
@@ -1189,7 +1189,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* excerpt — source: 16px Graphik Regular, line-height 19.2px (1.2), white */
 .cards.news .cards-news-excerpt {
   margin: 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: normal;
@@ -1270,7 +1270,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* image -> heading 36px */
 .cards.media .cards-media-card h3 {
   margin: 36px 0 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 28px; /* mobile/tablet; 32px at desktop */
   line-height: 1;
@@ -1576,7 +1576,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 .cards.pricing .cards-pricing-card h5,
 .cards.pricing .cards-pricing-card h6 {
   margin: 0 0 8px; /* source: title has 8px bottom margin */
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 40px;
   line-height: normal; /* source: a 37px line box */
@@ -1594,7 +1594,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 .cards.pricing .cards-pricing-card p strong {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
 }
 
 /* the price line (Free / $49/year) — larger Graphik Semibold on a `normal` line
@@ -1603,7 +1603,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    `.cards-pricing-card p` (16px) rule. */
 .cards.pricing .cards-pricing-card p.cards-pricing-price {
   margin: 12px 0 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: normal;
 }
@@ -1657,7 +1657,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
   padding: 14px 24px;
   border: 2px solid #000;
   border-radius: 12px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 18px;
@@ -1712,7 +1712,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 }
 
 .cards.pricing .cards-pricing-tab-price {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 24px;
   line-height: normal;
   color: #fff;
@@ -1945,7 +1945,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
    so the rendered text is italic) */
 .cards.quote .cards-quote-text p {
   margin: 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -1967,7 +1967,7 @@ main > .section.center:has(.cards.text) > .default-content-wrapper {
 /* attribution: name (white) directly above role/org (light blue) — 16/24 */
 .cards.quote .cards-quote-attribution p {
   margin: 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -2225,7 +2225,7 @@ main > .section.cards-container > .default-content-wrapper {
 }
 
 .cards.icons .cards-icons-title :is(strong, b) {
-  font-family: "Graphik Regular Synth", var(--body-font-family);
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", var(--body-font-family);
   font-weight: 700;
 }
 
@@ -2344,7 +2344,7 @@ main > .section.cards-container > .default-content-wrapper {
 .cards.icons.compact .cards-icons-image img { width: calc((100cqw + 48px) / 12); }
 
 .cards.icons.compact .cards-icons-card :is(h2, h3, h4) {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 20px;
   line-height: 19.2px;
@@ -2460,7 +2460,7 @@ main > .section.cards-container > .default-content-wrapper {
   border-radius: 9999px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 14px;
   line-height: 20px;
   letter-spacing: normal; /* the source's 1px sits on the button box; its label resets it */
@@ -2486,7 +2486,7 @@ main > .section.cards-container > .default-content-wrapper {
 
 .cards.pricing.packages .cards-packages-name {
   margin-top: 0.6em;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 19.2px;
@@ -2540,7 +2540,7 @@ main > .section.cards-container > .default-content-wrapper {
   border-radius: 12px;
   background: #000;
   color: var(--packages-accent);
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 14px;
   line-height: 20px;
   letter-spacing: normal;

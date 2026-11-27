@@ -140,7 +140,7 @@ main > .section.hero-container:not(:has(.hero.video), :has(.hero.content)) > div
   border-radius: 9999px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-weight: 400;
   font-size: 16px; /* source CTA text: 16 (≤1023) → 18 (1024) → 24 (≥1280) */
   line-height: 20px;
@@ -350,7 +350,7 @@ main > .section.hero-container:has(.hero.content) > div {
   border-radius: 12px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 14px;

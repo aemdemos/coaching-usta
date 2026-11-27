@@ -170,7 +170,7 @@ main > .section.columns-container:has(.columns.media) > div {
 .columns.media .columns-media-content h3,
 .columns.media .columns-media-content p:first-child {
   margin: 0 0 16px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 1;
@@ -194,7 +194,7 @@ main > .section.columns-container:has(.columns.media) > div {
   border: 2px solid #000; /* source button has a 2px black border */
   border-radius: 12px;
   padding: 14px 22px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 18px; /* source button text is a FLAT 18px at every breakpoint */
   font-weight: 400;
   line-height: 20px;
@@ -924,7 +924,7 @@ main > .section.columns-container:has(.columns.quote) > div {
 .columns.quote .columns-quote-text {
   flex: 1 0 auto; /* grows with the attribution — see below */
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -942,7 +942,7 @@ main > .section.columns-container:has(.columns.quote) > div {
 
 .columns.quote .columns-quote-attribution p {
   margin: 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: normal; /* source attribution has no tracking */
@@ -952,7 +952,7 @@ main > .section.columns-container:has(.columns.quote) > div {
 /* the name is authored as <strong>, but the source renders it in the SAME
    Graphik Regular 400 as the role (NOT bold) — override the strong. */
 .columns.quote .columns-quote-attribution p strong {
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
 }
 
@@ -1183,7 +1183,7 @@ main > .section.columns-container:has(.columns.events) > div {
 
 .columns.events .columns-events-delivery,
 .columns.events .columns-events-place {
-  font-family: "Graphik Semibold", var(--body-font-family); /* source: Semibold face */
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", var(--body-font-family); /* source: Semibold face */
   font-size: 12px;
   line-height: 1.2;
   letter-spacing: -0.36px;
@@ -1202,7 +1202,7 @@ main > .section.columns-container:has(.columns.events) > div {
 
 .columns.events .columns-events-title {
   color: #fff;
-  font-family: "Graphik Semibold", var(--body-font-family);
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", var(--body-font-family);
   font-size: 24px;
   line-height: 24px;
   letter-spacing: -0.72px;
@@ -1261,7 +1261,7 @@ main > .section.columns-container:has(.columns.events) > div {
   padding: 14px;
   background-color: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", var(--body-font-family);
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", var(--body-font-family);
   font-size: 16px; /* source: 16 → 18 (1024) → 24 (1280), as authored (no caps) */
   line-height: 20px;
   font-weight: 400;
@@ -1435,7 +1435,7 @@ main > .section.columns-container:has(.columns.events.dates) {
   width: auto;
   min-width: 0;
   padding: 12px 8px;
-  font-family: "Graphik Semibold", var(--body-font-family);
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", var(--body-font-family);
   font-size: 28px;
   font-weight: 700;
   line-height: 28px;
@@ -1447,7 +1447,7 @@ main > .section.columns-container:has(.columns.events.dates) {
 
 .columns.events.dates .columns-events-location-line {
   padding: 12px 8px;
-  font-family: "Graphik Regular Synth", var(--body-font-family); /* the source's faux bold */
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", var(--body-font-family); /* the source's faux bold */
   font-size: 18px;
   font-weight: 700;
   line-height: 24px;
@@ -1619,7 +1619,7 @@ main > .section.columns-container.cards-container:has(.columns.profile):has(.car
 
 .columns.profile .columns-profile-name {
   margin: 0 0 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 32px;
   line-height: 1;
   font-weight: 400;
@@ -1642,7 +1642,7 @@ main > .section.columns-container.cards-container:has(.columns.profile):has(.car
    generic card-p rule so it wins the colour/family (equal element-less
    specificity would otherwise lose to `…-card p`). */
 .columns.profile p.columns-profile-role {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   color: var(--usta-lime);
 }
 
@@ -1851,7 +1851,7 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
 :is(.columns.article, .columns.grid) .columns-article-content p.columns-person-role,
 :is(.columns.article, .columns.grid) .columns-article-content p.columns-person-location {
   margin: 0;
-  font-family: "Graphik Regular Synth", "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   line-height: 24px;
   letter-spacing: normal;
   color: var(--usta-lime);
@@ -2054,7 +2054,7 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
 :is(.columns.article, .columns.grid) .columns-article-content h2,
 :is(.columns.article, .columns.grid) .columns-article-content h3 {
   margin: 0 0 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 1;
   font-weight: 700;
@@ -2065,7 +2065,7 @@ main > .section.columns-container:has(.columns.article):not(.bordered) > div {
 /* h3 = the source's smaller in-article heading (a `text--font-size--32px-28px`
    component: <p><b> in Graphik Regular, bold synthesized): 28 → 32 @1280 only */
 :is(.columns.article, .columns.grid) .columns-article-content h3 {
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
 }
 
 /* tablet (>=768): larger gutter; STILL STACKED (source stacks the article at
@@ -2202,7 +2202,7 @@ main > .section.columns-container:has(.columns.list) > div {
    is the only space above the excerpt (matches source). */
 .columns.list .columns-list-title-wrapper {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 40px; /* = the title link: in standards mode (aem.page / aem.live) a 16px
                       Graphik Regular strut made each wrapped title line 53px, not 44 —
                       the local preview renders in quirks mode and hid it */
@@ -2212,7 +2212,7 @@ main > .section.columns-container:has(.columns.list) > div {
 .columns.list .columns-list-title,
 .columns.list .columns-list-title:any-link {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 40px;
   line-height: 44px;
   font-weight: 400;
@@ -2261,7 +2261,7 @@ main > .section.columns-container:has(.columns.list) > div {
   border-radius: 12px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 14px;
   font-weight: 400;
@@ -2495,7 +2495,7 @@ main > .section.columns-container:has(.columns.text) > div {
    here the card's own centered heading is the section heading if present) */
 .columns.text .columns-text-heading {
   margin: 0 0 66px; /* source: heading column + a 42px separator + the next column's 12px */
-  font-family: "USTA Sans", tahoma, arial, sans-serif;
+  font-family: "USTA Sans", "USTA Sans Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 1;
   font-weight: 700;
@@ -2518,7 +2518,7 @@ main > .section.columns-container:has(.columns.text) > div {
 /* small label above the big title (24px gap to title, per source) */
 .columns.text .columns-text-label {
   margin: 0 0 24px;
-  font-family: "USTA Sans", tahoma, arial, sans-serif;
+  font-family: "USTA Sans", "USTA Sans Fallback", tahoma, arial, sans-serif;
   font-size: 24px;
   line-height: 32px;
   font-weight: 700;
@@ -2530,7 +2530,7 @@ main > .section.columns-container:has(.columns.text) > div {
 /* big lime title (MENTOR / MENTEE) */
 .columns.text .columns-text-title {
   margin: 0 0 24px;
-  font-family: "USTA Sans", tahoma, arial, sans-serif;
+  font-family: "USTA Sans", "USTA Sans Fallback", tahoma, arial, sans-serif;
   font-size: 28px;
   line-height: 28px;
   font-weight: 700;
@@ -2599,7 +2599,7 @@ main > .section.columns-container:has(.columns.text) > div {
   border-radius: 12px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 16px; /* source: 16 → 18 (1024) → 24 (1280) */
   line-height: 20px;
   font-weight: 400;
@@ -2712,7 +2712,7 @@ main > .section.columns-container:has(.columns.promo) > div {
 /* title — Graphik Semibold white, 28 → 32 (≥1280) */
 .columns.promo .columns-promo-title {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 28px;
   line-height: 1;
@@ -2738,7 +2738,7 @@ main > .section.columns-container:has(.columns.promo) > div {
   border-radius: 12px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 14px;
   line-height: 20px;
   font-weight: 400;
@@ -2765,7 +2765,7 @@ main > .section.columns-container:has(.columns.promo) > div {
 
 .columns.promo .columns-promo-detail {
   margin: 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: normal;
@@ -2994,7 +2994,7 @@ main > .section.columns-container:has(.columns.promo) > div {
 .columns.cta .columns-cta-cell > * { margin: 0; }
 
 .columns.cta .columns-cta-cell :is(h2, h3, h4) {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 28px;
   line-height: 28px;
@@ -3115,7 +3115,7 @@ main > .section.columns-container:has(.columns.promo) > div {
   max-width: none;
   margin: 0;
   padding: 0;
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: normal;

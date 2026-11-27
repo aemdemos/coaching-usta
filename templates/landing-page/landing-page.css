@@ -710,7 +710,7 @@ body.landing-page main .default-content-wrapper > h1 + p:has(> picture) img {
    weight-normal face; the "Synth" face in fonts.css reproduces it — fellowship intro, the
    FAQs page's questions in the accordion answers) */
 body.landing-page main :is(.default-content-wrapper, .text-style, .accordion.accordion-default .accordion-item-body) strong:not(.semibold) {
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
 }
 
 /* … but a Text Style paragraph set entirely in bold (landing-page.js marks it) is the
@@ -718,14 +718,14 @@ body.landing-page main :is(.default-content-wrapper, .text-style, .accordion.acc
    learning-pathway lead, results pathway intros); normal tracking — the source's
    `text--letter-spacing--narrow` is the block's `tracking-narrow` option */
 body.landing-page main .text-style strong.semibold {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
 }
 
 /* (the intro in a page-title container on the 36px preset — fellowship — is a <b> run on
    the Regular face: synthesized bold, even when it is the whole paragraph) */
 body.landing-page main > .section.spacing-36:has(> .default-content-wrapper > h1) > .text-style-wrapper strong.semibold {
-  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-family: "Graphik Regular Synth", "Graphik Regular Fallback", tahoma, arial, sans-serif;
 }
 
 /* links in a text-style intro are text-component links: the text colour, underlined */

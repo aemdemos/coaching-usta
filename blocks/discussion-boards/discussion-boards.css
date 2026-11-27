@@ -40,7 +40,7 @@
 
 .discussion-boards .discussion-boards-intro h2 {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 24px;
   line-height: 24px;
   font-weight: 700;
@@ -79,7 +79,7 @@
   border: 2px solid transparent;
   border-radius: 12px;
   padding: 14px 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   font-weight: 400;
   line-height: 18px;
@@ -112,7 +112,7 @@
 
 .discussion-boards .discussion-boards-card h3 {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 16px;
   font-weight: 700;

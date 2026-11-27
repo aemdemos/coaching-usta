@@ -75,7 +75,7 @@ main > .section.banner-container > div {
 
 .banner-body p {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 16px;
   line-height: 1.2;
   color: inherit;
@@ -97,7 +97,7 @@ main > .section.banner-container > div {
   max-width: 100%;
   padding: 14px 32px;
   border-radius: 9999px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 18px;
   font-weight: 400;
   line-height: 1;
@@ -148,7 +148,7 @@ main > .section.banner-container > div {
 }
 
 .banner.lime.block .banner-body p {
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
 }
 
 .banner.lime .banner-cta {
@@ -332,7 +332,7 @@ main > .section.banner-container > div {
 /* label/body inherit the panel's white colour from .banner.info */
 .banner.info .banner-label {
   margin: 0 0 24px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 700;
   font-size: 18px;
   line-height: 24px;
@@ -341,7 +341,7 @@ main > .section.banner-container > div {
 
 .banner.info .banner-detail-body {
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 18px;
   line-height: 24px;
@@ -404,7 +404,7 @@ main > .section.banner-container > div {
   box-sizing: border-box;
   width: calc(100% * 2 / 3);
   padding: 12px 8px;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-weight: 400;
   font-size: 28px;
   line-height: 28px;

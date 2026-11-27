@@ -32,7 +32,7 @@
   border-radius: 20px;
   background-color: #2d2d2d;
   color: #fff;
-  font-family: "Graphik Semibold", tahoma, arial, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
   font-size: 14px;
   font-weight: 700;
   line-height: 22px;

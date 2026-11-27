@@ -72,14 +72,14 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-tab-title {
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-weight: 700;
   font-size: 14px;
   line-height: normal;
 }
 
 .course-filter-tab-description {
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-weight: 400;
   font-size: 12px;
   line-height: normal;
@@ -136,7 +136,7 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: #fff;
   color: #000;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 16px;
   cursor: pointer;
 }
@@ -178,7 +178,7 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: #000;
   color: #fff;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 16px;
   line-height: 1;
 }
@@ -222,7 +222,7 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-panel-title {
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 18px;
   color: #000;
 }
@@ -265,7 +265,7 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-group legend {
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-weight: 700;
   font-size: 14px;
   text-transform: uppercase;
@@ -280,7 +280,7 @@ main > .section.course-filter-container > div {
   justify-content: space-between;
   gap: 12px;
   padding: 6px 0;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 16px;
   color: #000;
   cursor: pointer;
@@ -310,7 +310,7 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: #000;
   color: #fff;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 16px;
   cursor: pointer;
 }
@@ -326,14 +326,14 @@ main > .section.course-filter-container > div {
   padding: 12px 24px;
   border: 0;
   background: transparent;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 16px;
   color: #000;
   cursor: pointer;
 }
 
 .course-filter-sort-option.is-selected {
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
 }
 
 /* ---- Courses grid ---- */
@@ -388,7 +388,7 @@ main > .section.course-filter-container > div {
 .course-filter-card-eyebrow {
   display: block;
   margin: 0;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 12px;
   line-height: 1;
   letter-spacing: -0.36px;
@@ -403,7 +403,7 @@ main > .section.course-filter-container > div {
   overflow: hidden;
   margin: 0;
   padding: 8px 0 2px;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-weight: 400;
   font-size: 18px;
   line-height: 1;
@@ -417,7 +417,7 @@ main > .section.course-filter-container > div {
    Base (mobile-first): inline hidden, mobile copy present but collapsed. */
 .course-filter-card-description {
   padding: 20px 32px 0 0;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 14px; /* source: 14px mobile → 16px tablet+ */
   line-height: 1.2;
   letter-spacing: normal;
@@ -452,7 +452,7 @@ main > .section.course-filter-container > div {
   position: absolute;
   right: 0;
   bottom: -2px;
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 30px;
   font-weight: 700;
   line-height: 1;
@@ -572,7 +572,7 @@ main > .section.course-filter-container > div {
 }
 
 .course-filter-card-module-text {
-  font-family: "Graphik Regular", tahoma, sans-serif;
+  font-family: "Graphik Regular", "Graphik Regular Fallback", tahoma, sans-serif;
   font-size: 14px; /* source: 14px/600 mobile → 16px/400 tablet+ */
   font-weight: 600;
   line-height: 1.2;
@@ -593,7 +593,7 @@ main > .section.course-filter-container > div {
   border-radius: 12px;
   background: var(--usta-lime);
   color: #000;
-  font-family: "Graphik Semibold", tahoma, sans-serif;
+  font-family: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, sans-serif;
   font-size: 16px; /* source: 16px on phones, 18px from 768 */
   line-height: normal;
   letter-spacing: -0.54px;

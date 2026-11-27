@@ -8,8 +8,10 @@
   --usta-black: #000;
   --usta-white: #fff;
   --usta-lime: #cfff05;
-  --usta-nav-font: "Graphik Semibold", tahoma, arial, sans-serif;
-  --usta-header-height: 90px; /* source mobile bar: 20px pad + 48px hamburger + ~22px */
+  --usta-nav-font: "Graphik Semibold", "Graphik Semibold Fallback", tahoma, arial, sans-serif;
+
+  /* --usta-header-height (90 → 116px @768) and the body offset live in styles/styles.css:
+     they must apply before this lazily-loaded file arrives (CLS) */
 }
 
 /* ---- Header shell ----
@@ -25,12 +27,7 @@ header .nav-wrapper {
   padding: 20px 0; /* source mobile bar vertical padding */
   background-color: var(--usta-black);
   color: var(--usta-black);
-  font-family: "Graphik Regular", var(--usta-nav-font);
-}
-
-/* the fixed header is out of flow — offset the page content by its height */
-body {
-  padding-top: var(--usta-header-height);
+  font-family: "Graphik Regular", "Graphik Regular Fallback", var(--usta-nav-font);
 }
 
 header nav {
@@ -237,10 +234,6 @@ header nav .nav-hamburger-icon {
 @media (width >= 768px) {
   /* source .v-header is 116px from 768 (33px top/bottom padding around the same
      50px row), with the full-size 360×30 logo and the 18px Join button */
-  :root {
-    --usta-header-height: 116px;
-  }
-
   header .nav-wrapper {
     padding: 33px 0;
   }
