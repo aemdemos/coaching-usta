@@ -12,3 +12,13 @@
   max-width: 100%;
   border-radius: 0;
 }
+
+/* mobile-only (a single `mobile` row): a phone image with no desktop version — hidden from
+   768 (a lazy image in a hidden block is not downloaded); a section holding only it goes
+   too, so no empty section gap remains */
+@media (width >= 768px) {
+  .image.mobile-only,
+  main > .section:has(> .image-wrapper > .image.mobile-only):not(:has(> :not(.image-wrapper, .section-metadata))) {
+    display: none;
+  }
+}

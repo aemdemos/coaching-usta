@@ -1,0 +1,58 @@
+{
+  "page": "education-center-locations",
+  "date": "2026-11-26",
+  "source": "https://www.ustacoaching.com/en/home/workshops/education-center-locations.html",
+  "output": "content/en/home/workshops/education-center-locations.plain.html (+ review copy under content/drafts/meet/)",
+  "change": "per-page theme folded in (user decision 2026-11-26): no Theme metadata; reusable looks moved to block options / template rules, page-only spacing dropped — see MIGRATION.md 2026-11-26",
+  "sha256": {
+    "import-landing-page-v1.js": "d88385a6d03d0980f501e0cec991d63d4adc080908a5fe11bef512533955dabd",
+    "import-landing-page-v1.bundle.js": "d651a525f7134e69dacb1121a1dc1b91ff8dc60e41c9ed22566f0c797de6dcb3",
+    "output content/en/home/workshops/education-center-locations.plain.html": "78b2cddae8f6cebf830274e1e1025ae0e08b859924f7b51ed834486716b92b28"
+  },
+  "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-education-center-locations.txt --force with WORKSPACE_PATH set to a scratch folder; copy to content/<path>.plain.html",
+  "finalize": "node tools/assets/fetch-page-images.mjs en/home/workshops/education-center-locations (47 images: hero photo, logo, 44 location photos, pin icon)",
+  "regression": "26 other pages byte-identical to /tmp/reg/new13-* (outputs /tmp/reg/new14-l|r|n)",
+  "history": [
+    {
+      "page": "workshops/education-center-locations",
+      "locales": [
+        "en"
+      ],
+      "date": "2026-11-25",
+      "source": "https://www.ustacoaching.com/en/home/workshops/education-center-locations.html",
+      "output": "content/en/home/workshops/education-center-locations.plain.html (review copy content/drafts/meet/workshops/education-center-locations.plain.html)",
+      "importer": "import-landing-page-v1.js — hero-default also matches a CTA-less centred hero that carries a logo image (isDefaultHero); a logo visible on desktop → Hero (logo); textEls keeps a bold Graphik statement with lime runs as paragraphs (lime → <em>, blue → <u>, the intro-statement accents); accordion kind adds `locations` when its panels hold 2+ grey-bordered photo cards (pin icons alt=\"\"); PAGE_THEMES /home/workshops/education-center-locations → education-centers",
+      "sha256": {
+        "import-landing-page-v1.js": "247f92557450d6bd22becaaf5cdc103163bad46b5950add38fbece1796f7cbfd",
+        "import-landing-page-v1.bundle.js": "068b5d99457c171391cd334ed45dce3b113a9e7d7e53d21617cab10f53a4741c",
+        "import-sample-landing-blocks.js": "bc17db93ba23b5dbc74bc0af7b781b0036ce8a92042833763b245cb316f2db95",
+        "import-sample-landing-blocks.bundle.js": "f220f3ad97cf54f2b9aecb90c63f3b45d5a0110a15c2ad5fe35fe4545234e7e1",
+        "output content/en/home/workshops/education-center-locations.plain.html": "7479ff629158409d709f9f451e6ba35877a4872854116af16c07401ee0b17337"
+      },
+      "bundle": "npx esbuild tools/importer/import-landing-page-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-landing-page-v1.bundle.js (rebuild import-quiz-results-v1, import-news-listing-v1, import-sample-landing-blocks, import-sample-landing-sections, import-sample-results-blocks too)",
+      "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-education-center-locations.txt --force with WORKSPACE_PATH set to a scratch folder; copy to content/<path>.plain.html",
+      "finalize": "node tools/assets/fetch-page-images.mjs en/home/workshops/education-center-locations (47 images: hero photo, logo, 44 location photos, pin icon)",
+      "samples": "import-sample-landing-blocks.bundle.js with tools/importer/urls-sample-education-center-locations.txt → drafts/block-samples/{hero-logo, accordion-locations}",
+      "blocks": "Tabs (navigation) · Hero (logo) — title only · intro statement (2 bold paragraphs, lime <em> / blue <u>) · h2 + Accordion (closed, locations): 17 regions, 44 location cards",
+      "regression": "26 pages (18 landing, 6 results, news + search results) re-imported — byte-identical to /tmp/reg/new11-*; new outputs /tmp/reg/new13-{l,r,n} (landing list /tmp/reg/landing5.txt = landing4 + this page)",
+      "verified": "migration-work/education-center-locations/compare.mjs (standards mode) @375/768/1024/1280/1440: hero panel / title / logo, intro paragraphs (box + lines), locations heading, accordion box + first item = source (0–1px); opened region: card x / width, photo, name, address, Website button within 0–3px; accepted: +10px per item after the first (shared landing rule), phone cards 16px apart (source 16 / 60 alternating), card heights +1–2px"
+    },
+    {
+      "page": "education-center-locations",
+      "date": "2026-11-26",
+      "source": "https://www.ustacoaching.com/en/home/workshops/education-center-locations.html",
+      "output": "content/en/home/workshops/education-center-locations.plain.html (+ review copy under content/drafts/meet/)",
+      "change": "per-page theme folded in (user decision 2026-11-26): no Theme metadata; reusable looks moved to block options / template rules, page-only spacing dropped — see MIGRATION.md 2026-11-26",
+      "sha256": {
+        "import-landing-page-v1.js": "34695222c746ea14380ee419490a3ba6125a166f7893f0233d1ad54590df6f21",
+        "import-landing-page-v1.bundle.js": "e7b7258ce0915ebf79776ae7308015a7caf974b9dbdd44d25563136d1dfde367",
+        "import-sample-landing-blocks.bundle.js": "687eb48c7ed3a965b2661881419ac25d607f7fa55b22b4e6d8b20563cbab120b",
+        "output content/en/home/workshops/education-center-locations.plain.html": "43eb2744f52698ef31075f703d2cbcb4adcebeeea2d24ba03d922b4da408c1c1"
+      },
+      "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-education-center-locations.txt --force with WORKSPACE_PATH set to a scratch folder; copy to content/<path>.plain.html",
+      "finalize": "node tools/assets/fetch-page-images.mjs en/home/workshops/education-center-locations (47 images: hero photo, logo, 44 location photos, pin icon)",
+      "regression": "26 other pages byte-identical to /tmp/reg/new13-* (outputs /tmp/reg/new14-l|r|n)"
+    }
+  ],
+  "note": "statement-32 = size only; width via plain `narrow` (importer-set from the source span default--10 offset 1, 12 below); landing template restores narrow side margins (user decision 2026-11-26)"
+}

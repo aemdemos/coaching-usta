@@ -257,11 +257,14 @@ function decorateCourse(block) {
       body.append(child);
     });
 
-    // duration pill = the last short paragraph (e.g. "3.5 Hours" / "2 Days")
+    // an authored blank line (an empty / zero-width-space paragraph) stays a one-line gap
     const paras = [...body.querySelectorAll('p')];
+    const isBlank = (p) => !p.textContent.replace(/[\s\u200b]/g, '') && !p.querySelector('img, a');
+    paras.filter(isBlank).forEach((p) => p.classList.add('cards-course-blank'));
+    // duration pill = the last short paragraph (e.g. "3.5 Hours" / "2 Days")
     const pill = [...paras].reverse().find((p) => {
       const t = p.textContent.trim();
-      return t && t.split(/\s+/).length <= 3;
+      return !isBlank(p) && t.split(/\s+/).length <= 3;
     });
     if (pill) pill.classList.add('cards-course-duration');
 

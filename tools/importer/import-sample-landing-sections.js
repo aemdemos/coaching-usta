@@ -9,12 +9,14 @@
  *   - `narrow-n` (coach-mentorship): different `narrow-N` values next to the full width;
  *   - `inset-n` (coaching-community): each scenario with several `inset-N` values and without,
  *     keeping the importer's own section split (a narrow heading section + the section it introduces).
+ *   - `statement-32` (education-center-locations): a `toggle` sample — the real section as imported
+ *     (with the style) and the same section without it.
  * The sample is picked with a query on the source URL, e.g. `…/coach-mentorship.html?sample=narrow-n`,
  * `…/coaching-community.html?sample=inset-n`.
  */
 import cleanupTransformer from './transformers/coaching-usta-cleanup.js';
 import landing, {
-  emitSection, finalizeOutput, contentRoot, block, el, norm, TEMPLATE,
+  emitSection, finalizeOutput, contentRoot, prepareSections, block, el, norm, TEMPLATE,
 } from './import-landing-page-v1.js';
 
 const SAMPLES = {
@@ -38,6 +40,15 @@ const SAMPLES = {
       { anchor: 'WHAT OTHERS ARE SAYING', part: 'all', values: [4, 24, null], label: 'A cards section (quote cards: the section pads itself)' },
     ],
   },
+  'statement-32': {
+    page: 'education-center-locations',
+    title: 'Section style: statement-32',
+    intro: 'For an <strong>intro statement</strong> — a fully bold paragraph with lime <code>&lt;em&gt;</code> / underlined <code>&lt;u&gt;</code> accents, which scripts.js turns into the <code>intro-statement</code> section (the home page\'s "If tennis starts with love…"). On the home page (no template) the statement uses the home scale: 32 → 40 (768) → 56 (1024) → 72px (1280); on a landing-page page without a size style it falls back to the template\'s 18px body copy. <code>statement-32</code> sets the source\'s smaller <code>32px-28px</code> text preset instead: <strong>28px, 32px from 1280</strong>, line-height 1, −0.03em, several paragraphs one blank line apart — the SIZE only. The width is the section\'s own style: here plain <code>narrow</code> (10 of 12 columns from 1280, all 12 below — the source span), or any <code>narrow-N</code>. Authored as Section Metadata <code>Style: statement-32</code> (landing-page template); the landing importer sets it from the source text preset (and <code>narrow</code> from the source span). Below: the education-center-locations intro as imported, then the same section without <code>statement-32</code>.',
+    toggle: 'statement-32',
+    examples: [
+      { anchor: 'USTA Coaching’s 44 Education Centers, located across the United States and Puerto Rico, provide high-quality, in-person workshops and certification programming led by the industry’s most experienced professional coach developers.', label: 'The education-center-locations intro' },
+    ],
+  },
 };
 
 const hr = (document) => document.createElement('hr');
@@ -57,6 +68,8 @@ export default {
     cleanupTransformer('beforeTransform', main, payload);
     main.querySelectorAll('[class*="aem-GridColumn--default--hide"]').forEach((e) => e.remove());
     const { root, skip } = contentRoot(main);
+    // (toggle samples group the page's sections exactly as the landing importer does)
+    if (sample.toggle) prepareSections(root, document, skip);
     const sections = [...root.children].filter((s) => !skip(s) && norm(s.textContent));
     const find = (anchor) => {
       const s = sections.find((x) => [...x.querySelectorAll('h1, h2, h3, p')].some((h) => norm(h.textContent).toLowerCase() === anchor.toLowerCase()));
@@ -97,7 +110,28 @@ export default {
         });
       });
     }
-    (sample.prefix ? [] : sample.examples).forEach(({ anchor, part, spans, label }) => {
+    // toggle samples: each example as imported (WITH the style) and without it
+    if (sample.toggle) {
+      sample.examples.forEach(({ anchor, label }) => {
+        const s = find(anchor);
+        [true, false].forEach((withStyle) => {
+          const parts = emitSection(s.cloneNode(true), { document, pagePath });
+          if (!parts.some((p) => p.styles.includes(sample.toggle))) throw new Error(`"${anchor}": the importer does not emit ${sample.toggle} here`);
+          const styled = parts.map((p) => ({ nodes: p.nodes, styles: withStyle ? p.styles : p.styles.filter((x) => x !== sample.toggle) }));
+          out.append(
+            hr(document),
+            el(document, 'h3', `${label} — ${withStyle ? `with <code>${sample.toggle}</code> (as imported)` : `without <code>${sample.toggle}</code>`}`),
+            el(document, 'p', `Section Metadata Style: ${styled.map((p) => `<code>${p.styles.join(', ') || '(none)'}</code>`).join(' + ')}`),
+          );
+          styled.forEach((p) => out.append(
+            hr(document),
+            ...p.nodes,
+            ...(p.styles.length ? [block(document, 'Section Metadata', { Style: p.styles.join(', ') })] : []),
+          ));
+        });
+      });
+    }
+    (sample.prefix || sample.toggle ? [] : sample.examples).forEach(({ anchor, part, spans, label }) => {
       const s = find(anchor);
       spans.forEach((n) => {
         // emit from a copy: emitting moves source nodes, and each example is emitted several times

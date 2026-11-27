@@ -4505,6 +4505,7 @@ The analysis behind Phase 2 is the section "DYNAMIC & LOGIN-DEPENDENT CONTENT �
 | results ×6 | Join / Get Started for Free `wizard`; Package Required pop-up (logged-in, no package); certification accordions (badges / progress?) | wizard; pop-up; verify personal data with a test login |
 | courses, learning-pathway | Package Required pop-up; course list → LMS; certification accordions | pop-up; verify personal data |
 | membership-benefits, coachtennis | "Start the Quiz" / "Take the Quiz" `quiz` | quiz |
+| membership-benefits | the 4 tier "Select" buttons (`#` on the source — the Join wizard) | wizard / Join flow |
 | coachtennis | hero "Get started for free" (`wizard`) + the 4 package CTAs → /en/home/membership-benefits (plain links) | wizard / Join flow |
 | account area (12 gated + 3 personalised) | everything personal; Package Required v2–v7; Achievements modals | decision A (rebuild) / B (link to existing platform) |
 
@@ -4594,11 +4595,11 @@ Pages are grouped by importer / shared blocks so each person builds a mapping ON
 ### Day 3 — listing hub (dynamic PUBLIC lists) + long-form / one-off pages
 | Person A — listing hub | Eff. | Person B — long-form + one-offs | Eff. |
 |---|---|---|---|
-| /en/home/news (news index: latest articles, featured, tags — list from the EDS query index) | H | /en/home/about (Cards text, Columns profile / Cards profile, Cards logos, Contact) | M |
+| /en/home/news (news index: latest articles, featured, tags — list from the EDS query index) | H | /en/home/about (Cards text, Columns profile / Cards profile, Cards logos, Contact) — ✅ DONE 2026-11-25 (en/home, local) | M |
 | /en/home/news/search-results (search bar + results → Columns list; client-side search on the query index) | H | /en/home/learning-pathway/usta-coaching-equivalency-application (Form application + Tabs application — built) | M |
 | /en/home/coachtennis (quiz CTAs → static links for now) — ✅ DONE 2026-11-25 (drafts/meet, local; 4 new block options) | M | /en/home/job-board (tiers + job content) | L |
-| /en/home/workshops | M | /en/home/membership-benefits (Cards pricing, Banner centered, FAQ) | M |
-| /en/home/workshops/education-center-locations (location list + Google map — largest page, 245 instances) | H | /en/maintenance-page (standalone) | L |
+| /en/home/workshops — ✅ DONE 2026-11-25 (drafts/meet, local) | M | /en/home/membership-benefits (Cards pricing, Banner centered, FAQ) — ✅ DONE 2026-11-25 (en/home, local) | M |
+| /en/home/workshops/education-center-locations (location list + Google map — largest page, 245 instances) — ✅ DONE 2026-11-25 (en/home, local; no map on the live page) | H | /en/maintenance-page (standalone) — ✅ DONE 2026-11-25 (en, local) | L |
 
 ### Day 4 — buffer (half to full day, both)
 - /en/home/settings — confirm first whether it is public or a logged-in app screen (else → Phase 2).
@@ -5777,6 +5778,395 @@ version the repo's Playwright expects).
   `hero-content-wide`, `banner-stats`, `cards-icons-compact` (with `landscape`), `cards-pricing-packages`; with the
   existing `cards-media-stacked-compact` and `image-crop` (the crop options). Local only — not in DA.
 - Gate: stylelint ✓ · breakpoints ✓ · overflow ✓ / a11y ✓ on fellowship + the 5 compact / new samples.
+
+### 2026-11-25 — workshops imported (drafts/meet) — Hero (default) + Cards (course) mapped, phone-only Image
+Source https://www.ustacoaching.com/en/home/workshops.html → local `drafts/meet/workshops` (local only — not in DA, not
+previewed; `en/home/workshops` not created yet). Template `landing-page`. Importer `import-landing-page-v1.js` (URLs
+`tools/importer/urls-workshops.txt`; backup `tools/importer/backups/landing-page/workshops/`); 9 images finalized.
+
+**Page → blocks:** `Tabs` (sub-nav: Courses · Workshops · Education Centers) · `Hero` (default: photo | "Our Core
+<em>Workshops</em>" + Find a Workshop, phone-only Education Center logo in cell 2) · `Image` with only a `mobile` row (the
+phone-only pathway infographic) · intro h3 (`center`) · `Cards (course)` ×6. The "Get on the list" form is the footer's.
+The two blocks were built from this page (2026-09-15/16); the importer had no kinds for them.
+
+**Importer:** new kinds `hero-default` (background panel + centred USTA Sans title + CTA; before `hero-content`),
+`image-phone-only`, `cards-course` (white-outlined card = background-photo container + text container; title h3, copy
+with its blank lines, duration as plain text). A hero panel keeps its centred heading (the narrow-heading split was
+taking it out of the hero). `markPhoneOnlyImages()`: a desktop-hidden image with NO desktop twin, inside a background
+hero panel or alone in its container, is kept (`data-phone-only`) instead of being dropped with the responsive
+duplicates. Regression: 22 pages (14 landing incl. coachtennis, 6 results, news ×2) byte-identical.
+
+**Blocks:**
+- `Image`: a single `mobile` row (no desktop image) = PHONE-ONLY — hidden from 768 (a lazy image in a hidden block isn't
+  downloaded); a section holding only it is hidden too. Desktop + mobile (courses) unchanged.
+- `Hero` (default): section gutter now the header's 8 / 28 / 36 / 52 (re-measured live; was the 16/40/48/64 cards grid);
+  phone logo a fixed 143px (142 @390, 143 @375 — not viewport-relative).
+- `Cards (course)`: on the header's page box (8 / 28 / 36 / 52) — all 12 columns below 1280, 10 of 12 (offset 1) from 1280
+  = (min(100%, 1536) − 104) × 10/12 (replaces the old 960 → 1173 clamp ramp); duration label in the synthesized bold
+  (Graphik Regular Synth — the source's <b>); an authored blank line in the copy = one 24px line, no margin
+  (cards.js marks `.cards-course-blank`).
+- Landing template: Tabs sub-nav → hero 42px (source separator); the phone-only image section sits right under the hero
+  with 24px below.
+
+**Decision (user, 2026-11-25):** the intro ("We offer specialized training…", source bold Graphik 28 → 32px text
+component on 10/12 columns) stays a heading (h3, the template's Graphik Semibold 20 → 22 → 24) — not covered by the
+template (body 18/24 only; the importer maps 32px text to a heading); no new Text Style option.
+
+**Verified** (standards mode, `migration-work/workshops/compare.mjs`) vs source @375/768/1024/1280/1440: hero panel,
+CTA and phone logo identical; phone infographic 16,510 343×1563 = source; course cards x / width / image / title /
+description / label position identical. **Accepted:** intro h3 smaller + full width (cards start 50–214px higher);
+768: card 2's label 24px higher (source tablet copy carries an extra blank line; desktop copy kept); cards 5px shorter
+from 1280; the phone sub-nav strip is not pre-scrolled to the active tab (source scrolls it 25px). The active sub-nav
+tab only highlights at the real page path (the review copy's path differs).
+
+Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ /
+typography ✓ / a11y ✓ on drafts/meet/workshops, samples hero-default / cards-course / image / tabs, en/home/coachtennis;
+en/home/courses only the known cards-comparison contrast finding.
+- **Placed at its real path (user, 2026-11-25):** `en/home/workshops` = the same import output (identical to
+  `drafts/meet/workshops` apart from the image folder), images finalized to `media-da/en/home/workshops/`. The sub-nav's
+  "Workshops" tab is active there (aria-current="page", lime). Gate at the real path: overflow ✓ · typography ✓ · a11y ✓.
+  LOCAL only — not uploaded to DA, not previewed / published.
+
+### 2026-11-25 — maintenance-page imported + placed (en/maintenance-page) — `maintenance` theme
+Source https://www.ustacoaching.com/en/maintenance-page.html → `drafts/meet/maintenance-page` (review) and
+`en/maintenance-page` (real path, nothing existed there). Local only — not in DA, not previewed / published. Template
+`landing-page`; importer `import-landing-page-v1.js` (URLs `tools/importer/urls-maintenance-page.txt`; backup
+`tools/importer/backups/landing-page/maintenance-page/`); 3 images finalized.
+- **Page → blocks:** logo (default-content image) · `Columns (media)` (white card: h2 + copy | photo) · wordmark
+  (default-content image). The source status page has NO site header / footer.
+- **Importer:** new kind `columns-media-card` (a filled WHITE text container beside an image component, no CTA →
+  `Columns (media)`, cells in source order; the image's aspect preset → the global crop option); onLoad stamps every
+  container's computed background as `data-bg-color` (the existing `data-bg` values are unchanged); `PAGE_THEMES`
+  `/maintenance-page` → `maintenance`.
+- **Theme `maintenance`** (CSS only, registered in scripts.js THEMES): hides the site header + footer and the fixed-header
+  offset; logo 53 / 43 / 45 / 30% of the content box, 36px from the top (39 on phones); card | photo 48px under it, photo
+  5:6 at every width (not a source crop preset), phones photo first; card copy vertically centred, the heading opening with
+  one empty line under a 24px separator (the source heading starts with a <br>), heading USTA Sans black 20 / 24 / 32 /
+  42px, copy Graphik 16 → 18 → 24px; wordmark 60 / 60 / 68 / 84px under the card, 36px (32 on phones) in from the gutter;
+  56px of page below.
+- **Decided while the user was away — review:** (1) the site header and footer are hidden on this page (lift-and-shift of
+  the standalone status page; remove the two `display: none` rules to show them); (2) page CSS in a theme (the project
+  rule for page-specific CSS-only changes).
+- **Verified** (standards mode, `migration-work/maintenance/measure.mjs` + `compare.mjs`) @375/768/1024/1280/1440: logo,
+  card, photo, heading text, copy, wordmark and page height = source within 1–2px (1440 logo ±4). **Accepted:** at 1024
+  the heading wraps one line less (the source's two trailing `&nbsp;` after "SOON!" are dropped by the import).
+- Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · svg ✓ · overflow ✓ /
+  typography ✓ / a11y ✓ (review copy + real path).
+
+### 2026-11-25 — about imported + placed (en/home/about) — 4 importer kinds, `about` theme, profile fixes
+Source https://www.ustacoaching.com/en/home/about.html → `drafts/meet/about` (review) and `en/home/about` (real path,
+nothing existed there). Local only — not in DA, not previewed / published. Template `landing-page`; importer
+`import-landing-page-v1.js` (URLs `tools/importer/urls-about.txt`; backup `tools/importer/backups/landing-page/about/`);
+19 images finalized.
+- **Page → blocks** (all existing blocks / samples built from about.html): hero `Columns (media, portrait-2)` (white
+  card: h1 + mission | photo, the source portrait-2 crop preset) · "OUR PURPOSE" h2 + `Cards (text)` ×6 · "OUR
+  LEADERSHIP" h2, "Executive Leadership" h3 + `Cards (profile)` ×2, "USTA Coaching Board Members" h3 + `Columns (profile)`
+  ×7 (one block per member — the block's one-row contract) · the Executive Board photo `Image (landscape)` in a
+  `narrow-6` section · "OUR PARTNERS & AFFILIATIONS" h2 + `Cards (logos)` ×8 · `Contact` (intro + 3 cards). The "Get on
+  the list" form is the site footer's.
+- **Importer (new kinds):** `about-profiles` (executive v-person-cards → Cards (profile): name, title, short bio, the
+  "Bio" label, full bio — the short `description` and the `long-description` are read from the RAW page HTML in onLoad,
+  because the rendered card swaps one for the other on hover, which made two imports differ; board rows → Columns
+  (profile): photo — a background-image container on desktop — | name, the lime role lines as one italic paragraph, bio,
+  tags list; rows the source nests inside the previous member's row container (Andrea Perez, Nancy Wilkins) are emitted
+  too; an empty headshot alt becomes "<name> headshot"); `cards-text-grid` (only the purpose structure: a 64px USTA Sans
+  heading over cards whose first text is a short Graphik Semibold title — a first, looser match caught coaching-community
+  quote cards, an inclusion-summit section and fellowship's date rows and was tightened until the regression was
+  byte-identical); `cards-logos` (linked image components); `contact` (white cards with a heading + an icon-only link →
+  link text "Email <heading>" for a mailto, as in the sample); `image-cropped` (a section that is one image with an aspect
+  preset on a centred span → `Image (<crop>)` + `narrow-N`; kinds can now return section styles via `styles()`).
+  `columns-media-card` adds the image's crop option. `PAGE_THEMES` `/home/about` → `about`.
+- **Block fixes:** `Columns (profile)` — (1) in a section that also holds `Cards (profile)` (one source section) the
+  wrapper gutter was added twice (both blocks pad for it) → a combined-section rule; (2) from 768 the photo is absolutely
+  positioned in its cell, so a tall portrait (Nancy Wilkins) no longer stretches the card (the source crops it).
+- **Theme `about`** (CSS only): hero card type (title USTA Sans black 32 → 40 → 64px, centred on 7 / 10 of 12 columns;
+  copy Graphik 16 → 18 → 24px; content at the card bottom; card = photo height via the portrait-2 crop; phones photo
+  first); the group headings as white 20px-radius bars (Graphik Semibold 24/32 black); the board photo on 10 of 12 columns
+  on phones; the section rhythm (measured gaps — see the CSS header); board members 40px apart.
+- **Decided while the user was away — review:** (1) board-member gaps standardised to 40px (the source's spacers vary
+  23–72px, total about the same); (2) page CSS in an `about` theme; (3) "<name> headshot" alt for the board photos (source
+  alt empty); (4) the source alt "GLTA World Tour Logo" on the Babolat logo is kept as authored — a content error to report
+  to the customer.
+- **Verified** (standards mode, `migration-work/about/compare.mjs` + `rows.mjs`) @375/768/1024/1280/1440: every section's
+  x / width = source; vertical positions within 4px down to the board rows; logos and contact identical. **Accepted:**
+  from the last board row down everything sits a constant 30–35px higher (Andrea Perez's card is 32px shorter — the source
+  stretches that nested row; at 1024 Alexis Glick's card is also 20px shorter → −54px); the partners heading wraps
+  narrower (same height); the purpose cards measure narrower only because the source box includes its column padding
+  (text identical).
+- **Phase 2:** none (Contact links are mailto).
+- Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · svg ✓ · overflow ✓ /
+  typography ✓ / a11y ✓ on the review copy, the real path, samples columns-profile / cards-profile / cards-text /
+  cards-logos / contact / columns-media, en/home, en/home/coaching-community.
+- **Regression:** 23 earlier pages (15 landing incl. coachtennis + workshops, 6 results, news + search results) re-imported
+  with the final bundles — byte-identical (newest verified outputs: /tmp/reg/new6-l, /tmp/reg/new6-r, /tmp/reg/new6-n).
+
+### 2026-11-25 — membership-benefits imported + placed (en/home, local) — landing importer, `membership-benefits` theme
+Source https://www.ustacoaching.com/en/home/membership-benefits.html → `content/en/home/membership-benefits` (review copy
+`drafts/meet/membership-benefits`; nothing existed at the real path). Template `landing-page` (the catalog groups this
+page with news-article — it is not an article). Theme `membership-benefits` (CSS only). Importer
+`import-landing-page-v1.js` (URLs `tools/importer/urls-membership-benefits.txt`; backup
+`tools/importer/backups/landing-page/membership-benefits/`); 2 images finalized; no DAM documents. Local only — not in DA,
+not previewed / published.
+
+**Page → blocks:** `Columns (media, outlined)` ("Membership & Benefits" card | photo) · "CHOOSE YOUR COACHING PACKAGE" h2
+(`center, narrow-8, heading-64, spacing-36`) · `Cards (pricing)` (the v-tiers XF; `center, spacing-36`) · `Columns (media)`
+quiz model ("Not sure which package is right for you?" + Start the Quiz | photo) · "FREQUENTLY ASKED QUESTIONS" h2
+(`center, narrow-10, heading-64, spacing-36`) · `Accordion` (13 items, first open) · `Banner (centered, blue)` ("More
+questions? Visit Coach Care." → GET HELP). The "Get on the list" form is the footer's. No new block option, no new sample.
+
+**Importer:**
+- new kind `columns-media-card-cta`: a filled white card WITH one CTA beside a photo → `Columns (media)` with the title +
+  copy as PARAGRAPHS (the home quiz card model — the photo sets the row height: 2:3 at 768, its own shape from 1024; an h2
+  title would select the Safe Play model, where the card sets it). Placed before `columns-promo`, which took it before.
+- prepareSections: a colour band (plain rounded preset, data-bg, one CTA, no image) right after an accordion in the same
+  container becomes its own section, marked `data-faq-band`; `banner-centered` accepts that mark (it only took the
+  `-outer` rounded preset). A first attempt that relaxed `banner-centered` to every rounded preset also converted courses'
+  stacked band and inclusion-summit's grants band → reverted to the mark.
+- a kind never joins (joinPrevious) the narrow heading section split off ITS OWN section — the Cards (pricing) tiers were
+  joining "CHOOSE YOUR COACHING PACKAGE" and rendered on 8 columns.
+- PAGE_THEMES `/home/membership-benefits` → `membership-benefits`.
+- **Regression:** 25 pages (17 landing, 6 results, news ×2) vs the previous verified outputs — identical except
+  **learning-pathway**, which now keeps its source "More questions? Visit Coach Care." band (the same FAQ + band
+  container; it was dropped before). learning-pathway is still a first-pass page; its content/ copy is untouched (it gains
+  the band on its next import). **Decided while the user was away — review.**
+
+**Theme `membership-benefits` (themes/membership-benefits/membership-benefits.css; scripts.js THEMES):** the intro card's
+copy on the source's 24px-16px preset (16 → 18 @1024 → 24 @1280), 24px (48 from 1280) of card under it, its photo keeps the
+portrait preset at 1024 (0.689; the card stretches to it — coaching-workshops' card fills the photo to the card there),
+and its section closes on the 52px margin preset + the heading's 12px (24 / 32 / 48 / 64) instead of coaching-workshops'
+spacer margin; the packages heading stays on 8 of 12 columns from 768 (the results pages' "full width below 1280" rule
+doesn't apply); heading → tiers 36 / 52 / 84 / 116 (`--text-block-gap`) and 24px more under the tiers; the quiz section is
+shown on phones (home's quiz section is desktop-only) with its CTA 108px under the copy; no results-page 48px separator
+above the FAQ heading; FAQ heading → accordion 0 / 0 / 42 / 41; accordion → band 12px. **Decided while the user was away —
+review:** page-specific CSS in a theme (user rule), no block change.
+
+**Verified** (standards mode, `migration-work/membership-benefits/compare.mjs`) vs source @375/768/1024/1280/1440: from 768
+every measured part = source (intro card, photo, title, copy; packages heading; tier cards; quiz card, title, copy, CTA,
+photo; FAQ heading; first FAQ item; band panel / heading / CTA relative to the accordion).
+
+**Accepted deviations:**
+1. Closed FAQ items +10px each (the shared landing rule kept by the user 2026-11-25) → the band sits ~122–135px lower.
+2. Phones: the source has phone-only copies of the intro and quiz text with other wording ("Unlock your Coaching
+   Potential", "Not sure what tier is right for you?…"); the importer keeps the desktop copy (decision 2026-10-07) → intro
+   card 67px shorter, quiz title one line longer.
+3. 768: the band CTA is centred (the source's runs 37px off-centre — known banner-centered quirk).
+4. The tier "Select" buttons keep the source's `#` (they open the Join wizard) — Phase 2 inventory.
+
+Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ · typography ✓
+· a11y ✓ on drafts/meet/membership-benefits and en/home/membership-benefits. No block CSS changed (theme only), so no other
+page re-gated.
+
+### 2026-11-25 — education-center-locations imported + placed (local) — Hero (logo), Accordion (closed, locations), `education-centers` theme
+Source https://www.ustacoaching.com/en/home/workshops/education-center-locations.html → `en/home/workshops/education-center-locations`
+(review copy `drafts/meet/workshops/education-center-locations`; local only — not in DA, not previewed / published). Template
+`landing-page`, theme `education-centers`. Importer `import-landing-page-v1.js` (URLs `tools/importer/urls-education-center-locations.txt`;
+backup `tools/importer/backups/landing-page/education-center-locations/`); 47 images finalized. Migrated while the user was away.
+
+**Page → blocks:** `Tabs` (sub-nav; "Education Centers" active at the real path) · `Hero (logo)` — "Elevate your <em>Coaching</em>", no
+CTA, the Education Center logo · intro statement — two bold Graphik paragraphs with a lime run (<em>) and a blue run (<u>), the home
+intro's model (decorateIntroStatement adds `intro-statement`) · "select a section to view locations" h2 + `Accordion (closed,
+locations)` — 17 regions (all closed on the source), 44 location cards. The live page has NO map or other dynamic widget (the
+schedule's "Google map" note was from the catalog scan); the "245 instances" are the cards' separators / text components.
+
+**Importer:** `hero-default` also matches a CTA-less centred hero that carries a logo image (`isDefaultHero`; a CTA-less, image-less
+centred hero stays `Hero (content, title)` — inclusion summit, caught by the regression); a logo shown on desktop too → `Hero
+(logo)`. `textEls`: a bold Graphik statement with a lime run stays copy (not a heading by its 32px preset); lime → <em>, blue →
+<u>. `accordion`: panels of 2+ grey-bordered photo cards → `locations` (inline pin icons alt="" — the source alt is the
+placeholder "Description of image"). PAGE_THEMES entry. Regression: 26 pages byte-identical (outputs /tmp/reg/new13-*).
+
+**Blocks / theme:**
+- `Hero (logo)` (hero.css; sample `hero-logo`): the logo at every width — 143px directly above the title on phones, under the title
+  from 768 at 1/6 of the panel (container units: 118 @768 → 222 @1440), 16 / 15 / 13px under the glyphs; title-only: 78px under the
+  title on phones, the default 8 / 84 / 96px from 768.
+- Default hero phone padding 24 → 18px (the source title box is 321px at 375 — "ELEVATE YOUR" on one line); workshops re-verified =
+  source (hero panel / CTA / logo unchanged).
+- `Accordion (closed, locations)` (accordion.js `decorateLocations`, accordion.css; sample `accordion-locations`): per location in
+  the body cell — photo paragraph, copy (region + name, address lines), optional CTA link; a new card at every photo. Grid 1-up /
+  2-up from 768 (24 / 60px gaps), cards #262626 + 1px #a0a0a0 + radius 20, photo 2.2:1 cover, copy 18/24 (address 15/24) in white
+  on the lime open item, bold underlined name (Graphik Regular Synth), lime CTA half the copy width, 40px, radius 12.
+- Theme `themes/education-centers/education-centers.css` (registered in scripts.js THEMES): the intro statement at the source's
+  32px-28px preset (28 → 32 @1280, line-height 1, −0.03em — the landing body rule otherwise set 18/24), the two paragraphs 1em
+  apart, 10 of 12 columns from 1280; hero → intro +42; the locations section on the source's 96px separator (32 / 32 / 108 / 120
+  top) and its 24px container padding (wrapper 40 / 64 / 72 / 88), heading → accordion 47 (`--text-block-gap: 26px`).
+
+**Verified** (standards mode, `migration-work/education-center-locations/compare.mjs`) @375/768/1024/1280/1440: hero panel, title
+lines and logo, both intro paragraphs (box + line count), the locations heading, accordion box and first item = source (0–1px);
+opened region (Eastern): card x / width, photo, name, address, Website button 0–3px.
+
+**Decided while the user was away — review:**
+1. The intro follows the home intro-statement model (bold copy + lime <em> / blue <u>, user: "multi colours text just like at
+   home page") at the source's own 28 → 32px scale (theme) — not an h3 like the workshops intro (a different decision there).
+2. Phones: location cards 16px apart throughout (source 16px within a source row of two, 60px between rows).
+3. The default hero's phone side padding is 18px (was 24) for every default hero.
+4. Pin icons are decorative (alt="").
+
+**Accepted:** +10px per accordion item after the first (the shared landing rule, user 2026-11-25) — the opened region and
+everything below sit 10px lower per item; card heights +1–2px.
+
+**Phase 2:** none (static list; the "Website" links go to the centres' own sites). Content note for the customer: several
+"Website" / name links point at another centre's site (e.g. RiverWinds → acac Midlothian, Midtown Chicago name → hempfieldrec.com)
+— copied as authored.
+
+Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ / typography ✓ / a11y ✓
+on the page (real path + review copy), samples hero-logo / accordion-locations / hero-default / accordion-closed, en/home/workshops,
+en/home/about/faqs, en/home/coach-mentorship, en/home/membership-benefits, en/home.
+
+### 2026-11-26 — per-page themes folded in (user decision 2026-11-26)
+User: themes are only for a page clearly styled OFF from the rest; small per-page drift is not a theme. Decision
+"Fold in + standardise": the `about`, `membership-benefits` and `education-centers` themes are no longer used (theme
+files left unreferenced, to be deleted); `maintenance` (standalone status page), `course-catalog`, `news-listing`,
+`news-search` stay. Removed from scripts.js `THEMES` and the importer's `PAGE_THEMES`; typography.json had no records for
+them. The three pages were re-imported without `Theme` metadata (review copies + real paths, images re-pointed).
+
+**Moved (reusable looks → blocks / template):**
+- `Columns (media, outlined, lead)` — NEW option (columns.css; importer-set when the outlined card's copy is on the
+  source's `text--font-size--24px-16px` preset; membership-benefits only — coaching-workshops' outlined card unchanged):
+  copy 16 → 18 (1024) → 24px (1280); at 1024–1279 the photo keeps its portrait crop (0.689), the card stretches to it;
+  5:6 from 1280. Sample `drafts/block-samples/columns-media-outlined-lead`.
+- `Text Style (bar)` — NEW option (text-style.css; importer `about-profiles`: a white-background container holding one
+  text → `Text Style (bar)` around the h3): white bar, radius 20, 8px padding, 8 / 12px inside the column, Graphik
+  Semibold 24/32 black, −0.03em, centred (about "Executive Leadership" / "USTA Coaching Board Members"). Sample
+  `text-style-bar`.
+- `statement-32` — NEW section style (landing-page.css; importer-set on a section whose intro statement is on the
+  source's 32px-28px text preset): 28 → 32px (1280), line-height 1, −0.03em, paragraphs 1em apart, 10 of 12 columns from
+  1280 (education-center-locations intro; the home statement keeps 32 → 72). Sample `intro-statement-32`.
+- Columns (media) light card + an image crop option (columns.css, generic — only about uses it): the photo keeps the crop
+  at every width and sets the row; from 768 the card stretches to it with its copy at the bottom.
+- Landing template: a heading-less media card (quiz card) shows on phones on landing pages (home, no template, still hides
+  it); an image-only `narrow-6…9` section spans 10 of 12 columns on phones, its own span from 768 (about board photo).
+
+**Dropped (page-only spacing / tweaks — pages follow the shared landing rhythm):** about — hero section top padding,
+the hero card's extra 8 / 12px inset, title USTA Sans black centred on 7 / 10 columns (now the light card's Graphik
+Semibold title, left — standardised; a `display` option would also have changed maintenance-page), every section gap
+(purpose, leadership, bars, members 40px, board photo, partners, contact); membership-benefits — all gaps (heading →
+tiers, tiers → quiz, FAQ heading → accordion, accordion → band 12px), the outlined card's bottom spacing, the packages
+heading's 8 / 12 columns from 768 (now full width below 1280 like the results headings), the phone quiz CTA's 108px;
+education-center-locations — hero → intro / intro → heading / heading → accordion gaps, the locations section's extra
+24px container padding.
+
+**Remaining differences vs the source (standards mode, 375 / 768 / 1024 / 1280 / 1440):**
+- about: hero card 12px wider each side, ±12–24px in height (crop kept); hero title Graphik Semibold left instead of USTA
+  Sans centred (smaller line count: 55 vs 101px @375, 110 vs 203 @1280); the page above the purpose heading 92–156px
+  shorter, and the section gaps below follow the landing rhythm (cumulative −250 … −930px further down).
+- membership-benefits: intro card copy 41px higher (bottom spacing); packages heading full width below 1280 (2 vs 3
+  lines @768, wider @1024); sections below shift −22 … +77px; the Coach Care band 163–235px lower (the shared accordion
+  +10px item rule + the dropped 12px gap); phones: intro card 91px and quiz card 100px shorter (desktop copy, dropped
+  paddings).
+- education-center-locations: intro statement = source (box-for-box) from 1024; locations accordion and cards 24px wider
+  each side (no extra container padding), card heights ±12–23px from the wrap; heading → accordion 14–62px closer.
+
+**Regression:** all 6 landing-importer bundles rebuilt; the 26 other pages are byte-identical to `/tmp/reg/new13-*`
+(outputs `/tmp/reg/new14-l|r|n`); the three pages changed only by losing `Theme` + gaining `lead` / `Text Style (bar)` /
+`statement-32`. Importer backups refreshed (previous manifests under `history`).
+
+**Gate (2026-11-26):** lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · svg ✓ ·
+overflow ✓ / typography ✓ / a11y ✓ on the three pages (real paths), the 3 new samples, en/home, coach-mentorship,
+coaching-community, coaching-workshops, workshops, coachtennis, faqs, maintenance-page, columns-media-outlined sample;
+en/home/courses a11y only the known cards-comparison contrast finding.
+- 2026-11-26: the three folded-in theme folders deleted from the workspace (`themes/about`, `themes/membership-benefits`,
+  `themes/education-centers`; user-approved). Remaining themes: course-catalog, news-listing, news-search, maintenance.
+  Re-checked after the deletion: lint (known backup error only) · breakpoints ✓ · overflow ✓ / a11y ✓ on the three pages.
+
+### 2026-11-26 — about theme restored for full parity — user decision 2026-11-26
+User: the about page is clearly styled off the rest ("lets apply theme and make 100% parity"; screenshots @~1728 of the
+hero title and the OUR LEADERSHIP → Executive Leadership bar). New `themes/about/about.css` (registered in scripts.js
+THEMES, importer PAGE_THEMES `/home/about`, typography.json `templates.about` kind theme: h1 USTA Sans 32/32/40/64).
+The folded-in pieces from earlier today stay (Text Style (bar), the Columns (media) crop rule, the landing rules).
+- **Theme holds** (all `body.about.landing-page main …`):
+  - Hero (Columns (media, portrait-2)): row 24px inside the page gutter (16 on phones); 60 / 60 / 68 / 84px under the header;
+    card padding 12px 16px → 12px (768) → 36px 12px (1280); title = the source 64px-32px USTA Sans text component, centred on
+    7/12 (phones) → 10/12 (768) columns, 32 → 40 (1024) → 64 (1280), line-height 1, long words run past the column (source);
+    copy 16 → 18 → 24 / 1.2, −0.03em; components inset 8 / 12; 54px phone separator, copy at the card bottom from 768.
+  - Section rhythm (source container margins / separators): purpose section top 96 / 96 / 112 / 144 and heading → cards
+    48 / 48 / 64 / 96; leadership top 121 / 60 / 60 / 60, bars 8 / 12px further in (aligned with the cards), heading → bar
+    36 / 36 / 44 / 60, bar → person cards 48 / 56, cards → board bar 48 / 48 / 64 / 96, board bar → first row 36 / 36 / 44 / 60;
+    board photo top 35 / 37 / 56 (1024–1279, see deviations) / 36; partners heading top 60 / 51 / 43, logos 12 / 12 / 20 / 36
+    under it; contact top 24 / 24 / 52 / 68. Heading → block gaps set through the template's `--text-block-gap`.
+  - Partners heading text box = the header page box (8 / 28 / 36 / 52 gutters, 1536 cap) on 8 of 12 centred columns from 768
+    (all 12 on phones) minus the 8 / 12px inset (the template's heading-64 full-width rule doesn't apply here).
+- **Board-row spacing — source cause reproduced as content (Columns (profile) options, columns.css, importer-set in
+  `about-profiles`):** rows are 24px apart (each source row container's 12px + 12px inset; new block rule between consecutive
+  Columns (profile) blocks); extras: `space-16` / `space-32` / `space-48` = the visible 16px separators authored before the row
+  (Jon 48, Neel 16, Alexis 32); `spacing-32` = the row container's top-margin-32 preset (Andrea: 23px on phones, 32px from 768).
+- **Parity** (`migration-work/about/parity.mjs`, 45 anchors × 6 widths 375 / 768 / 1024 / 1280 / 1440 / 1728, standards mode):
+  every anchor (hero card / photo / title / copy, purpose heading + cards, leadership heading, both bars, person cards, the 7
+  board rows' photo / card / name, board photo, partners heading, logos, contact panel + cards) within 0–2px of the source,
+  except the source content quirks below. Screenshots hero + leadership @1728 and @375: identical.
+- **Remaining differences (source content, not reproduced):**
+  1. Andrea Perez's card is 32px taller on the source (13px on phones): her source card carries two extra 16px gaps inside and
+     overflows into Nancy's row by 8px; Nancy's row (and everything after) is still at the source position.
+  2. 1024–1279: Alexis Glick's card is 20px shorter — her source bio ends in an authored `&nbsp;` that wraps to one more line
+     only at that width (the content pipeline drops it); the board photo section takes the 20px so the rest of the page stays
+     on the source positions.
+  3. The source hides two partner logos (MCDAVID, Dermasport) below 1024 — kept visible (looks like an authoring slip; the grid
+     keeps its height, nothing moves). Report to the customer.
+- Importer: `about-profiles` writes the row options; all 6 dependent bundles rebuilt. Regression: the 26 other pages byte-identical
+  to /tmp/reg/new14-* (new outputs /tmp/reg/new15-l / -r / -n); about = Theme metadata + the 4 row options only.
+- Gate: lint (only the known backups/quiz-results-2026-11-18/accordion.js error) · breakpoints ✓ · overflow ✓ / typography ✓ /
+  a11y ✓ on en/home/about, drafts/meet/about, maintenance-page, membership-benefits, education-center-locations, en/home,
+  samples columns-profile / columns-media. Backup refreshed: tools/importer/backups/landing-page/about/ (previous manifests under
+  `history`). Local only — nothing uploaded / previewed / published.
+
+### 2026-11-26 — block sample: Columns (profile) row spacing options
+`drafts/block-samples/columns-profile-spacing` (generated by `import-sample-landing-blocks.js?sample=columns-profile-spacing`
+from about; URL list `tools/importer/urls-sample-columns-profile-spacing.txt`; backup
+`tools/importer/backups/block-sample/columns-profile-spacing/`). The same board row six times back to back: none, none
+(default 24px), `space-16` (40), `space-32` (56), `space-48` (72), `spacing-32` (47 phones / 56 from 768) — the options
+act only between consecutive profile rows, so the explanation sits in the intro, not between the rows.
+- Sample importer: new `rows` mode (the first picked block cloned once per option set, its options replaced); other
+  samples unchanged (text-style-bar re-generated identical). Measured gaps = the CSS at 375 / 768 / 1280.
+- Gate: lint (known backup error only) · overflow ✓ · typography ✓ · a11y ✓ on the sample. Local only.
+
+### 2026-11-26 — Columns (profile): one consistent row gap — spacing options removed (user decision)
+User: "better to keep a consistent spacing across columns profile instead of adding another variant just because of
+irregular spacing". Removed the importer-set row options `space-16` / `space-32` / `space-48` / `spacing-32` (columns.css,
+importer `about-profiles`) and the `drafts/block-samples/columns-profile-spacing` sample (+ its media, URL list, backup and
+the sample importer's `rows` mode, now unused). Consecutive Columns (profile) rows are a consistent **24px** apart (the
+source's base rhythm: each row container's 12px inset above and below).
+- Effect on about (accepted deviation): the source author's extra separators / margin preset before four board rows are
+  not reproduced, so from the first such row down the page sits progressively higher — 123–129px by the partners section
+  (375 / 1440) = the removed 48 + 16 + 32 + 32px. Everything above the board rows unchanged (the about theme stays).
+- Regression: all 6 bundles rebuilt; 26 other pages byte-identical (/tmp/reg/new16-*); about changed only by the four
+  removed option classes. Both about copies re-written, images re-pointed.
+- Gate: lint (known backup error only) · breakpoints ✓ · overflow ✓ / typography ✓ / a11y ✓ on en/home/about,
+  drafts/meet/about, the columns-profile sample. Local only.
+
+### 2026-11-26 — `statement-32` moved from a block sample to a SECTION sample
+`statement-32` is a section style (Section Metadata), so its sample now lives with the other section samples:
+`drafts/section-samples/section-statement-32` (generated by `import-sample-landing-sections.js?sample=statement-32` from
+education-center-locations; URL list `tools/importer/urls-section-sample-statement-32.txt`; backup
+`tools/importer/backups/section-sample/statement-32/`). It shows the real intro twice: as imported (`center,
+statement-32`) and without the style (`center`). The block sample `drafts/block-samples/intro-statement-32` and its entry in
+`import-sample-landing-blocks.js` / `urls-sample-themes-folded.txt` were removed (user-approved deletion).
+- **How it differs from the home statement:** same content model (a fully bold paragraph with lime `<em>` / underlined
+  `<u>` runs → scripts.js `intro-statement`), different size: home (no template) 32 → 40 → 56 → 72px; `statement-32` =
+  the source's 32px-28px preset, 28 → 32px (1280), paragraphs one blank line apart, 10 of 12 columns from 1280. Finding:
+  on a landing-page page an intro statement WITHOUT a size style falls back to the template's 18px body copy (the
+  template's paragraph rule outranks styles.css `.intro-statement p`) — documented in the sample.
+- Section sample importer: new `toggle` mode (with / without one style); sections grouped with `prepareSections` for
+  toggle samples only. `section-inset-n` regenerates identical; `section-narrow-n` regenerates the same as with the HEAD
+  bundle (the stored copy predates `inset-4` — left as is).
+- Gate: lint 0 errors · overflow ✓ / typography ✓ / a11y ✓ on the section sample. Local only.
+
+### 2026-11-26 — `statement-32` is the SIZE only; the width comes from `narrow` (user)
+User: statement-32 should only change the font size — the section width belongs to the narrow logic.
+- `statement-32` (landing-page.css) now sets only the type: 28 → 32px (1280), line-height 1, −0.03em, paragraphs one
+  blank line apart. Its built-in 10/12-column rule is removed.
+- Width: the source intro spans 12 columns on phones / tablets / small desktop and 10 of 12 (offset 1) only at the
+  desktop default → that is exactly the existing plain **`narrow`** section style (the home intro's: 10/12 from 1280), not
+  `narrow-10` (which narrows at every width). The importer adds `narrow` next to `statement-32` when the statement's
+  source span is `default--10` + `offset--default--1` with 12 columns below. education-center-locations: Style
+  `center, statement-32, narrow`.
+- **Fix found on the way:** plain `narrow` never worked on landing-page pages — the template's
+  `.default-content-wrapper > * { margin: 24px 0 0 }` has the same specificity as styles.css's
+  `.section.narrow > div > *` side margins and comes later, so it cancelled them. landing-page.css now restores them
+  (≥1280). Only education-center-locations uses plain `narrow` on a landing page; home (no template) unaffected.
+- Parity (intro text box vs source): identical at 768 / 1024 / 1280 / 1440 (x, width, height, size); 1280 / 1440 now
+  x184 w913 / x187 w1066 = source (the old built-in rule was ~10px narrower each side). 375: same width / wrapping, the
+  source box sits 8px left of centre (its text component starts at x0, past the 8px gutter) — source quirk, ours centred.
+- Regression: 26 other pages byte-identical (/tmp/reg/new17-*); education-center-locations gained only `narrow`. Both
+  copies re-written. Section sample regenerated (`center, statement-32, narrow` vs `center, narrow`), its intro updated.
+- Gate: lint 0 errors · breakpoints ✓ · overflow ✓ / typography ✓ / a11y ✓ on both page copies, the section sample, en/home.
 
 ### 2026-11-26 — Membership Terms and Conditions: design parity (`heading-80`, `legal`)
 Page `en/home/membership-benefits/coaching-membership-terms-and-conditions` (landing-page template). Content was already

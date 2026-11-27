@@ -1,0 +1,178 @@
+/* maintenance theme (page metadata `Theme: maintenance`, CSS only) — the standalone status page
+   /en/maintenance-page (source /en/maintenance-page.html), layered on the landing-page
+   template. Measured on the live source at 375 / 768 / 1024 / 1280 / 1440 (2026-11-25).
+   - The source page has NO site header or footer (a status page): both are hidden here.
+   - Logo (default-content image): 36px from the top (39 on phones), centred, 53 / 43 / 45 /
+     30% of the content box (page gutters 8 / 28 / 36 / 52).
+   - Columns (media): the white card | the photo, 48px under the logo; photo 5:6 at every
+     width, radius 20; phones: photo first, the card 24px under it (padding 24); from
+     768 side by side (24px apart) with the card as tall as the photo, its copy centred
+     vertically. The heading opens with an empty line (source <br>) under a 24px separator. Heading
+     USTA Sans black 20 / 24 / 32 / 42px; heading → copy 44 / 48 / 56 / 66; copy Graphik
+     −0.03em 16/19.2 → 18/21.6 (1024) → 24/28.8 (1280).
+   - Wordmark (default-content image): 60 / 60 / 68 / 84px under the card, 32px (36 from 768)
+     in from the page gutter on both sides; 56px of page below it.
+   Selectors start with `body.maintenance.landing-page` so they outrank the template. */
+
+body.maintenance > header,
+body.maintenance > footer {
+  display: none;
+}
+
+/* (and the room the fixed header bar reserves at the top of the page) */
+body.maintenance.landing-page {
+  padding-top: 0;
+}
+
+body.maintenance.landing-page main > .section {
+  padding: 0;
+}
+
+body.maintenance.landing-page main > .section > .default-content-wrapper {
+  box-sizing: border-box;
+  max-width: 1536px;
+  margin-inline: auto;
+  padding: 0 8px;
+  text-align: center;
+}
+
+body.maintenance.landing-page main > .section > .default-content-wrapper > p {
+  margin: 0;
+  line-height: 0;
+}
+
+body.maintenance.landing-page main > .section > .default-content-wrapper img {
+  display: inline-block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+
+/* logo */
+body.maintenance.landing-page main > .section:first-child { padding-top: 39px; }
+
+body.maintenance.landing-page main > .section:first-child > .default-content-wrapper > p {
+  width: 53.2%;
+  margin-inline: auto;
+}
+
+/* card | photo */
+body.maintenance.landing-page main > .section.columns-container { padding-top: 49px; }
+
+body.maintenance.landing-page main .columns.media .columns-media-media { order: 0; }
+
+body.maintenance.landing-page main .columns.media .columns-media-media img {
+  height: auto;
+  aspect-ratio: 5 / 6;
+  object-fit: cover;
+}
+
+body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content {
+  order: 1;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* the source heading opens with a <br> (one empty heading line) under a 24px separator */
+body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content :is(h1, h2, h3) {
+  width: auto; /* the home card's heading runs on 10 of 12 columns from 768; this one spans the card */
+  max-width: none;
+  margin: calc(1em + 24px) 0 44px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  color: #000;
+}
+
+body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content p,
+body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content p:last-child {
+  margin: 0;
+  padding: 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  line-height: 19.2px;
+  letter-spacing: -0.03em;
+  color: #000;
+}
+
+/* wordmark */
+body.maintenance.landing-page main > .section.columns-container + .section { padding: 60px 0 56px; }
+
+body.maintenance.landing-page main > .section.columns-container + .section > .default-content-wrapper { padding-inline: 40px; }
+
+@media (width >= 768px) {
+  body.maintenance.landing-page main > .section:first-child { padding-top: 36px; }
+
+  body.maintenance.landing-page main > .section > .default-content-wrapper { padding-inline: 28px; }
+
+  body.maintenance.landing-page main > .section:first-child > .default-content-wrapper > p { width: 43.3%; }
+
+  body.maintenance.landing-page main > .section.columns-container { padding-top: 48px; }
+
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content {
+    order: 0;
+    padding-block: 0;
+  }
+
+  /* the photo cell sets the row: 5:6, the photo fills it (the card stretches to it) */
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-media {
+    order: 1;
+    aspect-ratio: 5 / 6;
+  }
+
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-media img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content :is(h1, h2, h3) {
+    margin-bottom: 48px;
+    font-size: 24px;
+  }
+
+  body.maintenance.landing-page main > .section.columns-container + .section > .default-content-wrapper { padding-inline: 64px; }
+}
+
+@media (width >= 1024px) {
+  body.maintenance.landing-page main > .section > .default-content-wrapper { padding-inline: 36px; }
+
+  body.maintenance.landing-page main > .section:first-child > .default-content-wrapper > p { width: 45%; }
+
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content :is(h1, h2, h3) {
+    margin-bottom: 56px;
+    font-size: 32px;
+  }
+
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content p,
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content p:last-child {
+    font-size: 18px;
+    line-height: 21.6px;
+  }
+
+  body.maintenance.landing-page main > .section.columns-container + .section { padding-top: 68px; }
+
+  body.maintenance.landing-page main > .section.columns-container + .section > .default-content-wrapper { padding-inline: 72px; }
+}
+
+@media (width >= 1280px) {
+  body.maintenance.landing-page main > .section > .default-content-wrapper { padding-inline: 52px; }
+
+  body.maintenance.landing-page main > .section:first-child > .default-content-wrapper > p { width: 30%; }
+
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content :is(h1, h2, h3) {
+    margin-bottom: 66px;
+    font-size: 42px;
+  }
+
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content p,
+  body.maintenance.landing-page main .columns.media:not(.dark) .columns-media-content p:last-child {
+    font-size: 24px;
+    line-height: 28.8px;
+  }
+
+  body.maintenance.landing-page main > .section.columns-container + .section { padding-top: 84px; }
+
+  body.maintenance.landing-page main > .section.columns-container + .section > .default-content-wrapper { padding-inline: 88px; }
+}

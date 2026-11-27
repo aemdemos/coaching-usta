@@ -1,0 +1,19 @@
+{
+  "page": "workshops",
+  "locales": ["en"],
+  "date": "2026-11-25",
+  "source": "https://www.ustacoaching.com/en/home/workshops.html",
+  "output": "content/drafts/meet/workshops.plain.html (review copy; en/home/workshops not created yet)",
+  "importer": "import-landing-page-v1.js — new kinds hero-default, image-phone-only, cards-course; markPhoneOnlyImages keeps phone-only images without a desktop twin (inside a background hero panel, or alone in their container); a hero panel keeps its centred heading (no narrow-heading split)",
+  "sha256": {
+    "import-landing-page-v1.js": "d0ad3bafea5e594439facf12a5c0fa15d7292f4053d3f9042ea8d3a01a39b711",
+    "import-landing-page-v1.bundle.js": "8d4fdedbe8f7a641b54ba3554362ae24ca51ae73694e73970ea8068361d5da7d",
+    "output content/drafts/meet/workshops.plain.html": "f1744b1db0fc37142cd6d2687ce05072d1e91be88ab51b4d4ff2147fc71b6964"
+  },
+  "bundle": "npx esbuild tools/importer/import-landing-page-v1.js --bundle --format=iife --global-name=CustomImportScript --banner:js=\"/* eslint-disable */\" --outfile=tools/importer/import-landing-page-v1.bundle.js (and rebuild import-quiz-results-v1, import-news-listing-v1, import-sample-landing-blocks, import-sample-landing-sections, import-sample-results-blocks)",
+  "run": "run-bulk-import.js (excat-content-import skill) --import-script tools/importer/import-landing-page-v1.bundle.js --urls tools/importer/urls-workshops.txt --force with WORKSPACE_PATH set to a scratch folder; copy to content/drafts/meet/workshops.plain.html",
+  "finalize": "node tools/assets/fetch-page-images.mjs drafts/meet/workshops (9 images)",
+  "blocks": "Tabs (navigation) · Hero (default: photo | title + CTA, phone logo) · Image (mobile row only — phone-only infographic) · h3 intro (center; user decision: keep a heading) · Cards (course) ×6",
+  "regression": "22 pages (14 landing incl. coachtennis, 6 results, news + search results) re-imported — byte-identical to their previous outputs",
+  "verified": "migration-work/workshops/compare.mjs (standards mode) @375/768/1024/1280/1440: hero panel / CTA / phone logo, phone infographic (x/y/w/h @375), course cards x / width / image / title / description / pill label = source; accepted: intro is an h3 (user) — smaller and full width, so the cards start 50–214px higher; 768 card 2 label 24px higher (source tablet copy has an extra blank line); cards 5px shorter from 1280; phone sub-nav strip not pre-scrolled to the active tab"
+}

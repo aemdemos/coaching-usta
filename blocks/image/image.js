@@ -7,7 +7,9 @@
  *   | mobile  | <phone image> |
  * The block renders ONE <picture>: the desktop image from 768px up, the mobile image
  * below — each device downloads only its own image. Rows without a label are taken in
- * order (first = desktop, second = mobile); a single image is shown at every width.
+ * order (first = desktop, second = mobile); a single image is shown at every width —
+ * except a single row labelled `mobile`: a PHONE-ONLY image (hidden from 768, so it is
+ * never downloaded there; workshops pathway infographic).
  * The alt text comes from the desktop image (else the mobile one).
  */
 import { createOptimizedPicture } from '../../scripts/aem.js';
@@ -51,6 +53,8 @@ export default function decorate(block) {
   const rows = [...block.children];
   let desktop = labelledImage(rows, 'desktop');
   let mobile = labelledImage(rows, 'mobile');
+  // only a `mobile` row (and no other image): shown on phones only (image.css)
+  if (mobile && !desktop && block.querySelectorAll('img').length === 1) block.classList.add('mobile-only');
   if (!desktop && !mobile) [desktop, mobile] = block.querySelectorAll('img');
   if (!desktop) [desktop, mobile] = [mobile, null];
   if (!desktop) return;

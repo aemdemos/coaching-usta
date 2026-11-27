@@ -46,15 +46,14 @@
    blue (#0373F3) rounded "duration" pill (radius 20, 8px padding, 16px black).
    Card is a transparent tile with a 1px white border + 20px radius. Rhythm:
    image→title 30px, title→desc 24px, desc→pill 46px.
-   CONTENT WIDTH (source-measured): full-width w/ 16/40/48 gutters through 1024,
-   then a NARROW centered column at >=1280 — 75% of viewport, capped ~1173px
-   (measured: 1024→928 @48px gutter, 1280→960 =75%, 1440→~1080, 1920→1173 cap).
-   This is narrower than the 1536/64px container the other variants use. */
+   CONTENT WIDTH (re-measured on the live workshops page 2026-11-25): the header's page box
+   (gutters 8 / 28 / 36 / 52, 1536 cap) — all 12 columns below 1280, then 10 of 12 columns
+   (offset 1) from 1280; the cards sit 8px (12px from 768) inside it, 24px apart. */
 .cards-container:has(.cards.course) {
   box-sizing: border-box;
   max-width: 1536px;
   margin-inline: auto;
-  padding-inline: 16px;
+  padding-inline: 8px;
 }
 
 .cards-container:has(.cards.course) > .cards-wrapper {
@@ -137,17 +136,23 @@
   border-radius: 20px;
   background-color: var(--usta-blue-aa); /* AA-safe blue for white text (see styles.css) */
   color: #fff; /* source: white pill text */
-  font-family: "Graphik Regular", tahoma, arial, sans-serif;
-  font-weight: 700; /* source pill text is bold (<b>) */
+  font-family: "Graphik Regular Synth", tahoma, arial, sans-serif;
+  font-weight: 700; /* source pill text is <b> on a weight-normal face = a synthesized bold */
   font-size: 16px;
   line-height: 19.2px; /* source: 16/19.2 */
   letter-spacing: normal;
   text-align: center;
 }
 
+/* an authored blank line in the copy (source <p>&nbsp;</p>) is one 24px line, no margin */
+.cards.course .cards-course-body p.cards-course-blank {
+  height: 24px;
+  margin: 0;
+}
+
 /* tablet+ : 2-up grid, wider gutters */
 @media (width >= 768px) {
-  .cards-container:has(.cards.course) { padding-inline: 40px; }
+  .cards-container:has(.cards.course) { padding-inline: 28px; }
 
   .cards.course > ul {
     grid-template-columns: repeat(2, 1fr);
@@ -160,16 +165,13 @@
 }
 
 @media (width >= 1024px) {
-  .cards-container:has(.cards.course) { padding-inline: 48px; }
+  .cards-container:has(.cards.course) { padding-inline: 36px; }
 
   .cards.course .cards-course-image img { height: 278px; } /* source @1024 */
 }
 
-/* wide desktop (>=1280): the source narrows to a centered column (not the full
-   64px-gutter container). Its width is NOT a flat %: measured 960@1280 and
-   1093@1440, capping at 1173 (~1536+). Reproduce that exact ramp with a linear
-   calc — 960px at 1280 growing 0.831px per viewport px — clamped to 1173.
-   clamp(960, 960 + (100vw-1280)*0.831, 1173): exact at 1280/1440, caps at 1536. */
+/* wide desktop (>=1280): 10 of the page box's 12 columns, centred (source offset 1) —
+   (min(viewport, 1536) − 2 × 52) × 10 / 12: 980 @1280, 1113 @1440, 1193 from 1536 */
 @media (width >= 1280px) {
   .cards-container:has(.cards.course) {
     max-width: none;
@@ -178,7 +180,7 @@
 
   .cards-container:has(.cards.course) > .cards-wrapper {
     box-sizing: border-box;
-    width: clamp(960px, calc(960px + (100vw - 1280px) * 0.831), 1173px);
+    width: calc((min(100%, 1536px) - 104px) * 10 / 12);
     margin-inline: auto;
   }
 
@@ -2078,7 +2080,7 @@ main > .section.cards-container > .default-content-wrapper {
 @media (width >= 1280px) {
   main > .section.cards-container:has(.cards.course) > .default-content-wrapper {
     box-sizing: border-box;
-    width: clamp(960px, calc(960px + (100vw - 1280px) * 0.831), 1173px);
+    width: calc((min(100%, 1536px) - 104px) * 10 / 12);
     margin-inline: auto;
   }
 }
